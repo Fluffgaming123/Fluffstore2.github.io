@@ -225,7 +225,7 @@
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Save</button>
-                <button id="load-button" class="btn btn-green">Load</button>
+                <button id="load-button" class="btn btn-green">Load File</button>
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
@@ -252,7 +252,6 @@
             <button id="open-taco-fuse-button" class="btn btn-yellow hidden">Taco Fuse</button>
             <button id="open-craft-machine-button" class="btn btn-orange">Craft</button>
             <button id="open-ritual-button" class="btn btn-red">Ritual</button>
-            <button id="open-trader-button" class="btn btn-gray">Trader</button>
         </div>
 
         <main class="flex-grow flex flex-col gap-2 overflow-hidden"> <!-- Reduced gap -->
@@ -290,16 +289,11 @@
                 <button id="jayce-unlock-index" class="btn btn-gray w-full">Unlock Index (Self)</button>
                 <hr class="border-gray-600">
                 <h3 class="text-lg font-bold">Global Events</h3>
-                <div class="flex items-center gap-2">
-                    <select id="jayce-event-select" class="admin-input flex-grow"></select>
-                    <button id="jayce-event-run-self" class="btn btn-green">Run (Self)</button>
-                    <button id="jayce-event-run-global" class="btn btn-blue">Run (Global)</button>
+                <div class="admin-grid-2">
+                    <select id="jayce-event-select" class="admin-input"></select>
+                    <button id="jayce-event-run-global" class="btn btn-blue">Run Global</button>
                 </div>
-                <div class="admin-grid-3">
-                    <button id="jayce-event-taco" class="btn btn-yellow">Taco Time (Global)</button>
-                    <button id="jayce-event-run-all" class="btn btn-green">Run All (Global)</button>
-                    <button id="jayce-event-stop-all" class="btn btn-red">Stop All (Global)</button>
-                </div>
+                <div class="admin-grid-3"><button id="jayce-event-taco" class="btn btn-yellow">Taco Time</button><button id="jayce-event-run-all" class="btn btn-green">Run All</button><button id="jayce-event-stop-all" class="btn btn-red">Stop All</button></div>
                 <button id="jayce-logout-button" class="btn btn-gray w-full">Logout</button>
              </div>
         </div>
@@ -307,7 +301,6 @@
     <div id="ritual-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Rituals</h2><button id="close-ritual-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="ritual-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="craft-machine-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Crafting</h2><button id="close-craft-machine-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="craft-machine-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="fuse-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="fuse-modal-title" class="text-2xl font-bold">Fuse</h2><button id="close-fuse-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="fuse-modal-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
-    <div id="trader-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Trader</h2><button id="close-trader-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div class="bg-gray-800 rounded-lg p-4 space-y-3"><p class="text-xl text-center">Coming Soon...</p></div></div></div>
     
     <!-- Global UI -->
     <div id="global-tooltip" class="hidden fixed bg-black bg-opacity-80 text-white text-xs rounded-md p-2 pointer-events-none z-[9999]"></div>
@@ -363,9 +356,6 @@
         const openTacoFuseButton = document.getElementById('open-taco-fuse-button');
         const openNormalFuseButton = document.getElementById('open-normal-fuse-button');
         const openWitchFuseButton = document.getElementById('open-witch-fuse-button');
-        const openTraderButton = document.getElementById('open-trader-button');
-        const traderModal = document.getElementById('trader-modal');
-        const closeTraderButton = document.getElementById('close-trader-button');
         const globalTooltip = document.getElementById('global-tooltip');
         const notification = document.getElementById('notification');
         const activeEventsList = document.getElementById('active-events-list');
@@ -512,13 +502,10 @@
                 { name: 'To To Sahur', icon: '🥁', cost: 9e9, mps: 52e6 }, { name: 'Nuclearo Dinossauro', icon: '☢️', cost: 10e9, mps: 55e6 },
                 { name: 'Money Money Puggy', icon: '🤑', cost: 11e9, mps: 58e6 }, { name: 'Ketupat Kepat', icon: ' K ', cost: 12e9, mps: 60e6 },
                 { name: 'Tictac Sahur', icon: '⏰', cost: 13e9, mps: 62e6 }, { name: 'Ketchuru and Musturu', icon: '🌭', cost: 14e9, mps: 65e6 },
-                { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 },
-                { name: 'Capitano Moby', icon: '🐳', cost: 17e9, mps: 72e6 }, { name: 'Chicleteirina Bicicleteirina', icon: '🚲', cost: 6.5e9, mps: 40e6 },
-                { name: 'Rang Ring Bus', icon: '🚌', cost: 18e9, mps: 75e6 }, { name: 'Horegini Boom', icon: '💥', cost: 19e9, mps: 78e6 }
+                { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 }
             ],
             'OG': [
                 { name: 'Strawberry Elephant', icon: '🍓🐘', cost: 1e18, mps: 1e15, event: 'Strawberry' }, { name: 'Meowl', icon: '🐱', cost: 2e18, mps: 2e15, event: 'Meowl' },
-                { name: 'Smurf Cat', icon: '🍄', cost: 3e18, mps: 3e15 },
                 { name: 'Tung Tung Sahur', icon: '🎶🥁', cost: 5e18, mps: 5e15, event: 'Tung Tung Attack' }, { name: 'Fluff', icon: '☁️', cost: 1e21, mps: 1e18 }
             ]
         };
@@ -533,7 +520,7 @@
             'Spaghetti Tualetti':    { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
             'Chihuanini Taconini':   { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':        { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
             'Los Tipi Tacos':        { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
-            'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Secret', cost: 16e9, mps: 75e6 }, // BUFFED
+            'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
             'Carloo':                { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':        { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
             'Alessio':               { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':      { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
             'Blackhole Goat':        { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':     { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
@@ -554,10 +541,7 @@
             'Mythic Lucky Block': { icon: '❓', color: rarities['Mythic'].color, weight: 50, lootTable: [{ name: 'Spioniro Golubiro', chance: 37 }, { name: 'Zibra Zubra Zibralini', chance: 30 }, { name: 'Tigrilini Watermelini', chance: 20 }, { name: 'Carrotini Brainini', chance: 10 }, { name: 'Bananito Bandito', chance: 3 }] },
             'Brainrot God Lucky Block': { icon: '✨', color: rarities['Brainrot God'].color, weight: 25, lootTable: [{ name: 'Tigroligre Frutonni', chance: 54 }, { name: 'Orcalero Orcala', chance: 30 }, { name: 'Bulbito Bandito Traktorito', chance: 10 }, { name: 'Mastodontico Telepiedone', chance: 5 }, { name: 'Pop Pop Sahur', chance: 1 }] },
             'Secret Lucky Block': { icon: '🤫', color: rarities['Secret'].color, weight: 10, lootTable: [{ name: 'Torrtuginni Dragonfrutini', chance: 74.5 }, { name: 'Pot Hotspot', chance: 21 }, { name: 'Esok Sekolah', chance: 3 }, { name: 'Spaghetti Tualetti', chance: 1 }, { name: 'La Secret Combinasion', chance: 0.5 }] },
-            'Taco Lucky Block': { icon: '🌮', color: '#ffb347', weight: 5, lootTable: [
-                { name: 'Chihuanini Taconini', chance: 45 }, { name: 'Gattito Tacoto', chance: 30 }, { name: 'Los Tipi Tacos', chance: 10 }, 
-                { name: 'Quesadilla Crocodila', chance: 7 }, { name: 'Los Nooo My Hotspotsitos', chance: 5 }, { name: 'Burrito Bandito', chance: 2.5 }, { name: 'Taco Baby Jayce', chance: 0.5 }
-            ]},
+            'Taco Lucky Block': { icon: '🌮', color: '#ffb347', weight: 5, lootTable: [{ name: 'Chihuanini Taconini', chance: 45 }, { name: 'Gattito Tacoto', chance: 29.5 }, { name: 'Los Tipi Tacos', chance: 10 }, { name: 'Quesadilla Crocodila', chance: 5 }, { name: 'Los Nooo My Hotspotsitos', chance: 3 }, { name: 'Burrito Bandito', chance: 7 }, { name: 'Taco Baby Jayce', chance: 0.5 }] },
             'Admin Lucky Block': { icon: '🤖', color: '#b042f5', weight: 1, lootTable: [{ name: 'Carloo', chance: 29.9 }, { name: 'Los Bombinitos', chance: 30 }, { name: 'Alessio', chance: 20 }, { name: 'Crabbo Limonetta', chance: 10 }, { name: 'Blackhole Goat', chance: 5 }, { name: 'Guerriro Digitale', chance: 3 }, { name: '67', chance: 1 }, { name: 'La Grande Combinasion', chance: 1 }, { name: 'Baby Jayce', chance: 0.1 }] },
             'Los Lucky Block': { icon: '🇲🇽', color: '#006847', weight: 2, lootTable: [{ name: 'Los Bombinitos', chance: 40 }, { name: 'Los Tungtungtungcitos', chance: 25 }, { name: 'Los Orcalitos', chance: 15 }, { name: 'Los Tipi Tacos', chance: 10 }, { name: 'Los Tortus', chance: 5 }, { name: 'Los Jobcitos', chance: 3.5 }, { name: 'Los Combinasionas', chance: 1 }, { name: 'Los 67', chance: 0.5 }] },
             'Secret Halloween Lucky Block': { icon: '🎃', color: '#f97316', weight: 2, lootTable: [{ name: 'Vampira Cappucina', chance: 80 }, { name: 'Zombie Tralala', chance: 50 }, { name: 'Frankentteo', chance: 20 }, { name: 'La Vacca Jacko Linterino', chance: 5 }, { name: 'La Spooky Grande', chance: 1 }] },
@@ -565,17 +549,17 @@
         };
         
         const ritualExclusives = {
-            'Los Matteos': { icon: '👨‍👨‍👦', cost: 100e9, mps: 500e6, rarity: 'Secret' }, 'Los Spyderinis': { icon: '🕸️', cost: 110e9, mps: 550e6, rarity: 'Secret' },
-            'Las Vaquitas Saturnitas': { icon: '🐄🐄', cost: 120e9, mps: 600e6, rarity: 'Secret' }, 'Los Chicleteiras': { icon: '🚲🚲', cost: 130e9, mps: 650e6, rarity: 'Secret' },
-            'Yes my examine': { icon: '👍', cost: 150e9, mps: 700e6, rarity: 'Secret' }, 'No my examine': { icon: '👎', cost: 180e9, mps: 800e6, rarity: 'Secret' },
-            'Los Cocodillitos': { icon: '🐊🐊', cost: 90e9, mps: 450e6, rarity: 'Secret' }, 'Los Orcalitos Ritual': { name: 'Los Orcalitos Ritual', icon: '🐋🐋', cost: 150e9, mps: 750e6, rarity: 'Secret' },
-            '1x1x1x1': { icon: '1️⃣', cost: 200e9, mps: 1e9, rarity: 'Secret' }, 'Guest 666': { icon: 'Guest', cost: 500e9, mps: 2e9, rarity: 'Secret' }
+            'Los Matteos': { icon: '👨‍👨‍👦', cost: 20e9, mps: 110e6, rarity: 'Secret' }, 'Los Spyderinis': { icon: '🕸️', cost: 22e9, mps: 115e6, rarity: 'Secret' },
+            'Las Vaquitas Saturnitas': { icon: '🐄🐄', cost: 25e9, mps: 125e6, rarity: 'Secret' }, 'Los Chicleteiras': { icon: '🚲🚲', cost: 30e9, mps: 150e6, rarity: 'Secret' },
+            'Yes my examine': { icon: '👍', cost: 40e9, mps: 180e6, rarity: 'Secret' }, 'No my examine': { icon: '👎', cost: 50e9, mps: 220e6, rarity: 'Secret' },
+            'Los Cocodillitos': { icon: '🐊🐊', cost: 18e9, mps: 90e6, rarity: 'Secret' }, 'Los Orcalitos (Ritual)': { name: 'Los Orcalitos', icon: '🐋🐋', cost: 30e9, mps: 150e6, rarity: 'Secret' },
+            '1x1x1x1': { icon: '1️⃣', cost: 100e9, mps: 500e6, rarity: 'Secret' }, 'Guest 666': { icon: 'Guest', cost: 200e9, mps: 1e9, rarity: 'Secret' }
         };
         const ritualRecipes = {
             'Los Matteos': { ingredients: { 'Matteo': 3 } }, 'Los Spyderinis': { ingredients: { 'Sammyni Spyderini': 4 } },
             'Las Vaquitas Saturnitas': { ingredients: { 'La Vacca Saturno Saturnita': 4 } }, 'Los Chicleteiras': { ingredients: { 'Chicleteira Bicicleteira': 2 } },
             'Yes my examine': { ingredients: { 'dul dul dul': 4 } }, 'No my examine': { ingredients: { 'dul dul dul': 6 } },
-            'Los Cocodillitos': { ingredients: { 'Bombardiro Crocodilo': 4 } }, 'Los Orcalitos Ritual': { ingredients: { 'Orcalero Orcala': 3 } },
+            'Los Cocodillitos': { ingredients: { 'Bombardiro Crocodilo': 4 } }, 'Los Orcalitos (Ritual)': { ingredients: { 'Orcalero Orcala': 3 } },
             '1x1x1x1': { ingredients: { 'Guerriro Digitale': 4 } }, 'Guest 666': { ingredients: { 'Guerriro Digitale': 10 } }
         };
 
@@ -614,13 +598,13 @@
         };
 
         const craftExclusives = {
-            'Karkerkar Kurkur': { icon: '🐔', cost: 1e12, mps: 5e9, rarity: 'Secret' }, // Buffed
-            'Las Cappuchinas': { icon: '👯‍♀️', cost: 30e9, mps: 1e9, rarity: 'Brainrot God' }, 'Belula Beluga': { icon: '🐋', cost: 35e9, mps: 1.2e9, rarity: 'Brainrot God' }, // Buffed
-            'Fragola La La La': { icon: '🍓', cost: 60e9, mps: 3e9, rarity: 'Secret' }, 'La Karkerkar Combinasion': { icon: '🐔', cost: 2.5e12, mps: 10e9, rarity: 'Secret' }, // Buffed
-            'La Sahur Combinasion': { icon: '🥁', cost: 3e12, mps: 12e9, rarity: 'Secret' }, 'Las Sis': { icon: '👩‍❤️‍👩', cost: 4e12, mps: 15e9, rarity: 'Secret' }, // Buffed
-            'Celularcini Viciosini': { icon: '📱', cost: 10e12, mps: 25e9, rarity: 'Secret' }, 'Los Bros': { icon: '👨‍❤️‍👨', cost: 12e12, mps: 30e9, rarity: 'Secret' }, // Buffed
-            'Tralaledon': { icon: '🎶', cost: 8e12, mps: 20e9, rarity: 'Secret' }, 'Los Tacoritas': { icon: '🌮', cost: 5e12, mps: 18e9, rarity: 'Secret' }, // Buffed
-            'Los Primos': { icon: '👨‍👩‍👦‍👦', cost: 20e12, mps: 50e9, rarity: 'Secret' } // Buffed
+            'Karkerkar Kurkur': { icon: '🐔', cost: 1e12, mps: 500e6, rarity: 'Secret' },
+            'Las Cappuchinas': { icon: '👯‍♀️', cost: 30e9, mps: 140e6, rarity: 'Brainrot God' }, 'Belula Beluga': { icon: '🐋', cost: 35e9, mps: 160e6, rarity: 'Brainrot God' },
+            'Fragola La La La': { icon: '🍓', cost: 60e9, mps: 250e6, rarity: 'Secret' }, 'La Karkerkar Combinasion': { icon: '🐔', cost: 2.5e12, mps: 1.1e9, rarity: 'Secret' },
+            'La Sahur Combinasion': { icon: '🥁', cost: 3e12, mps: 1.3e9, rarity: 'Secret' }, 'Las Sis': { icon: '👩‍❤️‍👩', cost: 4e12, mps: 1.8e9, rarity: 'Secret' },
+            'Celularcini Viciosini': { icon: '📱', cost: 10e12, mps: 5e9, rarity: 'Secret' }, 'Los Bros': { icon: '👨‍❤️‍👨', cost: 12e12, mps: 6e9, rarity: 'Secret' },
+            'Tralaledon': { icon: '🎶', cost: 8e12, mps: 4e9, rarity: 'Secret' }, 'Los Tacoritas': { icon: '🌮', cost: 5e12, mps: 2.2e9, rarity: 'Secret' },
+            'Los Primos': { icon: '👨‍👩‍👦‍👦', cost: 20e12, mps: 10e9, rarity: 'Secret' }
         };
         const craftRecipes = {
             'Las Cappuchinas': { ingredients: { 'Ballerina Cappuccina': 2, 'Tralalita Tralala': 2 } }, 'Belula Beluga': { ingredients: { 'Tralalita Tralala': 2, 'Matteo': 1, 'Alessio': 1 } },
@@ -641,8 +625,20 @@
             /* 13 */ { cost: 100e12, units: ['Trippi Troppi Troppa Trippa'] }, /* 14 */ { cost: 500e12, units: ['Pakrahmatmamat'] },
             /* 15 */ { cost: 1e15, units: ['Los Tralaleritos'] },
         ];
+        
+        // This is now defined globally
+        const allBrainrotData = [];
+        for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => { allBrainrotData.push({ ...b, rarity: rarityName }); }); }
+        for (const brainrotName in luckyBlockExclusives) { allBrainrotData.push({ name: brainrotName, ...luckyBlockExclusives[brainrotName] }); }
+        for (const brainrotName in ritualExclusives) { const data = ritualExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+        for (const brainrotName in craftExclusives) { const data = craftExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+        for (const brainrotName in fuseExclusives) { const data = fuseExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+
         const totalLuckyBlockWeight = Object.values(luckyBlockManifest).reduce((s, b) => s + b.weight, 0);
-        let totalBrainrots = 0; // Will be calculated in init
+        // FIX: Calculate the total unique brainrot count
+        const allBrainrotNames = new Set(allBrainrotData.map(b => b.name));
+        const totalBrainrotsCount = allBrainrotNames.size;
+
         
         // --- Firebase Globals ---
         let app, auth, db;
@@ -658,11 +654,22 @@
         let maxBaseSlots = 10, moneyMultiplier = 1;
         let activeEvents = {}; // For weather/traits
         let tacoEventInterval = null;
-        let allBrainrotData = [];
         
         async function initializeFirebase() {
             try {
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                // FIX: Check for config before parsing
+                const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+                const firebaseConfig = JSON.parse(firebaseConfigStr);
+                
+                // FIX: Check if config is empty
+                if (!firebaseConfig.apiKey) {
+                    console.warn("Firebase config is missing. Game will run in offline mode.");
+                    loadingSpinner.classList.add('hidden');
+                    gameRoot.classList.remove('hidden');
+                    initGameLogic(); // Start game logic without auth
+                    return; // Stop firebase init
+                }
+                
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -673,13 +680,14 @@
                         userId = user.uid;
                         console.log("User signed in:", userId);
                         
+                        // Define user-specific paths
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`;
+                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`; // Correct path
                         eventsCollectionPath = `/artifacts/${appId}/public/data/events`;
                         
-                        await loadGame(); 
-                        initGameLogic(); 
-                        setupGlobalEventListener(); 
+                        await loadGame(); // Load data from Firebase
+                        initGameLogic(); // Start game loops
+                        setupGlobalEventListener(); // Start listening for admin events
                         
                         loadingSpinner.classList.add('hidden');
                         gameRoot.classList.remove('hidden');
@@ -700,14 +708,6 @@
         }
 
         function initGameLogic() {
-            // Build complete brainrot list
-            for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => { allBrainrotData.push({ ...b, rarity: rarityName }); }); }
-            for (const brainrotName in luckyBlockExclusives) { allBrainrotData.push({ name: brainrotName, ...luckyBlockExclusives[brainrotName] }); }
-            for (const brainrotName in ritualExclusives) { const data = ritualExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            for (const brainrotName in craftExclusives) { const data = craftExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            for (const brainrotName in fuseExclusives) { const data = fuseExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            totalBrainrots = new Set(allBrainrotData.map(b => b.name)).size;
-            
             updateDerivedState();
             initBase();
             populateAdminDropdowns();
@@ -719,7 +719,7 @@
         }
 
         function setupGlobalEventListener() {
-            if (globalEventListener) globalEventListener(); 
+            if (globalEventListener || !db) return; // Don't run if no DB or already listening
 
             const loadTime = new Date();
             const q = query(collection(db, eventsCollectionPath), where("timestamp", ">", loadTime));
@@ -759,6 +759,7 @@
                     break;
                 case 'stop_all_events':
                     activeEvents = {};
+                    // Clear traits from base
                     baseSlots.forEach(slot => {
                         if (slot) slot.trait = null;
                     });
@@ -773,6 +774,10 @@
         async function sendGlobalEvent(type, payload) {
             if (!isAdmin) {
                 showNotification("You are not an admin.", "red");
+                return;
+            }
+            if (!db) {
+                showNotification("Not connected to Firebase.", "red");
                 return;
             }
             try {
@@ -861,7 +866,7 @@
         }
 
         function findBrainrotData(name) {
-            if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos Ritual';
+            if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos';
             if (ritualExclusives[name]) { return { name, ...ritualExclusives[name] }; }
             if (craftExclusives[name]) { return { name, ...craftExclusives[name] }; }
             if (fuseExclusives[name]) { return { name, ...fuseExclusives[name] }; }
@@ -974,7 +979,7 @@
             updateIndexCounter(); 
         }
         
-        function updateIndexCounter() { indexCounter.textContent = `(${discoveredBrainrots.size}/${totalBrainrots})`; }
+        function updateIndexCounter() { indexCounter.textContent = `(${discoveredBrainrots.size}/${totalBrainrotsCount})`; }
         
         function updateMoney() { 
             let totalMPS = 0;
@@ -1006,8 +1011,6 @@
         function closeCraftMachineModal() { craftMachineModal.classList.add('hidden'); }
         function openFuseModal(type) { renderFuseModal(type); fuseModal.classList.remove('hidden'); }
         function closeFuseModal() { fuseModal.classList.add('hidden'); }
-        function openTraderModal() { traderModal.classList.remove('hidden'); }
-        function closeTraderModal() { traderModal.classList.add('hidden'); }
 
         function renderIndex() {
             indexGridContainer.innerHTML = '';
@@ -1161,6 +1164,10 @@
         }
         
         async function saveGame() {
+            if (!db || !userId) {
+                showNotification("Cannot save: Not connected to cloud.", "red");
+                return;
+            }
             const saveData = { 
                 money: money, 
                 baseSlots: baseSlots,
@@ -1179,30 +1186,13 @@
             }
         }
         
-        async function loadGame() {
+        async function loadGame() { // This is the FIREBASE loader
+            if (!db || !userId) return; // Don't try to load if no DB
             try {
                 const docSnap = await getDoc(doc(db, userSaveDocPath));
                 if (docSnap.exists()) {
                     const parsedData = docSnap.data();
-                    money = parsedData.money || 100;
-                    rebirths = parsedData.rebirths || 0;
-                    luck = parsedData.luck || 0;
-                    activeEvents = parsedData.activeEvents || {};
-                    
-                    updateDerivedState();
-                    initBase();
-                    
-                    const loadedBase = parsedData.baseSlots || [];
-                    for(let i = 0; i < maxBaseSlots; i++) {
-                        baseSlots[i] = loadedBase[i] || null;
-                    }
-
-                    discoveredBrainrots = new Set(parsedData.discovered || []);
-                    
-                    renderBase();
-                    updateAllUI();
-                    updateActiveEventsUI();
-                    showNotification("Game Loaded from Cloud!", "green");
+                    loadGameData(parsedData, "Cloud"); // Pass source
                 } else {
                     console.log("No saved game found in cloud.");
                     // This is a new player, just continue with defaults
@@ -1210,6 +1200,38 @@
             } catch (error) {
                 console.error("Failed to load save data:", error);
                 showNotification("Load Failed: Could not reach cloud save.", "red");
+            }
+        }
+
+        function loadGameFromFile() {
+            // This function now just triggers the hidden file input
+            loadFileInput.click();
+        }
+
+        function loadGameData(parsedData, source = "File") { // Consolidated load function
+            try {
+                money = parsedData.money || 100;
+                rebirths = parsedData.rebirths || 0;
+                luck = parsedData.luck || 0;
+                activeEvents = parsedData.activeEvents || {};
+                
+                updateDerivedState();
+                initBase();
+                
+                const loadedBase = parsedData.baseSlots || [];
+                for(let i = 0; i < maxBaseSlots; i++) {
+                    baseSlots[i] = loadedBase[i] || null;
+                }
+
+                discoveredBrainrots = new Set(parsedData.discovered || []);
+                
+                renderBase();
+                updateAllUI();
+                updateActiveEventsUI();
+                showNotification(`Game Loaded from ${source}!`, "green");
+            } catch (error) {
+                console.error("Failed to load save data:", error);
+                showNotification(`Load Failed: Invalid ${source} data.`, "red");
             }
         }
 
@@ -1250,13 +1272,6 @@
             spawnMutation.innerHTML = ''; giveMutation.innerHTML = '';
             spawnTrait.innerHTML = ''; giveTrait.innerHTML = '';
             eventSelect.innerHTML = '';
-            
-            const allBrainrotData = [];
-            for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => { allBrainrotData.push({ ...b, rarity: rarityName }); }); }
-            for (const brainrotName in luckyBlockExclusives) { allBrainrotData.push({ name: brainrotName, ...luckyBlockExclusives[brainrotName] }); }
-            for (const brainrotName in ritualExclusives) { const data = ritualExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            for (const brainrotName in craftExclusives) { const data = craftExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            for (const brainrotName in fuseExclusives) { const data = fuseExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
             
             const raritySortOrder = ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Brainrot God', 'Secret', 'OG'];
             allBrainrotData.sort((a, b) => {
@@ -1480,11 +1495,6 @@
         document.getElementById('jayce-event-taco').addEventListener('click', () => sendGlobalEvent('taco_event', {}));
         document.getElementById('jayce-event-run-all').addEventListener('click', () => sendGlobalEvent('all_events', {}));
         document.getElementById('jayce-event-stop-all').addEventListener('click', () => sendGlobalEvent('stop_all_events', {}));
-
-        document.getElementById('jayce-event-run-self').addEventListener('click', () => {
-            const eventName = document.getElementById('jayce-event-select').value;
-            startWeatherEvent(eventName);
-        });
         document.getElementById('jayce-event-run-global').addEventListener('click', () => {
             const eventName = document.getElementById('jayce-event-select').value;
             sendGlobalEvent('event', { name: eventName });
@@ -1494,10 +1504,10 @@
 
         window.onload = initializeFirebase; // Start Firebase on load
         pauseButton.addEventListener('click', togglePause);
-        saveButton.addEventListener('click', saveGame);
+        saveButton.addEventListener('click', saveGame); // Firebase Save
         
-        loadButton.addEventListener('click', () => {
-            showNotification("Loading from file... (Use automatic Cloud Save!)", "cyan");
+        loadButton.addEventListener('click', () => { // File load
+            showNotification("Loading from file...", "cyan");
             loadFileInput.click();
         });
         
@@ -1510,7 +1520,7 @@
                 try {
                     const text = e.target.result;
                     const parsedData = JSON.parse(text);
-                    loadGameData(parsedData); 
+                    loadGameData(parsedData, "File"); // Pass source
                 } catch (error) {
                     console.error("Error reading save file:", error);
                     showNotification("Load Failed: Invalid file format.", "red");
@@ -1577,10 +1587,6 @@
                 performFuse(e.target.dataset.inputRarity, fuseModal.dataset.type);
             }
         });
-        
-        openTraderButton.addEventListener('click', openTraderModal);
-        closeTraderButton.addEventListener('click', closeTraderModal);
-        traderModal.addEventListener('click', (e) => { if (e.target === traderModal) closeTraderModal(); });
 
     </script>
 </body>

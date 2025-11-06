@@ -171,7 +171,7 @@
         .requirement-not-met { color: #f87171; }
         
         /* Admin Panel */
-        .admin-input {
+        .admin-input { /* Keep class name for styling */
             background-color: #4b5563; color: white;
             border: 1px solid #6b7280; border-radius: 6px;
             padding: 4px 8px;
@@ -195,11 +195,30 @@
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s, top 0.3s;
         }
+
+        /* Loading Spinner */
+        #loading-spinner {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 8px solid #4b5563;
+            border-top: 8px solid #3b82f6;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            z-index: 9999;
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen text-sm sm:text-base">
 
-    <div class="game-container w-full max-w-6xl h-[95vh] p-4 rounded-2xl flex flex-col gap-2"> <!-- Reduced padding and gap -->
+    <div id="loading-spinner"></div>
+    <div id="game-root" class="game-container w-full max-w-6xl h-[95vh] p-4 rounded-2xl flex flex-col gap-2 hidden"> <!-- Reduced padding and gap -->
         <!-- Header, Info Bar, Game Area... -->
         <header class="flex flex-wrap justify-between items-center pb-1"> <!-- Reduced padding -->
             <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1> <!-- Smaller title -->
@@ -233,6 +252,7 @@
             <button id="open-taco-fuse-button" class="btn btn-yellow hidden">Taco Fuse</button>
             <button id="open-craft-machine-button" class="btn btn-orange">Craft</button>
             <button id="open-ritual-button" class="btn btn-red">Ritual</button>
+            <button id="open-trader-button" class="btn btn-gray">Trader</button>
         </div>
 
         <main class="flex-grow flex flex-col gap-2 overflow-hidden"> <!-- Reduced gap -->
@@ -253,37 +273,56 @@
     <!-- Modals -->
     <div id="index-modal" class="modal-overlay hidden"><div class="modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Brainrot Index</h2><button id="close-index-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="index-grid-container" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-2"></div></div></div>
     <div id="rebirth-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Rebirth</h2><button id="close-rebirth-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="rebirth-info" class="bg-gray-800 rounded-lg p-4 space-y-3"></div><div class="mt-6 flex flex-col items-center"><p class="text-center text-gray-400 mb-2">Rewards: +1 Base Slot, +2% MPS, +Slight Luck</p><button id="confirm-rebirth-button" class="btn btn-purple text-lg w-full" disabled>Confirm Rebirth</button></div></div></div>
-    <div id="admin-modal" class="modal-overlay hidden">
+    <div id="jayce-modal" class="modal-overlay hidden">
         <div class="modal-content small-modal-content overflow-y-auto">
-             <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Admin Panel</h2><button id="close-admin-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div>
-             <div id="admin-password-screen"><p class="mb-2">Enter Admin Password:</p><input type="password" id="admin-password-input" class="admin-input w-full mb-2"><button id="admin-login-button" class="btn btn-blue w-full">Login</button><p id="admin-error" class="text-red-500 text-sm mt-2"></p></div>
-             <div id="admin-command-screen" class="hidden space-y-4">
-                <div class="flex items-center gap-2"><input type="number" id="admin-money-input" placeholder="Amount of money" class="admin-input flex-grow"><button id="admin-give-money" class="btn btn-green">Give Money</button></div>
-                <div class="admin-grid-2"><select id="admin-spawn-mutation" class="admin-input"></select><select id="admin-spawn-trait" class="admin-input"></select></div>
-                <div class="flex items-center gap-2"><select id="admin-spawn-select" class="admin-input flex-grow"></select><button id="admin-spawn-button" class="btn btn-blue">Spawn</button></div>
-                <div class="admin-grid-2"><select id="admin-give-mutation" class="admin-input"></select><select id="admin-give-trait" class="admin-input"></select></div>
-                <div class="flex items-center gap-2"><select id="admin-give-select" class="admin-input flex-grow"></select><button id="admin-give-button" class="btn btn-blue">Give</button></div>
-                <div class="flex items-center gap-2"><input type="number" id="admin-rebirth-input" placeholder="Rebirth Level" class="admin-input flex-grow"><button id="admin-give-rebirth" class="btn btn-purple">Set Rebirths</button></div>
-                <div class="flex items-center gap-2"><input type="number" id="admin-luck-input" placeholder="Additional Luck" class="admin-input flex-grow"><button id="admin-give-luck" class="btn btn-purple">Add Luck</button></div>
-                <button id="admin-unlock-index" class="btn btn-gray w-full">Unlock Full Index</button>
+             <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Jayce Panel</h2><button id="close-jayce-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div>
+             <div id="jayce-password-screen"><p class="mb-2">Enter Jayce's Password:</p><input type="password" id="jayce-password-input" class="admin-input w-full mb-2"><button id="jayce-login-button" class="btn btn-blue w-full">Login</button><p id="jayce-error" class="text-red-500 text-sm mt-2"></p></div>
+             <div id="jayce-command-screen" class="hidden space-y-4">
+                <div class="flex items-center gap-2"><input id="jayce-chat-input" placeholder="Global Jayce Message" class="admin-input flex-grow"><button id="jayce-send-chat" class="btn btn-blue">Send</button></div>
                 <hr class="border-gray-600">
-                <h3 class="text-lg font-bold">Events</h3>
-                <div class="admin-grid-3"><button id="admin-event-taco" class="btn btn-yellow">Taco Time</button><button id="admin-event-all" class="btn btn-red">Run All</button></div>
-                <div class="admin-grid-3" id="admin-weather-buttons"></div>
+                <div class="flex items-center gap-2"><input type="number" id="jayce-money-input" placeholder="Amount of money" class="admin-input flex-grow"><button id="jayce-give-money" class="btn btn-green">Give (Self)</button></div>
+                <div class="admin-grid-2"><select id="jayce-spawn-mutation" class="admin-input"></select><select id="jayce-spawn-trait" class="admin-input"></select></div>
+                <div class="flex items-center gap-2"><select id="jayce-spawn-select" class="admin-input flex-grow"></select><button id="jayce-spawn-button" class="btn btn-blue">Spawn (Global)</button></div>
+                <div class="admin-grid-2"><select id="jayce-give-mutation" class="admin-input"></select><select id="jayce-give-trait" class="admin-input"></select></div>
+                <div class="flex items-center gap-2"><select id="jayce-give-select" class="admin-input flex-grow"></select><button id="jayce-give-button" class="btn btn-blue">Give (Self)</button></div>
+                <div class="flex items-center gap-2"><input type="number" id="jayce-rebirth-input" placeholder="Rebirth Level" class="admin-input flex-grow"><button id="jayce-give-rebirth" class="btn btn-purple">Set (Self)</button></div>
+                <div class="flex items-center gap-2"><input type="number" id="jayce-luck-input" placeholder="Additional Luck" class="admin-input flex-grow"><button id="jayce-give-luck" class="btn btn-purple">Add (Self)</button></div>
+                <button id="jayce-unlock-index" class="btn btn-gray w-full">Unlock Index (Self)</button>
+                <hr class="border-gray-600">
+                <h3 class="text-lg font-bold">Global Events</h3>
+                <div class="flex items-center gap-2">
+                    <select id="jayce-event-select" class="admin-input flex-grow"></select>
+                    <button id="jayce-event-run-self" class="btn btn-green">Run (Self)</button>
+                    <button id="jayce-event-run-global" class="btn btn-blue">Run (Global)</button>
+                </div>
+                <div class="admin-grid-3">
+                    <button id="jayce-event-taco" class="btn btn-yellow">Taco Time (Global)</button>
+                    <button id="jayce-event-run-all" class="btn btn-green">Run All (Global)</button>
+                    <button id="jayce-event-stop-all" class="btn btn-red">Stop All (Global)</button>
+                </div>
+                <button id="jayce-logout-button" class="btn btn-gray w-full">Logout</button>
              </div>
         </div>
     </div>
     <div id="ritual-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Rituals</h2><button id="close-ritual-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="ritual-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="craft-machine-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Crafting</h2><button id="close-craft-machine-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="craft-machine-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="fuse-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="fuse-modal-title" class="text-2xl font-bold">Fuse</h2><button id="close-fuse-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="fuse-modal-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
+    <div id="trader-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Trader</h2><button id="close-trader-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div class="bg-gray-800 rounded-lg p-4 space-y-3"><p class="text-xl text-center">Coming Soon...</p></div></div></div>
     
     <!-- Global UI -->
     <div id="global-tooltip" class="hidden fixed bg-black bg-opacity-80 text-white text-xs rounded-md p-2 pointer-events-none z-[9999]"></div>
     <div id="notification"></div>
     <input type="file" id="load-file-input" accept=".json" class="hidden">
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, doc, getDoc, setDoc, addDoc, collection, 
+            query, where, onSnapshot, serverTimestamp, setLogLevel 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
         // --- DOM Elements ---
         const moneyDisplay = document.getElementById('money');
         const mpsDisplay = document.getElementById('mps');
@@ -324,18 +363,24 @@
         const openTacoFuseButton = document.getElementById('open-taco-fuse-button');
         const openNormalFuseButton = document.getElementById('open-normal-fuse-button');
         const openWitchFuseButton = document.getElementById('open-witch-fuse-button');
+        const openTraderButton = document.getElementById('open-trader-button');
+        const traderModal = document.getElementById('trader-modal');
+        const closeTraderButton = document.getElementById('close-trader-button');
         const globalTooltip = document.getElementById('global-tooltip');
         const notification = document.getElementById('notification');
         const activeEventsList = document.getElementById('active-events-list');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const gameRoot = document.getElementById('game-root');
 
         // Admin Panel
-        const adminModal = document.getElementById('admin-modal');
-        const closeAdminButton = document.getElementById('close-admin-button');
-        const adminPasswordScreen = document.getElementById('admin-password-screen');
-        const adminCommandScreen = document.getElementById('admin-command-screen');
-        const adminPasswordInput = document.getElementById('admin-password-input');
-        const adminLoginButton = document.getElementById('admin-login-button');
-        const adminError = document.getElementById('admin-error');
+        const jayceModal = document.getElementById('jayce-modal');
+        const closeJayceButton = document.getElementById('close-jayce-button');
+        const jaycePasswordScreen = document.getElementById('jayce-password-screen');
+        const jayceCommandScreen = document.getElementById('jayce-command-screen');
+        const jaycePasswordInput = document.getElementById('jayce-password-input');
+        const jayceLoginButton = document.getElementById('jayce-login-button');
+        const jayceError = document.getElementById('jayce-error');
+        const jayceLogoutButton = document.getElementById('jayce-logout-button');
         
         // --- Game Config ---
         const SELL_MULTIPLIER = 0.5;
@@ -467,10 +512,13 @@
                 { name: 'To To Sahur', icon: '🥁', cost: 9e9, mps: 52e6 }, { name: 'Nuclearo Dinossauro', icon: '☢️', cost: 10e9, mps: 55e6 },
                 { name: 'Money Money Puggy', icon: '🤑', cost: 11e9, mps: 58e6 }, { name: 'Ketupat Kepat', icon: ' K ', cost: 12e9, mps: 60e6 },
                 { name: 'Tictac Sahur', icon: '⏰', cost: 13e9, mps: 62e6 }, { name: 'Ketchuru and Musturu', icon: '🌭', cost: 14e9, mps: 65e6 },
-                { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 }
+                { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 },
+                { name: 'Capitano Moby', icon: '🐳', cost: 17e9, mps: 72e6 }, { name: 'Chicleteirina Bicicleteirina', icon: '🚲', cost: 6.5e9, mps: 40e6 },
+                { name: 'Rang Ring Bus', icon: '🚌', cost: 18e9, mps: 75e6 }, { name: 'Horegini Boom', icon: '💥', cost: 19e9, mps: 78e6 }
             ],
             'OG': [
                 { name: 'Strawberry Elephant', icon: '🍓🐘', cost: 1e18, mps: 1e15, event: 'Strawberry' }, { name: 'Meowl', icon: '🐱', cost: 2e18, mps: 2e15, event: 'Meowl' },
+                { name: 'Smurf Cat', icon: '🍄', cost: 3e18, mps: 3e15 },
                 { name: 'Tung Tung Sahur', icon: '🎶🥁', cost: 5e18, mps: 5e15, event: 'Tung Tung Attack' }, { name: 'Fluff', icon: '☁️', cost: 1e21, mps: 1e18 }
             ]
         };
@@ -485,7 +533,7 @@
             'Spaghetti Tualetti':    { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
             'Chihuanini Taconini':   { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':        { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
             'Los Tipi Tacos':        { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
-            'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
+            'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Secret', cost: 16e9, mps: 75e6 }, // BUFFED
             'Carloo':                { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':        { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
             'Alessio':               { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':      { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
             'Blackhole Goat':        { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':     { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
@@ -506,7 +554,10 @@
             'Mythic Lucky Block': { icon: '❓', color: rarities['Mythic'].color, weight: 50, lootTable: [{ name: 'Spioniro Golubiro', chance: 37 }, { name: 'Zibra Zubra Zibralini', chance: 30 }, { name: 'Tigrilini Watermelini', chance: 20 }, { name: 'Carrotini Brainini', chance: 10 }, { name: 'Bananito Bandito', chance: 3 }] },
             'Brainrot God Lucky Block': { icon: '✨', color: rarities['Brainrot God'].color, weight: 25, lootTable: [{ name: 'Tigroligre Frutonni', chance: 54 }, { name: 'Orcalero Orcala', chance: 30 }, { name: 'Bulbito Bandito Traktorito', chance: 10 }, { name: 'Mastodontico Telepiedone', chance: 5 }, { name: 'Pop Pop Sahur', chance: 1 }] },
             'Secret Lucky Block': { icon: '🤫', color: rarities['Secret'].color, weight: 10, lootTable: [{ name: 'Torrtuginni Dragonfrutini', chance: 74.5 }, { name: 'Pot Hotspot', chance: 21 }, { name: 'Esok Sekolah', chance: 3 }, { name: 'Spaghetti Tualetti', chance: 1 }, { name: 'La Secret Combinasion', chance: 0.5 }] },
-            'Taco Lucky Block': { icon: '🌮', color: '#ffb347', weight: 5, lootTable: [{ name: 'Chihuanini Taconini', chance: 45 }, { name: 'Gattito Tacoto', chance: 29.5 }, { name: 'Los Tipi Tacos', chance: 10 }, { name: 'Quesadilla Crocodila', chance: 5 }, { name: 'Los Nooo My Hotspotsitos', chance: 3 }, { name: 'Burrito Bandito', chance: 7 }, { name: 'Taco Baby Jayce', chance: 0.5 }] },
+            'Taco Lucky Block': { icon: '🌮', color: '#ffb347', weight: 5, lootTable: [
+                { name: 'Chihuanini Taconini', chance: 45 }, { name: 'Gattito Tacoto', chance: 30 }, { name: 'Los Tipi Tacos', chance: 10 }, 
+                { name: 'Quesadilla Crocodila', chance: 7 }, { name: 'Los Nooo My Hotspotsitos', chance: 5 }, { name: 'Burrito Bandito', chance: 2.5 }, { name: 'Taco Baby Jayce', chance: 0.5 }
+            ]},
             'Admin Lucky Block': { icon: '🤖', color: '#b042f5', weight: 1, lootTable: [{ name: 'Carloo', chance: 29.9 }, { name: 'Los Bombinitos', chance: 30 }, { name: 'Alessio', chance: 20 }, { name: 'Crabbo Limonetta', chance: 10 }, { name: 'Blackhole Goat', chance: 5 }, { name: 'Guerriro Digitale', chance: 3 }, { name: '67', chance: 1 }, { name: 'La Grande Combinasion', chance: 1 }, { name: 'Baby Jayce', chance: 0.1 }] },
             'Los Lucky Block': { icon: '🇲🇽', color: '#006847', weight: 2, lootTable: [{ name: 'Los Bombinitos', chance: 40 }, { name: 'Los Tungtungtungcitos', chance: 25 }, { name: 'Los Orcalitos', chance: 15 }, { name: 'Los Tipi Tacos', chance: 10 }, { name: 'Los Tortus', chance: 5 }, { name: 'Los Jobcitos', chance: 3.5 }, { name: 'Los Combinasionas', chance: 1 }, { name: 'Los 67', chance: 0.5 }] },
             'Secret Halloween Lucky Block': { icon: '🎃', color: '#f97316', weight: 2, lootTable: [{ name: 'Vampira Cappucina', chance: 80 }, { name: 'Zombie Tralala', chance: 50 }, { name: 'Frankentteo', chance: 20 }, { name: 'La Vacca Jacko Linterino', chance: 5 }, { name: 'La Spooky Grande', chance: 1 }] },
@@ -514,17 +565,17 @@
         };
         
         const ritualExclusives = {
-            'Los Matteos': { icon: '👨‍👨‍👦', cost: 20e9, mps: 110e6, rarity: 'Secret' }, 'Los Spyderinis': { icon: '🕸️', cost: 22e9, mps: 115e6, rarity: 'Secret' },
-            'Las Vaquitas Saturnitas': { icon: '🐄🐄', cost: 25e9, mps: 125e6, rarity: 'Secret' }, 'Los Chicleteiras': { icon: '🚲🚲', cost: 30e9, mps: 150e6, rarity: 'Secret' },
-            'Yes my examine': { icon: '👍', cost: 40e9, mps: 180e6, rarity: 'Secret' }, 'No my examine': { icon: '👎', cost: 50e9, mps: 220e6, rarity: 'Secret' },
-            'Los Cocodillitos': { icon: '🐊🐊', cost: 18e9, mps: 90e6, rarity: 'Secret' }, 'Los Orcalitos (Ritual)': { name: 'Los Orcalitos', icon: '🐋🐋', cost: 30e9, mps: 150e6, rarity: 'Secret' },
-            '1x1x1x1': { icon: '1️⃣', cost: 100e9, mps: 500e6, rarity: 'Secret' }, 'Guest 666': { icon: 'Guest', cost: 200e9, mps: 1e9, rarity: 'Secret' }
+            'Los Matteos': { icon: '👨‍👨‍👦', cost: 100e9, mps: 500e6, rarity: 'Secret' }, 'Los Spyderinis': { icon: '🕸️', cost: 110e9, mps: 550e6, rarity: 'Secret' },
+            'Las Vaquitas Saturnitas': { icon: '🐄🐄', cost: 120e9, mps: 600e6, rarity: 'Secret' }, 'Los Chicleteiras': { icon: '🚲🚲', cost: 130e9, mps: 650e6, rarity: 'Secret' },
+            'Yes my examine': { icon: '👍', cost: 150e9, mps: 700e6, rarity: 'Secret' }, 'No my examine': { icon: '👎', cost: 180e9, mps: 800e6, rarity: 'Secret' },
+            'Los Cocodillitos': { icon: '🐊🐊', cost: 90e9, mps: 450e6, rarity: 'Secret' }, 'Los Orcalitos Ritual': { name: 'Los Orcalitos Ritual', icon: '🐋🐋', cost: 150e9, mps: 750e6, rarity: 'Secret' },
+            '1x1x1x1': { icon: '1️⃣', cost: 200e9, mps: 1e9, rarity: 'Secret' }, 'Guest 666': { icon: 'Guest', cost: 500e9, mps: 2e9, rarity: 'Secret' }
         };
         const ritualRecipes = {
             'Los Matteos': { ingredients: { 'Matteo': 3 } }, 'Los Spyderinis': { ingredients: { 'Sammyni Spyderini': 4 } },
             'Las Vaquitas Saturnitas': { ingredients: { 'La Vacca Saturno Saturnita': 4 } }, 'Los Chicleteiras': { ingredients: { 'Chicleteira Bicicleteira': 2 } },
             'Yes my examine': { ingredients: { 'dul dul dul': 4 } }, 'No my examine': { ingredients: { 'dul dul dul': 6 } },
-            'Los Cocodillitos': { ingredients: { 'Bombardiro Crocodilo': 4 } }, 'Los Orcalitos (Ritual)': { ingredients: { 'Orcalero Orcala': 3 } },
+            'Los Cocodillitos': { ingredients: { 'Bombardiro Crocodilo': 4 } }, 'Los Orcalitos Ritual': { ingredients: { 'Orcalero Orcala': 3 } },
             '1x1x1x1': { ingredients: { 'Guerriro Digitale': 4 } }, 'Guest 666': { ingredients: { 'Guerriro Digitale': 10 } }
         };
 
@@ -563,13 +614,13 @@
         };
 
         const craftExclusives = {
-            'Karkerkar Kurkur': { icon: '🐔', cost: 1e12, mps: 500e6, rarity: 'Secret' },
-            'Las Cappuchinas': { icon: '👯‍♀️', cost: 30e9, mps: 140e6, rarity: 'Brainrot God' }, 'Belula Beluga': { icon: '🐋', cost: 35e9, mps: 160e6, rarity: 'Brainrot God' },
-            'Fragola La La La': { icon: '🍓', cost: 60e9, mps: 250e6, rarity: 'Secret' }, 'La Karkerkar Combinasion': { icon: '🐔', cost: 2.5e12, mps: 1.1e9, rarity: 'Secret' },
-            'La Sahur Combinasion': { icon: '🥁', cost: 3e12, mps: 1.3e9, rarity: 'Secret' }, 'Las Sis': { icon: '👩‍❤️‍👩', cost: 4e12, mps: 1.8e9, rarity: 'Secret' },
-            'Celularcini Viciosini': { icon: '📱', cost: 10e12, mps: 5e9, rarity: 'Secret' }, 'Los Bros': { icon: '👨‍❤️‍👨', cost: 12e12, mps: 6e9, rarity: 'Secret' },
-            'Tralaledon': { icon: '🎶', cost: 8e12, mps: 4e9, rarity: 'Secret' }, 'Los Tacoritas': { icon: '🌮', cost: 5e12, mps: 2.2e9, rarity: 'Secret' },
-            'Los Primos': { icon: '👨‍👩‍👦‍👦', cost: 20e12, mps: 10e9, rarity: 'Secret' }
+            'Karkerkar Kurkur': { icon: '🐔', cost: 1e12, mps: 5e9, rarity: 'Secret' }, // Buffed
+            'Las Cappuchinas': { icon: '👯‍♀️', cost: 30e9, mps: 1e9, rarity: 'Brainrot God' }, 'Belula Beluga': { icon: '🐋', cost: 35e9, mps: 1.2e9, rarity: 'Brainrot God' }, // Buffed
+            'Fragola La La La': { icon: '🍓', cost: 60e9, mps: 3e9, rarity: 'Secret' }, 'La Karkerkar Combinasion': { icon: '🐔', cost: 2.5e12, mps: 10e9, rarity: 'Secret' }, // Buffed
+            'La Sahur Combinasion': { icon: '🥁', cost: 3e12, mps: 12e9, rarity: 'Secret' }, 'Las Sis': { icon: '👩‍❤️‍👩', cost: 4e12, mps: 15e9, rarity: 'Secret' }, // Buffed
+            'Celularcini Viciosini': { icon: '📱', cost: 10e12, mps: 25e9, rarity: 'Secret' }, 'Los Bros': { icon: '👨‍❤️‍👨', cost: 12e12, mps: 30e9, rarity: 'Secret' }, // Buffed
+            'Tralaledon': { icon: '🎶', cost: 8e12, mps: 20e9, rarity: 'Secret' }, 'Los Tacoritas': { icon: '🌮', cost: 5e12, mps: 18e9, rarity: 'Secret' }, // Buffed
+            'Los Primos': { icon: '👨‍👩‍👦‍👦', cost: 20e12, mps: 50e9, rarity: 'Secret' } // Buffed
         };
         const craftRecipes = {
             'Las Cappuchinas': { ingredients: { 'Ballerina Cappuccina': 2, 'Tralalita Tralala': 2 } }, 'Belula Beluga': { ingredients: { 'Tralalita Tralala': 2, 'Matteo': 1, 'Alessio': 1 } },
@@ -591,16 +642,72 @@
             /* 15 */ { cost: 1e15, units: ['Los Tralaleritos'] },
         ];
         const totalLuckyBlockWeight = Object.values(luckyBlockManifest).reduce((s, b) => s + b.weight, 0);
-        const totalBrainrots = Object.values(brainrotManifest).flat().length + Object.keys(luckyBlockExclusives).length + Object.keys(ritualExclusives).length + Object.keys(fuseExclusives).length + Object.keys(craftExclusives).length;
+        let totalBrainrots = 0; // Will be calculated in init
         
+        // --- Firebase Globals ---
+        let app, auth, db;
+        let userId;
+        let eventsCollectionPath, userSaveDocPath;
+        let globalEventListener = null;
+        let isAdmin = false;
+
+        // --- Game State ---
         let money = 100, baseSlots = [], beltItems = [], discoveredBrainrots = new Set(), rebirths = 0, luck = 0;
         let timeUntilLegendary = 60, timeUntilMythic = 300, timeUntilBrainrotGod = 1800;
         let gameInterval, timerInterval, isPaused = false, isSellMode = false;
         let maxBaseSlots = 10, moneyMultiplier = 1;
         let activeEvents = {}; // For weather/traits
         let tacoEventInterval = null;
+        let allBrainrotData = [];
         
-        function initGame() {
+        async function initializeFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setLogLevel('Debug');
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User signed in:", userId);
+                        
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`;
+                        eventsCollectionPath = `/artifacts/${appId}/public/data/events`;
+                        
+                        await loadGame(); 
+                        initGameLogic(); 
+                        setupGlobalEventListener(); 
+                        
+                        loadingSpinner.classList.add('hidden');
+                        gameRoot.classList.remove('hidden');
+
+                    } else {
+                        console.log("No user found, signing in...");
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Init Error:", error);
+                loadingSpinner.textContent = "Error loading game.";
+            }
+        }
+
+        function initGameLogic() {
+            // Build complete brainrot list
+            for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => { allBrainrotData.push({ ...b, rarity: rarityName }); }); }
+            for (const brainrotName in luckyBlockExclusives) { allBrainrotData.push({ name: brainrotName, ...luckyBlockExclusives[brainrotName] }); }
+            for (const brainrotName in ritualExclusives) { const data = ritualExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+            for (const brainrotName in craftExclusives) { const data = craftExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+            for (const brainrotName in fuseExclusives) { const data = fuseExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+            totalBrainrots = new Set(allBrainrotData.map(b => b.name)).size;
+            
             updateDerivedState();
             initBase();
             populateAdminDropdowns();
@@ -609,6 +716,75 @@
             setTimeout(spawnBrainrotOnBelt, 1000);
             checkTacoTuesday();
             updateAllUI();
+        }
+
+        function setupGlobalEventListener() {
+            if (globalEventListener) globalEventListener(); 
+
+            const loadTime = new Date();
+            const q = query(collection(db, eventsCollectionPath), where("timestamp", ">", loadTime));
+
+            globalEventListener = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        const event = change.doc.data();
+                        console.log("Global Event Received:", event);
+                        handleGlobalEvent(event);
+                    }
+                });
+            }, (error) => {
+                console.error("Error listening to global events:", error);
+            });
+        }
+
+        function handleGlobalEvent(event) {
+            switch(event.type) {
+                case 'chat':
+                    showNotification(`JAYCE: ${event.message}`, 'white');
+                    break;
+                case 'spawn':
+                    spawnBrainrotByName(event.name, event.mutation, event.trait);
+                    break;
+                case 'spawn_lucky_block':
+                    spawnLuckyBlockOnBelt(event.name);
+                    break;
+                case 'event':
+                    startWeatherEvent(event.name);
+                    break;
+                case 'taco_event':
+                    startTacoEvent();
+                    break;
+                case 'all_events':
+                     for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
+                    break;
+                case 'stop_all_events':
+                    activeEvents = {};
+                    baseSlots.forEach(slot => {
+                        if (slot) slot.trait = null;
+                    });
+                    renderBase();
+                    updateAllUI();
+                    updateActiveEventsUI();
+                    showNotification("All events have been stopped.", "gray");
+                    break;
+            }
+        }
+
+        async function sendGlobalEvent(type, payload) {
+            if (!isAdmin) {
+                showNotification("You are not an admin.", "red");
+                return;
+            }
+            try {
+                await addDoc(collection(db, eventsCollectionPath), {
+                    ...payload,
+                    type: type,
+                    timestamp: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error sending global event:", error);
+                showNotification("Failed to send command.", "red");
+            }
         }
 
         function gameLoop() { if (!isPaused) { updateMoney(); updateBeltItems(); } }
@@ -685,7 +861,7 @@
         }
 
         function findBrainrotData(name) {
-            if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos';
+            if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos Ritual';
             if (ritualExclusives[name]) { return { name, ...ritualExclusives[name] }; }
             if (craftExclusives[name]) { return { name, ...craftExclusives[name] }; }
             if (fuseExclusives[name]) { return { name, ...fuseExclusives[name] }; }
@@ -830,16 +1006,11 @@
         function closeCraftMachineModal() { craftMachineModal.classList.add('hidden'); }
         function openFuseModal(type) { renderFuseModal(type); fuseModal.classList.remove('hidden'); }
         function closeFuseModal() { fuseModal.classList.add('hidden'); }
+        function openTraderModal() { traderModal.classList.remove('hidden'); }
+        function closeTraderModal() { traderModal.classList.add('hidden'); }
 
         function renderIndex() {
             indexGridContainer.innerHTML = '';
-            const allBrainrotData = [];
-            for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => { allBrainrotData.push({ ...b, rarity: rarityName }); }); }
-            for (const brainrotName in luckyBlockExclusives) { allBrainrotData.push({ name: brainrotName, ...luckyBlockExclusives[brainrotName] }); }
-            for (const brainrotName in ritualExclusives) { const data = ritualExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            for (const brainrotName in craftExclusives) { const data = craftExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-            for (const brainrotName in fuseExclusives) { const data = fuseExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
-
             const categorizedBrainrots = {};
             allBrainrotData.forEach(brainrot => { if (!categorizedBrainrots[brainrot.rarity]) { categorizedBrainrots[brainrot.rarity] = []; } if (!categorizedBrainrots[brainrot.rarity].some(b => b.name === brainrot.name)) { categorizedBrainrots[brainrot.rarity].push(brainrot); } });
             const displayOrder = ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Brainrot God', 'Secret', 'OG'];
@@ -989,7 +1160,7 @@
             renderBase(); updateAllUI(); renderFuseModal(type);
         }
         
-        function saveGame() {
+        async function saveGame() {
             const saveData = { 
                 money: money, 
                 baseSlots: baseSlots,
@@ -1000,74 +1171,86 @@
             };
             
             try {
-                const dataStr = JSON.stringify(saveData);
-                const blob = new Blob([dataStr], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `brainrot-save-${Date.now()}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showNotification("Game Saved!", "green");
+                await setDoc(doc(db, userSaveDocPath), saveData);
+                showNotification("Game Saved to Cloud!", "green");
             } catch (error) {
                 console.error("Failed to save game:", error);
                 showNotification("Save Failed!", "red");
             }
         }
         
-        function loadGame() {
-            loadFileInput.click();
-        }
-
-        function loadGameData(parsedData) {
+        async function loadGame() {
             try {
-                money = parsedData.money || 100;
-                rebirths = parsedData.rebirths || 0;
-                luck = parsedData.luck || 0;
-                activeEvents = parsedData.activeEvents || {};
-                
-                updateDerivedState();
-                initBase();
-                
-                const loadedBase = parsedData.baseSlots || [];
-                for(let i = 0; i < maxBaseSlots; i++) {
-                    baseSlots[i] = loadedBase[i] || null;
-                }
+                const docSnap = await getDoc(doc(db, userSaveDocPath));
+                if (docSnap.exists()) {
+                    const parsedData = docSnap.data();
+                    money = parsedData.money || 100;
+                    rebirths = parsedData.rebirths || 0;
+                    luck = parsedData.luck || 0;
+                    activeEvents = parsedData.activeEvents || {};
+                    
+                    updateDerivedState();
+                    initBase();
+                    
+                    const loadedBase = parsedData.baseSlots || [];
+                    for(let i = 0; i < maxBaseSlots; i++) {
+                        baseSlots[i] = loadedBase[i] || null;
+                    }
 
-                discoveredBrainrots = new Set(parsedData.discovered || []);
-                
-                renderBase();
-                updateAllUI();
-                updateActiveEventsUI();
-                showNotification("Game Loaded!", "green");
+                    discoveredBrainrots = new Set(parsedData.discovered || []);
+                    
+                    renderBase();
+                    updateAllUI();
+                    updateActiveEventsUI();
+                    showNotification("Game Loaded from Cloud!", "green");
+                } else {
+                    console.log("No saved game found in cloud.");
+                    // This is a new player, just continue with defaults
+                }
             } catch (error) {
                 console.error("Failed to load save data:", error);
-                showNotification("Load Failed: Invalid save file.", "red");
+                showNotification("Load Failed: Could not reach cloud save.", "red");
             }
         }
 
-        function openAdminModal() { adminModal.classList.remove('hidden'); }
-        function closeAdminModal() { adminModal.classList.add('hidden'); }
-        function adminLogin() { if (adminPasswordInput.value === "BayHarbourButcher") { adminPasswordScreen.classList.add('hidden'); adminCommandScreen.classList.remove('hidden'); adminError.textContent = ''; } else { adminError.textContent = 'Incorrect Password.'; } adminPasswordInput.value = ''; }
+        function openJayceModal() { jayceModal.classList.remove('hidden'); }
+        function closeJayceModal() { jayceModal.classList.add('hidden'); }
+        function jayceLogin() { 
+            if (jaycePasswordInput.value === "BayHarbourButcher") { 
+                isAdmin = true;
+                jaycePasswordScreen.classList.add('hidden'); 
+                jayceCommandScreen.classList.remove('hidden'); 
+                jayceError.textContent = ''; 
+                showNotification("Jayce Mode Activated", "cyan");
+            } else { 
+                isAdmin = false;
+                jayceError.textContent = 'Incorrect Password.'; 
+            } 
+            jaycePasswordInput.value = ''; 
+        }
+
+        function jayceLogout() {
+            isAdmin = false;
+            jaycePasswordScreen.classList.remove('hidden');
+            jayceCommandScreen.classList.add('hidden');
+            closeJayceModal();
+            showNotification("Jayce Mode Deactivated", "gray");
+        }
         
         function populateAdminDropdowns() {
-            const spawnSelect = document.getElementById('admin-spawn-select');
-            const giveSelect = document.getElementById('admin-give-select');
-            const spawnMutation = document.getElementById('admin-spawn-mutation');
-            const giveMutation = document.getElementById('admin-give-mutation');
-            const spawnTrait = document.getElementById('admin-spawn-trait');
-            const giveTrait = document.getElementById('admin-give-trait');
-            const weatherButtons = document.getElementById('admin-weather-buttons');
-
+            const spawnSelect = document.getElementById('jayce-spawn-select');
+            const giveSelect = document.getElementById('jayce-give-select');
+            const spawnMutation = document.getElementById('jayce-spawn-mutation');
+            const giveMutation = document.getElementById('jayce-give-mutation');
+            const spawnTrait = document.getElementById('jayce-spawn-trait');
+            const giveTrait = document.getElementById('jayce-give-trait');
+            const eventSelect = document.getElementById('jayce-event-select');
+            
             spawnSelect.innerHTML = ''; giveSelect.innerHTML = '';
             spawnMutation.innerHTML = ''; giveMutation.innerHTML = '';
             spawnTrait.innerHTML = ''; giveTrait.innerHTML = '';
-            weatherButtons.innerHTML = '';
-
+            eventSelect.innerHTML = '';
+            
             const allBrainrotData = [];
             for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => { allBrainrotData.push({ ...b, rarity: rarityName }); }); }
             for (const brainrotName in luckyBlockExclusives) { allBrainrotData.push({ name: brainrotName, ...luckyBlockExclusives[brainrotName] }); }
@@ -1133,12 +1316,7 @@
                 option.textContent = e.name;
                 spawnTrait.appendChild(option.cloneNode(true));
                 giveTrait.appendChild(option.cloneNode(true));
-
-                const button = document.createElement('button');
-                button.className = 'btn btn-gray';
-                button.textContent = e.name;
-                button.onclick = () => startWeatherEvent(e.name);
-                weatherButtons.appendChild(button);
+                eventSelect.appendChild(option.cloneNode(true));
             });
         }
         
@@ -1187,12 +1365,7 @@
             
             if (event.spawn) spawnBrainrotByName(event.spawn);
             
-            baseSlots.forEach(slot => {
-                if (slot && !slot.trait && Math.random() < 0.25) {
-                    slot.trait = { ...event };
-                }
-            });
-            renderBase();
+            // *** CHANGE: Do NOT apply traits to existing base items ***
             updateAllUI();
             updateActiveEventsUI();
         }
@@ -1248,10 +1421,18 @@
         function formatLargeNumber(num) { if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return Math.floor(num).toLocaleString(); }
         
         // --- Event Listeners and Init ---
-        document.getElementById('admin-spawn-button').addEventListener('click', () => { 
-            const value = document.getElementById('admin-spawn-select').value; 
-            const mutation = mutations[document.getElementById('admin-spawn-mutation').value];
-            let traitName = document.getElementById('admin-spawn-trait').value;
+        document.getElementById('jayce-send-chat').addEventListener('click', () => {
+            const message = document.getElementById('jayce-chat-input').value;
+            if(message) {
+                sendGlobalEvent('chat', { message: message });
+                document.getElementById('jayce-chat-input').value = '';
+            }
+        });
+
+        document.getElementById('jayce-spawn-button').addEventListener('click', () => { 
+            const value = document.getElementById('jayce-spawn-select').value; 
+            const mutation = mutations[document.getElementById('jayce-spawn-mutation').value];
+            let traitName = document.getElementById('jayce-spawn-trait').value;
             let trait = null;
             if (traitName === 'All') {
                 const allTraits = Object.values(weatherEvents);
@@ -1262,20 +1443,20 @@
             
             if (value.startsWith('lucky_block_')) { 
                 const blockType = value.replace('lucky_block_', ''); 
-                spawnLuckyBlockOnBelt(blockType); 
+                sendGlobalEvent('spawn_lucky_block', { name: blockType });
             } else { 
-                spawnBrainrotByName(value, mutation, trait); 
+                sendGlobalEvent('spawn', { name: value, mutation, trait });
             } 
         });
-        document.getElementById('admin-give-money').addEventListener('click', () => { const amount = parseFloat(document.getElementById('admin-money-input').value); if (!isNaN(amount)) { money += amount; updateAllUI(); } });
-        document.getElementById('admin-give-button').addEventListener('click', () => { 
-            const brainrotName = document.getElementById('admin-give-select').value; 
+        document.getElementById('jayce-give-money').addEventListener('click', () => { const amount = parseFloat(document.getElementById('jayce-money-input').value); if (!isNaN(amount)) { money += amount; updateAllUI(); } });
+        document.getElementById('jayce-give-button').addEventListener('click', () => { 
+            const brainrotName = document.getElementById('jayce-give-select').value; 
             const emptySlotIndex = baseSlots.findIndex(s => s === null); 
             if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; } 
             const data = findBrainrotData(brainrotName); 
             if (data) { 
-                const mutation = mutations[document.getElementById('admin-give-mutation').value];
-                let traitName = document.getElementById('admin-give-trait').value;
+                const mutation = mutations[document.getElementById('jayce-give-mutation').value];
+                let traitName = document.getElementById('jayce-give-trait').value;
                 let trait = null;
                 if (traitName === 'All') {
                     const allTraits = Object.values(weatherEvents);
@@ -1289,25 +1470,36 @@
                 updateAllUI(); 
             } 
         });
-        document.getElementById('admin-give-rebirth').addEventListener('click', () => { const level = parseInt(document.getElementById('admin-rebirth-input').value, 10); if (!isNaN(level) && level >= 0) { rebirths = level; updateDerivedState(); initBase(); renderBase(); updateAllUI(); } });
-        document.getElementById('admin-give-luck').addEventListener('click', () => { const amount = parseFloat(document.getElementById('admin-luck-input').value); if (!isNaN(amount)) { luck += amount; showNotification(`Luck set to ${luck}`, 'cyan');} });
-        document.getElementById('admin-unlock-index').addEventListener('click', () => {
-            for (const rarityName in brainrotManifest) { brainrotManifest[rarityName].forEach(b => discoveredBrainrots.add(b.name)); }
-            for (const brainrotName in luckyBlockExclusives) { discoveredBrainrots.add(brainrotName); }
-            for (const brainrotName in ritualExclusives) { discoveredBrainrots.add(ritualExclusives[brainrotName].name || brainrotName); }
-            for (const brainrotName in craftExclusives) { discoveredBrainrots.add(craftExclusives[brainrotName].name || brainrotName); }
-            for (const brainrotName in fuseExclusives) { discoveredBrainrots.add(fuseExclusives[brainrotName].name || brainrotName); }
-            updateIndexCounter(); showNotification('Index Unlocked!', 'green');
+        document.getElementById('jayce-give-rebirth').addEventListener('click', () => { const level = parseInt(document.getElementById('jayce-rebirth-input').value, 10); if (!isNaN(level) && level >= 0) { rebirths = level; updateDerivedState(); initBase(); renderBase(); updateAllUI(); } });
+        document.getElementById('jayce-give-luck').addEventListener('click', () => { const amount = parseFloat(document.getElementById('jayce-luck-input').value); if (!isNaN(amount)) { luck += amount; showNotification(`Luck set to ${luck}`, 'cyan');} });
+        document.getElementById('jayce-unlock-index').addEventListener('click', () => {
+            allBrainrotData.forEach(b => discoveredBrainrots.add(b.name));
+            updateIndexCounter(); 
+            showNotification('Index Unlocked!', 'green');
         });
-        document.getElementById('admin-event-taco').addEventListener('click', startTacoEvent);
-        document.getElementById('admin-event-all').addEventListener('click', () => {
-            for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
-        });
+        document.getElementById('jayce-event-taco').addEventListener('click', () => sendGlobalEvent('taco_event', {}));
+        document.getElementById('jayce-event-run-all').addEventListener('click', () => sendGlobalEvent('all_events', {}));
+        document.getElementById('jayce-event-stop-all').addEventListener('click', () => sendGlobalEvent('stop_all_events', {}));
 
-        window.onload = initGame;
+        document.getElementById('jayce-event-run-self').addEventListener('click', () => {
+            const eventName = document.getElementById('jayce-event-select').value;
+            startWeatherEvent(eventName);
+        });
+        document.getElementById('jayce-event-run-global').addEventListener('click', () => {
+            const eventName = document.getElementById('jayce-event-select').value;
+            sendGlobalEvent('event', { name: eventName });
+        });
+        jayceLogoutButton.addEventListener('click', jayceLogout);
+
+
+        window.onload = initializeFirebase; // Start Firebase on load
         pauseButton.addEventListener('click', togglePause);
         saveButton.addEventListener('click', saveGame);
-        loadButton.addEventListener('click', loadGame);
+        
+        loadButton.addEventListener('click', () => {
+            showNotification("Loading from file... (Use automatic Cloud Save!)", "cyan");
+            loadFileInput.click();
+        });
         
         loadFileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -1318,14 +1510,14 @@
                 try {
                     const text = e.target.result;
                     const parsedData = JSON.parse(text);
-                    loadGameData(parsedData);
+                    loadGameData(parsedData); 
                 } catch (error) {
                     console.error("Error reading save file:", error);
                     showNotification("Load Failed: Invalid file format.", "red");
                 }
             };
             reader.readAsText(file);
-            event.target.value = null; // Reset input to allow loading same file again
+            event.target.value = null;
         });
 
         sellButton.addEventListener('click', toggleSellMode);
@@ -1336,10 +1528,10 @@
         closeRebirthButton.addEventListener('click', closeRebirthModal);
         confirmRebirthButton.addEventListener('click', handleRebirth);
         rebirthModal.addEventListener('click', (e) => { if(e.target === rebirthModal) closeRebirthModal() });
-        window.addEventListener('keydown', (e) => { if (e.key === '-') { openAdminModal(); } });
-        closeAdminButton.addEventListener('click', closeAdminModal);
-        adminLoginButton.addEventListener('click', adminLogin);
-        adminPasswordInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') adminLogin() });
+        window.addEventListener('keydown', (e) => { if (e.key === '-') { openJayceModal(); } });
+        closeJayceButton.addEventListener('click', closeJayceModal);
+        jayceLoginButton.addEventListener('click', jayceLogin);
+        jaycePasswordInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') jayceLogin() });
         baseContainer.addEventListener('mouseover', (e) => { 
             const slot = e.target.closest('.base-slot'); 
             if (!slot) return; 
@@ -1385,8 +1577,11 @@
                 performFuse(e.target.dataset.inputRarity, fuseModal.dataset.type);
             }
         });
+        
+        openTraderButton.addEventListener('click', openTraderModal);
+        closeTraderButton.addEventListener('click', closeTraderModal);
+        traderModal.addEventListener('click', (e) => { if (e.target === traderModal) closeTraderModal(); });
 
     </script>
 </body>
 </html>
-

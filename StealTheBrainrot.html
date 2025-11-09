@@ -225,7 +225,7 @@
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Save</button>
-                <button id="load-button" class="btn btn-green">Load File</button>
+                <button id="load-button" class="btn btn-green hidden">Load File</button> <!-- Hidden by default now -->
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
@@ -655,14 +655,27 @@
         let activeEvents = {}; // For weather/traits
         let tacoEventInterval = null;
         
+        // --- PASTE YOUR FIREBASE CONFIG HERE ---
+        const HARDCODED_FIREBASE_CONFIG = {
+           apiKey: "AIzaSyB_8Eao4PirrTF6DBjjbUmhL6MyXnt6vzY",
+           authDomain: "steal-the-brainrot-admin-panel.firebaseapp.com",
+           projectId: "steal-the-brainrot-admin-panel",
+           storageBucket: "steal-the-brainrot-admin-panel.firebasestorage.app",
+           messagingSenderId: "559691711111",
+           appId: "1:559691711111:web:27dff3446aea0ef624ee22",
+           measurementId: "G-3FPEYCR4JM"
+        };
+
         async function initializeFirebase() {
             try {
-                // FIX: Check for config before parsing
-                const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-                const firebaseConfig = JSON.parse(firebaseConfigStr);
+                // Try to get config from environment, fallback to hardcoded
+                let firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+                if (firebaseConfig.apiKey === "YOUR_API_KEY" && typeof __firebase_config !== 'undefined') {
+                    firebaseConfig = JSON.parse(atob(__firebase_config));
+                }
                 
-                // FIX: Check if config is empty
-                if (!firebaseConfig.apiKey) {
+                // FIX: Check if config is valid
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
                     console.warn("Firebase config is missing. Game will run in offline mode.");
                     loadingSpinner.classList.add('hidden');
                     gameRoot.classList.remove('hidden');
@@ -682,7 +695,7 @@
                         
                         // Define user-specific paths
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`; // Correct path
+                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`;
                         eventsCollectionPath = `/artifacts/${appId}/public/data/events`;
                         
                         await loadGame(); // Load data from Firebase
@@ -695,7 +708,12 @@
                     } else {
                         console.log("No user found, signing in...");
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
+                            try {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                            } catch (e) {
+                                console.warn("Custom token auth failed, falling back to anonymous:", e);
+                                await signInAnonymously(auth);
+                            }
                         } else {
                             await signInAnonymously(auth);
                         }
@@ -703,7 +721,10 @@
                 });
             } catch (error) {
                 console.error("Firebase Init Error:", error);
-                loadingSpinner.textContent = "Error loading game.";
+                // Fallback to offline mode if init fails
+                loadingSpinner.classList.add('hidden');
+                gameRoot.classList.remove('hidden');
+                initGameLogic();
             }
         }
 

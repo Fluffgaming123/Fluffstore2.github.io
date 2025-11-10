@@ -471,7 +471,8 @@
                 { name: 'Avocadini Guffo', icon: '🦉', cost: 2100, mps: 225 }, { name: 'Salamino Penguino', icon: '🐧', cost: 2300, mps: 245 },
                 { name: 'Sammyni Spyderini', icon: '🕷️', cost: 2500, mps: 260 }, { name: 'Ti Ti Ti Sahur', icon: '🕰️', cost: 2600, mps: 270 },
                 { name: 'Penguino Cocosino', icon: '🥥', cost: 2700, mps: 280 }, { name: 'Cocosini Mama', icon: '👩‍👧', cost: 2800, mps: 290 },
-                { name: 'Frogato Pirato', icon: '🐸', cost: 3000, mps: 310 }, { name: 'Mummio Rappitto', icon: '🧟', cost: 3200, mps: 330 }
+                { name: 'Frogato Pirato', icon: '🐸', cost: 3000, mps: 310 }, { name: 'Mummio Rappitto', icon: '🧟', cost: 3200, mps: 330 },
+                { name: 'Karkerkar Kurkur', icon: '🚗', cost: 3500, mps: 340 }
             ],
             'Legendary': [
                 { name: 'Burbaloni Loliloli', icon: '🍭', cost: 5000, mps: 500 }, { name: 'Chimpanzini Bananini', icon: '🐒', cost: 5500, mps: 555 }, 
@@ -571,19 +572,32 @@
             '1x1x1x1': { ingredients: { 'Guerriro Digitale': 4 } }, 'Guest 666': { ingredients: { 'Guerriro Digitale': 10 } }
         };
 
-        // ADDED: Missing Definitions for Craft Exclusives and Recipes
         const craftExclusives = {
-            'Pizza Rizzler': { icon: '🍕😎', rarity: 'Epic', cost: 5000, mps: 550 },
-            'Sigma Spaghetti': { icon: '🗿🍝', rarity: 'Legendary', cost: 25000, mps: 2800 },
-            'Amogus Susso': { icon: 'ඞ', rarity: 'Mythic', cost: 150000, mps: 12000 },
-            'Grimace Shake': { icon: '🥤🟣', rarity: 'Brainrot God', cost: 5e6, mps: 400000 }
+            'Las Cappuchinas': { icon: '👯☕', rarity: 'Brainrot God', cost: 8e6, mps: 400000 },
+            'Belula Beluga': { icon: '🐳🐈', rarity: 'Brainrot God', cost: 9e6, mps: 450000 },
+            'Fragola La La La': { icon: '🍓🎶', rarity: 'Secret', cost: 5e9, mps: 25e6 },
+            'La Karkerkar Combinasion': { icon: '🚗🤯', rarity: 'Secret', cost: 7e9, mps: 35e6 },
+            'La Sahur Combinasion': { icon: '🥁🤯', rarity: 'Secret', cost: 15e9, mps: 70e6 },
+            'Las Sis': { icon: '👯‍♀️', rarity: 'Secret', cost: 20e9, mps: 90e6 },
+            'Celularcini Viciosini': { icon: '📱😵', rarity: 'Secret', cost: 30e9, mps: 150e6 },
+            'Los Bros': { icon: '😎👊', rarity: 'Secret', cost: 50e9, mps: 250e6 },
+            'Tralaledon': { icon: '🎶🦖', rarity: 'Secret', cost: 40e9, mps: 200e6 },
+            'Los Tacoritas': { icon: '🌮🚲', rarity: 'Secret', cost: 25e9, mps: 120e6 },
+            'Los Primos': { icon: '👨‍👦‍👦', rarity: 'Secret', cost: 100e9, mps: 500e6 }
         };
 
         const craftRecipes = {
-             'Pizza Rizzler': { ingredients: { 'Noobini Pizzanini': 5, 'Gangster Footera': 2 } },
-             'Sigma Spaghetti': { ingredients: { 'Sigma Boy': 1, 'Bambini Crostini': 5 } },
-             'Amogus Susso': { ingredients: { 'Svinina Bombardino': 10, 'Tric-Trac-Baraboom': 5 } },
-             'Grimace Shake': { ingredients: { 'Perochello Lemonchello': 5, 'Blueberrinni Octopusini': 5 } }
+            'Las Cappuchinas': { ingredients: { 'Ballerina Cappuccina': 2, 'Tralalita Tralala': 2 } },
+            'Belula Beluga': { ingredients: { 'Tralalita Tralala': 2, 'Matteo': 1, 'Alessio': 1 } },
+            'Fragola La La La': { ingredients: { 'Odin Din Din Dun': 3, 'Sammyni Spyderini': 1 } },
+            'La Karkerkar Combinasion': { ingredients: { 'Karkerkar Kurkur': 2 } },
+            'La Sahur Combinasion': { ingredients: { 'Ta Ta Ta Ta Sahur': 1, 'Te Te Te Sahur': 1, 'Graipuss Medussi': 1, 'Job Job Job Sahur': 1 } },
+            'Las Sis': { ingredients: { 'Las Cappuchinas': 1, 'Las Tralaleritas': 2 } },
+            'Celularcini Viciosini': { ingredients: { 'Pot Hotspot': 1, 'Job Job Job Sahur': 1, 'La Grande Combinasion': 2 } },
+            'Los Bros': { ingredients: { 'Los Tungtungtungcitos': 1, 'Los Combinasionas': 1, 'La Grande Combinasion': 1, 'Los Tralaleritos': 1 } },
+            'Tralaledon': { ingredients: { 'Tralalero Tralala': 3, 'Nuclearo Dinossauro': 1 } },
+            'Los Tacoritas': { ingredients: { 'Tacorita Bicicleta': 2 } },
+            'Los Primos': { ingredients: { 'Los Orcalitos': 1, '67': 1, 'Los Bros': 1, 'Los Tralaleritos': 1 } }
         };
 
         const fuseExclusives = {

@@ -103,7 +103,7 @@
             font-weight: bold;
             border: 1px solid #fff;
             user-select: none;
-            z-index: 1;
+            z-index: 1; /* Make sure icon is on top */
         }
         .mutation-icon { top: -5px; left: -5px; } /* Offset to corner */
         .trait-icon { bottom: -5px; right: -5px; font-size: 14px; } /* Offset to corner */
@@ -218,30 +218,30 @@
 <body class="flex items-center justify-center min-h-screen text-sm sm:text-base">
 
     <div id="loading-spinner"></div>
-    <div id="game-root" class="game-container w-full max-w-6xl h-[95vh] p-4 rounded-2xl flex flex-col gap-2 hidden"> <!-- Reduced padding and gap -->
+    <div id="game-root" class="game-container w-full max-w-6xl h-[95vh] p-4 rounded-2xl flex flex-col gap-2 hidden">
         <!-- Header, Info Bar, Game Area... -->
-        <header class="flex flex-wrap justify-between items-center pb-1"> <!-- Reduced padding -->
-            <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1> <!-- Smaller title -->
+        <header class="flex flex-wrap justify-between items-center pb-1">
+            <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1>
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Save</button>
-                <button id="load-button" class="btn btn-green hidden">Load File</button> <!-- Hidden by default now -->
+                <button id="load-button" class="btn btn-green hidden">Load File</button>
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
         </header>
-        <div class="flex justify-between items-center bg-gray-800 p-2 rounded-lg"> <!-- Reduced padding -->
+        <div class="flex justify-between items-center bg-gray-800 p-2 rounded-lg">
             <div>
-                <div class="text-lg font-bold text-green-400">Money: $<span id="money">100</span></div> <!-- Smaller font -->
-                <div class="text-xs text-gray-400">per second: $<span id="mps">0</span></div> <!-- Smaller font -->
+                <div class="text-lg font-bold text-green-400">Money: $<span id="money">100</span></div>
+                <div class="text-xs text-gray-400">per second: $<span id="mps">0</span></div>
             </div>
             <div class="text-center">
-                <div class="text-base font-semibold text-yellow-300">Next spawn in: <span id="timer-display">00:00</span></div> <!-- Smaller font -->
+                <div class="text-base font-semibold text-yellow-300">Next spawn in: <span id="timer-display">00:00</span></div>
                 <div id="active-events-list" class="flex gap-1 justify-center mt-1 h-4"></div>
-                <div class="text-xs text-gray-400">Rebirths: <span id="rebirth-display">0</span></div> <!-- Smaller font -->
+                <div class="text-xs text-gray-400">Rebirths: <span id="rebirth-display">0</span></div>
             </div>
             <div class="text-lg font-semibold text-gray-300">
-                Base: <span id="base-count">0 / 10</span> <!-- Smaller font -->
+                Base: <span id="base-count">0 / 10</span>
             </div>
         </div>
         
@@ -252,18 +252,19 @@
             <button id="open-taco-fuse-button" class="btn btn-yellow hidden">Taco Fuse</button>
             <button id="open-craft-machine-button" class="btn btn-orange">Craft</button>
             <button id="open-ritual-button" class="btn btn-red">Ritual</button>
+            <button id="open-dealer-button" class="btn btn-green">Dealer</button>
         </div>
 
-        <main class="flex-grow flex flex-col gap-2 overflow-hidden"> <!-- Reduced gap -->
+        <main class="flex-grow flex flex-col gap-2 overflow-hidden">
             <div id="conveyor-belt" class="h-1/3 conveyor-belt-container rounded-lg relative overflow-hidden"></div>
-            <div class="h-2/3 flex flex-col base-container p-2 rounded-lg"> <!-- Reduced padding -->
-                <div class="flex justify-between items-center mb-1"> <!-- Reduced margin -->
-                    <h2 class="text-lg font-bold text-white">Your Base</h2> <!-- Smaller font -->
+            <div class="h-2/3 flex flex-col base-container p-2 rounded-lg">
+                <div class="flex justify-between items-center mb-1">
+                    <h2 class="text-lg font-bold text-white">Your Base</h2>
                     <div class="flex gap-2">
                         <button id="sell-button" class="btn btn-blue">Sell</button>
                     </div>
                 </div>
-                <div id="base" class="base-grid gap-2 sm:gap-2 flex-grow p-2 rounded-md overflow-y-auto"> <!-- Reduced gap -->
+                <div id="base" class="base-grid gap-2 sm:gap-2 flex-grow p-2 rounded-md overflow-y-auto">
                 </div>
             </div>
         </main>
@@ -288,6 +289,12 @@
                 <div class="flex items-center gap-2"><input type="number" id="jayce-luck-input" placeholder="Additional Luck" class="admin-input flex-grow"><button id="jayce-give-luck" class="btn btn-purple">Add (Self)</button></div>
                 <button id="jayce-unlock-index" class="btn btn-gray w-full">Unlock Index (Self)</button>
                 <hr class="border-gray-600">
+                <h3 class="text-lg font-bold">Dealer Restock</h3>
+                <div class="flex items-center gap-2">
+                    <select id="jayce-restock-select" class="admin-input flex-grow"></select>
+                    <button id="jayce-restock-button" class="btn btn-green">Restock Global</button>
+                </div>
+                <hr class="border-gray-600">
                 <h3 class="text-lg font-bold">Global Events</h3>
                 <div class="admin-grid-2">
                     <select id="jayce-event-select" class="admin-input"></select>
@@ -301,6 +308,7 @@
     <div id="ritual-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Rituals</h2><button id="close-ritual-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="ritual-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="craft-machine-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Crafting</h2><button id="close-craft-machine-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="craft-machine-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="fuse-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="fuse-modal-title" class="text-2xl font-bold">Fuse</h2><button id="close-fuse-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="fuse-modal-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
+    <div id="dealer-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Brainrot Dealer</h2><button id="close-dealer-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="dealer-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     
     <!-- Global UI -->
     <div id="global-tooltip" class="hidden fixed bg-black bg-opacity-80 text-white text-xs rounded-md p-2 pointer-events-none z-[9999]"></div>
@@ -317,62 +325,62 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- DOM Elements ---
-        const moneyDisplay = document.getElementById('money');
-        const mpsDisplay = document.getElementById('mps');
-        const baseCountDisplay = document.getElementById('base-count');
-        const conveyorBelt = document.getElementById('conveyor-belt');
-        const baseContainer = document.getElementById('base');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const gameRoot = document.getElementById('game-root');
         const pauseButton = document.getElementById('pause-button');
         const saveButton = document.getElementById('save-button');
         const loadButton = document.getElementById('load-button');
-        const loadFileInput = document.getElementById('load-file-input');
-        const sellButton = document.getElementById('sell-button');
         const indexButton = document.getElementById('index-button');
         const indexCounter = document.getElementById('index-counter');
+        const openRebirthButton = document.getElementById('open-rebirth-button');
+        const moneyDisplay = document.getElementById('money');
+        const mpsDisplay = document.getElementById('mps');
         const timerDisplay = document.getElementById('timer-display');
+        const activeEventsList = document.getElementById('active-events-list');
         const rebirthDisplay = document.getElementById('rebirth-display');
-        
-        // Modals & UI
+        const baseCountDisplay = document.getElementById('base-count');
+        const openNormalFuseButton = document.getElementById('open-normal-fuse-button');
+        const openWitchFuseButton = document.getElementById('open-witch-fuse-button');
+        const openTacoFuseButton = document.getElementById('open-taco-fuse-button');
+        const openCraftMachineButton = document.getElementById('open-craft-machine-button');
+        const openRitualButton = document.getElementById('open-ritual-button');
+        const openDealerButton = document.getElementById('open-dealer-button');
+        const conveyorBelt = document.getElementById('conveyor-belt');
+        const baseContainer = document.getElementById('base');
+        const sellButton = document.getElementById('sell-button');
         const indexModal = document.getElementById('index-modal');
         const closeIndexButton = document.getElementById('close-index-button');
         const indexGridContainer = document.getElementById('index-grid-container');
         const rebirthModal = document.getElementById('rebirth-modal');
-        const openRebirthButton = document.getElementById('open-rebirth-button');
         const closeRebirthButton = document.getElementById('close-rebirth-button');
-        const confirmRebirthButton = document.getElementById('confirm-rebirth-button');
         const rebirthInfo = document.getElementById('rebirth-info');
+        const confirmRebirthButton = document.getElementById('confirm-rebirth-button');
+        const jayceModal = document.getElementById('jayce-modal');
+        const closeJayceButton = document.getElementById('close-jayce-button');
+        const jaycePasswordScreen = document.getElementById('jayce-password-screen');
+        const jaycePasswordInput = document.getElementById('jayce-password-input');
+        const jayceLoginButton = document.getElementById('jayce-login-button');
+        const jayceError = document.getElementById('jayce-error');
+        const jayceCommandScreen = document.getElementById('jayce-command-screen');
+        const jayceLogoutButton = document.getElementById('jayce-logout-button');
         const ritualModal = document.getElementById('ritual-modal');
-        const openRitualButton = document.getElementById('open-ritual-button');
         const closeRitualButton = document.getElementById('close-ritual-button');
         const ritualList = document.getElementById('ritual-list');
         const craftMachineModal = document.getElementById('craft-machine-modal');
-        const openCraftMachineButton = document.getElementById('open-craft-machine-button');
         const closeCraftMachineButton = document.getElementById('close-craft-machine-button');
         const craftMachineList = document.getElementById('craft-machine-list');
         const fuseModal = document.getElementById('fuse-modal');
         const fuseModalTitle = document.getElementById('fuse-modal-title');
-        const fuseModalList = document.getElementById('fuse-modal-list');
         const closeFuseModalButton = document.getElementById('close-fuse-modal-button');
-        const openTacoFuseButton = document.getElementById('open-taco-fuse-button');
-        const openNormalFuseButton = document.getElementById('open-normal-fuse-button');
-        const openWitchFuseButton = document.getElementById('open-witch-fuse-button');
+        const fuseModalList = document.getElementById('fuse-modal-list');
+        const dealerModal = document.getElementById('dealer-modal');
+        const closeDealerButton = document.getElementById('close-dealer-button');
+        const dealerList = document.getElementById('dealer-list');
         const globalTooltip = document.getElementById('global-tooltip');
         const notification = document.getElementById('notification');
-        const activeEventsList = document.getElementById('active-events-list');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const gameRoot = document.getElementById('game-root');
+        const loadFileInput = document.getElementById('load-file-input');
 
-        // Admin Panel
-        const jayceModal = document.getElementById('jayce-modal');
-        const closeJayceButton = document.getElementById('close-jayce-button');
-        const jaycePasswordScreen = document.getElementById('jayce-password-screen');
-        const jayceCommandScreen = document.getElementById('jayce-command-screen');
-        const jaycePasswordInput = document.getElementById('jayce-password-input');
-        const jayceLoginButton = document.getElementById('jayce-login-button');
-        const jayceError = document.getElementById('jayce-error');
-        const jayceLogoutButton = document.getElementById('jayce-logout-button');
-        
-        // --- Game Config ---
+        // --- Data Definitions ---
         const SELL_MULTIPLIER = 0.5;
         const rarities = {
             'Common':       { color: '#9ca3af', weight: 900, glow: '#9ca3af' },
@@ -513,7 +521,7 @@
         const luckyBlockExclusives = {
             'Zibra Zubra Zibralini': { icon: '🦓', rarity: 'Mythic', cost: 40e3, mps: 3700 }, 'Tigrilini Watermelini': { icon: '🐅', rarity: 'Mythic', cost: 45e3, mps: 4100 },
             'Carrotini Brainini':    { icon: '🥕', rarity: 'Mythic', cost: 50e3, mps: 4500 }, 'Bananito Bandito':      { icon: '🍌', rarity: 'Mythic', cost: 55e3, mps: 5000 },
-            'Tigroligre Frutonni':   { icon: '🐯', rarity: 'Brainrot God', cost: 7e6, mps: 480000 }, 'Orcalero Orcala':       { icon: '🐳', rarity: 'Brainrot God', cost: 8e6, mps: 560000 },
+            'Tigroligre Frutonni':   { icon: '🐯', rarity: 'Brainrot God', cost: 7e6, mps: 480000 }, 'Orcalero Orcala':        { icon: '🐳', rarity: 'Brainrot God', cost: 8e6, mps: 560000 },
             'Bulbito Bandito Traktorito': { icon: '💡', rarity: 'Brainrot God', cost: 9e6, mps: 630000 }, 'Mastodontico Telepiedone': { icon: '🦣', rarity: 'Brainrot God', cost: 10e6, mps: 680000 },
             'Pop Pop Sahur':         { icon: '🍿', rarity: 'Brainrot God', cost: 11e6, mps: 690000 }, 'Torrtuginni Dragonfrutini': { icon: '🐢', rarity: 'Secret', cost: 2e9, mps: 4e6 },
             'Pot Hotspot':           { icon: '냄', rarity: 'Secret', cost: 3e9, mps: 8e6 }, 'Esok Sekolah':          { icon: '🏫', rarity: 'Secret', cost: 4e9, mps: 15e6 },
@@ -522,11 +530,11 @@
             'Los Tipi Tacos':        { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
             'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
             'Carloo':                { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':        { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
-            'Alessio':               { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':      { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
-            'Blackhole Goat':        { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':     { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
+            'Alessio':               { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':       { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
+            'Blackhole Goat':        { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':      { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
             '67':                    { icon: '6️⃣7️⃣', rarity: 'Secret', cost: 50e9, mps: 200e6 }, 'La Grande Combinasion': { icon: '🤯', rarity: 'Secret', cost: 100e9, mps: 500e6 }, 
-            'Los Tungtungtungcitos': { icon: '🎶', rarity: 'Brainrot God', cost: 40e6, mps: 2e6 }, 'Los Tortus':            { icon: '🐢', rarity: 'Secret', cost: 30e9, mps: 140e6 }, 
-            'Los Jobcitos':          { icon: '💼', rarity: 'Secret', cost: 35e9, mps: 160e6 }, 'Los Combinasionas':     { icon: '🤔', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 
+            'Los Tungtungtungcitos': { icon: '🎶', rarity: 'Brainrot God', cost: 40e6, mps: 2e6 }, 'Los Tortus':             { icon: '🐢', rarity: 'Secret', cost: 30e9, mps: 140e6 }, 
+            'Los Jobcitos':          { icon: '💼', rarity: 'Secret', cost: 35e9, mps: 160e6 }, 'Los Combinasionas':      { icon: '🤔', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 
             'Los 67':                { icon: '🇲🇽', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Baby Jayce': { icon: '👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
             'Taco Baby Jayce': { icon: '👶🌮', rarity: 'Secret', cost: 1e20, mps: 1e17 }, 'Ghost Baby Jayce': { icon: '👻👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
             'Vampira Cappucina': { icon: '🧛', rarity: 'Mythic', cost: 90e3, mps: 8500 }, 'Zombie Tralala': { icon: '🧟', rarity: 'Mythic', cost: 95e3, mps: 9000 },
@@ -563,6 +571,21 @@
             '1x1x1x1': { ingredients: { 'Guerriro Digitale': 4 } }, 'Guest 666': { ingredients: { 'Guerriro Digitale': 10 } }
         };
 
+        // ADDED: Missing Definitions for Craft Exclusives and Recipes
+        const craftExclusives = {
+            'Pizza Rizzler': { icon: '🍕😎', rarity: 'Epic', cost: 5000, mps: 550 },
+            'Sigma Spaghetti': { icon: '🗿🍝', rarity: 'Legendary', cost: 25000, mps: 2800 },
+            'Amogus Susso': { icon: 'ඞ', rarity: 'Mythic', cost: 150000, mps: 12000 },
+            'Grimace Shake': { icon: '🥤🟣', rarity: 'Brainrot God', cost: 5e6, mps: 400000 }
+        };
+
+        const craftRecipes = {
+             'Pizza Rizzler': { ingredients: { 'Noobini Pizzanini': 5, 'Gangster Footera': 2 } },
+             'Sigma Spaghetti': { ingredients: { 'Sigma Boy': 1, 'Bambini Crostini': 5 } },
+             'Amogus Susso': { ingredients: { 'Svinina Bombardino': 10, 'Tric-Trac-Baraboom': 5 } },
+             'Grimace Shake': { ingredients: { 'Perochello Lemonchello': 5, 'Blueberrinni Octopusini': 5 } }
+        };
+
         const fuseExclusives = {
             // Taco Fuse
             'Tipi Topi Taco': { icon: '🌮', rarity: 'Brainrot God', cost: 60e6, mps: 2.5e6 }, 'Capi Taco': { icon: '🧢', rarity: 'Brainrot God', cost: 70e6, mps: 3e6 },
@@ -597,22 +620,17 @@
             ]
         };
 
-        const craftExclusives = {
-            'Karkerkar Kurkur': { icon: '🐔', cost: 1e12, mps: 500e6, rarity: 'Secret' },
-            'Las Cappuchinas': { icon: '👯‍♀️', cost: 30e9, mps: 140e6, rarity: 'Brainrot God' }, 'Belula Beluga': { icon: '🐋', cost: 35e9, mps: 160e6, rarity: 'Brainrot God' },
-            'Fragola La La La': { icon: '🍓', cost: 60e9, mps: 250e6, rarity: 'Secret' }, 'La Karkerkar Combinasion': { icon: '🐔', cost: 2.5e12, mps: 1.1e9, rarity: 'Secret' },
-            'La Sahur Combinasion': { icon: '🥁', cost: 3e12, mps: 1.3e9, rarity: 'Secret' }, 'Las Sis': { icon: '👩‍❤️‍👩', cost: 4e12, mps: 1.8e9, rarity: 'Secret' },
-            'Celularcini Viciosini': { icon: '📱', cost: 10e12, mps: 5e9, rarity: 'Secret' }, 'Los Bros': { icon: '👨‍❤️‍👨', cost: 12e12, mps: 6e9, rarity: 'Secret' },
-            'Tralaledon': { icon: '🎶', cost: 8e12, mps: 4e9, rarity: 'Secret' }, 'Los Tacoritas': { icon: '🌮', cost: 5e12, mps: 2.2e9, rarity: 'Secret' },
-            'Los Primos': { icon: '👨‍👩‍👦‍👦', cost: 20e12, mps: 10e9, rarity: 'Secret' }
-        };
-        const craftRecipes = {
-            'Las Cappuchinas': { ingredients: { 'Ballerina Cappuccina': 2, 'Tralalita Tralala': 2 } }, 'Belula Beluga': { ingredients: { 'Tralalita Tralala': 2, 'Matteo': 1, 'Alessio': 1 } },
-            'Fragola La La La': { ingredients: { 'Odin Din Din Dun': 3, 'Sammyni Spyderini': 1 } }, 'La Karkerkar Combinasion': { ingredients: { 'Karkerkar Kurkur': 2 } },
-            'La Sahur Combinasion': { ingredients: { 'Ta Ta Ta Ta Sahur': 1, 'Te Te Te Sahur': 1, 'Graipuss Medussi': 1, 'Job Job Job Sahur': 1 } }, 'Las Sis': { ingredients: { 'Las Cappuchinas': 1, 'Las Tralaleritas': 2 } },
-            'Celularcini Viciosini': { ingredients: { 'Pot Hotspot': 1, 'Job Job Job Sahur': 1, 'La Grande Combinasion': 2 } }, 'Los Bros': { ingredients: { 'Los Tungtungtungcitos': 1, 'Los Combinasionas': 1, 'La Grande Combinasion': 1, 'Los Tralaleritos': 1 } },
-            'Tralaledon': { ingredients: { 'Tralalero Tralala': 3, 'Nuclearo Dinossauro': 1 } }, 'Los Tacoritas': { ingredients: { 'Tacorita Bicicleta': 2 } },
-            'Los Primos': { ingredients: { 'Los Orcalitos': 1, '67': 1, 'Los Bros': 1, 'Los Tralaleritos': 1 } }
+        const dealerExclusives = {
+            'Cupcake Koala': { icon: '🐨', rarity: 'Rare', cost: 800, mps: 70, initialStock: 10 },
+            'Doi Doi Do': { icon: '🦜', rarity: 'Epic', cost: 4000, mps: 400, initialStock: 8 },
+            'Clickerino Crabo': { icon: '🦀', rarity: 'Legendary', cost: 20000, mps: 2200, initialStock: 5 },
+            'Stoppo Luminio': { icon: '🛑', rarity: 'Mythic', cost: 150000, mps: 18000, initialStock: 3 },
+            'Money Money Man': { icon: '🤑', rarity: 'Brainrot God', cost: 10e6, mps: 900000, initialStock: 2 },
+            'Noo la Polizia': { icon: '👮', rarity: 'Brainrot God', cost: 12e6, mps: 1.1e6, initialStock: 2 },
+            'Pirulitoita Bicicleteria': { icon: '🍭🚲', rarity: 'Secret', cost: 50e9, mps: 300e6, initialStock: 1 },
+            'Los Puggies': { icon: '🐶🐶', rarity: 'Secret', cost: 75e9, mps: 500e6, initialStock: 1 },
+            'Los Spaghetties': { icon: '🍝🍝', rarity: 'Secret', cost: 100e9, mps: 750e6, initialStock: 1 },
+            'Fragrama and Chocrama': { icon: '🍓🍫', rarity: 'Secret', cost: 500e9, mps: 4e9, initialStock: 1 }
         };
 
         const rebirthRequirements = [
@@ -633,9 +651,9 @@
         for (const brainrotName in ritualExclusives) { const data = ritualExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
         for (const brainrotName in craftExclusives) { const data = craftExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
         for (const brainrotName in fuseExclusives) { const data = fuseExclusives[brainrotName]; allBrainrotData.push({ name: data.name || brainrotName, ...data }); }
+        for (const brainrotName in dealerExclusives) { allBrainrotData.push({ name: brainrotName, ...dealerExclusives[brainrotName] }); }
 
         const totalLuckyBlockWeight = Object.values(luckyBlockManifest).reduce((s, b) => s + b.weight, 0);
-        // FIX: Calculate the total unique brainrot count
         const allBrainrotNames = new Set(allBrainrotData.map(b => b.name));
         const totalBrainrotsCount = allBrainrotNames.size;
 
@@ -654,6 +672,7 @@
         let maxBaseSlots = 10, moneyMultiplier = 1;
         let activeEvents = {}; // For weather/traits
         let tacoEventInterval = null;
+        let currentDealerStock = {}; // State for local dealer stock
         
         // --- PASTE YOUR FIREBASE CONFIG HERE ---
         const HARDCODED_FIREBASE_CONFIG = {
@@ -731,6 +750,14 @@
         function initGameLogic() {
             updateDerivedState();
             initBase();
+            
+            // Init dealer stock if not loaded
+            if (Object.keys(currentDealerStock).length === 0) {
+                for (const name in dealerExclusives) {
+                    currentDealerStock[name] = dealerExclusives[name].initialStock;
+                }
+            }
+            
             populateAdminDropdowns();
             gameInterval = setInterval(gameLoop, 1000 / 60);
             timerInterval = setInterval(updateTimers, 1000);
@@ -776,7 +803,7 @@
                     startTacoEvent();
                     break;
                 case 'all_events':
-                     for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
+                      for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
                     break;
                 case 'stop_all_events':
                     activeEvents = {};
@@ -788,6 +815,20 @@
                     updateAllUI();
                     updateActiveEventsUI();
                     showNotification("All events have been stopped.", "gray");
+                    break;
+                case 'restock_dealer':
+                    if (event.item === 'All') {
+                        for (const name in dealerExclusives) {
+                            currentDealerStock[name] = dealerExclusives[name].initialStock;
+                        }
+                        showNotification("Dealer fully restocked!", "green");
+                    } else if (dealerExclusives[event.item]) {
+                        currentDealerStock[event.item] = dealerExclusives[event.item].initialStock;
+                        showNotification(`${event.item} restocked!`, "green");
+                    }
+                    if (!dealerModal.classList.contains('hidden')) {
+                        renderDealerModal();
+                    }
                     break;
             }
         }
@@ -888,6 +929,7 @@
 
         function findBrainrotData(name) {
             if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos';
+            if (dealerExclusives[name]) { return { name, ...dealerExclusives[name] }; }
             if (ritualExclusives[name]) { return { name, ...ritualExclusives[name] }; }
             if (craftExclusives[name]) { return { name, ...craftExclusives[name] }; }
             if (fuseExclusives[name]) { return { name, ...fuseExclusives[name] }; }
@@ -1032,6 +1074,8 @@
         function closeCraftMachineModal() { craftMachineModal.classList.add('hidden'); }
         function openFuseModal(type) { renderFuseModal(type); fuseModal.classList.remove('hidden'); }
         function closeFuseModal() { fuseModal.classList.add('hidden'); }
+        function openDealerModal() { renderDealerModal(); dealerModal.classList.remove('hidden'); }
+        function closeDealerModal() { dealerModal.classList.add('hidden'); }
 
         function renderIndex() {
             indexGridContainer.innerHTML = '';
@@ -1183,6 +1227,53 @@
             showNotification(`Fuse complete! You got a ${resultData.name}!`, rarities[resultData.rarity].color);
             renderBase(); updateAllUI(); renderFuseModal(type);
         }
+
+        function renderDealerModal() {
+            dealerList.innerHTML = '';
+            const hasEmptySlot = baseSlots.some(s => s === null);
+
+            for (const name in dealerExclusives) {
+                const data = dealerExclusives[name];
+                const stock = currentDealerStock[name] || 0;
+                const canAfford = money >= data.cost;
+                const canBuy = hasEmptySlot && canAfford && stock > 0;
+
+                const dealerEl = document.createElement('div');
+                dealerEl.className = 'bg-gray-700 p-3 rounded-lg flex items-center justify-between';
+                dealerEl.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl">${data.icon}</div>
+                        <div>
+                            <h4 class="font-bold">${name} <span style="color: ${rarities[data.rarity].color}">(${data.rarity})</span></h4>
+                            <div class="text-sm">Cost: <span class="text-green-400">$${formatLargeNumber(data.cost)}</span> | MPS: <span class="text-yellow-400">${formatLargeNumber(data.mps)}</span></div>
+                            <div class="text-sm ${stock > 0 ? 'text-white' : 'text-red-500'}">Stock: ${stock}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-green buy-dealer-btn" data-item-name="${name}" ${canBuy ? '' : 'disabled'}>Buy</button>
+                `;
+                dealerList.appendChild(dealerEl);
+            }
+        }
+
+        function buyFromDealer(itemName) {
+            const data = dealerExclusives[itemName];
+            const stock = currentDealerStock[itemName];
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+
+            if (money < data.cost) { showNotification("Not enough money!", "red"); return; }
+            if (stock <= 0) { showNotification("Out of stock!", "red"); return; }
+            if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
+
+            money -= data.cost;
+            currentDealerStock[itemName]--;
+            baseSlots[emptySlotIndex] = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
+            discoveredBrainrots.add(itemName);
+            
+            renderBase();
+            updateAllUI();
+            renderDealerModal();
+            showNotification(`Bought ${itemName} from Dealer!`, "green");
+        }
         
         async function saveGame() {
             if (!db || !userId) {
@@ -1195,7 +1286,8 @@
                 discovered: Array.from(discoveredBrainrots),
                 rebirths: rebirths, 
                 luck: luck, 
-                activeEvents: activeEvents 
+                activeEvents: activeEvents,
+                dealerStock: currentDealerStock
             };
             
             try {
@@ -1235,6 +1327,7 @@
                 rebirths = parsedData.rebirths || 0;
                 luck = parsedData.luck || 0;
                 activeEvents = parsedData.activeEvents || {};
+                currentDealerStock = parsedData.dealerStock || {};
                 
                 updateDerivedState();
                 initBase();
@@ -1288,11 +1381,13 @@
             const spawnTrait = document.getElementById('jayce-spawn-trait');
             const giveTrait = document.getElementById('jayce-give-trait');
             const eventSelect = document.getElementById('jayce-event-select');
+            const restockSelect = document.getElementById('jayce-restock-select');
             
             spawnSelect.innerHTML = ''; giveSelect.innerHTML = '';
             spawnMutation.innerHTML = ''; giveMutation.innerHTML = '';
             spawnTrait.innerHTML = ''; giveTrait.innerHTML = '';
             eventSelect.innerHTML = '';
+            restockSelect.innerHTML = '<option value="All">All Items</option>';
             
             const raritySortOrder = ['Common', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Brainrot God', 'Secret', 'OG'];
             allBrainrotData.sort((a, b) => {
@@ -1354,6 +1449,13 @@
                 giveTrait.appendChild(option.cloneNode(true));
                 eventSelect.appendChild(option.cloneNode(true));
             });
+
+            for(const name in dealerExclusives) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                restockSelect.appendChild(option);
+            }
         }
         
         function showNotification(message, color = 'white') {
@@ -1520,6 +1622,10 @@
             const eventName = document.getElementById('jayce-event-select').value;
             sendGlobalEvent('event', { name: eventName });
         });
+        document.getElementById('jayce-restock-button').addEventListener('click', () => {
+            const itemName = document.getElementById('jayce-restock-select').value;
+            sendGlobalEvent('restock_dealer', { item: itemName });
+        });
         jayceLogoutButton.addEventListener('click', jayceLogout);
 
 
@@ -1606,6 +1712,15 @@
         fuseModalList.addEventListener('click', (e) => {
             if (e.target.classList.contains('perform-fuse-btn')) {
                 performFuse(e.target.dataset.inputRarity, fuseModal.dataset.type);
+            }
+        });
+
+        openDealerButton.addEventListener('click', openDealerModal);
+        closeDealerButton.addEventListener('click', closeDealerModal);
+        dealerModal.addEventListener('click', (e) => { if (e.target === dealerModal) closeDealerModal(); });
+        dealerList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('buy-dealer-btn')) {
+                buyFromDealer(e.target.dataset.itemName);
             }
         });
 

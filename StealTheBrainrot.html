@@ -225,7 +225,8 @@
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Save</button>
-                <button id="load-button" class="btn btn-green hidden">Load File</button>
+                <!-- FIXED: Removed 'hidden' class from Load File button -->
+                <button id="load-button" class="btn btn-green">Load File</button>
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
@@ -392,69 +393,110 @@
             'Matteo': { name: 'Matteo', duration: 1, multiplier: 1, spawn: 'Matteo', icon: '👨‍🦱' }
         };
 
-        // --- REVERTED TO ORIGINAL HASH ---
-        const JAYCE_PASSWORD_HASH = "1580564065"; // Hash for "HelloDexterMorgan"
-
         const luckyBlockManifest = {
-            'Standard Lucky Block': {
-                icon: '❓',
-                color: '#facc15',
-                weight: 80,
-                lootTable: [
-                    { name: 'Noobini Pizzanini', chance: 500 },
-                    { name: 'Trippi Troppi', chance: 250 },
-                    { name: 'Cappuccino Assassino', chance: 100 },
-                    { name: 'Burbaloni Loliloli', chance: 50 },
-                    { name: 'Frigo Camelo', chance: 10 },
-                    { name: 'Zibra Zubra Zibralini', chance: 5 } // Exclusive
-                ]
-            },
-            'Rare Lucky Block': {
-                icon: '🟦',
-                color: '#3b82f6',
-                weight: 15,
-                lootTable: [
-                    { name: 'Cappuccino Assassino', chance: 400 },
-                    { name: 'Burbaloni Loliloli', chance: 300 },
-                    { name: 'Frigo Camelo', chance: 150 },
-                    { name: 'Cocofanto Elefanto', chance: 50 },
-                    { name: 'Tigrilini Watermelini', chance: 20 }, // Exclusive
-                    { name: 'Carrotini Brainini', chance: 20 } // Exclusive
-                ]
-            },
-            'Epic Lucky Block': {
-                icon: '🟪',
-                color: '#a855f7',
-                weight: 4,
-                lootTable: [
-                    { name: 'Frigo Camelo', chance: 400 },
-                    { name: 'Cocofanto Elefanto', chance: 300 },
-                    { name: 'Bisonte Giuppitere', chance: 100 },
-                    { name: 'Bananito Bandito', chance: 50 }, // Exclusive
-                    { name: 'Tigroligre Frutonni', chance: 10 } // Exclusive
-                ]
-            },
-            'Omega Lucky Block': {
+            'Mythic Lucky Block': {
                 icon: '🟥',
                 color: '#ef4444',
-                weight: 1,
+                weight: 5,
                 lootTable: [
-                    { name: 'Cocofanto Elefanto', chance: 300 },
-                    { name: 'Bisonte Giuppitere', chance: 300 },
-                    { name: 'Strawberry Elephant', chance: 10 }, // OG
-                    { name: 'Orcalero Orcala', chance: 50 }, // Exclusive
-                    { name: 'Bulbito Bandito Traktorito', chance: 20 } // Exclusive
+                    { name: 'Spioniro Golubiro', chance: 37 },
+                    { name: 'Zibra Zubra Zibralini', chance: 30 },
+                    { name: 'Tigrilini Watermelini', chance: 20 },
+                    { name: 'Carrotini Brainini', chance: 10 },
+                    { name: 'Bananito Bandito', chance: 3 }
                 ]
             },
-            'Taco Lucky Block': { // Needed for Taco Tuesday event
+            'Brainrot God Lucky Block': {
+                icon: '🟨',
+                color: '#fde047',
+                weight: 2,
+                lootTable: [
+                    { name: 'Tigroligre Frutonni', chance: 54 },
+                    { name: 'Orcalero Orcala', chance: 30 },
+                    { name: 'Bulbito Bandito Traktorito', chance: 10 },
+                    { name: 'Mastodontico Telepiedone', chance: 5 },
+                    { name: 'Pop Pop Sahur', chance: 1 }
+                ]
+            },
+            'Secret Lucky Block': {
+                icon: '⬜',
+                color: '#ffffff',
+                weight: 0.5,
+                lootTable: [
+                    { name: 'Torrtuginni Dragonfrutini', chance: 74.5 },
+                    { name: 'Pot Hotspot', chance: 21 },
+                    { name: 'Esok Sekolah', chance: 3 },
+                    { name: 'Spaghetti Tualetti', chance: 1 },
+                    { name: 'La Secret Combinasion', chance: 0.5 }
+                ]
+            },
+            'Taco Lucky Block': { // Spawns only during Taco Tuesday event or via admin
                 icon: '🌮',
                 color: '#f59e0b',
-                weight: 0, // Only spawns during event
+                weight: 0, 
                 lootTable: [
-                     { name: 'Tipi Topi Taco', chance: 100 },
-                     { name: 'Capi Taco', chance: 100 },
-                     { name: 'Nooo My Hotspot', chance: 5 },
-                     { name: 'Tacorita Bicicleta', chance: 10 }
+                     { name: 'Chihuanini Taconini', chance: 50 },
+                     { name: 'Gattito Tacoto', chance: 32 },
+                     { name: 'Los Tipi Tacos', chance: 10 },
+                     { name: 'Quesadilla Crocodila', chance: 5 },
+                     { name: 'Los Nooo My Hotspotsitos', chance: 3 }
+                ]
+            },
+            'Admin Lucky Block': { // Admin only
+                icon: '🛡️',
+                color: '#06b6d4', // Cyan
+                weight: 0,
+                lootTable: [
+                    { name: 'Carloo', chance: 30 },
+                    { name: 'Los Bombinitos', chance: 30 },
+                    { name: 'Alessio', chance: 20 },
+                    { name: 'Crabbo Limonetta', chance: 10 },
+                    { name: 'Blackhole Goat', chance: 5 },
+                    { name: 'Guerriro Digitale', chance: 3 },
+                    { name: '67', chance: 1 },
+                    { name: 'La Grande Combinasion', chance: 1 }
+                ]
+            },
+            'Los Lucky Block': { // Admin only
+                icon: '🎱',
+                color: '#a855f7', // Purple
+                weight: 0,
+                lootTable: [
+                    { name: 'Los Bombinitos', chance: 40 },
+                    { name: 'Los Tungtungtungcitos', chance: 25 },
+                    { name: 'Los Orcalitos', chance: 15 },
+                    { name: 'Los Tipi Tacos', chance: 10 },
+                    { name: 'Los Tortus', chance: 5 },
+                    { name: 'Los Jobcitos', chance: 3.5 },
+                    { name: 'Los Combinasionas', chance: 1 },
+                    { name: 'Los 67', chance: 0.5 }
+                ]
+            },
+            'Spooky Lucky Block': { // Halloween Event
+                icon: '🎃',
+                color: '#f97316', // Orange
+                weight: 0,
+                lootTable: [
+                    { name: 'Mummy Ambalabu', chance: 32.7 },
+                    { name: 'Cappuccino Clownino', chance: 32.5 },
+                    { name: 'Jackorilla', chance: 19.5 },
+                    { name: 'Pumpkini Spyderini', chance: 9 },
+                    { name: 'Trickolino', chance: 3 },
+                    { name: 'Telemorte', chance: 2 },
+                    { name: 'Los Spooky Combinasionas', chance: 1 },
+                    { name: 'La Casa Boo', chance: 0.3 }
+                ]
+            },
+            'Secret Halloween Lucky Block': { // Secret Halloween Event
+                icon: '👻',
+                color: '#581c87', // Dark Purple
+                weight: 0,
+                lootTable: [
+                    { name: 'Vampira Cappucina', chance: 80 },
+                    { name: 'Zombie Tralala', chance: 50 },
+                    { name: 'Frankentteo', chance: 20 },
+                    { name: 'La Vacca Jacko Linterino', chance: 5 },
+                    { name: 'La Spooky Grande', chance: 1 }
                 ]
             }
         };

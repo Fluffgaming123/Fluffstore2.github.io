@@ -224,9 +224,9 @@
             <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1>
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
-                <button id="save-button" class="btn btn-green">Save</button>
-                <!-- FIXED: Removed 'hidden' class from Load File button -->
-                <button id="load-button" class="btn btn-green">Load File</button>
+                <button id="save-button" class="btn btn-green">Cloud Save</button>
+                <button id="export-button" class="btn btn-yellow">Export Save</button>
+                <button id="load-button" class="btn btn-orange">Import Save</button>
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
@@ -769,6 +769,7 @@
         const globalTooltip = document.getElementById('global-tooltip');
         const notification = document.getElementById('notification');
         const loadFileInput = document.getElementById('load-file-input');
+        const exportButton = document.getElementById('export-button');
 
         // --- Firebase Globals ---
         let app, auth, db;
@@ -1154,7 +1155,10 @@
                 }
             }
             
-            baseSlots[emptySlotIndex] = { ...brainrot, trait: appliedTrait }; 
+            // FIX: Destructure to ensure we NEVER save the HTML element to the baseSlots
+            const { element, position, ...safeBrainrotData } = brainrot;
+            baseSlots[emptySlotIndex] = { ...safeBrainrotData, trait: appliedTrait }; 
+
             discoveredBrainrots.add(brainrot.name); 
             if (brainrot.event) startWeatherEvent(brainrot.event);
             brainrot.element.remove(); 
@@ -1256,223 +1260,54 @@
             }
         }
         
-        function renderRitualModal() {
-            ritualList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            for (const ritualKey in ritualRecipes) {
-                const resultData = findBrainrotData(ritualKey);
-                const recipe = ritualRecipes[ritualKey];
-                let canCraft = hasEmptySlot;
-                let ingredientsHTML = '';
-                for (const ingredientName in recipe.ingredients) {
-                    const required = recipe.ingredients[ingredientName];
-                    const owned = baseCounts[ingredientName] || 0;
-                    const hasEnough = owned >= required;
-                    if (!hasEnough) canCraft = false;
-                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
-                }
-                const ritualEl = document.createElement('div');
-                ritualEl.className = 'bg-gray-700 p-3 rounded-lg';
-                ritualEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div><button class="btn btn-red perform-ritual-btn" data-ritual-key="${ritualKey}" ${canCraft ? '' : 'disabled'}>Perform</button></div>`;
-                ritualList.appendChild(ritualEl);
-            }
-        }
-
-        function performRitual(ritualKey) {
-            const recipe = ritualRecipes[ritualKey];
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            let canCraft = hasEmptySlot;
-            for (const ingredientName in recipe.ingredients) { if ((baseCounts[ingredientName] || 0) < recipe.ingredients[ingredientName]) { canCraft = false; break; } }
-            if (!canCraft) { showNotification("Cannot perform ritual: Requirements not met or base is full.", "red"); return; }
-            for (const ingredientName in recipe.ingredients) { let toRemove = recipe.ingredients[ingredientName]; for (let i = 0; i < baseSlots.length && toRemove > 0; i++) { if (baseSlots[i] && baseSlots[i].name === ingredientName) { baseSlots[i] = null; toRemove--; } } }
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            const resultData = findBrainrotData(ritualKey);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
-            discoveredBrainrots.add(resultData.name);
-            showNotification(`Ritual complete! You crafted a ${resultData.name}!`, rarities[resultData.rarity].color);
-            renderBase(); updateAllUI(); renderRitualModal();
-        }
-
-        function renderCraftModal() {
-            craftMachineList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            for (const craftKey in craftRecipes) {
-                const resultData = findBrainrotData(craftKey);
-                const recipe = craftRecipes[craftKey];
-                let canCraft = hasEmptySlot;
-                let ingredientsHTML = '';
-                for (const ingredientName in recipe.ingredients) {
-                    const required = recipe.ingredients[ingredientName];
-                    const owned = baseCounts[ingredientName] || 0;
-                    const hasEnough = owned >= required;
-                    if (!hasEnough) canCraft = false;
-                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
-                }
-                const craftEl = document.createElement('div');
-                craftEl.className = 'bg-gray-700 p-3 rounded-lg';
-                craftEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div><button class="btn btn-orange perform-craft-btn" data-craft-key="${craftKey}" ${canCraft ? '' : 'disabled'}>Craft</button></div>`;
-                craftMachineList.appendChild(craftEl);
-            }
-        }
-
-        function performCraft(craftKey) {
-            const recipe = craftRecipes[craftKey];
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            let canCraft = hasEmptySlot;
-            for (const ingredientName in recipe.ingredients) { if ((baseCounts[ingredientName] || 0) < recipe.ingredients[ingredientName]) { canCraft = false; break; } }
-            if (!canCraft) { showNotification("Cannot craft: Requirements not met or base is full.", "red"); return; }
-            for (const ingredientName in recipe.ingredients) { let toRemove = recipe.ingredients[ingredientName]; for (let i = 0; i < baseSlots.length && toRemove > 0; i++) { if (baseSlots[i] && baseSlots[i].name === ingredientName) { baseSlots[i] = null; toRemove--; } } }
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            const resultData = findBrainrotData(craftKey);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
-            discoveredBrainrots.add(resultData.name);
-            showNotification(`Craft complete! You made a ${resultData.name}!`, rarities[resultData.rarity].color);
-            renderBase(); updateAllUI(); renderCraftModal();
-        }
-
-        function renderFuseModal(type) {
-            fuseModal.dataset.type = type;
-            fuseModalTitle.textContent = `${type} Fuse`;
-            fuseModalList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-
-            fuseRecipes[type].forEach(recipe => {
-                const owned = baseCounts[recipe.inputRarity] || 0;
-                const hasEnough = owned >= recipe.count;
-                const canFuse = hasEmptySlot && hasEnough;
-                const resultRarity = findBrainrotData(recipe.output[0]).rarity;
-
-                const fuseEl = document.createElement('div');
-                fuseEl.className = 'bg-gray-700 p-3 rounded-lg';
-                fuseEl.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="font-bold text-lg">Fuse ${recipe.count} <span style="color: ${rarities[recipe.inputRarity].color}">${recipe.inputRarity}</span></h4>
-                            <p class="text-sm">Result: 1x Random <span style="color: ${rarities[resultRarity].color}">${resultRarity}</span></p>
-                            <p class="text-sm ${hasEnough ? 'requirement-met' : 'requirement-not-met'}">Owned: ${owned}/${recipe.count}</p>
-                        </div>
-                        <button class="btn btn-cyan perform-fuse-btn" data-input-rarity="${recipe.inputRarity}" ${canFuse ? '' : 'disabled'}>Fuse</button>
-                    </div>`;
-                fuseModalList.appendChild(fuseEl);
+        function exportGame() {
+            // 1. Sanitize data (same as cloud save)
+            const safeBaseSlots = baseSlots.map(slot => {
+                if (!slot) return null;
+                const { element, position, ...cleanSlot } = slot;
+                return cleanSlot;
             });
-        }
 
-        function performFuse(inputRarity, type) {
-            const recipe = fuseRecipes[type].find(r => r.inputRarity === inputRarity);
-            if (!recipe) return;
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            const hasEnough = (baseCounts[inputRarity] || 0) >= recipe.count;
+            const saveData = { 
+                money: money, 
+                baseSlots: safeBaseSlots,
+                discovered: Array.from(discoveredBrainrots),
+                rebirths: rebirths, 
+                luck: luck, 
+                activeEvents: activeEvents,
+                dealerStock: currentDealerStock, // Include local stock state just in case
+                timestamp: Date.now()
+            };
 
-            if (!hasEmptySlot || !hasEnough) {
-                showNotification("Cannot fuse: Requirements not met or base is full.", "red");
-                return;
-            }
+            // 2. Create a blob and download link
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `brainrot_tycoon_save_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchorNode); // Required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
             
-            let toRemove = recipe.count;
-            for (let i = 0; i < baseSlots.length && toRemove > 0; i++) {
-                if (baseSlots[i] && baseSlots[i].rarity === inputRarity) {
-                    baseSlots[i] = null;
-                    toRemove--;
-                }
-            }
-
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            const resultName = recipe.output[Math.floor(Math.random() * recipe.output.length)];
-            const resultData = findBrainrotData(resultName);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
-            discoveredBrainrots.add(resultData.name);
-            showNotification(`Fuse complete! You got a ${resultData.name}!`, rarities[resultData.rarity].color);
-            renderBase(); updateAllUI(); renderFuseModal(type);
+            showNotification("Save file exported!", "yellow");
         }
 
-        function renderDealerModal() {
-            dealerList.innerHTML = '';
-            const hasEmptySlot = baseSlots.some(s => s === null);
-
-            for (const name in dealerExclusives) {
-                const data = dealerExclusives[name];
-                const stock = currentDealerStock[name] || 0;
-                const canAfford = money >= data.cost;
-                const canBuy = hasEmptySlot && canAfford && stock > 0;
-
-                const dealerEl = document.createElement('div');
-                dealerEl.className = 'bg-gray-700 p-3 rounded-lg flex items-center justify-between';
-                dealerEl.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="text-3xl">${data.icon}</div>
-                        <div>
-                            <h4 class="font-bold">${name} <span style="color: ${rarities[data.rarity].color}">(${data.rarity})</span></h4>
-                            <div class="text-sm">Cost: <span class="text-green-400">$${formatLargeNumber(data.cost)}</span> | MPS: <span class="text-yellow-400">${formatLargeNumber(data.mps)}</span></div>
-                            <div class="text-sm ${stock > 0 ? 'text-white' : 'text-red-500'}">Stock: ${stock}</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-green buy-dealer-btn" data-item-name="${name}" ${canBuy ? '' : 'disabled'}>Buy</button>
-                `;
-                dealerList.appendChild(dealerEl);
-            }
-        }
-
-        async function buyFromDealer(itemName) {
-            const data = dealerExclusives[itemName];
-            const stock = currentDealerStock[itemName];
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-
-            if (money < data.cost) { showNotification("Not enough money!", "red"); return; }
-            if (stock <= 0) { showNotification("Out of stock!", "red"); return; }
-            if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
-
-            // Try to update global stock first (primitive optimism: read, then try write)
-            // In a real app, you'd use a transaction or increment(-1).
-            // Here we just try to update the doc with -1 value.
-            if (db && dealerStockDocPath) {
-                 // Very basic optimistic locking via trying to write:
-                 // NOTE: This has race conditions but is acceptable for this level of app complexity.
-                 const newStock = stock - 1;
-                 if(newStock < 0) { showNotification("Out of stock!", "red"); return; }
-                 
-                 try {
-                     await updateDoc(doc(db, dealerStockDocPath), {
-                         [itemName]: newStock
-                     });
-                     // Only if server write succeeds do we take money and give item locally
-                     money -= data.cost;
-                     // currentDealerStock[itemName] will be updated by listener automatically
-                     baseSlots[emptySlotIndex] = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
-                     discoveredBrainrots.add(itemName);
-                     renderBase();
-                     updateAllUI();
-                     showNotification(`Bought ${itemName} from Dealer!`, "green");
-                 } catch(e) {
-                     console.error("Stock update failed:", e);
-                     showNotification("Could not buy (stock error).", "red");
-                 }
-            } else {
-                 // Offline mode fallback
-                 money -= data.cost;
-                 currentDealerStock[itemName]--;
-                 baseSlots[emptySlotIndex] = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
-                 discoveredBrainrots.add(itemName);
-                 renderBase();
-                 updateAllUI();
-                 renderDealerModal();
-                 showNotification(`Bought ${itemName} from Dealer!`, "green");
-            }
-        }
-        
         async function saveGame() {
             if (!db || !userId) {
                 showNotification("Cannot save: Not connected to cloud.", "red");
                 return;
             }
+
+            // FIX: Sanitize baseSlots to ensure no DOM elements are ever sent to Firestore
+            const safeBaseSlots = baseSlots.map(slot => {
+                if (!slot) return null;
+                // Strip out 'element' and 'position' if they accidentally got in
+                const { element, position, ...cleanSlot } = slot;
+                return cleanSlot;
+            });
+
             const saveData = { 
                 money: money, 
-                baseSlots: baseSlots,
+                baseSlots: safeBaseSlots,
                 discovered: Array.from(discoveredBrainrots),
                 rebirths: rebirths, 
                 luck: luck, 
@@ -1488,7 +1323,7 @@
                 showNotification("Save Failed!", "red");
             }
         }
-        
+
         async function loadGame() { // This is the FIREBASE loader
             if (!db || !userId) return; // Don't try to load if no DB
             try {
@@ -1828,9 +1663,10 @@
         window.onload = initializeFirebase; // Start Firebase on load
         pauseButton.addEventListener('click', togglePause);
         saveButton.addEventListener('click', saveGame); // Firebase Save
-        
+        exportButton.addEventListener('click', exportGame); // Local File Export
+
         loadButton.addEventListener('click', () => { // File load
-            showNotification("Loading from file...", "cyan");
+            showNotification("Select a save file...", "cyan");
             loadFileInput.click();
         });
         
@@ -1923,3 +1759,5 @@
     </script>
 </body>
 </html>
+           
+                  

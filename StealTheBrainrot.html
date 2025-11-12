@@ -108,6 +108,22 @@
         .mutation-icon { top: -5px; left: -5px; } /* Offset to corner */
         .trait-icon { bottom: -5px; right: -5px; font-size: 14px; } /* Offset to corner */
 
+        /* NEW: Styles for selection modal */
+        .base-slot.selectable {
+            cursor: pointer;
+        }
+        .base-slot.selectable:hover {
+            background-color: #4b5563 !important;
+        }
+        .base-slot.selectable.selected {
+            background-color: #16a34a; /* Darker Green */
+            border-color: #4ade80;
+        }
+        .base-slot.selectable.selected:hover {
+            background-color: #15803d; /* Even Darker Green */
+        }
+
+
         /* Buttons */
         .btn {
             padding: 6px 12px; /* Reduced button padding */
@@ -225,7 +241,6 @@
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Save</button>
-                <!-- FIXED: Removed 'hidden' class from Load File button -->
                 <button id="load-button" class="btn btn-green">Load File</button>
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
@@ -279,7 +294,8 @@
              <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Jayce Panel</h2><button id="close-jayce-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div>
              <div id="jayce-password-screen"><p class="mb-2">Enter Jayce's Password:</p><input type="password" id="jayce-password-input" class="admin-input w-full mb-2"><button id="jayce-login-button" class="btn btn-blue w-full">Login</button><p id="jayce-error" class="text-red-500 text-sm mt-2"></p></div>
              <div id="jayce-command-screen" class="hidden space-y-4">
-                <div class="flex items-center gap-2"><input id="jayce-chat-input" placeholder="Global Jayce Message" class="admin-input flex-grow"><button id="jayce-send-chat" class="btn btn-blue">Send</button></div>
+                <div class="flex items-center gap-2"><input id="jayce-display-name" placeholder="Display Name" class="admin-input flex-grow"><button id="jayce-send-chat" class="btn btn-blue">Send</button></div>
+                <div class="flex items-center gap-2"><input id="jayce-chat-input" placeholder="Global Jayce Message" class="admin-input flex-grow"></div>
                 <hr class="border-gray-600">
                 <div class="flex items-center gap-2"><input type="number" id="jayce-money-input" placeholder="Amount of money" class="admin-input flex-grow"><button id="jayce-give-money" class="btn btn-green">Give (Self)</button></div>
                 <div class="admin-grid-2"><select id="jayce-spawn-mutation" class="admin-input"></select><select id="jayce-spawn-trait" class="admin-input"></select></div>
@@ -311,6 +327,24 @@
     <div id="fuse-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="fuse-modal-title" class="text-2xl font-bold">Fuse</h2><button id="close-fuse-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="fuse-modal-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="dealer-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Brainrot Dealer</h2><button id="close-dealer-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="dealer-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     
+    <!-- NEW: Selection Modal -->
+    <div id="selection-modal" class="modal-overlay hidden">
+        <div class="modal-content small-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="selection-modal-title" class="text-2xl font-bold">Select Items</h2>
+                <button id="close-selection-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button>
+            </div>
+            <p id="selection-modal-prompt" class="mb-2"></p>
+            <div id="selection-modal-grid" class="base-grid gap-2 sm:gap-2 flex-grow p-2 rounded-md overflow-y-auto bg-gray-800" style="grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));">
+                <!-- Selectable items will go here -->
+            </div>
+            <div class="mt-4 flex gap-2">
+                <button id="selection-modal-confirm" class="btn btn-green w-full" disabled>Confirm</button>
+                <button id="selection-modal-cancel" class="btn btn-gray w-full">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Global UI -->
     <div id="global-tooltip" class="hidden fixed bg-black bg-opacity-80 text-white text-xs rounded-md p-2 pointer-events-none z-[9999]"></div>
     <div id="notification"></div>
@@ -318,12 +352,7 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, doc, getDoc, setDoc, addDoc, collection, updateDoc,
-            query, where, onSnapshot, serverTimestamp, setLogLevel 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // --- REMOVED ALL FIREBASE IMPORTS ---
 
         // --- Data Definitions (MUST be first to avoid ReferenceErrors) ---
         const JAYCE_PASSWORD = "HelloDexterMorgan"; 
@@ -725,13 +754,12 @@
             jaycePasswordInput, jayceLoginButton, jayceError, jayceCommandScreen, jayceLogoutButton,
             ritualModal, closeRitualButton, ritualList, craftMachineModal, closeCraftMachineButton,
             craftMachineList, fuseModal, fuseModalTitle, closeFuseModalButton, fuseModalList,
-            dealerModal, closeDealerButton, dealerList, globalTooltip, notification, loadFileInput;
+            dealerModal, closeDealerButton, dealerList, globalTooltip, notification, loadFileInput, exportButton,
+            selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt, 
+            selectionModalGrid, selectionModalConfirm, selectionModalCancel;
 
         // --- Firebase Globals ---
-        let app, auth, db;
-        let userId;
-        let eventsCollectionPath, userSaveDocPath, dealerStockDocPath;
-        let globalEventListener = null;
+        // --- REMOVED ALL FIREBASE VARIABLES ---
         let isAdmin = false;
 
         // --- Game State ---
@@ -743,83 +771,396 @@
         let tacoEventInterval = null;
         let currentDealerStock = {}; // State for local dealer stock
         
-        // --- PASTE YOUR FIREBASE CONFIG HERE ---
-        const HARDCODED_FIREBASE_CONFIG = {
-           apiKey: "AIzaSyB_8Eao4PirrTF6DBjjbUmhL6MyXnt6vzY",
-           authDomain: "steal-the-brainrot-admin-panel.firebaseapp.com",
-           projectId: "steal-the-brainrot-admin-panel",
-           storageBucket: "steal-the-brainrot-admin-panel.firebasestorage.app",
-           messagingSenderId: "559691711111",
-           appId: "1:559691711111:web:27dff3446aea0ef624ee22",
-           measurementId: "G-3FPEYCR4JM"
-        };
+        let currentSelectionCallback = null;
+        let selectedIndices = [];
+        
+        // --- REMOVED FIREBASE CONFIG ---
 
-        async function initializeFirebase() {
-            try {
-                // Try to get config from environment, fallback to hardcoded
-                let firebaseConfig = HARDCODED_FIREBASE_CONFIG;
-                if (firebaseConfig.apiKey === "YOUR_API_KEY" && typeof __firebase_config !== 'undefined') {
-                    firebaseConfig = JSON.parse(atob(__firebase_config));
+        // --- FIX: All modal render functions moved before init ---
+        
+        function renderRitualModal() {
+            ritualList.innerHTML = '';
+            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            for (const ritualKey in ritualRecipes) {
+                const resultData = findBrainrotData(ritualKey);
+                const recipe = ritualRecipes[ritualKey];
+                let canCraft = hasEmptySlot;
+                let ingredientsHTML = '';
+                for (const ingredientName in recipe.ingredients) {
+                    const required = recipe.ingredients[ingredientName];
+                    const owned = baseCounts[ingredientName] || 0;
+                    const hasEnough = owned >= required;
+                    if (!hasEnough) canCraft = false;
+                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
                 }
-                
-                // FIX: Check if config is valid
-                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
-                    console.warn("Firebase config is missing. Game will run in offline mode.");
-                    // FIX: We must still get DOM elements even in offline mode
-                    initGameLogic(); 
-                    loadingSpinner.classList.add('hidden');
-                    gameRoot.classList.remove('hidden');
-                    return; // Stop firebase init
-                }
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                setLogLevel('Debug');
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("User signed in:", userId);
-                        
-                        // Define user-specific paths. Sanitize appId rigorously.
-                        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                        // Replace anything that isn't a letter, number, underscore, or hyphen with an underscore.
-                        const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
-
-                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`;
-                        eventsCollectionPath = `/artifacts/${appId}/public/data/events`;
-                        dealerStockDocPath = `/artifacts/${appId}/public/data/dealer_stock/current`;
-
-                        await loadGame(); // Load data from Firebase
-                        initGameLogic(); // Start game loops
-                        setupGlobalEventListener(); // Start listening for admin events
-                        setupDealerStockListener(); // Start listener for global dealer stock
-
-                        loadingSpinner.classList.add('hidden');
-                        gameRoot.classList.remove('hidden');
-
-                    } else {
-                        console.log("No user found, signing in...");
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            try {
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } catch (e) {
-                                console.warn("Custom token auth failed, falling back to anonymous:", e);
-                                await signInAnonymously(auth);
-                            }
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error("Firebase Init Error:", error);
-                // Fallback to offline mode if init fails
-                initGameLogic();
-                loadingSpinner.classList.add('hidden');
-                gameRoot.classList.remove('hidden');
+                const ritualEl = document.createElement('div');
+                ritualEl.className = 'bg-gray-700 p-3 rounded-lg';
+                ritualEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div>
+                <button class="btn btn-red perform-ritual-btn" data-ritual-key="${ritualKey}" ${canCraft ? '' : 'disabled'}>Select Items</button></div>`;
+                ritualList.appendChild(ritualEl);
             }
+        }
+
+        function renderCraftModal() {
+            craftMachineList.innerHTML = '';
+            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            for (const craftKey in craftRecipes) {
+                const resultData = findBrainrotData(craftKey);
+                const recipe = craftRecipes[craftKey];
+                let canCraft = hasEmptySlot;
+                let ingredientsHTML = '';
+                for (const ingredientName in recipe.ingredients) {
+                    const required = recipe.ingredients[ingredientName];
+                    const owned = baseCounts[ingredientName] || 0;
+                    const hasEnough = owned >= required;
+                    if (!hasEnough) canCraft = false;
+                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
+                }
+                const craftEl = document.createElement('div');
+                craftEl.className = 'bg-gray-700 p-3 rounded-lg';
+                craftEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div>
+                <button class="btn btn-orange perform-craft-btn" data-craft-key="${craftKey}" ${canCraft ? '' : 'disabled'}>Select Items</button></div>`;
+                craftMachineList.appendChild(craftEl);
+            }
+        }
+
+        function renderFuseModal(type) {
+            fuseModal.dataset.type = type;
+            fuseModalTitle.textContent = `${type} Fuse`;
+            fuseModalList.innerHTML = '';
+            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
+            const hasEmptySlot = baseSlots.some(s => s === null);
+
+            fuseRecipes[type].forEach(recipe => {
+                const owned = baseCounts[recipe.inputRarity] || 0;
+                const hasEnough = owned >= recipe.count;
+                const canFuse = hasEmptySlot && hasEnough;
+                const resultRarity = findBrainrotData(recipe.output[0]).rarity;
+
+                const fuseEl = document.createElement('div');
+                fuseEl.className = 'bg-gray-700 p-3 rounded-lg';
+                fuseEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-lg">Fuse ${recipe.count} <span style="color: ${rarities[recipe.inputRarity].color}">${recipe.inputRarity}</span></h4>
+                            <p class="text-sm">Result: 1x Random <span style="color: ${rarities[resultRarity].color}">${resultRarity}</span></p>
+                            <p class="text-sm ${hasEnough ? 'requirement-met' : 'requirement-not-met'}">Owned: ${owned}/${recipe.count}</p>
+                        </div>
+                        <button class="btn btn-cyan perform-fuse-btn" data-input-type="${type}" data-input-rarity="${recipe.inputRarity}" data-input-count="${recipe.count}" ${canFuse ? '' : 'disabled'}>Select Items</button>
+                    </div>`;
+                fuseModalList.appendChild(fuseEl);
+            });
+        }
+
+        function renderDealerModal() {
+            dealerList.innerHTML = '';
+            const hasEmptySlot = baseSlots.some(s => s === null);
+
+            for (const name in dealerExclusives) {
+                const data = dealerExclusives[name];
+                const stock = currentDealerStock[name] || 0;
+                const canAfford = money >= data.cost;
+                const canBuy = hasEmptySlot && canAfford && stock > 0;
+
+                const dealerEl = document.createElement('div');
+                dealerEl.className = 'bg-gray-700 p-3 rounded-lg flex items-center justify-between';
+                dealerEl.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl">${data.icon}</div>
+                        <div>
+                            <h4 class="font-bold">${name} <span style="color: ${rarities[data.rarity].color}">(${data.rarity})</span></h4>
+                            <div class="text-sm">Cost: <span class="text-green-400">$${formatLargeNumber(data.cost)}</span> | MPS: <span class="text-yellow-400">${formatLargeNumber(data.mps)}</span></div>
+                            <div class="text-sm ${stock > 0 ? 'text-white' : 'text-red-500'}">Stock: ${stock}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-green buy-dealer-btn" data-item-name="${name}" ${canBuy ? '' : 'disabled'}>Buy</button>
+                `;
+                dealerList.appendChild(dealerEl);
+            }
+        }
+        // --- END OF RENDER FUNCTIONS ---
+
+        function openRitualSelectionModal(ritualKey) {
+            const recipe = ritualRecipes[ritualKey];
+            const resultData = findBrainrotData(ritualKey);
+            
+            selectionModalTitle.textContent = `Craft: ${resultData.name}`;
+            
+            const ingredients = recipe.ingredients; // e.g., { 'Matteo': 3 }
+            let requiredItems = []; // This will be an array of { name: 'Matteo', count: 3 }
+            for (const name in ingredients) {
+                requiredItems.push({ name, count: ingredients[name] });
+            }
+            
+            selectedIndices = [];
+            selectionModalConfirm.disabled = true;
+
+            // This callback will be called when the user hits "Confirm"
+            currentSelectionCallback = (confirmedIndices) => {
+                performRitual(ritualKey, confirmedIndices);
+                closeSelectionModal();
+            };
+
+            renderSelectionModal(requiredItems);
+            selectionModal.classList.remove('hidden');
+        }
+
+        function openCraftSelectionModal(craftKey) {
+            const recipe = craftRecipes[craftKey];
+            const resultData = findBrainrotData(craftKey);
+            
+            selectionModalTitle.textContent = `Craft: ${resultData.name}`;
+            
+            const ingredients = recipe.ingredients;
+            let requiredItems = []; 
+            for (const name in ingredients) {
+                requiredItems.push({ name, count: ingredients[name] });
+            }
+            
+            selectedIndices = [];
+            selectionModalConfirm.disabled = true;
+
+            currentSelectionCallback = (confirmedIndices) => {
+                performCraft(craftKey, confirmedIndices);
+                closeSelectionModal();
+            };
+
+            renderSelectionModal(requiredItems);
+            selectionModal.classList.remove('hidden');
+        }
+
+        function openFuseSelectionModal(rarity, count, type) {
+            // This is simpler. We just need `count` items of `rarity`.
+            const requiredItems = [{ name: rarity, count: count, isRarity: true }]; // Special flag
+            
+            selectionModalTitle.textContent = `Fuse: ${type}`;
+            
+            selectedIndices = [];
+            selectionModalConfirm.disabled = true;
+
+            currentSelectionCallback = (confirmedIndices) => {
+                performFuse(rarity, type, confirmedIndices); // Pass indices
+                closeSelectionModal();
+            };
+
+            renderSelectionModal(requiredItems);
+            selectionModal.classList.remove('hidden');
+        }
+
+        function renderSelectionModal(requiredItems) { // requiredItems = [{ name: 'Matteo', count: 3, isRarity: false }, { name: 'Mythic', count: 4, isRarity: true }]
+            selectionModalGrid.innerHTML = '';
+            
+            const requiredCounts = {}; // { 'Matteo': 3 }
+            const requiredRarities = {}; // { 'Mythic': 4 }
+            
+            let prompt = "Select items to use:<br>";
+            requiredItems.forEach(req => {
+                if (req.isRarity) {
+                    requiredRarities[req.name] = req.count;
+                    prompt += `<span id="req-rarity-${req.name}">${req.count}x ${req.name} (0 selected)</span><br>`;
+                } else {
+                    requiredCounts[req.name] = req.count;
+                    prompt += `<span id="req-${req.name}">${req.count}x ${req.name} (0 selected)</span><br>`;
+                }
+            });
+            selectionModalPrompt.innerHTML = prompt;
+
+            // Get all items from base that are valid ingredients
+            const availableItems = baseSlots.map((slot, index) => ({ slot, index }))
+                .filter(item => item.slot && (requiredCounts[item.slot.name] || requiredRarities[item.slot.rarity])); 
+                        
+            if (availableItems.length === 0) {
+                selectionModalGrid.innerHTML = `<p class="col-span-full text-center">You have no required items in your base.</p>`;
+                return;
+            }
+
+            availableItems.forEach(item => {
+                const brainrot = item.slot;
+                const index = item.index;
+                const rarityData = rarities[brainrot.rarity];
+                
+                let mutationIcon = '';
+                if (brainrot.mutation && brainrot.mutation.name !== 'None') { 
+                    mutationIcon = `<div class="mutation-icon" style="background: ${brainrot.mutation.color};">${brainrot.mutation.icon}</div>`; 
+                }
+                let traitIcon = '';
+                if (brainrot.trait) { 
+                    traitIcon = `<div class="trait-icon" style="color: ${brainrot.trait.color};">${brainrot.trait.icon}</div>`; 
+                }
+                
+                const slot = document.createElement('div');
+                slot.className = 'base-slot selectable'; // Add 'selectable'
+                slot.dataset.index = index;
+                slot.innerHTML = `<div class="base-item" style="border-color: ${rarityData.color}; background-color: #374151;">${brainrot.icon}${mutationIcon}${traitIcon}</div>`;
+                
+                slot.onclick = () => toggleSelection(index, requiredCounts, requiredRarities); // Pass rarities
+                
+                selectionModalGrid.appendChild(slot);
+            });
+        }
+        
+        function toggleSelection(index, requiredCounts, requiredRarities = {}) {
+            const slotEl = selectionModalGrid.querySelector(`.base-slot[data-index="${index}"]`);
+            const item = baseSlots[index];
+            if (!item) return;
+
+            const findIndex = selectedIndices.indexOf(index);
+            
+            if (findIndex > -1) {
+                // Item is already selected, de-select it
+                selectedIndices.splice(findIndex, 1);
+                slotEl.classList.remove('selected'); // Use class
+            } else {
+                // Item is not selected. Check if we can select it.
+                let canSelect = false;
+                let neededName = null;
+                let neededRarity = null;
+                
+                if (requiredCounts[item.name]) neededName = item.name;
+                if (requiredRarities[item.rarity]) neededRarity = item.rarity;
+
+                if (neededName) {
+                    const currentSelectedForThisType = selectedIndices
+                        .map(i => baseSlots[i].name)
+                        .filter(name => name === neededName).length;
+                    if (currentSelectedForThisType < requiredCounts[neededName]) {
+                        canSelect = true;
+                    } else {
+                        showNotification(`You only need ${requiredCounts[neededName]}x ${neededName}`, 'yellow');
+                    }
+                } else if (neededRarity) {
+                     const currentSelectedForThisRarity = selectedIndices
+                        .map(i => baseSlots[i].rarity)
+                        .filter(rarity => rarity === neededRarity).length;
+                    if (currentSelectedForThisRarity < requiredRarities[neededRarity]) {
+                        canSelect = true;
+                    } else {
+                        showNotification(`You only need ${requiredRarities[neededRarity]}x ${neededRarity}`, 'yellow');
+                    }
+                }
+
+                if (canSelect) {
+                    selectedIndices.push(index);
+                    slotEl.classList.add('selected'); // Use class
+                }
+            }
+            
+            // Update prompts and check for confirm button
+            let allRequirementsMet = true;
+            const currentCounts = {};
+            const currentRarityCounts = {}; // NEW
+            selectedIndices.forEach(i => {
+                const name = baseSlots[i].name;
+                const rarity = baseSlots[i].rarity;
+                currentCounts[name] = (currentCounts[name] || 0) + 1;
+                currentRarityCounts[rarity] = (currentRarityCounts[rarity] || 0) + 1;
+            });
+
+            for (const name in requiredCounts) {
+                const count = currentCounts[name] || 0;
+                const req = requiredCounts[name];
+                const el = document.getElementById(`req-${name}`);
+                if (el) {
+                    el.innerHTML = `${req}x ${name} (${count} selected)`;
+                    if (count < req) {
+                        allRequirementsMet = false;
+                        el.style.color = '#f87171'; // Red
+                    } else {
+                        el.style.color = '#4ade80'; // Green
+                    }
+                }
+            }
+            
+            for (const rarity in requiredRarities) { // NEW
+                const count = currentRarityCounts[rarity] || 0;
+                const req = requiredRarities[rarity];
+                const el = document.getElementById(`req-rarity-${rarity}`);
+                if (el) {
+                    el.innerHTML = `${req}x ${rarity} (${count} selected)`;
+                    if (count < req) {
+                        allRequirementsMet = false;
+                        el.style.color = '#f87171'; // Red
+                    } else {
+                        el.style.color = '#4ade80'; // Green
+                    }
+                }
+            }
+            
+            selectionModalConfirm.disabled = !allRequirementsMet;
+        }
+
+        function closeSelectionModal() {
+            selectionModal.classList.add('hidden');
+            currentSelectionCallback = null;
+            selectedIndices = [];
+        }
+
+        async function buyFromDealer(itemName) {
+            const data = dealerExclusives[itemName];
+            const stock = currentDealerStock[itemName];
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+
+            if (money < data.cost) { showNotification("Not enough money!", "red"); return; }
+            if (stock <= 0) { showNotification("Out of stock!", "red"); return; }
+            if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
+
+            // FIX: Removed all Firebase logic. This is local-only now.
+            money -= data.cost;
+            currentDealerStock[itemName]--;
+            baseSlots[emptySlotIndex] = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
+            discoveredBrainrots.add(itemName);
+            renderBase();
+            updateAllUI();
+            renderDealerModal();
+            showNotification(`Bought ${itemName} from Dealer!`, "green");
+        }
+        
+        async function saveGame() {
+            // 1. Sanitize data (same as cloud save)
+            const safeBaseSlots = baseSlots.map(slot => {
+                if (!slot) return null;
+                const { element, position, ...cleanSlot } = slot;
+                return cleanSlot;
+            });
+
+            const saveData = { 
+                money: money, 
+                baseSlots: safeBaseSlots,
+                discovered: Array.from(discoveredBrainrots),
+                rebirths: rebirths, 
+                luck: luck, 
+                activeEvents: activeEvents,
+                dealerStock: currentDealerStock, // Include local stock state 
+                timestamp: Date.now()
+            };
+
+            // 2. Create a blob and download link
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `brainrot_tycoon_save_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchorNode); // Required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            showNotification("Game Saved to File!", "green");
+        }
+        
+        async function loadGame() { // This function is now only for local saves
+            console.log("Use 'Load File' button to load a save.");
+            return;
+        }
+
+        function loadGameFromFile() {
+            // This function now just triggers the hidden file input
+            loadFileInput.click();
+        }
+
+        function initializeGame() {
+            // FIX: This is now just a launcher for initGameLogic
+            setTimeout(initGameLogic, 0);
         }
 
         function initGameLogic() {
@@ -827,8 +1168,9 @@
             loadingSpinner = document.getElementById('loading-spinner');
             gameRoot = document.getElementById('game-root');
             pauseButton = document.getElementById('pause-button');
-            saveButton = document.getElementById('save-button');
+            saveButton = document.getElementById('save-button'); 
             loadButton = document.getElementById('load-button');
+            exportButton = document.getElementById('export-button'); // This was removed in your HTML, will be null
             indexButton = document.getElementById('index-button');
             indexCounter = document.getElementById('index-counter');
             openRebirthButton = document.getElementById('open-rebirth-button');
@@ -878,12 +1220,28 @@
             globalTooltip = document.getElementById('global-tooltip');
             notification = document.getElementById('notification');
             loadFileInput = document.getElementById('load-file-input');
+            
+            // NEW Selection Modal elements
+            selectionModal = document.getElementById('selection-modal');
+            selectionModalTitle = document.getElementById('selection-modal-title');
+            closeSelectionModalButton = document.getElementById('close-selection-modal-button');
+            selectionModalPrompt = document.getElementById('selection-modal-prompt');
+            selectionModalGrid = document.getElementById('selection-modal-grid');
+            selectionModalConfirm = document.getElementById('selection-modal-confirm');
+            selectionModalCancel = document.getElementById('selection-modal-cancel');
 
-            // --- Now add event listeners ---
+
+            // --- FIX: Now that elements are loaded, we can hide the spinner ---
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            if (gameRoot) gameRoot.classList.remove('hidden');
+
+
+            // --- Now add event listeners (with checks for null) ---
             document.getElementById('jayce-send-chat').addEventListener('click', () => {
                 const message = document.getElementById('jayce-chat-input').value;
+                const displayName = document.getElementById('jayce-display-name').value || 'Admin'; // Get display name
                 if(message) {
-                    sendGlobalEvent('chat', { message: message });
+                    sendGlobalEvent('chat', { message: message, displayName: displayName }); // Pass it
                     document.getElementById('jayce-chat-input').value = '';
                 }
             });
@@ -948,11 +1306,15 @@
             });
             jayceLogoutButton.addEventListener('click', jayceLogout);
             pauseButton.addEventListener('click', togglePause);
-            saveButton.addEventListener('click', saveGame); // NOW triggers file download
-            loadButton.addEventListener('click', () => { // File load
+            
+            // FIX: Check if elements exist before adding listeners
+            if (saveButton) saveButton.addEventListener('click', saveGame);
+            if (exportButton) exportButton.addEventListener('click', exportGame); // This button is not in your HTML, so this listener won't attach
+            if (loadButton) loadButton.addEventListener('click', () => { // File load
                 showNotification("Select a save file...", "cyan");
                 loadFileInput.click();
             });
+        
             loadFileInput.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -971,12 +1333,13 @@
                 reader.readAsText(file);
                 event.target.value = null;
             });
+
             sellButton.addEventListener('click', toggleSellMode);
             indexButton.addEventListener('click', openIndexModal);
             closeIndexButton.addEventListener('click', closeIndexModal);
             indexModal.addEventListener('click', (e) => { if(e.target === indexModal) closeIndexModal() });
             openRebirthButton.addEventListener('click', openRebirthModal);
-            closeRebirthButton.addEventListener('click', closeRebirthModal);
+            closeRebirthButton.addEventListener('click', closeRebirthButton);
             confirmRebirthButton.addEventListener('click', handleRebirth);
             rebirthModal.addEventListener('click', (e) => { if(e.target === rebirthModal) closeRebirthModal() });
             window.addEventListener('keydown', (e) => { if (e.key === '-') { openJayceModal(); } });
@@ -1007,14 +1370,26 @@
                 } 
             });
             baseContainer.addEventListener('mouseout', () => { globalTooltip.classList.add('hidden'); });
+            
+            // --- Modal Listeners ---
             openRitualButton.addEventListener('click', openRitualModal);
             closeRitualButton.addEventListener('click', closeRitualModal);
             ritualModal.addEventListener('click', (e) => { if (e.target === ritualModal) closeRitualModal(); });
-            ritualList.addEventListener('click', (e) => { if (e.target.classList.contains('perform-ritual-btn')) { performRitual(e.target.dataset.ritualKey); } });
+            ritualList.addEventListener('click', (e) => { 
+                if (e.target.classList.contains('perform-ritual-btn')) { 
+                    openRitualSelectionModal(e.target.dataset.ritualKey); // MODIFIED
+                } 
+            });
+
             openCraftMachineButton.addEventListener('click', openCraftMachineModal);
             closeCraftMachineButton.addEventListener('click', closeCraftMachineModal);
             craftMachineModal.addEventListener('click', (e) => { if (e.target === craftMachineModal) closeCraftMachineModal(); });
-            craftMachineList.addEventListener('click', (e) => { if (e.target.classList.contains('perform-craft-btn')) { performCraft(e.target.dataset.craftKey); } });
+            craftMachineList.addEventListener('click', (e) => { 
+                if (e.target.classList.contains('perform-craft-btn')) { 
+                    openCraftSelectionModal(e.target.dataset.craftKey); // MODIFIED
+                } 
+            });
+
             openNormalFuseButton.addEventListener('click', () => openFuseModal('Normal'));
             openWitchFuseButton.addEventListener('click', () => openFuseModal('Witch'));
             openTacoFuseButton.addEventListener('click', () => openFuseModal('Taco'));
@@ -1022,15 +1397,28 @@
             fuseModal.addEventListener('click', (e) => { if (e.target === fuseModal) closeFuseModal(); });
             fuseModalList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('perform-fuse-btn')) {
-                    performFuse(e.target.dataset.inputRarity, fuseModal.dataset.type);
+                    const { inputType, inputRarity, inputCount } = e.target.dataset;
+                    openFuseSelectionModal(inputRarity, parseInt(inputCount, 10), inputType); // MODIFIED
                 }
             });
+
             openDealerButton.addEventListener('click', openDealerModal);
             closeDealerButton.addEventListener('click', closeDealerModal);
             dealerModal.addEventListener('click', (e) => { if (e.target === dealerModal) closeDealerModal(); });
             dealerList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('buy-dealer-btn')) {
                     buyFromDealer(e.target.dataset.itemName);
+                }
+            });
+
+            // NEW Selection Modal Listeners
+            closeSelectionModalButton.addEventListener('click', closeSelectionModal);
+            selectionModalCancel.addEventListener('click', closeSelectionModal);
+            selectionModal.addEventListener('click', (e) => { if(e.target === selectionModal) closeSelectionModal() });
+            
+            selectionModalConfirm.addEventListener('click', () => {
+                if (currentSelectionCallback) {
+                    currentSelectionCallback(selectedIndices);
                 }
             });
             // --- End of Event Listeners ---
@@ -1056,59 +1444,28 @@
         }
 
         function setupGlobalEventListener() {
-            if (globalEventListener || !db) return; // Don't run if no DB or already listening
-
-            const loadTime = new Date();
-            const q = query(collection(db, eventsCollectionPath), where("timestamp", ">", loadTime));
-
-            globalEventListener = onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "added") {
-                        const event = change.doc.data();
-                        console.log("Global Event Received:", event);
-                        handleGlobalEvent(event);
-                    }
-                });
-            }, (error) => {
-                console.error("Error listening to global events:", error);
-            });
+            // This function is now local-only, but we keep the stub
+            // if (!db) return; // No db, no global events
+            // console.log("Global listener disabled in local mode.");
         }
 
         function setupDealerStockListener() {
-            if (!db || !dealerStockDocPath) return;
-            onSnapshot(doc(db, dealerStockDocPath), (docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    currentDealerStock = docSnapshot.data();
-                    updateAllUI();
-                    if (dealerModal && !dealerModal.classList.contains('hidden')) {
-                        renderDealerModal();
-                    }
-                } else {
-                    // Initialize if it doesn't exist
-                    initializeGlobalDealerStock();
-                }
-            }, (error) => {
-                console.error("Error listening to dealer stock:", error);
-            });
+            // This function is now local-only
+            // console.log("Dealer stock listener disabled in local mode.");
         }
 
         async function initializeGlobalDealerStock() {
-            if (!db || !dealerStockDocPath) return;
-            const initialStock = {};
-            for (const name in dealerExclusives) {
-                initialStock[name] = dealerExclusives[name].initialStock;
-            }
-            try {
-                await setDoc(doc(db, dealerStockDocPath), initialStock);
-            } catch (error) {
-                console.error("Error initializing global dealer stock:", error);
-            }
+            // This function is now local-only
+            // console.log("Global dealer stock disabled in local mode.");
         }
 
         function handleGlobalEvent(event) {
+            // This function is now local-only
+            // console.log("Global events disabled in local mode.");
+            // FIX: Added simulation logic back
             switch(event.type) {
                 case 'chat':
-                    showNotification(`JAYCE: ${event.message}`, 'white');
+                    showNotification(`${event.displayName || 'JAYCE'}: ${event.message}`, 'white');
                     break;
                 case 'spawn':
                     spawnBrainrotByName(event.name, event.mutation, event.trait);
@@ -1127,66 +1484,38 @@
                     break;
                 case 'stop_all_events':
                     activeEvents = {};
-                    // Clear traits from base
-                    baseSlots.forEach(slot => {
-                        if (slot) slot.trait = null;
-                    });
+                    baseSlots.forEach(slot => { if (slot) slot.trait = null; });
                     renderBase();
                     updateAllUI();
                     updateActiveEventsUI();
                     showNotification("All events have been stopped.", "gray");
                     break;
                 case 'restock_dealer':
-                    // This is now handled by updating the global document, but we can keep the notification
-                    if (event.item === 'All') {
-                         showNotification("Dealer restock initiated!", "green");
-                         // Actual restock happens via database update if you are admin, 
-                         // or via listener if you are player.
-                         if(isAdmin) restockGlobalDealer(event.item);
-                    } else if (dealerExclusives[event.item]) {
-                         showNotification(`${event.item} restock initiated!`, "green");
-                         if(isAdmin) restockGlobalDealer(event.item);
-                    }
+                    restockGlobalDealer(event.item); // Call local version
                     break;
             }
         }
 
         async function restockGlobalDealer(item) {
-            if (!db || !dealerStockDocPath) return;
-            let updateData = {};
-            if (item === 'All') {
+            // This function is now local-only
+             if (item === 'All') {
                 for (const name in dealerExclusives) {
-                    updateData[name] = dealerExclusives[name].initialStock;
+                    currentDealerStock[name] = dealerExclusives[name].initialStock;
                 }
             } else {
-                updateData[item] = dealerExclusives[item].initialStock;
+                currentDealerStock[item] = dealerExclusives[item].initialStock;
             }
-             try {
-                await updateDoc(doc(db, dealerStockDocPath), updateData);
-            } catch (error) {
-                console.error("Error restocking dealer:", error);
-            }
+            renderDealerModal();
+            showNotification("Dealer restocked (local)!", "green");
         }
 
         async function sendGlobalEvent(type, payload) {
-            if (!isAdmin) {
-                showNotification("You are not an admin.", "red");
-                return;
-            }
-            if (!db) {
-                showNotification("Not connected to Firebase.", "red");
-                return;
-            }
-            try {
-                await addDoc(collection(db, eventsCollectionPath), {
-                    ...payload,
-                    type: type,
-                    timestamp: serverTimestamp()
-                });
-            } catch (error) {
-                console.error("Error sending global event:", error);
-                showNotification("Failed to send command.", "red");
-            }
+            // This function is now local-only
+            showNotification("Local admin event simulated.", "cyan");
+            // We can simulate some admin events locally
+            if (!isAdmin) return;
+            // FIX: Call handleGlobalEvent directly
+            handleGlobalEvent({ type: type, ...payload });
         }
 
         function gameLoop() { if (!isPaused) { updateMoney(); updateBeltItems(); } }
@@ -1431,169 +1760,6 @@
             }
         }
         
-        // --- FIX: Re-added all modal render functions ---
-        function renderRitualModal() {
-            ritualList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            for (const ritualKey in ritualRecipes) {
-                const resultData = findBrainrotData(ritualKey);
-                const recipe = ritualRecipes[ritualKey];
-                let canCraft = hasEmptySlot;
-                let ingredientsHTML = '';
-                for (const ingredientName in recipe.ingredients) {
-                    const required = recipe.ingredients[ingredientName];
-                    const owned = baseCounts[ingredientName] || 0;
-                    const hasEnough = owned >= required;
-                    if (!hasEnough) canCraft = false;
-                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
-                }
-                const ritualEl = document.createElement('div');
-                ritualEl.className = 'bg-gray-700 p-3 rounded-lg';
-                ritualEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div><button class="btn btn-red perform-ritual-btn" data-ritual-key="${ritualKey}" ${canCraft ? '' : 'disabled'}>Perform</button></div>`;
-                ritualList.appendChild(ritualEl);
-            }
-        }
-
-        function performRitual(ritualKey) {
-            const recipe = ritualRecipes[ritualKey];
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            let canCraft = hasEmptySlot;
-            for (const ingredientName in recipe.ingredients) { if ((baseCounts[ingredientName] || 0) < recipe.ingredients[ingredientName]) { canCraft = false; break; } }
-            if (!canCraft) { showNotification("Cannot perform ritual: Requirements not met or base is full.", "red"); return; }
-            for (const ingredientName in recipe.ingredients) { let toRemove = recipe.ingredients[ingredientName]; for (let i = 0; i < baseSlots.length && toRemove > 0; i++) { if (baseSlots[i] && baseSlots[i].name === ingredientName) { baseSlots[i] = null; toRemove--; } } }
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            const resultData = findBrainrotData(ritualKey);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
-            discoveredBrainrots.add(resultData.name);
-            showNotification(`Ritual complete! You crafted a ${resultData.name}!`, rarities[resultData.rarity].color);
-            renderBase(); updateAllUI(); renderRitualModal();
-        }
-
-        function renderCraftModal() {
-            craftMachineList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            for (const craftKey in craftRecipes) {
-                const resultData = findBrainrotData(craftKey);
-                const recipe = craftRecipes[craftKey];
-                let canCraft = hasEmptySlot;
-                let ingredientsHTML = '';
-                for (const ingredientName in recipe.ingredients) {
-                    const required = recipe.ingredients[ingredientName];
-                    const owned = baseCounts[ingredientName] || 0;
-                    const hasEnough = owned >= required;
-                    if (!hasEnough) canCraft = false;
-                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
-                }
-                const craftEl = document.createElement('div');
-                craftEl.className = 'bg-gray-700 p-3 rounded-lg';
-                craftEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div><button class="btn btn-orange perform-craft-btn" data-craft-key="${craftKey}" ${canCraft ? '' : 'disabled'}>Craft</button></div>`;
-                craftMachineList.appendChild(craftEl);
-            }
-        }
-
-        function performCraft(craftKey) {
-            const recipe = craftRecipes[craftKey];
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            let canCraft = hasEmptySlot;
-            for (const ingredientName in recipe.ingredients) { if ((baseCounts[ingredientName] || 0) < recipe.ingredients[ingredientName]) { canCraft = false; break; } }
-            if (!canCraft) { showNotification("Cannot craft: Requirements not met or base is full.", "red"); return; }
-            for (const ingredientName in recipe.ingredients) { let toRemove = recipe.ingredients[ingredientName]; for (let i = 0; i < baseSlots.length && toRemove > 0; i++) { if (baseSlots[i] && baseSlots[i].name === ingredientName) { baseSlots[i] = null; toRemove--; } } }
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            const resultData = findBrainrotData(craftKey);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
-            discoveredBrainrots.add(resultData.name);
-            showNotification(`Craft complete! You made a ${resultData.name}!`, rarities[resultData.rarity].color);
-            renderBase(); updateAllUI(); renderCraftModal();
-        }
-
-        function renderFuseModal(type) {
-            fuseModal.dataset.type = type;
-            fuseModalTitle.textContent = `${type} Fuse`;
-            fuseModalList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-
-            fuseRecipes[type].forEach(recipe => {
-                const owned = baseCounts[recipe.inputRarity] || 0;
-                const hasEnough = owned >= recipe.count;
-                const canFuse = hasEmptySlot && hasEnough;
-                const resultRarity = findBrainrotData(recipe.output[0]).rarity;
-
-                const fuseEl = document.createElement('div');
-                fuseEl.className = 'bg-gray-700 p-3 rounded-lg';
-                fuseEl.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="font-bold text-lg">Fuse ${recipe.count} <span style="color: ${rarities[recipe.inputRarity].color}">${recipe.inputRarity}</span></h4>
-                            <p class="text-sm">Result: 1x Random <span style="color: ${rarities[resultRarity].color}">${resultRarity}</span></p>
-                            <p class="text-sm ${hasEnough ? 'requirement-met' : 'requirement-not-met'}">Owned: ${owned}/${recipe.count}</p>
-                        </div>
-                        <button class="btn btn-cyan perform-fuse-btn" data-input-rarity="${recipe.inputRarity}" ${canFuse ? '' : 'disabled'}>Fuse</button>
-                    </div>`;
-                fuseModalList.appendChild(fuseEl);
-            });
-        }
-
-        function performFuse(inputRarity, type) {
-            const recipe = fuseRecipes[type].find(r => r.inputRarity === inputRarity);
-            if (!recipe) return;
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            const hasEnough = (baseCounts[inputRarity] || 0) >= recipe.count;
-
-            if (!hasEmptySlot || !hasEnough) {
-                showNotification("Cannot fuse: Requirements not met or base is full.", "red");
-                return;
-            }
-            
-            let toRemove = recipe.count;
-            for (let i = 0; i < baseSlots.length && toRemove > 0; i++) {
-                if (baseSlots[i] && baseSlots[i].rarity === inputRarity) {
-                    baseSlots[i] = null;
-                    toRemove--;
-                }
-            }
-
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            const resultName = recipe.output[Math.floor(Math.random() * recipe.output.length)];
-            const resultData = findBrainrotData(resultName);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
-            discoveredBrainrots.add(resultData.name);
-            showNotification(`Fuse complete! You got a ${resultData.name}!`, rarities[resultData.rarity].color);
-            renderBase(); updateAllUI(); renderFuseModal(type);
-        }
-
-        function renderDealerModal() {
-            dealerList.innerHTML = '';
-            const hasEmptySlot = baseSlots.some(s => s === null);
-
-            for (const name in dealerExclusives) {
-                const data = dealerExclusives[name];
-                const stock = currentDealerStock[name] || 0;
-                const canAfford = money >= data.cost;
-                const canBuy = hasEmptySlot && canAfford && stock > 0;
-
-                const dealerEl = document.createElement('div');
-                dealerEl.className = 'bg-gray-700 p-3 rounded-lg flex items-center justify-between';
-                dealerEl.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="text-3xl">${data.icon}</div>
-                        <div>
-                            <h4 class="font-bold">${name} <span style="color: ${rarities[data.rarity].color}">(${data.rarity})</span></h4>
-                            <div class="text-sm">Cost: <span class="text-green-400">$${formatLargeNumber(data.cost)}</span> | MPS: <span class="text-yellow-400">${formatLargeNumber(data.mps)}</span></div>
-                            <div class="text-sm ${stock > 0 ? 'text-white' : 'text-red-500'}">Stock: ${stock}</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-green buy-dealer-btn" data-item-name="${name}" ${canBuy ? '' : 'disabled'}>Buy</button>
-                `;
-                dealerList.appendChild(dealerEl);
-            }
-        }
-        
         function exportGame() {
             // 1. Sanitize data (same as cloud save)
             const safeBaseSlots = baseSlots.map(slot => {
@@ -1625,48 +1791,6 @@
             showNotification("Save file exported!", "yellow");
         }
 
-        async function saveGame() {
-            // 1. Sanitize data (same as cloud save)
-            const safeBaseSlots = baseSlots.map(slot => {
-                if (!slot) return null;
-                const { element, position, ...cleanSlot } = slot;
-                return cleanSlot;
-            });
-
-            const saveData = { 
-                money: money, 
-                baseSlots: safeBaseSlots,
-                discovered: Array.from(discoveredBrainrots),
-                rebirths: rebirths, 
-                luck: luck, 
-                activeEvents: activeEvents,
-                dealerStock: currentDealerStock, // Include local stock state just in case
-                timestamp: Date.now()
-            };
-
-            // 2. Create a blob and download link
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", `brainrot_tycoon_save_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchorNode); // Required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-            
-            showNotification("Game Saved to File!", "green");
-        }
-        
-        async function loadGame() { // This function is now only for potential future use (e.g., localStorage)
-            // No automatic cloud load
-            console.log("Cloud load disabled. Use 'Load File' button.");
-            return;
-        }
-
-        function loadGameFromFile() {
-            // This function now just triggers the hidden file input
-            loadFileInput.click();
-        }
-
         function loadGameData(parsedData, source = "File") { // Consolidated load function
             try {
                 money = parsedData.money || 100;
@@ -1674,7 +1798,7 @@
                 luck = parsedData.luck || 0;
                 activeEvents = parsedData.activeEvents || {};
                 
-                // ALWAYS load dealer stock from save file now, as cloud is disabled
+                // ALWAYS load dealer stock from save file now
                 currentDealerStock = parsedData.dealerStock || {};
                 // Ensure new items are added to stock if save is old
                 for (const name in dealerExclusives) {
@@ -1915,7 +2039,7 @@
 
         function formatLargeNumber(num) { if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return Math.floor(num).toLocaleString(); }
         
-        window.onload = initializeFirebase; // Start Firebase on load
+        window.onload = initializeGame; // Start game on load
         
     </script>
 </body>

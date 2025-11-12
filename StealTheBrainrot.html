@@ -83,13 +83,13 @@
             background-color: rgba(239, 68, 68, 0.4); border-color: #ef4444;
         }
         .base-item {
-             width: 80%; height: 80%; font-size: 22px; /* Reduced base icon size */
-             border-radius: 50%;
-             pointer-events: none;
-             position: relative;
-             display: flex;
-             align-items: center;
-             justify-content: center;
+            width: 80%; height: 80%; font-size: 22px; /* Reduced base icon size */
+            border-radius: 50%;
+            pointer-events: none;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .mutation-icon, .trait-icon {
             position: absolute;
@@ -166,8 +166,8 @@
             box-shadow: 0 0 25px rgba(0,0,0,0.6);
         }
         .small-modal-content {
-             max-width: 500px;
-             max-height: auto;
+            max-width: 500px;
+            max-height: auto;
         }
         .index-grid {
             display: grid;
@@ -231,13 +231,14 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen text-sm sm:text-base">
+ <body class="flex items-center justify-center min-h-screen text-sm sm:text-base">
 
     <div id="loading-spinner"></div>
     <div id="game-root" class="game-container w-full max-w-6xl h-[95vh] p-4 rounded-2xl flex flex-col gap-2 hidden">
         <!-- Header, Info Bar, Game Area... -->
         <header class="flex flex-wrap justify-between items-center pb-1">
             <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1>
+            <div id="witch-fuse-countdown" class="text-sm sm:text-base text-pink-400 font-semibold ml-4"></div>
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Save</button>
@@ -269,6 +270,7 @@
             <button id="open-craft-machine-button" class="btn btn-orange">Craft</button>
             <button id="open-ritual-button" class="btn btn-red">Ritual</button>
             <button id="open-dealer-button" class="btn btn-green">Dealer</button>
+            <button id="open-trader-button" class="btn btn-blue">Trader</button>
         </div>
 
         <main class="flex-grow flex flex-col gap-2 overflow-hidden">
@@ -294,32 +296,32 @@
              <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Jayce Panel</h2><button id="close-jayce-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div>
              <div id="jayce-password-screen"><p class="mb-2">Enter Jayce's Password:</p><input type="password" id="jayce-password-input" class="admin-input w-full mb-2"><button id="jayce-login-button" class="btn btn-blue w-full">Login</button><p id="jayce-error" class="text-red-500 text-sm mt-2"></p></div>
              <div id="jayce-command-screen" class="hidden space-y-4">
-                <div class="flex items-center gap-2"><input id="jayce-display-name" placeholder="Display Name" class="admin-input flex-grow"><button id="jayce-send-chat" class="btn btn-blue">Send</button></div>
-                <div class="flex items-center gap-2"><input id="jayce-chat-input" placeholder="Global Jayce Message" class="admin-input flex-grow"></div>
-                <hr class="border-gray-600">
-                <div class="flex items-center gap-2"><input type="number" id="jayce-money-input" placeholder="Amount of money" class="admin-input flex-grow"><button id="jayce-give-money" class="btn btn-green">Give (Self)</button></div>
-                <div class="admin-grid-2"><select id="jayce-spawn-mutation" class="admin-input"></select><select id="jayce-spawn-trait" class="admin-input"></select></div>
-                <div class="flex items-center gap-2"><select id="jayce-spawn-select" class="admin-input flex-grow"></select><button id="jayce-spawn-button" class="btn btn-blue">Spawn (Global)</button></div>
-                <div class="admin-grid-2"><select id="jayce-give-mutation" class="admin-input"></select><select id="jayce-give-trait" class="admin-input"></select></div>
-                <div class="flex items-center gap-2"><select id="jayce-give-select" class="admin-input flex-grow"></select><button id="jayce-give-button" class="btn btn-blue">Give (Self)</button></div>
-                <div class="flex items-center gap-2"><input type="number" id="jayce-rebirth-input" placeholder="Rebirth Level" class="admin-input flex-grow"><button id="jayce-give-rebirth" class="btn btn-purple">Set (Self)</button></div>
-                <div class="flex items-center gap-2"><input type="number" id="jayce-luck-input" placeholder="Additional Luck" class="admin-input flex-grow"><button id="jayce-give-luck" class="btn btn-purple">Add (Self)</button></div>
-                <button id="jayce-unlock-index" class="btn btn-gray w-full">Unlock Index (Self)</button>
-                <hr class="border-gray-600">
-                <h3 class="text-lg font-bold">Dealer Restock</h3>
-                <div class="flex items-center gap-2">
-                    <select id="jayce-restock-select" class="admin-input flex-grow"></select>
-                    <button id="jayce-restock-button" class="btn btn-green">Restock Global</button>
-                </div>
-                <hr class="border-gray-600">
-                <h3 class="text-lg font-bold">Global Events</h3>
-                <div class="admin-grid-2">
-                    <select id="jayce-event-select" class="admin-input"></select>
-                    <button id="jayce-event-run-global" class="btn btn-blue">Run Global</button>
-                </div>
-                <div class="admin-grid-3"><button id="jayce-event-taco" class="btn btn-yellow">Taco Time</button><button id="jayce-event-run-all" class="btn btn-green">Run All</button><button id="jayce-event-stop-all" class="btn btn-red">Stop All</button></div>
-                <button id="jayce-logout-button" class="btn btn-gray w-full">Logout</button>
-             </div>
+                 <div class="flex items-center gap-2"><input id="jayce-display-name" placeholder="Display Name" class="admin-input flex-grow"><button id="jayce-send-chat" class="btn btn-blue">Send</button></div>
+                 <div class="flex items-center gap-2"><input id="jayce-chat-input" placeholder="Global Jayce Message" class="admin-input flex-grow"></div>
+                 <hr class="border-gray-600">
+                 <div class="flex items-center gap-2"><input type="number" id="jayce-money-input" placeholder="Amount of money" class="admin-input flex-grow"><button id="jayce-give-money" class="btn btn-green">Give (Self)</button></div>
+                 <div class="admin-grid-2"><select id="jayce-spawn-mutation" class="admin-input"></select><select id="jayce-spawn-trait" class="admin-input"></select></div>
+                 <div class="flex items-center gap-2"><select id="jayce-spawn-select" class="admin-input flex-grow"></select><button id="jayce-spawn-button" class="btn btn-blue">Spawn (Global)</button></div>
+                 <div class="admin-grid-2"><select id="jayce-give-mutation" class="admin-input"></select><select id="jayce-give-trait" class="admin-input"></select></div>
+                 <div class="flex items-center gap-2"><select id="jayce-give-select" class="admin-input flex-grow"></select><button id="jayce-give-button" class="btn btn-blue">Give (Self)</button></div>
+                 <div class="flex items-center gap-2"><input type="number" id="jayce-rebirth-input" placeholder="Rebirth Level" class="admin-input flex-grow"><button id="jayce-give-rebirth" class="btn btn-purple">Set (Self)</button></div>
+                 <div class="flex items-center gap-2"><input type="number" id="jayce-luck-input" placeholder="Additional Luck" class="admin-input flex-grow"><button id="jayce-give-luck" class="btn btn-purple">Add (Self)</button></div>
+                 <button id="jayce-unlock-index" class="btn btn-gray w-full">Unlock Index (Self)</button>
+                 <hr class="border-gray-600">
+                 <h3 class="text-lg font-bold">Dealer Restock</h3>
+                 <div class="flex items-center gap-2">
+                     <select id="jayce-restock-select" class="admin-input flex-grow"></select>
+                     <button id="jayce-restock-button" class="btn btn-green">Restock Global</button>
+                 </div>
+                 <hr class="border-gray-600">
+                 <h3 class="text-lg font-bold">Global Events</h3>
+                 <div class="admin-grid-2">
+                     <select id="jayce-event-select" class="admin-input"></select>
+                     <button id="jayce-event-run-global" class="btn btn-blue">Run Global</button>
+                 </div>
+                 <div class="admin-grid-3"><button id="jayce-event-taco" class="btn btn-yellow">Taco Time</button><button id="jayce-event-run-all" class="btn btn-green">Run All</button><button id="jayce-event-stop-all" class="btn btn-red">Stop All</button></div>
+                 <button id="jayce-logout-button" class="btn btn-gray w-full">Logout</button>
+            </div>
         </div>
     </div>
     <div id="ritual-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Rituals</h2><button id="close-ritual-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="ritual-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
@@ -459,6 +461,19 @@
                     { name: 'La Secret Combinasion', chance: 0.5 }
                 ]
             },
+            'OP Lucky Block': { // New OP block
+                icon: '👑',
+                color: '#14b8a6', // Teal
+                weight: 0.2, // Very rare
+                lootTable: [ // This block type uses direct percentages
+                    { name: 'Odin Din Din Dun', chance: 0.90 },
+                    { name: 'Job Job Job Sahur', chance: 0.50 },
+                    { name: 'Tax Tax Tax Sahur', chance: 0.15 },
+                    { name: 'Mieteteira Bicicleteira', chance: 0.10 },
+                    { name: 'Spooky and Pumpky', chance: 0.03 },
+                    { name: 'Baby Jayce', chance: 0.0001 } // 1 in 10,000
+                ]
+            },
             'Taco Lucky Block': { // Spawns only during Taco Tuesday event or via admin
                 icon: '🌮',
                 color: '#f59e0b',
@@ -592,7 +607,8 @@
                 { name: 'To To Sahur', icon: '🥁', cost: 9e9, mps: 52e6 }, { name: 'Nuclearo Dinossauro', icon: '☢️', cost: 10e9, mps: 55e6 },
                 { name: 'Money Money Puggy', icon: '🤑', cost: 11e9, mps: 58e6 }, { name: 'Ketupat Kepat', icon: ' K ', cost: 12e9, mps: 60e6 },
                 { name: 'Tictac Sahur', icon: '⏰', cost: 13e9, mps: 62e6 }, { name: 'Ketchuru and Musturu', icon: '🌭', cost: 14e9, mps: 65e6 },
-                { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 }
+                { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 },
+                { name: 'Mega Mega Mega Knight Sahur', icon: '⚔️', cost: 20e9, mps: 80e6 }
             ],
             'OG': [
                 { name: 'Strawberry Elephant', icon: '🍓🐘', cost: 1e18, mps: 1e15, event: 'Strawberry' }, { name: 'Meowl', icon: '🐱', cost: 2e18, mps: 2e15, event: 'Meowl' },
@@ -606,9 +622,9 @@
             'Tigroligre Frutonni':   { icon: '🐯', rarity: 'Brainrot God', cost: 7e6, mps: 480000 }, 'Orcalero Orcala':         { icon: '🐳', rarity: 'Brainrot God', cost: 8e6, mps: 560000 },
             'Bulbito Bandito Traktorito': { icon: '💡', rarity: 'Brainrot God', cost: 9e6, mps: 630000 }, 'Mastodontico Telepiedone': { icon: '🦣', rarity: 'Brainrot God', cost: 10e6, mps: 680000 },
             'Pop Pop Sahur':         { icon: '🍿', rarity: 'Brainrot God', cost: 11e6, mps: 690000 }, 'Torrtuginni Dragonfrutini': { icon: '🐢', rarity: 'Secret', cost: 2e9, mps: 4e6 },
-            'Pot Hotspot':           { icon: '냄', rarity: 'Secret', cost: 3e9, mps: 8e6 }, 'Esok Sekolah':           { icon: '🏫', rarity: 'Secret', cost: 4e9, mps: 15e6 },
+            'Pot Hotspot':           { icon: '냄', rarity: 'Secret', cost: 3e9, mps: 8e6 }, 'Esok Sekolah':            { icon: '🏫', rarity: 'Secret', cost: 4e9, mps: 15e6 },
             'Spaghetti Tualetti':    { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
-            'Chihuanini Taconini':   { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':         { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
+            'Chihuanini Taconini':   { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':          { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
             'Los Tipi Tacos':        { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
             'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
             'Carloo':                { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':        { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
@@ -625,7 +641,8 @@
             'Cappuccino Clownino': { icon: '🤡☕', rarity: 'Brainrot God', cost: 48e6, mps: 2.4e6 }, 'Jackorilla': { icon: '🦍🎃', rarity: 'Secret', cost: 55e9, mps: 230e6 },
             'Pumpkini Spyderini': { icon: '🎃🕷️', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 'Trickolino': { icon: '🍬', rarity: 'Secret', cost: 65e9, mps: 280e6 },
             'Telemorte': { icon: '📺💀', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Los Spooky Combinasionas': { icon: '👻🤔', rarity: 'Secret', cost: 75e9, mps: 350e6 },
-            'La Casa Boo': { icon: '🏚️👻', rarity: 'Secret', cost: 90e9, mps: 450e6 }
+            'La Casa Boo': { icon: '🏚️👻', rarity: 'Secret', cost: 90e9, mps: 450e6 },
+            'Tax Tax Tax Sahur': { icon: '💸', rarity: 'Secret', cost: 85e9, mps: 420e6 }
         };
 
         const ritualExclusives = {
@@ -756,7 +773,8 @@
             craftMachineList, fuseModal, fuseModalTitle, closeFuseModalButton, fuseModalList,
             dealerModal, closeDealerButton, dealerList, globalTooltip, notification, loadFileInput, exportButton,
             selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt, 
-            selectionModalGrid, selectionModalConfirm, selectionModalCancel;
+            selectionModalGrid, selectionModalConfirm, selectionModalCancel,
+            openTraderButton, witchFuseCountdownDisplay; // Added new elements
 
         // --- Firebase Globals ---
         // --- REMOVED ALL FIREBASE VARIABLES ---
@@ -770,6 +788,7 @@
         let activeEvents = {}; // For weather/traits
         let tacoEventInterval = null;
         let currentDealerStock = {}; // State for local dealer stock
+        let witchFuseTimerInterval; // For the new countdown
         
         let currentSelectionCallback = null;
         let selectedIndices = [];
@@ -1097,6 +1116,81 @@
             selectedIndices = [];
         }
 
+        // --- NEW ---
+        function performRitual(ritualKey, indices) {
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            if (emptySlotIndex === -1) {
+                showNotification("No empty base slot for the result!", "red");
+                return;
+            }
+            // Remove items
+            indices.forEach(index => { baseSlots[index] = null; });
+            
+            // Add result
+            const resultData = findBrainrotData(ritualKey);
+            const brainrot = { ...resultData, mutation: getRandomMutation(), trait: null };
+            baseSlots[emptySlotIndex] = brainrot;
+            discoveredBrainrots.add(brainrot.name);
+
+            showNotification(`Ritual complete! Crafted ${brainrot.name}!`, "green");
+            renderBase();
+            updateAllUI();
+            closeRitualModal(); // Close the main modal too
+        }
+
+        // --- NEW ---
+        function performCraft(craftKey, indices) {
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            if (emptySlotIndex === -1) {
+                showNotification("No empty base slot for the result!", "red");
+                return;
+            }
+            // Remove items
+            indices.forEach(index => { baseSlots[index] = null; });
+            
+            // Add result
+            const resultData = findBrainrotData(craftKey);
+            const brainrot = { ...resultData, mutation: getRandomMutation(), trait: null };
+            baseSlots[emptySlotIndex] = brainrot;
+            discoveredBrainrots.add(brainrot.name);
+
+            showNotification(`Craft complete! Made ${brainrot.name}!`, "green");
+            renderBase();
+            updateAllUI();
+            closeCraftMachineModal(); // Close the main modal too
+        }
+
+        // --- NEW ---
+        function performFuse(inputRarity, fuseType, indices) {
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            if (emptySlotIndex === -1) {
+                showNotification("No empty base slot for the result!", "red");
+                return;
+            }
+
+            // Find the recipe
+            const recipe = fuseRecipes[fuseType].find(r => r.inputRarity === inputRarity);
+            if (!recipe) return;
+
+            // Remove items
+            indices.forEach(index => { baseSlots[index] = null; });
+            
+            // Get random result
+            const possibleOutputs = recipe.output;
+            const resultName = possibleOutputs[Math.floor(Math.random() * possibleOutputs.length)];
+            
+            // Add result
+            const resultData = findBrainrotData(resultName);
+            const brainrot = { ...resultData, mutation: getRandomMutation(), trait: null };
+            baseSlots[emptySlotIndex] = brainrot;
+            discoveredBrainrots.add(brainrot.name);
+            
+            showNotification(`Fuse complete! Got ${brainrot.name}!`, "green");
+            renderBase();
+            updateAllUI();
+            closeFuseModal(); // Close the main modal too
+        }
+
         async function buyFromDealer(itemName) {
             const data = dealerExclusives[itemName];
             const stock = currentDealerStock[itemName];
@@ -1229,6 +1323,8 @@
             selectionModalGrid = document.getElementById('selection-modal-grid');
             selectionModalConfirm = document.getElementById('selection-modal-confirm');
             selectionModalCancel = document.getElementById('selection-modal-cancel');
+            openTraderButton = document.getElementById('open-trader-button');
+            witchFuseCountdownDisplay = document.getElementById('witch-fuse-countdown');
 
 
             // --- FIX: Now that elements are loaded, we can hide the spinner ---
@@ -1314,7 +1410,7 @@
                 showNotification("Select a save file...", "cyan");
                 loadFileInput.click();
             });
-        
+            
             loadFileInput.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -1339,7 +1435,7 @@
             closeIndexButton.addEventListener('click', closeIndexModal);
             indexModal.addEventListener('click', (e) => { if(e.target === indexModal) closeIndexModal() });
             openRebirthButton.addEventListener('click', openRebirthModal);
-            closeRebirthButton.addEventListener('click', closeRebirthButton);
+            closeRebirthButton.addEventListener('click', closeRebirthModal); // FIX: Was closeRebirthButton
             confirmRebirthButton.addEventListener('click', handleRebirth);
             rebirthModal.addEventListener('click', (e) => { if(e.target === rebirthModal) closeRebirthModal() });
             window.addEventListener('keydown', (e) => { if (e.key === '-') { openJayceModal(); } });
@@ -1411,6 +1507,11 @@
                 }
             });
 
+            // New Trader Button Listener
+            openTraderButton.addEventListener('click', () => {
+                showNotification("Coming Soon!", "cyan");
+            });
+
             // NEW Selection Modal Listeners
             closeSelectionModalButton.addEventListener('click', closeSelectionModal);
             selectionModalCancel.addEventListener('click', closeSelectionModal);
@@ -1440,6 +1541,7 @@
             timerInterval = setInterval(updateTimers, 1000);
             setTimeout(spawnBrainrotOnBelt, 1000);
             checkTacoTuesday();
+            startWitchFuseCountdown(); // Start the new countdown
             updateAllUI();
         }
 
@@ -1480,7 +1582,7 @@
                     startTacoEvent();
                     break;
                 case 'all_events':
-                      for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
+                     for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
                     break;
                 case 'stop_all_events':
                     activeEvents = {};
@@ -1511,9 +1613,14 @@
 
         async function sendGlobalEvent(type, payload) {
             // This function is now local-only
-            showNotification("Local admin event simulated.", "cyan");
+            
             // We can simulate some admin events locally
-            if (!isAdmin) return;
+            if (!isAdmin) {
+                showNotification("Admin login required.", "red");
+                return;
+            }
+
+            showNotification("Local admin event simulated.", "cyan");
             // FIX: Call handleGlobalEvent directly
             handleGlobalEvent({ type: type, ...payload });
         }
@@ -1566,6 +1673,12 @@
         }
         
         function openLuckyBlock(block, blockType) {
+            // NEW: Handle OP Lucky Block separately
+            if (blockType === 'OP Lucky Block') {
+                openOPLuckyBlock(block, blockType);
+                return;
+            }
+
             const emptySlotIndex = baseSlots.findIndex(s => s === null);
             if (emptySlotIndex === -1) { showNotification("Your base is full!", "red"); return; }
             block.element.remove();
@@ -1586,6 +1699,53 @@
                 discoveredBrainrots.add(prizeName);
                 if (brainrot.event) startWeatherEvent(brainrot.event);
                 showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
+                renderBase();
+                updateAllUI();
+            }
+        }
+
+        function openOPLuckyBlock(block, blockType) {
+            block.element.remove();
+            beltItems = beltItems.filter(b => b.id !== block.id);
+
+            const blockData = luckyBlockManifest[blockType];
+            if (!blockData || !blockData.lootTable) return;
+
+            let prizesFound = [];
+            blockData.lootTable.forEach(loot => {
+                if (Math.random() < loot.chance) {
+                    prizesFound.push(loot.name);
+                }
+            });
+
+            if (prizesFound.length === 0) {
+                showNotification("OP Lucky Block was empty...", "gray");
+                return;
+            }
+
+            let emptySlotIndices = baseSlots.map((s, i) => s === null ? i : -1).filter(i => i !== -1);
+            
+            if (emptySlotIndices.length < prizesFound.length) {
+                showNotification(`Not enough base slots! Need ${prizesFound.length}, have ${emptySlotIndices.length}.`, "red");
+                // Add items up to the slot limit
+                prizesFound = prizesFound.slice(0, emptySlotIndices.length);
+            }
+
+            let addedItems = [];
+            for (const prizeName of prizesFound) {
+                const prizeData = findBrainrotData(prizeName);
+                const emptySlotIndex = baseSlots.findIndex(s => s === null); // Find next empty slot
+                
+                if (emptySlotIndex !== -1 && prizeData) {
+                    const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
+                    baseSlots[emptySlotIndex] = brainrot;
+                    discoveredBrainrots.add(prizeName);
+                    addedItems.push(prizeName);
+                }
+            }
+
+            if (addedItems.length > 0) {
+                showNotification(`Found: ${addedItems.join(', ')}!`, 'cyan');
                 renderBase();
                 updateAllUI();
             }
@@ -2035,6 +2195,47 @@
                 }
             }, 300000); // 5 minutes
             showNotification('Taco Tuesday is active! Taco Blocks will spawn!', '#f59e0b');
+        }
+
+        function startWitchFuseCountdown() {
+            updateWitchFuseCountdown(); // Run once immediately
+            witchFuseTimerInterval = setInterval(updateWitchFuseCountdown, 1000);
+        }
+
+        function updateWitchFuseCountdown() {
+            if (!witchFuseCountdownDisplay || !openWitchFuseButton) return;
+
+            const now = new Date();
+            const nextFriday = new Date();
+            
+            // Find the next Friday
+            const currentDay = now.getDay(); // 0 (Sun) - 6 (Sat)
+            const daysUntilFriday = (5 - currentDay + 7) % 7; // Days to add
+            
+            nextFriday.setDate(now.getDate() + daysUntilFriday);
+            nextFriday.setHours(0, 0, 0, 0); // Set to midnight (start of Friday)
+
+            // If it IS Friday, but after midnight, we mean NEXT Friday
+            if (daysUntilFriday === 0 && now.getTime() > nextFriday.getTime()) {
+                nextFriday.setDate(now.getDate() + 7);
+            }
+
+            const diff = nextFriday.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                // It is Friday!
+                witchFuseCountdownDisplay.innerHTML = "Witch Fuse Active!";
+                openWitchFuseButton.classList.remove('hidden'); // Ensure it's visible
+            } else {
+                // Countdown is active
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                witchFuseCountdownDisplay.innerHTML = `Witch Fuse returns in: ${d}d ${h}h ${m}m ${s}s`;
+                openWitchFuseButton.classList.add('hidden'); // Hide the button
+            }
         }
 
         function formatLargeNumber(num) { if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return Math.floor(num).toLocaleString(); }

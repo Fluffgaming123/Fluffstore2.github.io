@@ -90,7 +90,7 @@
              display: flex;
              align-items: center;
              justify-content: center;
-        }
+         }
         .mutation-icon, .trait-icon {
             position: absolute;
             width: 18px; /* Smaller icons */
@@ -107,8 +107,8 @@
         }
         .mutation-icon { top: -5px; left: -5px; } /* Offset to corner */
         .trait-icon { bottom: -5px; right: -5px; font-size: 14px; } /* Offset to corner */
-
-        /* NEW: Styles for selection modal */
+        
+        /* Styles for selection modal */
         .base-slot.selectable {
             cursor: pointer;
         }
@@ -166,8 +166,8 @@
             box-shadow: 0 0 25px rgba(0,0,0,0.6);
         }
         .small-modal-content {
-            max-width: 500px;
-            max-height: auto;
+             max-width: 500px;
+             max-height: auto;
         }
         .index-grid {
             display: grid;
@@ -239,11 +239,12 @@
         <header class="flex flex-wrap justify-between items-center pb-1">
             <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1>
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <span id="witch-fuse-countdown" class="text-xs sm:text-sm text-pink-400 font-semibold"></span>
                 <button id="pause-button" class="btn btn-blue">Pause</button>
-                <button id="cloud-save-button" class="btn btn-green">Cloud Save</button>
-                <button id="cloud-load-button" class="btn btn-green">Cloud Load</button>
-                <button id="save-file-button" class="btn btn-gray">Save File</button>
-                <button id="load-file-button" class="btn btn-gray">Load File</button>
+                <button id="save-button" class="btn btn-green">Cloud Save</button>
+                <button id="load-button" class="btn btn-green">Cloud Load</button>
+                <button id="export-button" class="btn btn-gray">Save File</button> <!-- Local Save -->
+                <button id="import-button" class="btn btn-gray">Load File</button> <!-- Local Load -->
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
@@ -255,7 +256,6 @@
             </div>
             <div class="text-center">
                 <div class="text-base font-semibold text-yellow-300">Next spawn in: <span id="timer-display">00:00</span></div>
-                <div id="witch-fuse-countdown" class="text-sm font-semibold text-pink-400"></div>
                 <div id="active-events-list" class="flex gap-1 justify-center mt-1 h-4"></div>
                 <div class="text-xs text-gray-400">Rebirths: <span id="rebirth-display">0</span></div>
             </div>
@@ -331,7 +331,7 @@
     <div id="fuse-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="fuse-modal-title" class="text-2xl font-bold">Fuse</h2><button id="close-fuse-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="fuse-modal-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="dealer-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Brainrot Dealer</h2><button id="close-dealer-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="dealer-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     
-    <!-- NEW: Selection Modal -->
+    <!-- Selection Modal -->
     <div id="selection-modal" class="modal-overlay hidden">
         <div class="modal-content small-modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -359,8 +359,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
-            getFirestore, doc, getDoc, setDoc, onSnapshot, 
-            collection, runTransaction, serverTimestamp, setLogLevel
+            getFirestore, doc, getDoc, setDoc, addDoc, collection, 
+            query, where, onSnapshot, serverTimestamp, setLogLevel,
+            runTransaction, updateDoc 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Data Definitions (MUST be first to avoid ReferenceErrors) ---
@@ -473,25 +474,11 @@
                 color: '#f59e0b',
                 weight: 0, 
                 lootTable: [
-                     { name: 'Chihuanini Taconini', chance: 50 },
-                     { name: 'Gattito Tacoto', chance: 32 },
-                     { name: 'Los Tipi Tacos', chance: 10 },
-                     { name: 'Quesadilla Crocodila', chance: 5 },
-                     { name: 'Los Nooo My Hotspotsitos', chance: 3 }
-                ]
-            },
-            'OP Lucky Block': { // New block, admin or special spawn only
-                icon: '✨',
-                color: '#a855f7',
-                weight: 0, // Does not spawn naturally
-                isMultiLoot: true, // Special flag
-                lootTable: [
-                    { name: 'Odin Din Din Dun', chance: 90 },
-                    { name: 'Job Job Job Sahur', chance: 50 },
-                    { name: 'Tax Tax Tax Sahur', chance: 15 },
-                    { name: 'Mieteteira Bicicleteira', chance: 10 },
-                    { name: 'Spooky and Pumpky', chance: 3 },
-                    { name: 'Baby Jayce', chance: 0.0001 } // Extremely rare
+                    { name: 'Chihuanini Taconini', chance: 50 },
+                    { name: 'Gattito Tacoto', chance: 32 },
+                    { name: 'Los Tipi Tacos', chance: 10 },
+                    { name: 'Quesadilla Crocodila', chance: 5 },
+                    { name: 'Los Nooo My Hotspotsitos', chance: 3 }
                 ]
             },
             'Admin Lucky Block': { // Admin only
@@ -549,6 +536,20 @@
                     { name: 'Frankentteo', chance: 20 },
                     { name: 'La Vacca Jacko Linterino', chance: 5 },
                     { name: 'La Spooky Grande', chance: 1 }
+                ]
+            },
+            'OP Lucky Block': { // NEW OP Block
+                icon: '👑',
+                color: '#fde047',
+                weight: 0, // Admin spawn only
+                isMultiLoot: true, // Special flag for multi-roll
+                lootTable: [
+                    { name: 'Odin Din Din Dun', chance: 0.90 }, // 90%
+                    { name: 'Job Job Job Sahur', chance: 0.50 }, // 50%
+                    { name: 'Tax Tax Tax Sahur', chance: 0.15 }, // 15%
+                    { name: 'Mieteteira Bicicleteira', chance: 0.10 }, // 10%
+                    { name: 'Spooky and Pumpky', chance: 0.03 }, // 3%
+                    { name: 'Baby Jayce', chance: 0.0001 } // 0.01%
                 ]
             }
         };
@@ -616,7 +617,7 @@
                 { name: 'Money Money Puggy', icon: '🤑', cost: 11e9, mps: 58e6 }, { name: 'Ketupat Kepat', icon: ' K ', cost: 12e9, mps: 60e6 },
                 { name: 'Tictac Sahur', icon: '⏰', cost: 13e9, mps: 62e6 }, { name: 'Ketchuru and Musturu', icon: '🌭', cost: 14e9, mps: 65e6 },
                 { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 },
-                { name: 'Mega Mega Mega Knight Sahur', icon: '♞', cost: 1e21, mps: 1e18 } // NEW
+                { name: 'Mega Mega Mega Knight Sahur', icon: '🛡️', cost: 1e20, mps: 1e17 } // NEW
             ],
             'OG': [
                 { name: 'Strawberry Elephant', icon: '🍓🐘', cost: 1e18, mps: 1e15, event: 'Strawberry' }, { name: 'Meowl', icon: '🐱', cost: 2e18, mps: 2e15, event: 'Meowl' },
@@ -626,22 +627,22 @@
         
         const luckyBlockExclusives = {
             'Zibra Zubra Zibralini': { icon: '🦓', rarity: 'Mythic', cost: 40e3, mps: 3700 }, 'Tigrilini Watermelini': { icon: '🐅', rarity: 'Mythic', cost: 45e3, mps: 4100 },
-            'Carrotini Brainini':    { icon: '🥕', rarity: 'Mythic', cost: 50e3, mps: 4500 }, 'Bananito Bandito':       { icon: '🍌', rarity: 'Mythic', cost: 55e3, mps: 5000 },
-            'Tigroligre Frutonni':   { icon: '🐯', rarity: 'Brainrot God', cost: 7e6, mps: 480000 }, 'Orcalero Orcala':         { icon: '🐳', rarity: 'Brainrot God', cost: 8e6, mps: 560000 },
+            'Carrotini Brainini':     { icon: '🥕', rarity: 'Mythic', cost: 50e3, mps: 4500 }, 'Bananito Bandito':       { icon: '🍌', rarity: 'Mythic', cost: 55e3, mps: 5000 },
+            'Tigroligre Frutonni':    { icon: '🐯', rarity: 'Brainrot God', cost: 7e6, mps: 480000 }, 'Orcalero Orcala':         { icon: '🐳', rarity: 'Brainrot God', cost: 8e6, mps: 560000 },
             'Bulbito Bandito Traktorito': { icon: '💡', rarity: 'Brainrot God', cost: 9e6, mps: 630000 }, 'Mastodontico Telepiedone': { icon: '🦣', rarity: 'Brainrot God', cost: 10e6, mps: 680000 },
-            'Pop Pop Sahur':         { icon: '🍿', rarity: 'Brainrot God', cost: 11e6, mps: 690000 }, 'Torrtuginni Dragonfrutini': { icon: '🐢', rarity: 'Secret', cost: 2e9, mps: 4e6 },
-            'Pot Hotspot':           { icon: '냄', rarity: 'Secret', cost: 3e9, mps: 8e6 }, 'Esok Sekolah':            { icon: '🏫', rarity: 'Secret', cost: 4e9, mps: 15e6 },
-            'Spaghetti Tualetti':    { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
-            'Chihuanini Taconini':   { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':        { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
-            'Los Tipi Tacos':        { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
+            'Pop Pop Sahur':          { icon: '🍿', rarity: 'Brainrot God', cost: 11e6, mps: 690000 }, 'Torrtuginni Dragonfrutini': { icon: '🐢', rarity: 'Secret', cost: 2e9, mps: 4e6 },
+            'Pot Hotspot':            { icon: '냄', rarity: 'Secret', cost: 3e9, mps: 8e6 }, 'Esok Sekolah':            { icon: '🏫', rarity: 'Secret', cost: 4e9, mps: 15e6 },
+            'Spaghetti Tualetti':     { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
+            'Chihuanini Taconini':    { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':        { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
+            'Los Tipi Tacos':         { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
             'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
-            'Carloo':                { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':      { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
-            'Alessio':               { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':      { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
-            'Blackhole Goat':        { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':     { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
-            '67':                    { icon: '6️⃣7️⃣', rarity: 'Secret', cost: 50e9, mps: 200e6 }, 'La Grande Combinasion': { icon: '🤯', rarity: 'Secret', cost: 100e9, mps: 500e6 }, 
+            'Carloo':                 { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':      { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
+            'Alessio':                { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':      { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
+            'Blackhole Goat':         { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':     { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
+            '67':                     { icon: '6️⃣7️⃣', rarity: 'Secret', cost: 50e9, mps: 200e6 }, 'La Grande Combinasion': { icon: '🤯', rarity: 'Secret', cost: 100e9, mps: 500e6 }, 
             'Los Tungtungtungcitos': { icon: '🎶', rarity: 'Brainrot God', cost: 40e6, mps: 2e6 }, 'Los Tortus':            { icon: '🐢', rarity: 'Secret', cost: 30e9, mps: 140e6 }, 
-            'Los Jobcitos':          { icon: '💼', rarity: 'Secret', cost: 35e9, mps: 160e6 }, 'Los Combinasionas':     { icon: '🤔', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 
-            'Los 67':                { icon: '🇲🇽', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Baby Jayce': { icon: '👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
+            'Los Jobcitos':           { icon: '💼', rarity: 'Secret', cost: 35e9, mps: 160e6 }, 'Los Combinasionas':     { icon: '🤔', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 
+            'Los 67':                 { icon: '🇲🇽', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Baby Jayce': { icon: '👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
             'Taco Baby Jayce': { icon: '👶🌮', rarity: 'Secret', cost: 1e20, mps: 1e17 }, 'Ghost Baby Jayce': { icon: '👻👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
             'Vampira Cappucina': { icon: '🧛', rarity: 'Mythic', cost: 90e3, mps: 8500 }, 'Zombie Tralala': { icon: '🧟', rarity: 'Mythic', cost: 95e3, mps: 9000 },
             'Frankentteo': { icon: '🧟‍♂️', rarity: 'Brainrot God', cost: 50e6, mps: 2.5e6 }, 'La Vacca Jacko Linterino': { icon: '🎃🐄', rarity: 'Secret', cost: 50e9, mps: 210e6 },
@@ -650,7 +651,7 @@
             'Pumpkini Spyderini': { icon: '🎃🕷️', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 'Trickolino': { icon: '🍬', rarity: 'Secret', cost: 65e9, mps: 280e6 },
             'Telemorte': { icon: '📺💀', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Los Spooky Combinasionas': { icon: '👻🤔', rarity: 'Secret', cost: 75e9, mps: 350e6 },
             'La Casa Boo': { icon: '🏚️👻', rarity: 'Secret', cost: 90e9, mps: 450e6 },
-            'Tax Tax Tax Sahur': { icon: '🧾', rarity: 'Secret', cost: 20e12, mps: 8e9 } // NEW
+            'Tax Tax Tax Sahur': { icon: '💸', rarity: 'Secret', cost: 20e12, mps: 8e9 } // NEW
         };
 
         const ritualExclusives = {
@@ -769,28 +770,26 @@
         const totalBrainrotsCount = allBrainrotNames.size;
 
         // --- DOM Elements ---
-        let loadingSpinner, gameRoot, pauseButton, cloudSaveButton, cloudLoadButton, saveFileButton, loadFileButton, 
-            indexButton, indexCounter, openRebirthButton, moneyDisplay, mpsDisplay, timerDisplay, 
-            activeEventsList, rebirthDisplay, baseCountDisplay, openNormalFuseButton, openWitchFuseButton, 
-            openTacoFuseButton, openCraftMachineButton, openRitualButton, openDealerButton, openTraderButton,
-            conveyorBelt, baseContainer, sellButton, indexModal, closeIndexButton, indexGridContainer, 
-            rebirthModal, closeRebirthButton, rebirthInfo, confirmRebirthButton, jayceModal, 
-            closeJayceButton, jaycePasswordScreen, jaycePasswordInput, jayceLoginButton, jayceError, 
-            jayceCommandScreen, jayceLogoutButton, ritualModal, closeRitualButton, ritualList, 
-            craftMachineModal, closeCraftMachineButton, craftMachineList, fuseModal, fuseModalTitle, 
-            closeFuseModalButton, fuseModalList, dealerModal, closeDealerButton, dealerList, 
-            globalTooltip, notification, loadFileInput, witchFuseCountdownDisplay,
-            selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt,
+        let loadingSpinner, gameRoot, pauseButton, saveButton, loadButton, indexButton, indexCounter,
+            openRebirthButton, moneyDisplay, mpsDisplay, timerDisplay, activeEventsList, rebirthDisplay,
+            baseCountDisplay, openNormalFuseButton, openWitchFuseButton, openTacoFuseButton,
+            openCraftMachineButton, openRitualButton, openDealerButton, conveyorBelt, baseContainer,
+            sellButton, indexModal, closeIndexButton, indexGridContainer, rebirthModal, closeRebirthButton,
+            rebirthInfo, confirmRebirthButton, jayceModal, closeJayceButton, jaycePasswordScreen,
+            jaycePasswordInput, jayceLoginButton, jayceError, jayceCommandScreen, jayceLogoutButton,
+            ritualModal, closeRitualButton, ritualList, craftMachineModal, closeCraftMachineButton,
+            craftMachineList, fuseModal, fuseModalTitle, closeFuseModalButton, fuseModalList,
+            dealerModal, closeDealerButton, dealerList, globalTooltip, notification, loadFileInput, exportButton,
+            importButton, witchFuseCountdown, openTraderButton,
+            selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt, 
             selectionModalGrid, selectionModalConfirm, selectionModalCancel;
 
         // --- Firebase Globals ---
-        let db, auth;
-        let userId = null;
-        let isAuthReady = false;
-        let globalEventUnsubscribe = null;
-        let dealerStockUnsubscribe = null;
+        let app, auth, db;
+        let userId;
+        let eventsDocPath, userSaveDocPath, dealerDocPath;
+        let globalEventListener = null, dealerEventListener = null;
         let isAdmin = false;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : `c_d19bc2a77fb557fd_brainrot_tycoon.html-934`; // Fallback for local testing
 
         // --- Game State ---
         let money = 100, baseSlots = [], beltItems = [], discoveredBrainrots = new Set(), rebirths = 0, luck = 0;
@@ -799,644 +798,110 @@
         let maxBaseSlots = 10, moneyMultiplier = 1;
         let activeEvents = {}; // For weather/traits
         let tacoEventInterval = null;
-        let currentDealerStock = {}; // State for local dealer stock
+        let currentDealerStock = {}; // Local cache for dealer stock
         
         let currentSelectionCallback = null;
         let selectedIndices = [];
         
-        // --- Firebase Config ---
-        let firebaseConfig;
-        try {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } catch (e) {
-            console.error("Error parsing Firebase config:", e);
-            firebaseConfig = { apiKey: "", authDomain: "", projectId: "" }; // Dummy config
-        }
+        // --- Hardcoded Firebase Config ---
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyB_8Eao4PirrTF6DBjjbUmhL6MyXnt6vzY",
+            authDomain: "steal-the-brainrot-admin-panel.firebaseapp.com",
+            projectId: "steal-the-brainrot-admin-panel",
+            storageBucket: "steal-the-brainrot-admin-panel.firebasestorage.app",
+            messagingSenderId: "559691711111",
+            appId: "1:559691711111:web:27dff3446aea0ef624ee22",
+            measurementId: "G-3FPEYCR4JM"
+        };
 
-        // --- FIX: All modal render functions moved before init ---
-        
-        function renderRitualModal() {
-            ritualList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            for (const ritualKey in ritualRecipes) {
-                const resultData = findBrainrotData(ritualKey);
-                const recipe = ritualRecipes[ritualKey];
-                let canCraft = hasEmptySlot;
-                let ingredientsHTML = '';
-                for (const ingredientName in recipe.ingredients) {
-                    const required = recipe.ingredients[ingredientName];
-                    const owned = baseCounts[ingredientName] || 0;
-                    const hasEnough = owned >= required;
-                    if (!hasEnough) canCraft = false;
-                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
-                }
-                const ritualEl = document.createElement('div');
-                ritualEl.className = 'bg-gray-700 p-3 rounded-lg';
-                ritualEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div>
-                <button class="btn btn-red perform-ritual-btn" data-ritual-key="${ritualKey}" ${canCraft ? '' : 'disabled'}>Select Items</button></div>`;
-                ritualList.appendChild(ritualEl);
-            }
-        }
 
-        function renderCraftModal() {
-            craftMachineList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-            for (const craftKey in craftRecipes) {
-                const resultData = findBrainrotData(craftKey);
-                const recipe = craftRecipes[craftKey];
-                let canCraft = hasEmptySlot;
-                let ingredientsHTML = '';
-                for (const ingredientName in recipe.ingredients) {
-                    const required = recipe.ingredients[ingredientName];
-                    const owned = baseCounts[ingredientName] || 0;
-                    const hasEnough = owned >= required;
-                    if (!hasEnough) canCraft = false;
-                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
-                }
-                const craftEl = document.createElement('div');
-                craftEl.className = 'bg-gray-700 p-3 rounded-lg';
-                craftEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div>
-                <button class="btn btn-orange perform-craft-btn" data-craft-key="${craftKey}" ${canCraft ? '' : 'disabled'}>Select Items</button></div>`;
-                craftMachineList.appendChild(craftEl);
-            }
-        }
-
-        function renderFuseModal(type) {
-            fuseModal.dataset.type = type;
-            fuseModalTitle.textContent = `${type} Fuse`;
-            fuseModalList.innerHTML = '';
-            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
-            const hasEmptySlot = baseSlots.some(s => s === null);
-
-            fuseRecipes[type].forEach(recipe => {
-                const owned = baseCounts[recipe.inputRarity] || 0;
-                const hasEnough = owned >= recipe.count;
-                const canFuse = hasEmptySlot && hasEnough;
-                const resultRarity = findBrainrotData(recipe.output[0]).rarity;
-
-                const fuseEl = document.createElement('div');
-                fuseEl.className = 'bg-gray-700 p-3 rounded-lg';
-                fuseEl.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="font-bold text-lg">Fuse ${recipe.count} <span style="color: ${rarities[recipe.inputRarity].color}">${recipe.inputRarity}</span></h4>
-                            <p class="text-sm">Result: 1x Random <span style="color: ${rarities[resultRarity].color}">${resultRarity}</span></p>
-                            <p class="text-sm ${hasEnough ? 'requirement-met' : 'requirement-not-met'}">Owned: ${owned}/${recipe.count}</p>
-                        </div>
-                        <button class="btn btn-cyan perform-fuse-btn" data-input-type="${type}" data-input-rarity="${recipe.inputRarity}" data-input-count="${recipe.count}" ${canFuse ? '' : 'disabled'}>Select Items</button>
-                    </div>`;
-                fuseModalList.appendChild(fuseEl);
-            });
-        }
-
-        function renderDealerModal() {
-            dealerList.innerHTML = '';
-            const hasEmptySlot = baseSlots.some(s => s === null);
-
-            for (const name in dealerExclusives) {
-                const data = dealerExclusives[name];
-                const stock = currentDealerStock[name] || 0;
-                const canAfford = money >= data.cost;
-                const canBuy = hasEmptySlot && canAfford && stock > 0;
-
-                const dealerEl = document.createElement('div');
-                dealerEl.className = 'bg-gray-700 p-3 rounded-lg flex items-center justify-between';
-                dealerEl.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="text-3xl">${data.icon}</div>
-                        <div>
-                            <h4 class="font-bold">${name} <span style="color: ${rarities[data.rarity].color}">(${data.rarity})</span></h4>
-                            <div class="text-sm">Cost: <span class="text-green-400">$${formatLargeNumber(data.cost)}</span> | MPS: <span class="text-yellow-400">${formatLargeNumber(data.mps)}</span></div>
-                            <div class="text-sm ${stock > 0 ? 'text-white' : 'text-red-500'}">Stock: ${stock}</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-green buy-dealer-btn" data-item-name="${name}" ${canBuy ? '' : 'disabled'}>Buy</button>
-                `;
-                dealerList.appendChild(dealerEl);
-            }
-        }
-        // --- END OF RENDER FUNCTIONS ---
-        
-        function openRitualSelectionModal(ritualKey) {
-            const recipe = ritualRecipes[ritualKey];
-            const resultData = findBrainrotData(ritualKey);
-            
-            selectionModalTitle.textContent = `Craft: ${resultData.name}`;
-            
-            const ingredients = recipe.ingredients; // e.g., { 'Matteo': 3 }
-            let requiredItems = []; // This will be an array of { name: 'Matteo', count: 3 }
-            for (const name in ingredients) {
-                requiredItems.push({ name, count: ingredients[name] });
-            }
-            
-            selectedIndices = [];
-            selectionModalConfirm.disabled = true;
-
-            // This callback will be called when the user hits "Confirm"
-            currentSelectionCallback = (confirmedIndices) => {
-                performRitual(ritualKey, confirmedIndices);
-                closeSelectionModal();
-            };
-
-            renderSelectionModal(requiredItems);
-            selectionModal.classList.remove('hidden');
-        }
-
-        function openCraftSelectionModal(craftKey) {
-            const recipe = craftRecipes[craftKey];
-            const resultData = findBrainrotData(craftKey);
-            
-            selectionModalTitle.textContent = `Craft: ${resultData.name}`;
-            
-            const ingredients = recipe.ingredients;
-            let requiredItems = []; 
-            for (const name in ingredients) {
-                requiredItems.push({ name, count: ingredients[name] });
-            }
-            
-            selectedIndices = [];
-            selectionModalConfirm.disabled = true;
-
-            currentSelectionCallback = (confirmedIndices) => {
-                performCraft(craftKey, confirmedIndices);
-                closeSelectionModal();
-            };
-
-            renderSelectionModal(requiredItems);
-            selectionModal.classList.remove('hidden');
-        }
-
-        function openFuseSelectionModal(rarity, count, type) {
-            // This is simpler. We just need `count` items of `rarity`.
-            const requiredItems = [{ name: rarity, count: count, isRarity: true }]; // Special flag
-            
-            selectionModalTitle.textContent = `Fuse: ${type}`;
-            
-            selectedIndices = [];
-            selectionModalConfirm.disabled = true;
-
-            currentSelectionCallback = (confirmedIndices) => {
-                performFuse(rarity, type, confirmedIndices); // Pass indices
-                closeSelectionModal();
-            };
-
-            renderSelectionModal(requiredItems);
-            selectionModal.classList.remove('hidden');
-        }
-
-        function renderSelectionModal(requiredItems) { // requiredItems = [{ name: 'Matteo', count: 3, isRarity: false }, { name: 'Mythic', count: 4, isRarity: true }]
-            selectionModalGrid.innerHTML = '';
-            
-            const requiredCounts = {}; // { 'Matteo': 3 }
-            const requiredRarities = {}; // { 'Mythic': 4 }
-            
-            let prompt = "Select items to use:<br>";
-            requiredItems.forEach(req => {
-                if (req.isRarity) {
-                    requiredRarities[req.name] = req.count;
-                    prompt += `<span id="req-rarity-${req.name}">${req.count}x ${req.name} (0 selected)</span><br>`;
+        async function initializeFirebase() {
+            try {
+                let firebaseConfig;
+                // Use hardcoded config IF NOT in the special environment
+                if (typeof __firebase_config !== 'undefined') {
+                    console.log("Using environment Firebase config.");
+                    firebaseConfig = JSON.parse(__firebase_config);
                 } else {
-                    requiredCounts[req.name] = req.count;
-                    prompt += `<span id="req-${req.name}">${req.count}x ${req.name} (0 selected)</span><br>`;
-                }
-            });
-            selectionModalPrompt.innerHTML = prompt;
-
-            // Get all items from base that are valid ingredients
-            const availableItems = baseSlots.map((slot, index) => ({ slot, index }))
-                .filter(item => item.slot && (requiredCounts[item.slot.name] || requiredRarities[item.slot.rarity])); 
-                        
-            if (availableItems.length === 0) {
-                selectionModalGrid.innerHTML = `<p class="col-span-full text-center">You have no required items in your base.</p>`;
-                return;
-            }
-
-            availableItems.forEach(item => {
-                const brainrot = item.slot;
-                const index = item.index;
-                const rarityData = rarities[brainrot.rarity];
-                
-                let mutationIcon = '';
-                if (brainrot.mutation && brainrot.mutation.name !== 'None') { 
-                    mutationIcon = `<div class="mutation-icon" style="background: ${brainrot.mutation.color};">${brainrot.mutation.icon}</div>`; 
-                }
-                let traitIcon = '';
-                if (brainrot.trait) { 
-                    traitIcon = `<div class="trait-icon" style="color: ${brainrot.trait.color};">${brainrot.trait.icon}</div>`; 
+                    console.log("Using hardcoded Firebase config.");
+                    firebaseConfig = HARDCODED_FIREBASE_CONFIG;
                 }
                 
-                const slot = document.createElement('div');
-                slot.className = 'base-slot selectable'; // Add 'selectable'
-                slot.dataset.index = index;
-                slot.innerHTML = `<div class="base-item" style="border-color: ${rarityData.color}; background-color: #374151;">${brainrot.icon}${mutationIcon}${traitIcon}</div>`;
-                
-                slot.onclick = () => toggleSelection(index, requiredCounts, requiredRarities); // Pass rarities
-                
-                selectionModalGrid.appendChild(slot);
-            });
-        }
-        
-        function toggleSelection(index, requiredCounts, requiredRarities = {}) {
-            const slotEl = selectionModalGrid.querySelector(`.base-slot[data-index="${index}"]`);
-            const item = baseSlots[index];
-            if (!item) return;
-
-            const findIndex = selectedIndices.indexOf(index);
-            
-            if (findIndex > -1) {
-                // Item is already selected, de-select it
-                selectedIndices.splice(findIndex, 1);
-                slotEl.classList.remove('selected'); // Use class
-            } else {
-                // Item is not selected. Check if we can select it.
-                let canSelect = false;
-                let neededName = null;
-                let neededRarity = null;
-                
-                if (requiredCounts[item.name]) neededName = item.name;
-                if (requiredRarities[item.rarity]) neededRarity = item.rarity;
-
-                if (neededName) {
-                    const currentSelectedForThisType = selectedIndices
-                        .map(i => baseSlots[i].name)
-                        .filter(name => name === neededName).length;
-                    if (currentSelectedForThisType < requiredCounts[neededName]) {
-                        canSelect = true;
-                    } else {
-                        showNotification(`You only need ${requiredCounts[neededName]}x ${neededName}`, 'yellow');
-                    }
-                } else if (neededRarity) {
-                     const currentSelectedForThisRarity = selectedIndices
-                        .map(i => baseSlots[i].rarity)
-                        .filter(rarity => rarity === neededRarity).length;
-                    if (currentSelectedForThisRarity < requiredRarities[neededRarity]) {
-                        canSelect = true;
-                    } else {
-                        showNotification(`You only need ${requiredRarities[neededRarity]}x ${neededRarity}`, 'yellow');
-                    }
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("YOUR_API")) {
+                    throw new Error("Invalid Firebase configuration.");
                 }
 
-                if (canSelect) {
-                    selectedIndices.push(index);
-                    slotEl.classList.add('selected'); // Use class
-                }
-            }
-            
-            // Update prompts and check for confirm button
-            let allRequirementsMet = true;
-            const currentCounts = {};
-            const currentRarityCounts = {}; // NEW
-            selectedIndices.forEach(i => {
-                const name = baseSlots[i].name;
-                const rarity = baseSlots[i].rarity;
-                currentCounts[name] = (currentCounts[name] || 0) + 1;
-                currentRarityCounts[rarity] = (currentRarityCounts[rarity] || 0) + 1;
-            });
-
-            for (const name in requiredCounts) {
-                const count = currentCounts[name] || 0;
-                const req = requiredCounts[name];
-                const el = document.getElementById(`req-${name}`);
-                if (el) {
-                    el.innerHTML = `${req}x ${name} (${count} selected)`;
-                    if (count < req) {
-                        allRequirementsMet = false;
-                        el.style.color = '#f87171'; // Red
-                    } else {
-                        el.style.color = '#4ade80'; // Green
-                    }
-                }
-            }
-            
-            for (const rarity in requiredRarities) { // NEW
-                const count = currentRarityCounts[rarity] || 0;
-                const req = requiredRarities[rarity];
-                const el = document.getElementById(`req-rarity-${rarity}`);
-                if (el) {
-                    el.innerHTML = `${req}x ${rarity} (${count} selected)`;
-                    if (count < req) {
-                        allRequirementsMet = false;
-                        el.style.color = '#f87171'; // Red
-                    } else {
-                        el.style.color = '#4ade80'; // Green
-                    }
-                }
-            }
-            
-            selectionModalConfirm.disabled = !allRequirementsMet;
-        }
-
-        function closeSelectionModal() {
-            selectionModal.classList.add('hidden');
-            currentSelectionCallback = null;
-            selectedIndices = [];
-        }
-
-        // --- NEW: Perform Ritual/Craft/Fuse ---
-        function performRitual(ritualKey, indices) {
-            const recipe = ritualRecipes[ritualKey];
-            const resultData = findBrainrotData(ritualKey);
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            
-            if (emptySlotIndex === -1) {
-                showNotification("Your base is full!", "red");
-                return;
-            }
-
-            // Remove ingredients
-            indices.forEach(index => {
-                baseSlots[index] = null;
-            });
-
-            // Add result
-            const newBrainrot = { ...resultData, mutation: getRandomMutation(), trait: null };
-            baseSlots[emptySlotIndex] = newBrainrot;
-            discoveredBrainrots.add(newBrainrot.name);
-
-            renderBase();
-            updateAllUI();
-            closeRitualModal();
-            showNotification(`Crafted ${newBrainrot.name}!`, rarities[newBrainrot.rarity].color);
-        }
-
-        function performCraft(craftKey, indices) {
-            const recipe = craftRecipes[craftKey];
-            const resultData = findBrainrotData(craftKey);
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            
-            if (emptySlotIndex === -1) {
-                showNotification("Your base is full!", "red");
-                return;
-            }
-
-            // Remove ingredients
-            indices.forEach(index => {
-                baseSlots[index] = null;
-            });
-
-            // Add result
-            const newBrainrot = { ...resultData, mutation: getRandomMutation(), trait: null };
-            baseSlots[emptySlotIndex] = newBrainrot;
-            discoveredBrainrots.add(newBrainrot.name);
-
-            renderBase();
-            updateAllUI();
-            closeCraftMachineModal();
-            showNotification(`Crafted ${newBrainrot.name}!`, rarities[newBrainrot.rarity].color);
-        }
-
-        function performFuse(rarity, type, indices) {
-            const recipe = fuseRecipes[type].find(r => r.inputRarity === rarity);
-            if (!recipe) return;
-
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            if (emptySlotIndex === -1) {
-                showNotification("Your base is full!", "red");
-                return;
-            }
-
-            // Remove ingredients
-            indices.forEach(index => {
-                baseSlots[index] = null;
-            });
-
-            // Get random result
-            let eventFuseLuck = Object.values(activeEvents).some(e => e.name === 'Fuse Luck' || e.name === 'Witch Luck');
-            let outputPool = [...recipe.output];
-            if (eventFuseLuck) {
-                // Add 3 extra "rolls" for the rarest items in the pool
-                const rarest = outputPool.sort((a, b) => findBrainrotData(b).cost - findBrainrotData(a).cost).slice(0, 2);
-                outputPool.push(...rarest, ...rarest, ...rarest);
-            }
-            const resultName = outputPool[Math.floor(Math.random() * outputPool.length)];
-            const resultData = findBrainrotData(resultName);
-            
-            // Add result
-            const newBrainrot = { ...resultData, mutation: getRandomMutation(), trait: null };
-            baseSlots[emptySlotIndex] = newBrainrot;
-            discoveredBrainrots.add(newBrainrot.name);
-
-            renderBase();
-            updateAllUI();
-            closeFuseModal();
-            showNotification(`Fused into ${newBrainrot.name}!`, rarities[newBrainrot.rarity].color);
-        }
-
-        async function buyFromDealer(itemName) {
-            if (!db || !isAuthReady) {
-                showNotification("Not connected to dealer database.", "red");
-                return;
-            }
-            
-            const data = dealerExclusives[itemName];
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-
-            if (money < data.cost) { showNotification("Not enough money!", "red"); return; }
-            if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
-
-            // Run a transaction to buy
-            try {
-                const stockRef = doc(db, `artifacts/${appId}/public/data/dealer/stock`);
-                await runTransaction(db, async (transaction) => {
-                    const stockDoc = await transaction.get(stockRef);
-                    if (!stockDoc.exists()) {
-                        throw "Dealer stock document not found!";
-                    }
-
-                    const currentStock = stockDoc.data().stock || {};
-                    const stock = currentStock[itemName] || 0;
-
-                    if (stock <= 0) {
-                        throw "Item is out of stock!";
-                    }
-
-                    // We can buy. Update stock and local game state.
-                    const newStock = { ...currentStock, [itemName]: stock - 1 };
-                    transaction.update(stockRef, { stock: newStock });
-
-                    // This part runs *after* transaction is successful
-                    money -= data.cost;
-                    baseSlots[emptySlotIndex] = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
-                    discoveredBrainrots.add(itemName);
-                    
-                });
-
-                // Transaction was successful, update UI
-                renderBase();
-                updateAllUI();
-                renderDealerModal(); // Stock will update via listener, but this provides immediate feedback
-                showNotification(`Bought ${itemName} from Dealer!`, "green");
-
-            } catch (e) {
-                console.error("Dealer purchase error: ", e);
-                showNotification(e.toString(), "red");
-            }
-        }
-        
-        async function saveGame() {
-            if (!db || !isAuthReady || !userId) {
-                showNotification("Not connected to Firebase. Cannot save.", "red");
-                return;
-            }
-            cloudSaveButton.disabled = true;
-            cloudSaveButton.textContent = "Saving...";
-            try {
-                const userSaveRef = doc(db, `artifacts/${appId}/users/${userId}/save/data`);
-                
-                // Sanitize base slots: remove DOM elements
-                const safeBaseSlots = baseSlots.map(slot => {
-                    if (!slot) return null;
-                    const { element, position, ...cleanSlot } = slot;
-                    return cleanSlot;
-                });
-
-                const saveData = { 
-                    money: money, 
-                    baseSlots: safeBaseSlots,
-                    discovered: Array.from(discoveredBrainrots),
-                    rebirths: rebirths, 
-                    luck: luck, 
-                    activeEvents: activeEvents,
-                    timestamp: serverTimestamp()
-                };
-
-                await setDoc(userSaveRef, saveData);
-                showNotification("Game Saved to Cloud!", "green");
-            } catch (error) {
-                console.error("Error saving game:", error);
-                showNotification("Cloud Save Failed!", "red");
-            } finally {
-                cloudSaveButton.disabled = false;
-                cloudSaveButton.textContent = "Cloud Save";
-            }
-        }
-        
-        async function loadGame() {
-            if (!db || !isAuthReady || !userId) {
-                showNotification("Not connected to Firebase. Cannot load.", "red");
-                return;
-            }
-            cloudLoadButton.disabled = true;
-            cloudLoadButton.textContent = "Loading...";
-            try {
-                const userSaveRef = doc(db, `artifacts/${appId}/users/${userId}/save/data`);
-                const docSnap = await getDoc(userSaveRef);
-
-                if (docSnap.exists()) {
-                    loadGameData(docSnap.data(), "Cloud");
-                } else {
-                    showNotification("No cloud save found.", "yellow");
-                }
-            } catch (error) {
-                console.error("Error loading game:", error);
-                showNotification("Cloud Load Failed!", "red");
-            } finally {
-                cloudLoadButton.disabled = false;
-                cloudLoadButton.textContent = "Cloud Load";
-            }
-        }
-
-        function saveGameToFile() {
-            // 1. Sanitize data
-            const safeBaseSlots = baseSlots.map(slot => {
-                if (!slot) return null;
-                const { element, position, ...cleanSlot } = slot;
-                return cleanSlot;
-            });
-
-            const saveData = { 
-                money: money, 
-                baseSlots: safeBaseSlots,
-                discovered: Array.from(discoveredBrainrots),
-                rebirths: rebirths, 
-                luck: luck, 
-                activeEvents: activeEvents,
-                dealerStock: currentDealerStock, // Include local stock state just in case
-                timestamp: Date.now()
-            };
-
-            // 2. Create a blob and download link
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", `brainrot_tycoon_save_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchorNode); // Required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-            
-            showNotification("Game Saved to File!", "green");
-        }
-        
-        function loadGameFromFile() {
-            // This function now just triggers the hidden file input
-            loadFileInput.click();
-        }
-
-        async function initializeGame() {
-            if (!firebaseConfig.apiKey) {
-                loadingSpinner.innerHTML = "Firebase config missing. Running in offline mode.";
-                console.error("Firebase config is missing or invalid.");
-                // We could init an offline mode, but for now, we'll just stop.
-                return;
-            }
-
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
+                app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
+                db = getFirestore(app);
                 setLogLevel('Debug');
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        console.log("User is signed in:", user.uid);
                         userId = user.uid;
-                        isAuthReady = true; 
+                        console.log("User signed in:", userId);
                         
-                        // Finish game init
-                        initGameLogic(); // <-- FIX: INITIALIZE DOM ELEMENTS FIRST
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`;
+                        eventsDocPath = `/artifacts/${appId}/public/data/globalEvents/latest`; // Corrected path
+                        dealerDocPath = `/artifacts/${appId}/public/data/dealer/stock`; // Corrected path
 
-                        // Setup global listeners
+                        // Load game, then init logic
+                        await loadGame();
+                        // Init UI elements *before* starting loops
+                        initGameLogic(); 
+                        
                         setupGlobalEventListener();
                         setupDealerStockListener();
-
-                        // User is ready, now load game data
-                        await loadGame(); // <-- FIX: LOAD GAME AFTER DOM IS READY
                         
+                        loadingSpinner.classList.add('hidden');
+                        gameRoot.classList.remove('hidden');
+
                     } else {
-                        console.log("User is not signed in. Signing in...");
-                        // Use token if available, else sign in anonymously
-                        if (typeof __initial_auth_token !== 'undefined') {
-                            await signInWithCustomToken(auth, __initial_auth_token);
+                        console.log("No user found, signing in...");
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            try {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                            } catch (e) {
+                                console.warn("Custom token auth failed, falling back to anonymous:", e);
+                                await signInAnonymously(auth);
+                            }
                         } else {
+                            // Fallback for local testing
                             await signInAnonymously(auth);
                         }
                     }
                 });
-
             } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                loadingSpinner.innerHTML = "Firebase init failed. Please refresh.";
+                console.error("Firebase Init Error:", error);
+                showNotification("Firebase Error. Running in Offline Mode.", "red");
+                // Fallback to offline mode
+                loadingSpinner.classList.add('hidden');
+                gameRoot.classList.remove('hidden');
+                initGameLogic(); // Start game logic without auth
+                // Show local save/load buttons
+                if(exportButton) exportButton.classList.remove('hidden');
+                if(importButton) importButton.classList.remove('hidden');
+                if(saveButton) saveButton.textContent = "Save File";
+                if(loadButton) loadButton.textContent = "Load File";
             }
         }
 
         function initGameLogic() {
-            // --- FIX: Get all DOM elements here to ensure they exist ---
+            // --- Assign all DOM elements ---
             loadingSpinner = document.getElementById('loading-spinner');
             gameRoot = document.getElementById('game-root');
             pauseButton = document.getElementById('pause-button');
-            cloudSaveButton = document.getElementById('cloud-save-button'); 
-            cloudLoadButton = document.getElementById('cloud-load-button'); 
-            saveFileButton = document.getElementById('save-file-button');
-            loadFileButton = document.getElementById('load-file-button');
+            saveButton = document.getElementById('save-button');
+            loadButton = document.getElementById('load-button');
+            exportButton = document.getElementById('export-button');
+            importButton = document.getElementById('import-button');
             indexButton = document.getElementById('index-button');
             indexCounter = document.getElementById('index-counter');
             openRebirthButton = document.getElementById('open-rebirth-button');
             moneyDisplay = document.getElementById('money');
             mpsDisplay = document.getElementById('mps');
             timerDisplay = document.getElementById('timer-display');
-            witchFuseCountdownDisplay = document.getElementById('witch-fuse-countdown');
             activeEventsList = document.getElementById('active-events-list');
             rebirthDisplay = document.getElementById('rebirth-display');
             baseCountDisplay = document.getElementById('base-count');
@@ -1481,8 +946,9 @@
             globalTooltip = document.getElementById('global-tooltip');
             notification = document.getElementById('notification');
             loadFileInput = document.getElementById('load-file-input');
-            
-            // NEW Selection Modal elements
+            witchFuseCountdown = document.getElementById('witch-fuse-countdown');
+
+            // Selection Modal elements
             selectionModal = document.getElementById('selection-modal');
             selectionModalTitle = document.getElementById('selection-modal-title');
             closeSelectionModalButton = document.getElementById('close-selection-modal-button');
@@ -1490,22 +956,135 @@
             selectionModalGrid = document.getElementById('selection-modal-grid');
             selectionModalConfirm = document.getElementById('selection-modal-confirm');
             selectionModalCancel = document.getElementById('selection-modal-cancel');
+            
+            // --- Attach Event Listeners ---
+            pauseButton.addEventListener('click', togglePause);
+            saveButton.addEventListener('click', saveGame); // Cloud Save
+            loadButton.addEventListener('click', loadGame); // Cloud Load
+            
+            exportButton.addEventListener('click', saveGameToFile); // Local Save
+            importButton.addEventListener('click', loadGameFromFile); // Local Load
+            
+            loadFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const text = e.target.result;
+                        const parsedData = JSON.parse(text);
+                        loadGameData(parsedData, "File");
+                    } catch (error) {
+                        console.error("Error reading save file:", error);
+                        showNotification("Load Failed: Invalid file format.", "red");
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = null; // Reset input
+            });
 
+            sellButton.addEventListener('click', toggleSellMode);
+            indexButton.addEventListener('click', openIndexModal);
+            closeIndexButton.addEventListener('click', closeIndexModal);
+            indexModal.addEventListener('click', (e) => { if(e.target === indexModal) closeIndexModal() });
+            openRebirthButton.addEventListener('click', openRebirthModal);
+            closeRebirthButton.addEventListener('click', closeRebirthModal);
+            confirmRebirthButton.addEventListener('click', handleRebirth);
+            rebirthModal.addEventListener('click', (e) => { if(e.target === rebirthModal) closeRebirthModal() });
+            window.addEventListener('keydown', (e) => { if (e.key === '-') { openJayceModal(); } });
+            closeJayceButton.addEventListener('click', closeJayceModal);
+            jayceLoginButton.addEventListener('click', jayceLogin);
+            jaycePasswordInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') jayceLogin() });
+            baseContainer.addEventListener('mouseover', (e) => { 
+                const slot = e.target.closest('.base-slot'); 
+                if (!slot) return; 
+                const index = parseInt(slot.dataset.index, 10); 
+                const brainrot = baseSlots[index]; 
+                if (brainrot) { 
+                    const sellPrice = Math.floor(brainrot.cost * SELL_MULTIPLIER); 
+                    let tooltipHTML = `<div class="font-bold">${brainrot.name}</div><div>Sell: <span class="text-green-400">$${formatLargeNumber(sellPrice)}</span></div><div>Base MPS: <span class="text-yellow-400">${formatLargeNumber(brainrot.mps)}</span></div>`;
+                    if (brainrot.mutation && brainrot.mutation.name !== 'None') { tooltipHTML += `<div>${brainrot.mutation.name}: <span style="color: ${brainrot.mutation.color}">x${brainrot.mutation.multiplier} MPS</span></div>`; }
+                    if (brainrot.trait) { tooltipHTML += `<div>${brainrot.trait.name}: <span style="color: ${brainrot.trait.color}">x${brainrot.trait.multiplier} MPS</span></div>`; }
+                    globalTooltip.innerHTML = tooltipHTML;
+                    const rect = slot.getBoundingClientRect(); 
+                    globalTooltip.classList.remove('hidden'); 
+                    const tooltipRect = globalTooltip.getBoundingClientRect(); 
+                    let top = rect.top - tooltipRect.height - 8; 
+                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2); 
+                    if (top < 0) { top = rect.bottom + 8; } 
+                    if (left < 0) { left = 5; } 
+                    if (left + tooltipRect.width > window.innerWidth) { left = window.innerWidth - tooltipRect.width - 5; } 
+                    globalTooltip.style.top = `${top}px`; 
+                    globalTooltip.style.left = `${left}px`; 
+                } 
+            });
+            baseContainer.addEventListener('mouseout', () => { globalTooltip.classList.add('hidden'); });
 
-            // --- FIX: Now that elements are loaded, we can hide the spinner ---
-            if (loadingSpinner) loadingSpinner.classList.add('hidden');
-            if (gameRoot) gameRoot.classList.remove('hidden');
+            // --- Modal Listeners ---
+            openRitualButton.addEventListener('click', openRitualModal);
+            closeRitualButton.addEventListener('click', closeRitualModal);
+            ritualModal.addEventListener('click', (e) => { if (e.target === ritualModal) closeRitualModal(); });
+            ritualList.addEventListener('click', (e) => { 
+                if (e.target.classList.contains('perform-ritual-btn')) { 
+                    openRitualSelectionModal(e.target.dataset.ritualKey);
+                } 
+            });
 
+            openCraftMachineButton.addEventListener('click', openCraftMachineModal);
+            closeCraftMachineButton.addEventListener('click', closeCraftMachineModal);
+            craftMachineModal.addEventListener('click', (e) => { if (e.target === craftMachineModal) closeCraftMachineModal(); });
+            craftMachineList.addEventListener('click', (e) => { 
+                if (e.target.classList.contains('perform-craft-btn')) { 
+                    openCraftSelectionModal(e.target.dataset.craftKey);
+                } 
+            });
 
-            // --- Now add event listeners (with checks for null) ---
+            openNormalFuseButton.addEventListener('click', () => openFuseModal('Normal'));
+            openWitchFuseButton.addEventListener('click', () => openFuseModal('Witch'));
+            openTacoFuseButton.addEventListener('click', () => openFuseModal('Taco'));
+            closeFuseModalButton.addEventListener('click', closeFuseModal);
+            fuseModal.addEventListener('click', (e) => { if (e.target === fuseModal) closeFuseModal(); });
+            fuseModalList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('perform-fuse-btn')) {
+                    const { inputType, inputRarity, inputCount } = e.target.dataset;
+                    openFuseSelectionModal(inputRarity, parseInt(inputCount, 10), inputType);
+                }
+            });
+
+            openDealerButton.addEventListener('click', openDealerModal);
+            closeDealerButton.addEventListener('click', closeDealerModal);
+            dealerModal.addEventListener('click', (e) => { if (e.target === dealerModal) closeDealerModal(); });
+            dealerList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('buy-dealer-btn')) {
+                    buyFromDealer(e.target.dataset.itemName);
+                }
+            });
+            
+            openTraderButton.addEventListener('click', () => {
+                showNotification("Trader coming soon!", "cyan");
+            });
+
+            // Selection Modal Listeners
+            closeSelectionModalButton.addEventListener('click', closeSelectionModal);
+            selectionModalCancel.addEventListener('click', closeSelectionModal);
+            selectionModal.addEventListener('click', (e) => { if(e.target === selectionModal) closeSelectionModal() });
+            
+            selectionModalConfirm.addEventListener('click', () => {
+                if (currentSelectionCallback) {
+                    currentSelectionCallback(selectedIndices);
+                }
+            });
+
+            // --- Admin Panel Listeners ---
             document.getElementById('jayce-send-chat').addEventListener('click', () => {
                 const message = document.getElementById('jayce-chat-input').value;
-                const displayName = document.getElementById('jayce-display-name').value || 'Admin'; // Get display name
+                const displayName = document.getElementById('jayce-display-name').value || 'Admin';
                 if(message) {
-                    sendGlobalEvent('chat', { message: message, displayName: displayName }); // Pass it
+                    sendGlobalEvent('chat', { message: message, displayName: displayName });
                     document.getElementById('jayce-chat-input').value = '';
                 }
             });
+
             document.getElementById('jayce-spawn-button').addEventListener('click', () => { 
                 const value = document.getElementById('jayce-spawn-select').value; 
                 const mutation = mutations[document.getElementById('jayce-spawn-mutation').value];
@@ -1519,7 +1098,7 @@
                 }
                 
                 if (value.startsWith('lucky_block_')) { 
-                    const blockType = value.replace('lucky_block_', '');
+                    const blockType = value.replace('lucky_block_', ''); 
                     sendGlobalEvent('spawn_lucky_block', { name: blockType });
                 } else { 
                     sendGlobalEvent('spawn', { name: value, mutation, trait });
@@ -1566,230 +1145,80 @@
                 sendGlobalEvent('restock_dealer', { item: itemName });
             });
             jayceLogoutButton.addEventListener('click', jayceLogout);
-            pauseButton.addEventListener('click', togglePause);
-            
-            // FIX: Check if elements exist before adding listeners
-            if (cloudSaveButton) cloudSaveButton.addEventListener('click', saveGame);
-            if (cloudLoadButton) cloudLoadButton.addEventListener('click', loadGame);
-            if (saveFileButton) saveFileButton.addEventListener('click', saveGameToFile);
-            if (loadFileButton) loadFileButton.addEventListener('click', loadGameFromFile);
-            
-            loadFileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const text = e.target.result;
-                        const parsedData = JSON.parse(text);
-                        loadGameData(parsedData, "File"); // Pass source
-                    } catch (error) {
-                        console.error("Error reading save file:", error);
-                        showNotification("Load Failed: Invalid file format.", "red");
-                    }
-                };
-                reader.readAsText(file);
-                event.target.value = null;
-            });
-
-            sellButton.addEventListener('click', toggleSellMode);
-            indexButton.addEventListener('click', openIndexModal);
-            closeIndexButton.addEventListener('click', closeIndexModal);
-            indexModal.addEventListener('click', (e) => { if(e.target === indexModal) closeIndexModal() });
-            openRebirthButton.addEventListener('click', openRebirthModal);
-            closeRebirthButton.addEventListener('click', closeRebirthModal); // Fixed typo here
-            confirmRebirthButton.addEventListener('click', handleRebirth);
-            rebirthModal.addEventListener('click', (e) => { if(e.target === rebirthModal) closeRebirthModal() });
-            window.addEventListener('keydown', (e) => { if (e.key === '-') { openJayceModal(); } });
-            closeJayceButton.addEventListener('click', closeJayceModal);
-            jayceLoginButton.addEventListener('click', jayceLogin);
-            jaycePasswordInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') jayceLogin() });
-            baseContainer.addEventListener('mouseover', (e) => { 
-                const slot = e.target.closest('.base-slot'); 
-                if (!slot) return; 
-                const index = parseInt(slot.dataset.index, 10); 
-                const brainrot = baseSlots[index]; 
-                if (brainrot) { 
-                    const sellPrice = Math.floor(brainrot.cost * SELL_MULTIPLIER); 
-                    let tooltipHTML = `<div class="font-bold">${brainrot.name}</div><div>Sell: <span class="text-green-400">$${formatLargeNumber(sellPrice)}</span></div><div>Base MPS: <span class="text-yellow-400">${formatLargeNumber(brainrot.mps)}</span></div>`;
-                    if (brainrot.mutation && brainrot.mutation.name !== 'None') { tooltipHTML += `<div>${brainrot.mutation.name}: <span style="color: ${brainrot.mutation.color}">x${brainrot.mutation.multiplier} MPS</span></div>`; }
-                    if (brainrot.trait) { tooltipHTML += `<div>${brainrot.trait.name}: <span style="color: ${brainrot.trait.color}">x${brainrot.trait.multiplier} MPS</span></div>`; }
-                    globalTooltip.innerHTML = tooltipHTML;
-                    const rect = slot.getBoundingClientRect(); 
-                    globalTooltip.classList.remove('hidden'); 
-                    const tooltipRect = globalTooltip.getBoundingClientRect(); 
-                    let top = rect.top - tooltipRect.height - 8; 
-                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2); 
-                    if (top < 0) { top = rect.bottom + 8; } 
-                    if (left < 0) { left = 5; } 
-                    if (left + tooltipRect.width > window.innerWidth) { left = window.innerWidth - tooltipRect.width - 5; } 
-                    globalTooltip.style.top = `${top}px`; 
-                    globalTooltip.style.left = `${left}px`; 
-                } 
-            });
-            baseContainer.addEventListener('mouseout', () => { globalTooltip.classList.add('hidden'); });
-            
-            // --- Modal Listeners ---
-            openRitualButton.addEventListener('click', openRitualModal);
-            closeRitualButton.addEventListener('click', closeRitualModal);
-            ritualModal.addEventListener('click', (e) => { if (e.target === ritualModal) closeRitualModal(); });
-            ritualList.addEventListener('click', (e) => { 
-                if (e.target.classList.contains('perform-ritual-btn')) { 
-                    openRitualSelectionModal(e.target.dataset.ritualKey); // MODIFIED
-                } 
-            });
-
-            openCraftMachineButton.addEventListener('click', openCraftMachineModal);
-            closeCraftMachineButton.addEventListener('click', closeCraftMachineModal);
-            craftMachineModal.addEventListener('click', (e) => { if (e.target === craftMachineModal) closeCraftMachineModal(); });
-            craftMachineList.addEventListener('click', (e) => { 
-                if (e.target.classList.contains('perform-craft-btn')) { 
-                    openCraftSelectionModal(e.target.dataset.craftKey); // MODIFIED
-                } 
-            });
-
-            openNormalFuseButton.addEventListener('click', () => openFuseModal('Normal'));
-            openWitchFuseButton.addEventListener('click', () => openFuseModal('Witch'));
-            openTacoFuseButton.addEventListener('click', () => openFuseModal('Taco'));
-            closeFuseModalButton.addEventListener('click', closeFuseModal);
-            fuseModal.addEventListener('click', (e) => { if (e.target === fuseModal) closeFuseModal(); });
-            fuseModalList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('perform-fuse-btn')) {
-                    const { inputType, inputRarity, inputCount } = e.target.dataset;
-                    openFuseSelectionModal(inputRarity, parseInt(inputCount, 10), inputType); // MODIFIED
-                }
-            });
-
-            openDealerButton.addEventListener('click', openDealerModal);
-            closeDealerButton.addEventListener('click', closeDealerModal);
-            dealerModal.addEventListener('click', (e) => { if (e.target === dealerModal) closeDealerModal(); });
-            dealerList.addEventListener('click', (e) => {
-                if (e.target.classList.contains('buy-dealer-btn')) {
-                    buyFromDealer(e.target.dataset.itemName);
-                }
-            });
-
-            openTraderButton.addEventListener('click', () => {
-                showNotification("Trader is Coming Soon!", "cyan");
-            });
-
-            // NEW Selection Modal Listeners
-            closeSelectionModalButton.addEventListener('click', closeSelectionModal);
-            selectionModalCancel.addEventListener('click', closeSelectionModal);
-            selectionModal.addEventListener('click', (e) => { if(e.target === selectionModal) closeSelectionModal() });
-            
-            selectionModalConfirm.addEventListener('click', () => {
-                if (currentSelectionCallback) {
-                    currentSelectionCallback(selectedIndices);
-                }
-            });
-            // --- End of Event Listeners ---
-
-
-            // --- Start remaining logic ---
+            // --- Start Game Logic ---
             updateDerivedState();
-            initBase();
-            
-            // Fallback Init dealer stock if offline or before Firebase loads
-            if (Object.keys(currentDealerStock).length === 0) {
-                initializeGlobalDealerStock(true); // Force local init
-            }
-            
+            initBase(); // Init base slots based on maxBaseSlots
+            renderBase(); // Render the empty slots
             populateAdminDropdowns();
             gameInterval = setInterval(gameLoop, 1000 / 60);
             timerInterval = setInterval(updateTimers, 1000);
             setTimeout(spawnBrainrotOnBelt, 1000);
             checkTacoTuesday();
-            updateAllUI();
+            updateAllUI(); // Update UI with initial values
         }
 
         function setupGlobalEventListener() {
-            if (!db || !isAuthReady) return;
-            try {
-                // FIX: Path must be even, so we point to a document
-                const globalEventRef = doc(db, `artifacts/${appId}/public/data/globalEvents/latest`);
-                if (globalEventUnsubscribe) globalEventUnsubscribe(); // Unsub from old one if exists
-                
-                globalEventUnsubscribe = onSnapshot(globalEventRef, (doc) => {
-                    const event = doc.data();
-                    if (event && event.timestamp) { // Check for timestamp to avoid old events
-                        // Check if event is recent (e.g., within last 10 seconds)
-                        const now = Date.now();
-                        const eventTime = event.timestamp.toDate().getTime();
-                        if (now - eventTime < 10000) { 
+            if (globalEventListener || !db) return; // Don't run if no DB or already listening
+
+            const q = doc(db, eventsDocPath); // Listen to the single doc
+            globalEventListener = onSnapshot(q, (docSnap) => {
+                if (docSnap.exists()) {
+                    const event = docSnap.data();
+                    // Basic check to not re-play old events
+                    if (event.timestamp) {
+                        const eventTime = event.timestamp.toDate();
+                        const now = new Date();
+                        const diff = (now.getTime() - eventTime.getTime()) / 1000;
+                        if (diff < 60) { // Only process events from the last 60 seconds
+                            console.log("Global Event Received:", event);
                             handleGlobalEvent(event);
                         }
                     }
-                });
-                console.log("Global event listener attached.");
-            } catch (error) {
-                console.error("Error attaching global event listener:", error);
-            }
-        }
-
-        function setupDealerStockListener() {
-            if (!db || !isAuthReady) return;
-            try {
-                const stockRef = doc(db, `artifacts/${appId}/public/data/dealer/stock`);
-                if (dealerStockUnsubscribe) dealerStockUnsubscribe();
-
-                dealerStockUnsubscribe = onSnapshot(stockRef, (doc) => {
-                    if (doc.exists()) {
-                        const data = doc.data();
-                        currentDealerStock = data.stock || {};
-                        console.log("Dealer stock updated from Firebase.");
-                        // Ensure new items are added to stock if save is old
-                        for (const name in dealerExclusives) {
-                            if (currentDealerStock[name] === undefined) {
-                                currentDealerStock[name] = dealerExclusives[name].initialStock;
-                            }
-                        }
-                        if(dealerModal.classList.contains('hidden') === false) {
-                            renderDealerModal(); // Re-render if modal is open
-                        }
-                    } else {
-                        console.log("No dealer stock doc. Initializing...");
-                        initializeGlobalDealerStock();
-                    }
-                });
-                console.log("Dealer stock listener attached.");
-            } catch (error) {
-                console.error("Error attaching dealer stock listener:", error);
-            }
-        }
-
-        async function initializeGlobalDealerStock(forceLocal = false) {
-            const initialStock = {};
-            for (const name in dealerExclusives) {
-                initialStock[name] = dealerExclusives[name].initialStock;
-            }
-            currentDealerStock = initialStock; // Set locally first
-
-            if (forceLocal || !db || !isAuthReady) {
-                console.log("Initialized dealer stock locally.");
-                return;
-            }
-
-            try {
-                const stockRef = doc(db, `artifacts/${appId}/public/data/dealer/stock`);
-                const docSnap = await getDoc(stockRef);
-                if (!docSnap.exists()) {
-                    await setDoc(stockRef, { stock: initialStock });
-                    console.log("Global dealer stock initialized in Firebase.");
-                } else {
-                    // It exists, so listener will pick it up.
-                    console.log("Global dealer stock already exists.");
                 }
+            }, (error) => {
+                console.error("Error listening to global events:", error);
+            });
+        }
+        
+        function setupDealerStockListener() {
+            if (dealerEventListener || !db) return;
+            
+            const q = doc(db, dealerDocPath);
+            dealerEventListener = onSnapshot(q, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentDealerStock = docSnap.data();
+                    console.log("Dealer stock updated from Firebase.");
+                    if (dealerModal.classList.contains('hidden')) {
+                        // Don't re-render if modal is closed
+                    } else {
+                        renderDealerModal(); // Re-render if open
+                    }
+                } else {
+                    console.log("No global dealer stock found, initializing...");
+                    initializeGlobalDealerStock();
+                }
+            }, (error) => {
+                console.error("Error listening to dealer stock:", error);
+            });
+        }
+
+        async function initializeGlobalDealerStock() {
+            if (!db) return;
+            try {
+                const initialStock = {};
+                for (const name in dealerExclusives) {
+                    initialStock[name] = dealerExclusives[name].initialStock;
+                }
+                await setDoc(doc(db, dealerDocPath), initialStock);
+                console.log("Global dealer stock initialized.");
+                currentDealerStock = initialStock;
             } catch (error) {
-                console.error("Error initializing global dealer stock:", error);
+                console.error("Failed to initialize dealer stock:", error);
             }
         }
 
         function handleGlobalEvent(event) {
-            if (!event || !event.type) return;
-
-            console.log("Handling global event:", event);
             switch(event.type) {
                 case 'chat':
                     showNotification(`${event.displayName || 'JAYCE'}: ${event.message}`, 'white');
@@ -1818,78 +1247,65 @@
                     showNotification("All events have been stopped.", "gray");
                     break;
                 case 'restock_dealer':
-                    // This event will just trigger the dealer listener,
-                    // but we can show a notification
-                    showNotification(`Dealer stock for ${event.item} has been restocked!`, "green");
-                    // The listener will handle the data update
+                    // This event just *triggers* a stock reset, listener handles the data
+                    // The admin function will have already updated the doc
+                    showNotification("Dealer stock has been restocked!", "green");
                     break;
             }
         }
 
-        async function restockGlobalDealer(item) {
-            if (!db || !isAuthReady) {
-                showNotification("Not connected. Cannot restock.", "red");
-                return;
-            }
-            
-            try {
-                const stockRef = doc(db, `artifacts/${appId}/public/data/dealer/stock`);
-                await runTransaction(db, async (transaction) => {
-                    const stockDoc = await transaction.get(stockRef);
-                    if (!stockDoc.exists()) {
-                        throw "Dealer stock document not found!";
-                    }
-
-                    const currentStock = stockDoc.data().stock || {};
-
-                    if (item === 'All') {
-                        for (const name in dealerExclusives) {
-                            currentStock[name] = dealerExclusives[name].initialStock;
-                        }
-                    } else {
-                        if (dealerExclusives[item]) {
-                            currentStock[item] = dealerExclusives[item].initialStock;
-                        }
-                    }
-                    transaction.update(stockRef, { stock: currentStock });
-                });
-                
-                // Also send a global event so others get a notification
-                await sendGlobalEvent('restock_dealer', { item: item });
-                showNotification(`Restocked ${item} globally!`, "green");
-
-            } catch (e) {
-                console.error("Dealer restock error: ", e);
-                showNotification(e.toString(), "red");
-            }
-        }
-
         async function sendGlobalEvent(type, payload) {
-            if (!db || !isAuthReady) {
-                showNotification("Not connected. Cannot send global event.", "red");
-                return;
-            }
             if (!isAdmin) {
                 showNotification("Admin login required.", "red");
+                // Simulate locally if admin
+                if (type !== 'chat') handleGlobalEvent({ type, ...payload });
+                return;
+            }
+            if (!db) {
+                showNotification("Not connected to Firebase.", "red");
                 return;
             }
             
+            if (type === 'restock_dealer') {
+                // This is a special case that modifies the dealer doc, not events
+                try {
+                    const item = payload.item;
+                    if (item === 'All') {
+                        // Reset all stock
+                        const initialStock = {};
+                        for (const name in dealerExclusives) {
+                            initialStock[name] = dealerExclusives[name].initialStock;
+                        }
+                        await setDoc(doc(db, dealerDocPath), initialStock);
+                    } else {
+                        // Reset stock for one item
+                        await updateDoc(doc(db, dealerDocPath), {
+                            [item]: dealerExclusives[item].initialStock
+                        });
+                    }
+                    showNotification("Dealer stock restocked globally!", "green");
+                } catch (error) {
+                    console.error("Error restocking dealer:", error);
+                    showNotification("Failed to restock dealer.", "red");
+                }
+                return; // Don't send a global event doc for this
+            }
+            
+            // For all other events, update the single global event doc
             try {
-                // FIX: Path must be even
-                const globalEventRef = doc(db, `artifacts/${appId}/public/data/globalEvents/latest`);
-                await setDoc(globalEventRef, {
-                    type: type,
+                await setDoc(doc(db, eventsDocPath), {
                     ...payload,
-                    timestamp: serverTimestamp() // Use server time
+                    type: type,
+                    timestamp: serverTimestamp() // This is the trigger
                 });
-                showNotification("Global event sent!", "cyan");
             } catch (error) {
                 console.error("Error sending global event:", error);
-                showNotification("Failed to send event!", "red");
+                showNotification("Failed to send command.", "red");
             }
         }
 
         function gameLoop() { if (!isPaused) { updateMoney(); updateBeltItems(); } }
+        
         function updateTimers() { 
             if (!isPaused) { 
                 timeUntilLegendary--; 
@@ -1900,15 +1316,20 @@
                 if (timeUntilBrainrotGod <= 0) { spawnSpecificBrainrot('Brainrot God'); timeUntilBrainrotGod = 1800; } 
                 updateTimerDisplay(); 
                 updateActiveEvents(); 
-                updateWitchFuseCountdown();
+                updateWitchFuseCountdown(); // Update countdown
             } 
         }
-        function updateDerivedState() { maxBaseSlots = 10 + rebirths; moneyMultiplier = 1; } // Multiplier is now trait-based
+        
+        function updateDerivedState() { maxBaseSlots = 10 + rebirths; } // Multiplier is now trait-based
         
         function initBase() {
-            baseContainer.innerHTML = '';
-            baseSlots = Array(maxBaseSlots).fill(null);
+            baseContainer.innerHTML = ''; // Clear previous slots
+            // Ensure baseSlots array has the correct length *before* filling
+            baseSlots.length = maxBaseSlots;
             for (let i = 0; i < maxBaseSlots; i++) {
+                if (baseSlots[i] === undefined) {
+                    baseSlots[i] = null; // Fill any new slots with null
+                }
                 const slot = document.createElement('div');
                 slot.classList.add('base-slot');
                 slot.dataset.index = i;
@@ -1933,7 +1354,7 @@
             if (!blockType) {
                 let random = Math.random() * totalLuckyBlockWeight;
                 for (const name in luckyBlockManifest) {
-                    if (luckyBlockManifest[name].weight > 0) { // Only count natural spawn weights
+                    if (luckyBlockManifest[name].weight > 0) { // Only count spawnable blocks
                         if (random < luckyBlockManifest[name].weight) { blockType = name; break; }
                         random -= luckyBlockManifest[name].weight;
                     }
@@ -1951,49 +1372,55 @@
         }
         
         function openLuckyBlock(block, blockType) {
-            const emptySlotIndex = baseSlots.findIndex(s => s === null);
-            if (emptySlotIndex === -1) { showNotification("Your base is full!", "red"); return; }
-            
+            const blockData = luckyBlockManifest[blockType];
+            if (!blockData) return;
+
+            // Remove block from belt
             block.element.remove();
             beltItems = beltItems.filter(b => b.id !== block.id);
-            const blockData = luckyBlockManifest[blockType];
-            const lootTable = blockData.lootTable;
-
+            
             if (blockData.isMultiLoot) {
-                // Handle OP Lucky Block (multi-loot)
+                // OP LUCKY BLOCK LOGIC
                 let itemsWon = [];
-                for (const loot of lootTable) {
-                    if (Math.random() * 100 < loot.chance) {
+                blockData.lootTable.forEach(loot => {
+                    if (Math.random() < loot.chance) {
                         itemsWon.push(loot.name);
                     }
-                }
+                });
 
                 if (itemsWon.length === 0) {
-                    showNotification(`OP Block was empty... unlucky!`, 'gray');
+                    showNotification("The OP Block was empty... how unlucky!", "gray");
                     return;
                 }
 
-                // Add items to base
-                for (const prizeName of itemsWon) {
-                    const firstEmpty = baseSlots.findIndex(s => s === null);
-                    if (firstEmpty === -1) {
-                        showNotification(`You found ${prizeName} but your base is full!`, 'red');
-                        break; // Stop adding items
+                let placedItems = 0;
+                itemsWon.forEach(prizeName => {
+                    const emptySlotIndex = baseSlots.findIndex(s => s === null);
+                    if (emptySlotIndex === -1) { 
+                        showNotification("Base is full! Some items were lost.", "red");
+                        return; // Stop placing items if base is full
                     }
+                    
                     let prizeData = findBrainrotData(prizeName);
                     if (prizeData) {
                         const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
-                        baseSlots[firstEmpty] = brainrot;
+                        baseSlots[emptySlotIndex] = brainrot;
                         discoveredBrainrots.add(prizeName);
-                        if (brainrot.event) startWeatherEvent(brainrot.event);
-                        showNotification(`OP Block gave you a ${prizeName}!`, rarities[prizeData.rarity].color);
+                        showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
+                        placedItems++;
                     }
+                });
+                if (placedItems > 0) {
+                    renderBase();
+                    updateAllUI();
                 }
-                renderBase();
-                updateAllUI();
 
             } else {
-                // Handle normal lucky blocks (single-loot)
+                // NORMAL LUCKY BLOCK LOGIC
+                const emptySlotIndex = baseSlots.findIndex(s => s === null);
+                if (emptySlotIndex === -1) { showNotification("Your base is full!", "red"); return; }
+                
+                const lootTable = blockData.lootTable;
                 const totalChance = lootTable.reduce((s, l) => s + l.chance, 0);
                 let random = Math.random() * totalChance;
                 let prizeName = '';
@@ -2001,37 +1428,38 @@
                     if (random < loot.chance) { prizeName = loot.name; break; }
                     random -= loot.chance;
                 }
-                let prizeData = findBrainrotData(prizeName);
-                if (prizeData) {
-                    const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
-                    baseSlots[emptySlotIndex] = brainrot;
-                    discoveredBrainrots.add(prizeName);
-                    if (brainrot.event) startWeatherEvent(brainrot.event);
-                    showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
-                    renderBase();
-                    updateAllUI();
+                
+                if (prizeName) {
+                    let prizeData = findBrainrotData(prizeName);
+                    if (prizeData) {
+                        const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
+                        baseSlots[emptySlotIndex] = brainrot;
+                        discoveredBrainrots.add(prizeName);
+                        if (brainrot.event) startWeatherEvent(brainrot.event);
+                        showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
+                        renderBase();
+                        updateAllUI();
+                    }
+                } else {
+                    showNotification("The block was empty...", "gray");
                 }
             }
         }
 
         function findBrainrotData(name) {
             if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos';
-            // This is a global data structure, so we can just search it
-            const found = allBrainrotData.find(b => b.name === name);
-            if (found) {
-                return { ...found }; // Return a copy
-            }
-            
-            // Fallback for older names, just in case
+            // Search all exclusive lists first
             if (dealerExclusives[name]) { return { name, ...dealerExclusives[name] }; }
             if (ritualExclusives[name]) { return { name, ...ritualExclusives[name] }; }
             if (craftExclusives[name]) { return { name, ...craftExclusives[name] }; }
             if (fuseExclusives[name]) { return { name, ...fuseExclusives[name] }; }
             if (luckyBlockExclusives[name]) { return { name, ...luckyBlockExclusives[name] }; }
-            for (const rarity in brainrotManifest) { const found = brainrotManifest[rarity].find(b => b.name === name); if (found) return { ...found, rarity }; }
-            
-            console.warn("Could not find brainrot data for:", name);
-            return null;
+            // Search the main manifest
+            for (const rarity in brainrotManifest) { 
+                const found = brainrotManifest[rarity].find(b => b.name === name); 
+                if (found) return { ...found, rarity }; 
+            }
+            return null; // Not found
         }
 
         function spawnSpecificBrainrot(rarityName) {
@@ -2045,6 +1473,7 @@
             let brainrotData = findBrainrotData(brainrotName);
             if (!brainrotData) { console.error("Spawn Error: Brainrot not found:", brainrotName); return; }
             const rarityData = rarities[brainrotData.rarity];
+            if (!rarityData) { console.error("Spawn Error: Invalid rarity:", brainrotData.rarity); return; }
             const itemWrapper = document.createElement('div');
             itemWrapper.classList.add('belt-item-wrapper');
             let mutationIcon = '';
@@ -2068,10 +1497,30 @@
             conveyorBelt.appendChild(itemWrapper);
         }
 
-        function updateBeltItems() { const beltWidth = conveyorBelt.offsetWidth; const speed = 1.2; beltItems = beltItems.filter(item => { item.position += speed; item.element.style.transform = `translateX(${item.position}px) translateY(-50%)`; if (item.position > beltWidth + 50) { item.element.remove(); return false; } return true; }); }
+        function updateBeltItems() { 
+            const beltWidth = conveyorBelt.offsetWidth; 
+            const speed = 1.2; 
+            beltItems = beltItems.filter(item => { 
+                item.position += speed; 
+                if (item.element) item.element.style.transform = `translateX(${item.position}px) translateY(-50%)`; 
+                if (item.position > beltWidth + 50) { 
+                    if (item.element) item.element.remove(); 
+                    return false; 
+                } 
+                return true; 
+            }); 
+        }
+        
         function buyBrainrot(brainrot) { 
             const emptySlotIndex = baseSlots.findIndex(slot => slot === null); 
-            if (money < brainrot.cost || emptySlotIndex === -1) return; 
+            if (money < brainrot.cost) {
+                showNotification("Not enough money!", "red");
+                return;
+            }
+            if (emptySlotIndex === -1) {
+                showNotification("Base is full!", "red");
+                return;
+            }
             money -= brainrot.cost; 
             
             // Check for trait application
@@ -2087,10 +1536,10 @@
                 }
             }
             
-            // FIX: Destructure to ensure we NEVER save the HTML element to the baseSlots
-            const { element, position, ...safeBrainrotData } = brainrot;
+            // Sanitize item for baseSlots (remove DOM element)
+            const { element, position, id, ...safeBrainrotData } = brainrot;
             baseSlots[emptySlotIndex] = { ...safeBrainrotData, trait: appliedTrait }; 
-
+            
             discoveredBrainrots.add(brainrot.name); 
             if (brainrot.event) startWeatherEvent(brainrot.event);
             brainrot.element.remove(); 
@@ -2098,16 +1547,31 @@
             renderBase(); 
             updateAllUI(); 
         }
-        function handleBaseSlotClick(index) { if (isSellMode && baseSlots[index]) { const brainrotToSell = baseSlots[index]; const sellPrice = Math.floor(brainrotToSell.cost * SELL_MULTIPLIER); money += sellPrice; baseSlots[index] = null; renderBase(); updateAllUI(); } }
+        
+        function handleBaseSlotClick(index) { 
+            if (isSellMode && baseSlots[index]) { 
+                const brainrotToSell = baseSlots[index]; 
+                const sellPrice = Math.floor(brainrotToSell.cost * SELL_MULTIPLIER); 
+                money += sellPrice; 
+                baseSlots[index] = null; 
+                renderBase(); 
+                updateAllUI(); 
+            } 
+        }
         
         function renderBase() { 
             const slots = baseContainer.children; 
             for (let i = 0; i < maxBaseSlots; i++) { 
                 const slot = slots[i]; 
-                if (!slot) continue; 
+                if (!slot) continue; // Slot doesn't exist (e.g., during init)
                 const brainrot = baseSlots[i]; 
                 if (brainrot) { 
-                    const rarityData = rarities[brainrot.rarity]; 
+                    const rarityData = rarities[brainrot.rarity];
+                    if (!rarityData) {
+                        console.warn("Invalid rarity in renderBase:", brainrot);
+                        slot.innerHTML = `<div class="base-item" style="border-color: #fff; background-color: #374151;">?</div>`;
+                        continue;
+                    }
                     let mutationIcon = '';
                     if (brainrot.mutation && brainrot.mutation.name !== 'None') { 
                         mutationIcon = `<div class="mutation-icon" style="background: ${brainrot.mutation.color};" title="${brainrot.mutation.name} (x${brainrot.mutation.multiplier} MPS)">${brainrot.mutation.icon}</div>`; 
@@ -2124,6 +1588,7 @@
         }
         
         function updateAllUI() { 
+            if (!moneyDisplay) return; // Exit if UI not ready
             moneyDisplay.textContent = formatLargeNumber(Math.floor(money)); 
             const count = baseSlots.filter(s => s !== null).length; 
             baseCountDisplay.textContent = `${count} / ${maxBaseSlots}`; 
@@ -2133,7 +1598,7 @@
                 if (b) {
                     const mutationMultiplier = b.mutation?.multiplier || 1;
                     const traitMultiplier = b.trait?.multiplier || 1;
-                    totalMPS += b.mps * mutationMultiplier * traitMultiplier;
+                    totalMPS += (b.mps || 0) * mutationMultiplier * traitMultiplier;
                 }
             });
             mpsDisplay.textContent = formatLargeNumber(totalMPS * baseRebirthMultiplier); 
@@ -2141,7 +1606,7 @@
             updateIndexCounter(); 
         }
         
-        function updateIndexCounter() { indexCounter.textContent = `(${discoveredBrainrots.size}/${totalBrainrotsCount})`; }
+        function updateIndexCounter() { if (indexCounter) indexCounter.textContent = `(${discoveredBrainrots.size}/${totalBrainrotsCount})`; }
         
         function updateMoney() { 
             let totalMPS = 0;
@@ -2150,15 +1615,15 @@
                 if (b) {
                     const mutationMultiplier = b.mutation?.multiplier || 1;
                     const traitMultiplier = b.trait?.multiplier || 1;
-                    totalMPS += b.mps * mutationMultiplier * traitMultiplier;
+                    totalMPS += (b.mps || 0) * mutationMultiplier * traitMultiplier;
                 }
             });
             money += (totalMPS * baseRebirthMultiplier) / 60; 
-            moneyDisplay.textContent = formatLargeNumber(Math.floor(money)); 
+            if (moneyDisplay) moneyDisplay.textContent = formatLargeNumber(Math.floor(money)); 
         }
         
-        function updateTimerDisplay() { const nextSpawnTime = Math.min(timeUntilLegendary, timeUntilMythic, timeUntilBrainrotGod); const minutes = Math.floor(nextSpawnTime / 60).toString().padStart(2, '0'); const seconds = (nextSpawnTime % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${minutes}:${seconds}`; }
-        function handleRebirth() { if (!checkRebirthEligibility()) return; rebirths++; money = 100; luck += 1; updateDerivedState(); initBase(); beltItems.forEach(item => item.element.remove()); beltItems = []; renderBase(); updateAllUI(); closeRebirthModal(); showNotification("Rebirth successful! +1 Base Slot, +2% MPS, +1 Luck", "purple"); }
+        function updateTimerDisplay() { if (timerDisplay) { const nextSpawnTime = Math.min(timeUntilLegendary, timeUntilMythic, timeUntilBrainrotGod); const minutes = Math.floor(nextSpawnTime / 60).toString().padStart(2, '0'); const seconds = (nextSpawnTime % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${minutes}:${seconds}`; } }
+        function handleRebirth() { if (!checkRebirthEligibility()) return; rebirths++; money = 100; luck += 1; updateDerivedState(); initBase(); beltItems.forEach(item => item.element.remove()); beltItems = []; renderBase(); updateAllUI(); closeRebirthModal(); showNotification("Rebirth successful! Welcome to Rebirth " + rebirths, "purple"); }
         function checkRebirthEligibility() { const requirement = rebirthRequirements[rebirths]; if (!requirement) return false; const hasMoney = money >= requirement.cost; const baseUnitNames = baseSlots.filter(s => s).map(s => s.name); const hasUnits = requirement.units.every(unitName => baseUnitNames.includes(unitName)); return hasMoney && hasUnits; }
         function renderRebirthModal() { const requirement = rebirthRequirements[rebirths]; if (!requirement) { rebirthInfo.innerHTML = `<p class="text-xl font-bold text-center text-green-400">You have reached the maximum rebirth!</p>`; confirmRebirthButton.disabled = true; confirmRebirthButton.textContent = "Max Rebirth"; return; } const hasMoney = money >= requirement.cost; const baseUnitNames = baseSlots.filter(s => s).map(s => s.name); const unitsMet = requirement.units.map(u => baseUnitNames.includes(u)); const hasAllUnits = unitsMet.every(met => met); let reqHTML = `<h3 class="text-lg font-bold mb-2">Rebirth ${rebirths + 1} Requirements:</h3>`; reqHTML += `<p class="${hasMoney ? 'requirement-met' : 'requirement-not-met'}">💰 Money: $${formatLargeNumber(requirement.cost)}</p>`; reqHTML += `<h4 class="font-semibold mt-2">Required Brainrots:</h4><ul class="list-disc list-inside">`; requirement.units.forEach((unitName, index) => { reqHTML += `<li class="${unitsMet[index] ? 'requirement-met' : 'requirement-not-met'}">${unitName}</li>`; }); reqHTML += `</ul>`; rebirthInfo.innerHTML = reqHTML; confirmRebirthButton.disabled = !(hasMoney && hasAllUnits); confirmRebirthButton.textContent = `Confirm Rebirth (${rebirths + 1})`; }
         function togglePause() { isPaused = !isPaused; pauseButton.textContent = isPaused ? "Resume" : "Pause"; conveyorBelt.classList.toggle('paused', isPaused); }
@@ -2192,6 +1657,305 @@
             }
         }
         
+        function renderRitualModal() {
+            ritualList.innerHTML = '';
+            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            for (const ritualKey in ritualRecipes) {
+                const resultData = findBrainrotData(ritualKey);
+                const recipe = ritualRecipes[ritualKey];
+                let canCraft = hasEmptySlot;
+                let ingredientsHTML = '';
+                for (const ingredientName in recipe.ingredients) {
+                    const required = recipe.ingredients[ingredientName];
+                    const owned = baseCounts[ingredientName] || 0;
+                    const hasEnough = owned >= required;
+                    if (!hasEnough) canCraft = false;
+                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
+                }
+                const ritualEl = document.createElement('div');
+                ritualEl.className = 'bg-gray-700 p-3 rounded-lg';
+                ritualEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div>
+                <button class="btn btn-red perform-ritual-btn" data-ritual-key="${ritualKey}" ${canCraft ? '' : 'disabled'}>Select Items</button></div>`;
+                ritualList.appendChild(ritualEl);
+            }
+        }
+
+        function performRitual(ritualKey, indicesToUse) {
+            const recipe = ritualRecipes[ritualKey];
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            if (!hasEmptySlot) {
+                showNotification("Base is full!", "red");
+                return;
+            }
+            
+            // Consume items from the provided indices
+            indicesToUse.forEach(index => {
+                baseSlots[index] = null;
+            });
+            
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            const resultData = findBrainrotData(ritualKey);
+            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
+            discoveredBrainrots.add(resultData.name);
+            showNotification(`Ritual complete! You crafted a ${resultData.name}!`, rarities[resultData.rarity].color);
+            renderBase(); updateAllUI(); renderRitualModal();
+        }
+
+        function renderCraftModal() {
+            craftMachineList.innerHTML = '';
+            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.name] = (acc[b.name] || 0) + 1; return acc; }, {});
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            for (const craftKey in craftRecipes) {
+                const resultData = findBrainrotData(craftKey);
+                const recipe = craftRecipes[craftKey];
+                let canCraft = hasEmptySlot;
+                let ingredientsHTML = '';
+                for (const ingredientName in recipe.ingredients) {
+                    const required = recipe.ingredients[ingredientName];
+                    const owned = baseCounts[ingredientName] || 0;
+                    const hasEnough = owned >= required;
+                    if (!hasEnough) canCraft = false;
+                    ingredientsHTML += `<li class="${hasEnough ? 'requirement-met' : 'requirement-not-met'}">${ingredientName} (${owned}/${required})</li>`;
+                }
+                const craftEl = document.createElement('div');
+                craftEl.className = 'bg-gray-700 p-3 rounded-lg';
+                craftEl.innerHTML = `<div class="flex items-center justify-between"><div><h4 class="font-bold text-lg">${resultData.name}</h4><ul class="text-sm list-disc list-inside">${ingredientsHTML}</ul></div>
+                <button class="btn btn-orange perform-craft-btn" data-craft-key="${craftKey}" ${canCraft ? '' : 'disabled'}>Select Items</button></div>`;
+                craftMachineList.appendChild(craftEl);
+            }
+        }
+
+        function performCraft(craftKey, indicesToUse) {
+            const recipe = craftRecipes[craftKey];
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            if (!hasEmptySlot) {
+                showNotification("Base is full!", "red");
+                return;
+            }
+
+            // Consume items
+            indicesToUse.forEach(index => {
+                baseSlots[index] = null;
+            });
+
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            const resultData = findBrainrotData(craftKey);
+            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
+            discoveredBrainrots.add(resultData.name);
+            showNotification(`Craft complete! You made a ${resultData.name}!`, rarities[resultData.rarity].color);
+            renderBase(); updateAllUI(); renderCraftModal();
+        }
+
+        function renderFuseModal(type) {
+            fuseModal.dataset.type = type;
+            fuseModalTitle.textContent = `${type} Fuse`;
+            fuseModalList.innerHTML = '';
+            const baseCounts = baseSlots.filter(s => s).reduce((acc, b) => { acc[b.rarity] = (acc[b.rarity] || 0) + 1; return acc; }, {});
+            const hasEmptySlot = baseSlots.some(s => s === null);
+
+            fuseRecipes[type].forEach(recipe => {
+                const owned = baseCounts[recipe.inputRarity] || 0;
+                const hasEnough = owned >= recipe.count;
+                const canFuse = hasEmptySlot && hasEnough;
+                const resultRarity = findBrainrotData(recipe.output[0]).rarity;
+
+                const fuseEl = document.createElement('div');
+                fuseEl.className = 'bg-gray-700 p-3 rounded-lg';
+                fuseEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-lg">Fuse ${recipe.count} <span style="color: ${rarities[recipe.inputRarity].color}">${recipe.inputRarity}</span></h4>
+                            <p class="text-sm">Result: 1x Random <span style="color: ${rarities[resultRarity].color}">${resultRarity}</span></p>
+                            <p class="text-sm ${hasEnough ? 'requirement-met' : 'requirement-not-met'}">Owned: ${owned}/${recipe.count}</p>
+                        </div>
+                        <button class="btn btn-cyan perform-fuse-btn" data-input-type="${type}" data-input-rarity="${recipe.inputRarity}" data-input-count="${recipe.count}" ${canFuse ? '' : 'disabled'}>Select Items</button>
+                    </div>`;
+                fuseModalList.appendChild(fuseEl);
+            });
+        }
+
+        function performFuse(inputRarity, type, indicesToUse) {
+            const recipe = fuseRecipes[type].find(r => r.inputRarity === inputRarity);
+            if (!recipe) return;
+            
+            const hasEmptySlot = baseSlots.some(s => s === null);
+            if (!hasEmptySlot) {
+                showNotification("Base is full!", "red");
+                return;
+            }
+            
+            // Consume items
+            indicesToUse.forEach(index => {
+                baseSlots[index] = null;
+            });
+
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            const resultName = recipe.output[Math.floor(Math.random() * recipe.output.length)];
+            const resultData = findBrainrotData(resultName);
+            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
+            discoveredBrainrots.add(resultData.name);
+            showNotification(`Fuse complete! You got a ${resultData.name}!`, rarities[resultData.rarity].color);
+            renderBase(); updateAllUI(); renderFuseModal(type);
+        }
+
+        function renderDealerModal() {
+            dealerList.innerHTML = '';
+            const hasEmptySlot = baseSlots.some(s => s === null);
+
+            for (const name in dealerExclusives) {
+                const data = dealerExclusives[name];
+                const stock = currentDealerStock[name] || 0;
+                const canAfford = money >= data.cost;
+                const canBuy = hasEmptySlot && canAfford && stock > 0;
+
+                const dealerEl = document.createElement('div');
+                dealerEl.className = 'bg-gray-700 p-3 rounded-lg flex items-center justify-between';
+                dealerEl.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl">${data.icon}</div>
+                        <div>
+                            <h4 class="font-bold">${name} <span style="color: ${rarities[data.rarity].color}">(${data.rarity})</span></h4>
+                            <div class="text-sm">Cost: <span class="text-green-400">$${formatLargeNumber(data.cost)}</span> | MPS: <span class="text-yellow-400">${formatLargeNumber(data.mps)}</span></div>
+                            <div class="text-sm ${stock > 0 ? 'text-white' : 'text-red-500'}">Stock: ${stock}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-green buy-dealer-btn" data-item-name="${name}" ${canBuy ? '' : 'disabled'}>Buy</button>
+                `;
+                dealerList.appendChild(dealerEl);
+            }
+        }
+
+        async function buyFromDealer(itemName) {
+            if (!db) {
+                showNotification("Dealer is offline (no DB connection).", "red");
+                return;
+            }
+            const data = dealerExclusives[itemName];
+            const emptySlotIndex = baseSlots.findIndex(s => s === null);
+            
+            if (money < data.cost) { showNotification("Not enough money!", "red"); return; }
+            if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const stockDoc = await transaction.get(doc(db, dealerDocPath));
+                    if (!stockDoc.exists()) {
+                        throw new Error("Dealer stock document does not exist!");
+                    }
+                    
+                    const currentStock = stockDoc.data()[itemName];
+                    if (currentStock > 0) {
+                        transaction.update(doc(db, dealerDocPath), { [itemName]: currentStock - 1 });
+                        
+                        // Add to base locally
+                        money -= data.cost;
+                        const brainrot = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
+                        baseSlots[emptySlotIndex] = brainrot;
+                        discoveredBrainrots.add(itemName);
+                        renderBase();
+                        updateAllUI();
+                        showNotification(`Bought ${itemName} from Dealer!`, "green");
+                    } else {
+                        throw new Error("Item is out of stock!");
+                    }
+                });
+                // Re-render modal *after* transaction to show new stock (listener will also do this)
+                renderDealerModal();
+            } catch (error) {
+                console.error("Dealer transaction failed: ", error);
+                showNotification(error.message, "red");
+                // Re-render modal to show the stock error
+                renderDealerModal();
+            }
+        }
+        
+        async function saveGame() {
+            if (!db || !userId) {
+                showNotification("Cannot save: Not connected to cloud.", "red");
+                return;
+            }
+            
+            // Sanitize baseSlots to remove DOM elements
+            const safeBaseSlots = baseSlots.map(slot => {
+                if (!slot) return null;
+                const { element, position, id, ...cleanSlot } = slot;
+                return cleanSlot;
+            });
+            
+            const saveData = { 
+                money: money, 
+                baseSlots: safeBaseSlots, // Save the clean version
+                discovered: Array.from(discoveredBrainrots),
+                rebirths: rebirths, 
+                luck: luck, 
+                activeEvents: activeEvents,
+                timestamp: serverTimestamp() // Add timestamp
+            };
+            
+            try {
+                await setDoc(doc(db, userSaveDocPath), saveData);
+                showNotification("Game Saved to Cloud!", "green");
+            } catch (error) {
+                console.error("Failed to save game:", error);
+                showNotification("Save Failed!", "red");
+            }
+        }
+        
+        async function loadGame() { // This is the FIREBASE loader
+            if (!db || !userId) {
+                showNotification("Cannot load: Not connected to cloud.", "red");
+                return;
+            }
+            try {
+                const docSnap = await getDoc(doc(db, userSaveDocPath));
+                if (docSnap.exists()) {
+                    const parsedData = docSnap.data();
+                    loadGameData(parsedData, "Cloud"); // Pass source
+                } else {
+                    showNotification("No cloud save found. Starting fresh!", "cyan");
+                    // New player, just continue with defaults
+                }
+            } catch (error) {
+                console.error("Failed to load save data:", error);
+                showNotification("Load Failed: Could not reach cloud save.", "red");
+            }
+        }
+
+        function saveGameToFile() {
+            // Sanitize data
+            const safeBaseSlots = baseSlots.map(slot => {
+                if (!slot) return null;
+                const { element, position, id, ...cleanSlot } = slot;
+                return cleanSlot;
+            });
+
+            const saveData = { 
+                money: money, 
+                baseSlots: safeBaseSlots,
+                discovered: Array.from(discoveredBrainrots),
+                rebirths: rebirths, 
+                luck: luck, 
+                activeEvents: activeEvents,
+                dealerStock: currentDealerStock, // Include dealer stock for local saves
+                timestamp: Date.now()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `brainrot_tycoon_save_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchorNode); // Required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            showNotification("Game Saved to File!", "green");
+        }
+
+        function loadGameFromFile() {
+            loadFileInput.click();
+        }
+
         function loadGameData(parsedData, source = "File") { // Consolidated load function
             try {
                 money = parsedData.money || 100;
@@ -2199,17 +1963,27 @@
                 luck = parsedData.luck || 0;
                 activeEvents = parsedData.activeEvents || {};
                 
-                // If loading from file, also load dealer stock
+                // Only load dealer stock from local files
                 if (source === "File" && parsedData.dealerStock) {
                     currentDealerStock = parsedData.dealerStock;
                 }
                 
-                updateDerivedState();
-                initBase();
+                updateDerivedState(); // Updates maxBaseSlots
+                initBase(); // Re-initializes base slots container
                 
                 const loadedBase = parsedData.baseSlots || [];
                 for(let i = 0; i < maxBaseSlots; i++) {
-                    baseSlots[i] = loadedBase[i] || null;
+                    if(loadedBase[i]) {
+                        // Re-find data to ensure it's up to date
+                        const data = findBrainrotData(loadedBase[i].name);
+                        if(data) {
+                            baseSlots[i] = { ...data, mutation: loadedBase[i].mutation, trait: loadedBase[i].trait };
+                        } else {
+                            baseSlots[i] = null; // Item no longer exists
+                        }
+                    } else {
+                        baseSlots[i] = null;
+                    }
                 }
 
                 discoveredBrainrots = new Set(parsedData.discovered || []);
@@ -2226,11 +2000,9 @@
 
         function openJayceModal() { jayceModal.classList.remove('hidden'); }
         function closeJayceModal() { jayceModal.classList.add('hidden'); }
-
+        
         function jayceLogin() { 
-            const inputPassword = jaycePasswordInput.value.trim();
-            
-            if (inputPassword === JAYCE_PASSWORD) { 
+            if (jaycePasswordInput.value.trim() === JAYCE_PASSWORD) { 
                 isAdmin = true;
                 jaycePasswordScreen.classList.add('hidden'); 
                 jayceCommandScreen.classList.remove('hidden'); 
@@ -2327,7 +2099,7 @@
                 giveTrait.appendChild(option.cloneNode(true));
                 eventSelect.appendChild(option.cloneNode(true));
             });
-
+            
             for(const name in dealerExclusives) {
                 const option = document.createElement('option');
                 option.value = name;
@@ -2337,6 +2109,7 @@
         }
         
         function showNotification(message, color = 'white') {
+            if (!notification) return; // Guard against early calls
             notification.textContent = message;
             notification.style.borderColor = color;
             notification.style.top = '20px';
@@ -2353,7 +2126,7 @@
             let adjustedWeights = JSON.parse(JSON.stringify(rarities)); 
             let commonWeight = adjustedWeights['Common'].weight; 
             let eventLuck = Object.values(activeEvents).reduce((s, e) => s + (e.luck || 0), 0);
-            let reduction = Math.min(commonWeight * 0.85, (rebirths * 5) + (luck * 2.5) + eventLuck); // Buffed luck
+            let reduction = Math.min(commonWeight * 0.85, (rebirths * 5) + luck + eventLuck); 
             adjustedWeights['Common'].weight -= reduction; 
             let increasePerOther = reduction / (Object.keys(adjustedWeights).length - 1); 
             for(const r in adjustedWeights) { if (r !== 'Common') { adjustedWeights[r].weight += increasePerOther; } } 
@@ -2381,7 +2154,6 @@
             
             if (event.spawn) spawnBrainrotByName(event.spawn);
             
-            // *** CHANGE: Do NOT apply traits to existing base items ***
             updateAllUI();
             updateActiveEventsUI();
         }
@@ -2409,6 +2181,7 @@
         }
 
         function updateActiveEventsUI() {
+            if (!activeEventsList) return;
             activeEventsList.innerHTML = '';
             for (const eventName in activeEvents) {
                 const event = activeEvents[eventName];
@@ -2424,6 +2197,7 @@
         }
 
         function startTacoEvent() {
+            if (!openTacoFuseButton) return;
             openTacoFuseButton.classList.remove('hidden');
             if (tacoEventInterval) clearInterval(tacoEventInterval);
             tacoEventInterval = setInterval(() => {
@@ -2433,46 +2207,267 @@
             }, 300000); // 5 minutes
             showNotification('Taco Tuesday is active! Taco Blocks will spawn!', '#f59e0b');
         }
-
+        
         function updateWitchFuseCountdown() {
+            if (!witchFuseCountdown) return;
+
             const now = new Date();
-            const dayOfWeek = now.getDay(); // 0 (Sunday) to 6 (Saturday)
-            const friday = 5;
+            const dayOfWeek = now.getDay(); // 0 = Sunday, 5 = Friday
+            const targetDay = 5; // Friday
 
-            let msUntilFriday;
-            if (dayOfWeek < friday) {
-                // It's before Friday this week
-                let nextFriday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (friday - dayOfWeek));
-                nextFriday.setHours(0, 0, 0, 0); // Midnight at the *start* of Friday
-                msUntilFriday = nextFriday.getTime() - now.getTime();
-            } else {
-                // It's Friday or Saturday. Find *next* week's Friday.
-                let nextFriday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek + friday));
-                nextFriday.setHours(0, 0, 0, 0); // Midnight at the *start* of Friday
-                msUntilFriday = nextFriday.getTime() - now.getTime();
-            }
-
-            if (dayOfWeek === friday) {
+            let daysUntilFriday = (targetDay - dayOfWeek + 7) % 7;
+            
+            if (daysUntilFriday === 0 && now.getHours() >= 0) {
                 // It IS Friday
-                witchFuseCountdownDisplay.textContent = "Witch Fuse has left!";
-                openWitchFuseButton.classList.add('hidden');
-            } else {
-                // It is not Friday
-                const totalSeconds = Math.floor(msUntilFriday / 1000);
-                const days = Math.floor(totalSeconds / (3600 * 24));
-                const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-
-                witchFuseCountdownDisplay.textContent = `Witch Fuse Leaves in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-                openWitchFuseButton.classList.remove('hidden');
+                witchFuseCountdown.textContent = "Witch Fuse has left!";
+                if (openWitchFuseButton) openWitchFuseButton.classList.add('hidden');
+                return;
             }
+
+            // It's not Friday yet, show countdown
+            if (openWitchFuseButton) openWitchFuseButton.classList.remove('hidden');
+
+            const nextFriday = new Date(now);
+            nextFriday.setDate(now.getDate() + daysUntilFriday);
+            nextFriday.setHours(0, 0, 0, 0); // Midnight at the *start* of Friday
+
+            const diff = nextFriday.getTime() - now.getTime();
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            witchFuseCountdown.textContent = `Witch Fuse Leaves in: ${d}d ${h}h ${m}m ${s}s`;
         }
 
-        function formatLargeNumber(num) { if (num >= 1e18) return (num / 1e18).toFixed(2) + 'Qt'; if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return Math.floor(num).toLocaleString(); }
+
+        function formatLargeNumber(num) { 
+            if (num === undefined || num === null) return '0';
+            if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; 
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; 
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; 
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; 
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; 
+            return Math.floor(num).toLocaleString(); 
+        }
         
-        window.onload = initializeGame; // Start game on load
+        // --- Selection Modal Logic ---
+        function openRitualSelectionModal(ritualKey) {
+            const recipe = ritualRecipes[ritualKey];
+            const resultData = findBrainrotData(ritualKey);
+            
+            selectionModalTitle.textContent = `Craft: ${resultData.name}`;
+            
+            const ingredients = recipe.ingredients; // e.g., { 'Matteo': 3 }
+            let requiredItems = []; // This will be an array of { name: 'Matteo', count: 3 }
+            for (const name in ingredients) {
+                requiredItems.push({ name, count: ingredients[name] });
+            }
+            
+            selectedIndices = [];
+            selectionModalConfirm.disabled = true;
+
+            currentSelectionCallback = (confirmedIndices) => {
+                performRitual(ritualKey, confirmedIndices);
+                closeSelectionModal();
+            };
+
+            renderSelectionModal(requiredItems);
+            selectionModal.classList.remove('hidden');
+        }
+
+        function openCraftSelectionModal(craftKey) {
+            const recipe = craftRecipes[craftKey];
+            const resultData = findBrainrotData(craftKey);
+            
+            selectionModalTitle.textContent = `Craft: ${resultData.name}`;
+            
+            const ingredients = recipe.ingredients;
+            let requiredItems = []; 
+            for (const name in ingredients) {
+                requiredItems.push({ name, count: ingredients[name] });
+            }
+            
+            selectedIndices = [];
+            selectionModalConfirm.disabled = true;
+
+            currentSelectionCallback = (confirmedIndices) => {
+                performCraft(craftKey, confirmedIndices);
+                closeSelectionModal();
+            };
+
+            renderSelectionModal(requiredItems);
+            selectionModal.classList.remove('hidden');
+        }
+
+        function openFuseSelectionModal(rarity, count, type) {
+            const requiredItems = [{ name: rarity, count: count, isRarity: true }]; // Special flag
+            
+            selectionModalTitle.textContent = `Fuse: ${type}`;
+            
+            selectedIndices = [];
+            selectionModalConfirm.disabled = true;
+
+            currentSelectionCallback = (confirmedIndices) => {
+                performFuse(rarity, type, confirmedIndices); // Pass indices
+                closeSelectionModal();
+            };
+
+            renderSelectionModal(requiredItems);
+            selectionModal.classList.remove('hidden');
+        }
+
+        function renderSelectionModal(requiredItems) { // requiredItems = [{ name: 'Matteo', count: 3, isRarity: false }, { name: 'Mythic', count: 4, isRarity: true }]
+            selectionModalGrid.innerHTML = '';
+            
+            const requiredCounts = {}; // { 'Matteo': 3 }
+            const requiredRarities = {}; // { 'Mythic': 4 }
+            
+            let prompt = "Select items to use:<br>";
+            requiredItems.forEach(req => {
+                if (req.isRarity) {
+                    requiredRarities[req.name] = req.count;
+                    prompt += `<span id="req-rarity-${req.name}" style="color: #f87171">${req.count}x ${req.name} (0 selected)</span><br>`;
+                } else {
+                    requiredCounts[req.name] = req.count;
+                    prompt += `<span id="req-${req.name}" style="color: #f87171">${req.count}x ${req.name} (0 selected)</span><br>`;
+                }
+            });
+            selectionModalPrompt.innerHTML = prompt;
+
+            // Get all items from base that are valid ingredients
+            const availableItems = baseSlots.map((slot, index) => ({ slot, index }))
+                .filter(item => item.slot && (requiredCounts[item.slot.name] || requiredRarities[item.slot.rarity])); 
+                        
+            if (availableItems.length === 0) {
+                selectionModalGrid.innerHTML = `<p class="col-span-full text-center">You have no required items in your base.</p>`;
+                return;
+            }
+
+            availableItems.forEach(item => {
+                const brainrot = item.slot;
+                const index = item.index;
+                const rarityData = rarities[brainrot.rarity];
+                
+                let mutationIcon = '';
+                if (brainrot.mutation && brainrot.mutation.name !== 'None') { 
+                    mutationIcon = `<div class="mutation-icon" style="background: ${brainrot.mutation.color};">${brainrot.mutation.icon}</div>`; 
+                }
+                let traitIcon = '';
+                if (brainrot.trait) { 
+                    traitIcon = `<div class="trait-icon" style="color: ${brainrot.trait.color};">${brainrot.trait.icon}</div>`; 
+                }
+                
+                const slot = document.createElement('div');
+                slot.className = 'base-slot selectable'; // Add 'selectable'
+                slot.dataset.index = index;
+                slot.innerHTML = `<div class="base-item" style="border-color: ${rarityData.color}; background-color: #374151;">${brainrot.icon}${mutationIcon}${traitIcon}</div>`;
+                
+                slot.onclick = () => toggleSelection(index, requiredCounts, requiredRarities); // Pass rarities
+                
+                selectionModalGrid.appendChild(slot);
+            });
+        }
         
+        function toggleSelection(index, requiredCounts, requiredRarities = {}) {
+            const slotEl = selectionModalGrid.querySelector(`.base-slot[data-index="${index}"]`);
+            const item = baseSlots[index];
+            if (!item || !slotEl) return;
+
+            const findIndex = selectedIndices.indexOf(index);
+            
+            if (findIndex > -1) {
+                // Item is already selected, de-select it
+                selectedIndices.splice(findIndex, 1);
+                slotEl.classList.remove('selected'); // Use class
+            } else {
+                // Item is not selected. Check if we can select it.
+                let canSelect = false;
+                let neededName = null;
+                let neededRarity = null;
+                
+                if (requiredCounts[item.name]) neededName = item.name;
+                if (requiredRarities[item.rarity]) neededRarity = item.rarity;
+
+                if (neededName) {
+                    const currentSelectedForThisType = selectedIndices
+                        .map(i => baseSlots[i].name)
+                        .filter(name => name === neededName).length;
+                    if (currentSelectedForThisType < requiredCounts[neededName]) {
+                        canSelect = true;
+                    } else {
+                        showNotification(`You only need ${requiredCounts[neededName]}x ${neededName}`, 'yellow');
+                    }
+                } else if (neededRarity) {
+                     const currentSelectedForThisRarity = selectedIndices
+                        .map(i => baseSlots[i].rarity)
+                        .filter(rarity => rarity === neededRarity).length;
+                    if (currentSelectedForThisRarity < requiredRarities[neededRarity]) {
+                        canSelect = true;
+                    } else {
+                        showNotification(`You only need ${requiredRarities[neededRarity]}x ${neededRarity}`, 'yellow');
+                    }
+                }
+
+                if (canSelect) {
+                    selectedIndices.push(index);
+                    slotEl.classList.add('selected'); // Use class
+                }
+            }
+            
+            // Update prompts and check for confirm button
+            let allRequirementsMet = true;
+            const currentCounts = {};
+            const currentRarityCounts = {}; // NEW
+            selectedIndices.forEach(i => {
+                const name = baseSlots[i].name;
+                const rarity = baseSlots[i].rarity;
+                currentCounts[name] = (currentCounts[name] || 0) + 1;
+                currentRarityCounts[rarity] = (currentRarityCounts[rarity] || 0) + 1;
+            });
+
+            for (const name in requiredCounts) {
+                const count = currentCounts[name] || 0;
+                const req = requiredCounts[name];
+                const el = document.getElementById(`req-${name}`);
+                if (el) {
+                    el.innerHTML = `${req}x ${name} (${count} selected)`;
+                    if (count < req) {
+                        allRequirementsMet = false;
+                        el.style.color = '#f87171'; // Red
+                    } else {
+                        el.style.color = '#4ade80'; // Green
+                    }
+                }
+            }
+            
+            for (const rarity in requiredRarities) { // NEW
+                const count = currentRarityCounts[rarity] || 0;
+                const req = requiredRarities[rarity];
+                const el = document.getElementById(`req-rarity-${rarity}`);
+                if (el) {
+                    el.innerHTML = `${req}x ${rarity} (${count} selected)`;
+                    if (count < req) {
+                        allRequirementsMet = false;
+                        el.style.color = '#f87171'; // Red
+                    } else {
+                        el.style.color = '#4ade80'; // Green
+                    }
+                }
+            }
+            
+            selectionModalConfirm.disabled = !allRequirementsMet;
+        }
+
+        function closeSelectionModal() {
+            selectionModal.classList.add('hidden');
+            currentSelectionCallback = null;
+            selectedIndices = [];
+        }
+
+        // --- Start Game ---
+        window.onload = initializeFirebase; // Start Firebase on load
+
     </script>
 </body>
 </html>

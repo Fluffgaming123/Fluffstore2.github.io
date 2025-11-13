@@ -3,1640 +3,1944 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluff's Casino | Main Menu</title>
-    <!-- Use a fun, thematic font -->
-    <link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Fluff's Casino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- GLOBAL STYLES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Bungee+Inline&display=swap');
+        
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #f0f6f8;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* Dark, rich gradient background */
-            font-family: 'Bungee Inline', cursive;
-            color: #fff;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .casino-container {
+            max-width: 960px;
+            margin: auto;
+            padding: 1.5rem;
+            width: 100%;
         }
 
         h1 {
-            font-family: 'Press Start 2P', cursive;
-            color: #ffde59; /* Bright gold */
-            text-shadow: 3px 3px 0 #000;
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
-            margin-bottom: 30px;
-        }
-        
-        .game-title {
-            font-family: 'Press Start 2P', cursive;
-            color: #ffde59;
-            text-shadow: 2px 2px 0 #000;
-            font-size: clamp(1.2rem, 4vw, 2rem);
-            margin-bottom: 20px;
-        }
-
-        /* --- CONTAINER STYLES --- */
-        .main-container {
-            max-width: 95%;
-            width: 550px;
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            border: 15px solid #ffcc00; /* Gold border */
-            border-radius: 20px;
-            background-color: #a00000; /* Deep red casing */
-            box-shadow: 0 0 50px rgba(255, 204, 0, 0.7), 0 0 10px rgba(0, 0, 0, 0.5);
-            animation: pulse 4s infinite;
-        }
-        
-        #loading-screen {
-            font-family: 'Press Start 2P', cursive;
-            color: #ffde59;
-            padding: 50px;
-            font-size: 1.5rem;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.01); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- MENU STYLES --- */
-        #main-menu h2 {
             font-family: 'Bungee Inline', cursive;
-            color: #fff;
-            margin-bottom: 25px;
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
-            text-shadow: 2px 2px #000;
+            text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff69b4;
+            color: #ffe082;
+            text-align: center;
         }
 
-        .menu-button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .game-card {
+            background-color: #1e2531;
+            border: 4px solid #ffe082;
+            box-shadow: 0 0 15px rgba(255, 224, 130, 0.5);
         }
 
-        .menu-button-group button {
-            background-color: #00ff00; /* Neon green */
-            color: #000;
-            padding: 20px;
-            font-size: 1.2rem;
-            border-radius: 12px;
-            border: 5px solid #00aa00;
-            box-shadow: 0 8px 0 #00aa00;
-            font-family: 'Press Start 2P', cursive;
+        .neon-text {
+            color: #82b1ff;
+            text-shadow: 0 0 4px #82b1ff, 0 0 8px #2962ff;
+            font-weight: 700;
         }
 
-        .menu-button-group button:hover {
-            background-color: #00cc00;
-        }
-        
-        /* --- GAME UI ELEMENTS (Shared) --- */
-        .display {
-            background-color: #000;
-            border: 5px solid #ffcc00;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-family: monospace;
-            font-size: 1.25rem;
-            color: #00ff00; /* Neon green display */
-            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.7);
-        }
-        
-        .message-box {
-            margin: 15px 0;
-            height: 30px;
-            line-height: 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffde59;
-            text-shadow: 2px 2px 0 #000;
-        }
+        /* --- Custom Styles for Games --- */
 
-        /* Button Styling (for game controls) */
-        .game-control-button {
-            font-family: 'Press Start 2P', cursive;
-            background-color: #00ff00;
-            color: #000;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            box-shadow: 0 5px 0 #00aa00;
-            transition: all 0.1s;
-            width: 100%;
-            margin-bottom: 10px; /* Space for the back button */
-            white-space: nowrap; /* Prevent text wrap on small buttons */
-        }
-        .game-control-button:hover { background-color: #00cc00; }
-        .game-control-button:active { box-shadow: 0 2px 0 #00aa00; transform: translateY(3px); }
-        .game-control-button:disabled { background-color: #444; color: #888; box-shadow: none; cursor: not-allowed; }
-
-        /* Card styles shared between Blackjack and Poker */
-        .card-area {
-            min-height: 100px;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 15px;
+        /* Slot Machine */
+        .reels-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .reel {
+            font-size: 3rem;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0d1117;
+            border-radius: 0.5rem;
+            border: 2px solid #555;
+            overflow: hidden;
+        }
+
+        /* Roulette */
+        .roulette-bet-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        .roulette-chip {
+            background-color: gold;
+            color: black;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        /* Horse Racing */
+        .race-track {
+            padding: 1rem;
+            background-color: #0d1117;
+            border: 2px solid #444;
+            border-radius: 0.5rem;
+        }
+        .horse-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .horse-name {
+            width: 120px;
+            text-align: right;
+            padding-right: 0.5rem;
+        }
+        .progress-bar-container {
+            flex-grow: 1;
+            background-color: #333;
+            border-radius: 0.25rem;
+            height: 20px;
+            overflow: hidden;
+            border: 1px solid #555;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50; /* Green progress */
+            transition: width 0.3s ease-out;
+        }
+
+        /* Blackjack */
+        .card-container {
+            display: flex;
+            gap: 0.5rem;
+            min-height: 80px;
+            margin-bottom: 1rem;
         }
         .card {
-            background-color: #fff;
-            color: #000;
-            border: 1px solid #333;
-            border-radius: 5px;
-            width: 60px;
-            height: 80px;
+            background-color: #f0f6f8;
+            color: #1e2531;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            width: 50px;
+            height: 70px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
         .card.hidden {
-            background-color: #333;
-            color: #333;
-            border: 1px solid #ffcc00;
+            background-color: #4CAF50; /* Card back green */
+            color: white;
+            justify-content: center;
             font-size: 1rem;
         }
 
-        /* PANDA FIGHTING STYLES */
-        #panda-fighting-container { display: none; }
+        /* Panda Fighting */
         .brawler-display {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 1rem;
         }
         .brawler {
-            padding: 15px;
-            border: 3px solid #ffcc00;
-            border-radius: 10px;
-            background-color: #222;
-            width: 45%;
-            cursor: pointer;
-            transition: all 0.2s;
+            font-size: 3rem;
+            text-align: center;
         }
-        .brawler.chosen {
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+        .fight-ring {
+            background-color: #333;
+            border: 5px solid #ff69b4;
+            border-radius: 1rem;
+            padding: 1rem;
         }
-        .brawler h3 { margin: 0 0 10px 0; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; }
-        .brawler-icon { font-size: 3rem; }
-        .brawler-bet-controls { display: flex; gap: 10px; margin-bottom: 15px; }
-        .brawler-bet-controls input { width: 50%; padding: 10px; font-size: 1rem; border-radius: 8px; border: 2px solid #ffcc00; background-color: #111; color: #00ff00; text-align: center; }
-        .brawler-bet-controls button { width: 50%; }
 
-        /* COIN FLIP STYLES */
-        #coin-flip-container { display: none; }
-        .flip-area {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        #coin {
+        /* Coin Flip */
+        .coin-display {
             font-size: 5rem;
-            height: 100px;
-            width: 100px;
-            line-height: 100px;
-            border-radius: 50%;
-            background-color: #ffde59;
-            color: #000;
-            transition: transform 0.5s;
-            animation: flip-anim 0.5s infinite;
-            box-shadow: 0 0 15px #ffde59;
-            opacity: 0; /* Hidden initially */
+            text-align: center;
+            margin: 2rem 0;
+            animation: flip 0.3s ease-in-out infinite alternate;
         }
-        .flipping {
-            animation: flip-anim 0.1s infinite step-end;
-            opacity: 1 !important;
-        }
-        @keyframes flip-anim {
-            0% { content: '🪙'; }
-            50% { content: '💰'; }
-        }
-        .coin-controls button {
-            width: 48%;
+        @keyframes flip {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(180deg); }
         }
 
-        /* POKER STYLES */
-        #poker-container { display: none; }
-        .poker-table {
-            background-color: #006400; /* Dark green felt */
-            border: 8px solid #380000;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+        /* Poker */
+        .hand-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-        #community-cards {
-            min-height: 80px;
-            border: 2px solid #ffde59;
-            border-radius: 10px;
-            padding: 5px;
-            margin-bottom: 10px;
+
+        /* Modal Styling */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
             justify-content: center;
-            gap: 5px;
-            background-color: rgba(0, 0, 0, 0.2);
+            align-items: center;
+            z-index: 1000;
         }
-        .community-card {
-             width: 55px; height: 75px; font-size: 1.2rem;
+        .modal-content {
+            background-color: #1e2531;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 4px solid #ff69b4;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
         }
-        .poker-hand-label {
-            color: #00ff00;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-        #poker-controls { display: flex; gap: 10px; margin-bottom: 15px; }
-        #poker-controls button { width: 33%; }
 
-
-        /* Responsive adjustments (same as previous) */
-        @media (max-width: 600px) {
-            .main-container {
-                padding: 15px;
-                border-width: 10px;
-            }
-            .reel {
-                height: 80px;
-                line-height: 80px;
-                font-size: 2.5rem;
-            }
-            .game-control-button, .menu-button-group button {
-                padding: 12px 20px;
-                font-size: 0.8rem;
-            }
-            .display {
-                font-size: 1rem;
-            }
-            .card {
-                width: 50px;
-                height: 70px;
-                font-size: 1.2rem;
-            }
-            #bj-betting, #bj-controls {
-                flex-direction: column;
-            }
-            #bj-betting button, #bj-bet-input, #bj-controls button {
-                width: 100%;
-            }
-            .roulette-bet-btn {
-                font-size: 0.7rem;
-            }
-            .roulette-display {
-                font-size: 2rem;
-            }
+        /* Utility */
+        .disabled-btn {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
+
     </style>
 </head>
-<body>
+<body class="flex flex-col items-center">
+    <div class="w-full bg-gray-900 border-b border-gray-800 p-3 flex justify-center sticky top-0 z-50">
+        <div class="flex space-x-4 max-w-4xl w-full justify-center">
+            <button id="job-button" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out" onclick="switchView('job-menu')">
+                Get a Job
+            </button>
+            <button id="main-menu-back-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out" onclick="switchView('main-menu')">
+                Back to Lobby
+            </button>
+        </div>
+    </div>
 
-    <div class="main-container">
-        <h1>FLUFF'S CASINO</h1>
-        <div id="loading-screen">
-            LOADING FLUFF'S LEDGER...
+    <div class="casino-container">
+        <h1 class="text-4xl sm:text-5xl my-6">FLUFF'S CASINO 🐼</h1>
+
+        <!-- Header Bar (Now only shows Balance) -->
+        <div class="flex justify-center items-center mb-6 p-4 game-card rounded-xl">
+            <div class="text-xl">Balance: <span id="balance-display" class="neon-text">$500</span></div>
+        </div>
+        <!-- Hidden input for file loading, kept here for easy global access -->
+        <input type="file" id="load-file" accept=".json" class="hidden" onchange="loadGame(event)">
+
+
+        <!-- Main Menu -->
+        <div id="main-menu" class="p-6 game-card rounded-xl space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-6">Pick Your Game!</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('slot-machine')">🎰 Fluff's Slots</button>
+                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('blackjack')">♠️ Blackjack</button>
+                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('roulette')">🔴 Roulette</button>
+                <button class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('horse-racing')">🏇 Fluff's Races</button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('poker')">♣️ Fluff's Poker</button>
+                <button class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('coin-flip')">🪙 Coin Flip</button>
+                <button class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('panda-fighting')">🥋 Fluff's Brawlers</button>
+                <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('craps')">🎲 Fluff's Craps</button>
+            </div>
+
+            <!-- New Game Management Section -->
+            <div class="border-t border-gray-700 pt-4 mt-6 space-y-3">
+                <h3 class="text-xl text-center neon-text">Game Management</h3>
+                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="saveGame()">💾 Save Game Progress</button>
+                <button id="load-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg" onclick="document.getElementById('load-file').click()">📂 Load Game Progress</button>
+            </div>
+
+            <div id="job-cooldown-display" class="text-center text-red-400 mt-4 hidden"></div>
         </div>
 
-        <!-- 1. MAIN MENU VIEW -->
-        <div id="main-menu" style="display: none;">
-            <div class="display" style="margin-bottom: 10px;">
-                USER: <span id="user-id-display">N/A</span>
+        <!-- Job Menu -->
+        <div id="job-menu" class="p-6 game-card rounded-xl space-y-6 hidden">
+            <h2 class="text-3xl text-center neon-text mb-6">Pick a Job</h2>
+            <p class="text-lg text-center">To earn cash, you must work! But beware, once hired, you have only 5 minutes to spend your pay before you are forced back to work for an hour!</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button class="job-select-btn bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg text-md transition duration-150" data-job="Laundromat Employee">🧼 Laundromat Employee</button>
+                <button class="job-select-btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-4 rounded-lg text-md transition duration-150" data-job="McDonalds Worker">🍟 McDonald's Worker</button>
+                <button class="job-select-btn bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-4 rounded-lg text-md transition duration-150" data-job="Liquor Store Employee">🥃 Liquor Store Employee</button>
             </div>
-            <h2>Select Your Game</h2>
-            <div class="menu-button-group">
-                <button id="btn-slot-machine">🎋 Fluff's Slots</button>
-                <button id="btn-blackjack">♠️ Blackjack</button>
-                <button id="btn-roulette">🎯 Roulette</button>
-                <button id="btn-horse-racing">🐎 Fluff's Races</button>
-                <button id="btn-coin-flip">🪙 Coin Flip</button>
-                <button id="btn-panda-fighting">🥋 Fluff's Brawlers</button>
-                <button id="btn-poker">🃏 Fluff's Poker (Simplified)</button>
-            </div>
+            <div id="job-select-message" class="text-center text-red-400 mt-4 hidden"></div>
         </div>
 
-        <!-- 2. SLOT MACHINE GAME VIEW -->
-        <div id="slot-machine-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S SLOTS</h2>
-            <div class="display">
-                BALANCE: $<span id="balance-slot">0</span> | BET: $<span id="bet-amount-slot">10</span>
-            </div>
+        <!-- Job Application Form -->
+        <div id="job-application" class="p-6 game-card rounded-xl space-y-4 hidden">
+            <h2 class="text-3xl text-center neon-text mb-6">Job Application: <span id="application-job-title"></span></h2>
+            <form id="application-form" class="space-y-4">
+                <!-- Row 1: Name and Contact -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="app-name" class="block text-sm font-medium text-gray-400">Full Name</label>
+                        <input type="text" id="app-name" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                    </div>
+                    <div>
+                        <label for="app-email" class="block text-sm font-medium text-gray-400">Email Address</label>
+                        <input type="email" id="app-email" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                    </div>
+                </div>
+
+                <!-- Row 2: Phone and Education -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="app-phone" class="block text-sm font-medium text-gray-400">Phone Number (10 digits)</label>
+                        <input type="tel" id="app-phone" required minlength="10" maxlength="10" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                    </div>
+                    <div>
+                        <label for="app-education" class="block text-sm font-medium text-gray-400">Highest Education</label>
+                        <select id="app-education" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                            <option value="">-- Select One --</option>
+                            <option value="High School">High School</option>
+                            <option value="Associate">Associate's Degree</option>
+                            <option value="Bachelor">Bachelor's Degree</option>
+                            <option value="Master">Master's or Higher</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Row 3: Resume -->
+                <div>
+                    <label for="app-resume" class="block text-sm font-medium text-gray-400">Resume / Work History (Min 200 Characters)</label>
+                    <textarea id="app-resume" required rows="6" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white" placeholder="Describe your relevant work experience, skills, and why you are the best fit for this job."></textarea>
+                </div>
+                
+                <div id="application-message" class="text-red-400 text-center"></div>
+
+                <div class="flex justify-between pt-4">
+                    <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg" onclick="switchView('job-menu')">Cancel</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Submit Application</button>
+                </div>
+            </form>
+        </div>
+
+
+        <!-- Slot Machine Game -->
+        <div id="slot-machine" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S SLOTS</h2>
             <div class="reels-container">
-                <div id="reel1" class="reel">
-                    <div class="reel-symbol">?</div>
-                </div>
-                <div id="reel2" class="reel">
-                    <div class="reel-symbol">?</div>
-                </div>
-                <div id="reel3" class="reel">
-                    <div class="reel-symbol">?</div>
+                <div id="reel1" class="reel">?</div>
+                <div id="reel2" class="reel">?</div>
+                <div id="reel3" class="reel">?</div>
+            </div>
+            <div id="slot-result" class="text-xl text-center mb-4 min-h-[30px]">Place your bet to start!</div>
+            <div class="flex flex-col space-y-3">
+                <input type="number" id="slot-bet" placeholder="Bet Amount (Min $10)" min="10" value="10" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                <button id="spin-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150" onclick="spinSlots()">SPIN (Bet: <span id="slot-bet-display">$10</span>)</button>
+            </div>
+            <p class="text-center text-sm text-gray-400 mt-2">Match 3 for a 10x payout! (e.g., 🐼🐼🐼)</p>
+            <button id="slot-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
+        </div>
+
+        <!-- Blackjack Game -->
+        <div id="blackjack" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S BLACKJACK</h2>
+            
+            <div class="text-center mb-4">
+                <p>Dealer's Hand: <span id="dealer-score" class="neon-text">0</span></p>
+                <div id="dealer-hand" class="card-container justify-center"></div>
+            </div>
+
+            <div class="text-center mb-4 border-t border-gray-700 pt-4">
+                <p>Your Hand: <span id="player-score" class="neon-text">0</span></p>
+                <div id="player-hand" class="card-container justify-center"></div>
+            </div>
+
+            <div id="blackjack-result" class="text-xl text-center mb-4 min-h-[30px]">Place your bet and hit DEAL!</div>
+
+            <div class="flex flex-col space-y-3">
+                <input type="number" id="blackjack-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                <div class="flex space-x-3">
+                    <button id="blackjack-deal-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="dealBlackjack()">DEAL</button>
+                    <button id="blackjack-hit-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="hitBlackjack()">HIT</button>
+                    <button id="blackjack-stand-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="standBlackjack()">STAND</button>
                 </div>
             </div>
-            <button id="spin-button" class="game-control-button">SPIN! (Cost: $10)</button>
-            <div id="message-slot" class="message-box"></div>
-            <button id="back-to-menu-slot" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
-            <div class="display" style="margin-top: 20px;">
-                PAYOUTS (Panda Theme):<br>
-                3 Identical: x10 | 2 Identical: x2
-            </div>
+            <button id="blackjack-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
         </div>
         
-        <!-- 3. BLACKJACK GAME VIEW -->
-        <div id="blackjack-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S BLACKJACK</h2>
-            <div class="display">
-                BALANCE: $<span id="balance-bj">0</span> | BET: $<span id="current-bet-bj">0</span>
+        <!-- Roulette Game -->
+        <div id="roulette" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S ROULETTE</h2>
+            <div id="roulette-wheel-result" class="text-5xl text-center mb-4 min-h-[50px]">?</div>
+            <div id="roulette-message" class="text-xl text-center mb-4 min-h-[30px]">Place your bet and spin!</div>
+            
+            <div id="roulette-betting-area">
+                <h3 class="text-xl neon-text mb-3">Betting Area (Chip: <span id="roulette-chip-value-display">$5</span>)</h3>
+                <div class="roulette-bet-grid">
+                    <!-- Color Bets -->
+                    <button class="roulette-bet-btn bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded-lg" data-type="color" data-value="Red" onclick="placeRouletteBet(this, 'Red')">Red (2x) <span id="bet-chip-Red"></span></button>
+                    <button class="roulette-bet-btn bg-black hover:bg-gray-900 text-white font-bold py-3 rounded-lg" data-type="color" data-value="Black" onclick="placeRouletteBet(this, 'Black')">Black (2x) <span id="bet-chip-Black"></span></button>
+                    <button class="roulette-bet-btn bg-green-700 hover:bg-green-600 text-white font-bold py-3 rounded-lg" data-type="color" data-value="Green" onclick="placeRouletteBet(this, 'Green')">Green (35x) <span id="bet-chip-Green"></span></button>
+                    
+                    <!-- Dozen Bets -->
+                    <button class="roulette-bet-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg" data-type="dozen" data-value="1st12" onclick="placeRouletteBet(this, '1st12')">1st 12 (3x) <span id="bet-chip-1st12"></span></button>
+                    <button class="roulette-bet-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg" data-type="dozen" data-value="2nd12" onclick="placeRouletteBet(this, '2nd12')">2nd 12 (3x) <span id="bet-chip-2nd12"></span></button>
+                    <button class="roulette-bet-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg" data-type="dozen" data-value="3rd12" onclick="placeRouletteBet(this, '3rd12')">3rd 12 (3x) <span id="bet-chip-3rd12"></span></button>
+                </div>
             </div>
-            <div id="bj-table">
-                <h3>Dealer (<span id="dealer-score">0</span>)</h3>
-                <div id="dealer-cards" class="card-area"></div>
-                <h3>Player (<span id="player-score">0</span>)</h3>
-                <div id="player-cards" class="card-area"></div>
+
+            <div class="flex flex-col space-y-3 mt-4">
+                <input type="number" id="roulette-chip-value" placeholder="Chip Value (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center" onchange="updateRouletteChipValue()">
+                <button id="roulette-spin-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150" onclick="spinRoulette()">SPIN WHEEL</button>
             </div>
-            <div id="bj-betting">
-                <input type="number" id="bj-bet-input" value="10" min="5" max="50">
-                <button id="bj-place-bet" class="game-control-button">Place Bet (Min $5)</button>
-            </div>
-            <div id="bj-controls" style="display: none;">
-                <button id="bj-hit" class="game-control-button">HIT</button>
-                <button id="bj-stand" class="game-control-button">STAND</button>
-            </div>
-            <div id="bj-message" class="message-box"></div>
-            <button id="back-to-menu-bj" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
+            <button id="roulette-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
         </div>
 
-        <!-- 4. ROULETTE GAME VIEW -->
-        <div id="roulette-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S ROULETTE</h2>
-            <div class="display">
-                BALANCE: $<span id="balance-roulette">0</span> | TOTAL BETS: $<span id="current-bet-roulette">0</span>
-            </div>
-            <div class="roulette-board">
-                <div id="roulette-result-display" class="roulette-display">0</div>
-                <div class="roulette-grid" id="roulette-grid">
-                    <!-- Numbers 1-36 (handled by JS) -->
-                    <div class="roulette-bet-btn green" data-bet="0">0</div>
-                </div>
-                <div class="roulette-grid" style="margin-top: 10px;">
-                    <button class="roulette-bet-btn dozen" data-bet="1st 12">1st 12 (3x)</button>
-                    <button class="roulette-bet-btn dozen" data-bet="2nd 12">2nd 12 (3x)</button>
-                    <button class="roulette-bet-btn dozen" data-bet="3rd 12">3rd 12 (3x)</button>
-                </div>
-                <div class="roulette-grid" style="margin-top: 10px;">
-                    <button class="roulette-bet-btn red" data-bet="Red">🔴 Red (2x)</button>
-                    <button class="roulette-bet-btn black" data-bet="Black">⚫ Black (2x)</button>
-                </div>
-            </div>
-            <div id="roulette-bet-controls">
-                <input type="number" id="roulette-bet-input" value="5" min="5" max="50">
-                <button id="roulette-spin-btn" class="game-control-button">Spin Wheel</button>
-            </div>
-            <div id="message-roulette" class="message-box"></div>
-            <button id="back-to-menu-roulette" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
-        </div>
-
-        <!-- 5. HORSE RACING GAME VIEW -->
-        <div id="horse-racing-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S RACES (3:1 Payout)</h2>
-            <div class="display">
-                BALANCE: $<span id="balance-horse">0</span> | BET: $<span id="current-bet-horse">0</span> | HORSE: <span id="chosen-horse-name">None</span>
-            </div>
-            <div id="horse-betting-controls">
-                <input type="number" id="horse-bet-input" value="10" min="5" max="50">
-                <button id="race-button" class="game-control-button" style="grid-column: span 2;">Start Race</button>
-                <button class="game-control-button horse-bet-btn" data-horse="0">Bet: Bamboo Blitz</button>
-                <button class="game-control-button horse-bet-btn" data-horse="1">Bet: Panda Dash</button>
-                <button class="game-control-button horse-bet-btn" data-horse="2">Bet: Green Glimmer</button>
-                <button class="game-control-button horse-bet-btn" data-horse="3">Bet: Yin-Yang Zephyr</button>
-            </div>
+        <!-- Horse Racing Game -->
+        <div id="horse-racing" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S RACES</h2>
+            <div id="race-message" class="text-xl text-center mb-4 min-h-[30px]">Pick a horse and place your bet (4x Payout)!</div>
+            
             <div id="race-track" class="race-track">
-                <!-- Horse rows generated by JS -->
+                <!-- Track content is generated by initializeHorseRacing -->
             </div>
-            <div id="message-horse" class="message-box"></div>
-            <button id="back-to-menu-horse" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
-        </div>
-        
-        <!-- 6. COIN FLIP GAME VIEW -->
-        <div id="coin-flip-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S COIN FLIP (2x Payout)</h2>
-            <div class="display">
-                BALANCE: $<span id="balance-cf">0</span> | BET: $<span id="current-bet-cf">0</span> | CHOICE: <span id="cf-choice-display">None</span>
+
+            <div class="flex flex-col space-y-3 mt-4">
+                <input type="number" id="horse-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                
+                <div id="horse-bet-buttons" class="grid grid-cols-2 gap-3">
+                    <!-- Horse buttons generated by initializeHorseRacing -->
+                </div>
+
+                <button id="start-race-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="startRace()">START RACE</button>
             </div>
-            <div class="flip-area">
-                <div id="coin">🪙</div>
-            </div>
-            <div id="coin-flip-controls" class="coin-controls">
-                <input type="number" id="cf-bet-input" value="10" min="5" max="50" style="width: 100%; margin-bottom: 10px;">
-                <button id="cf-bet-heads" class="game-control-button">Bet Heads (Head)</button>
-                <button id="cf-bet-tails" class="game-control-button">Bet Tails (Tail)</button>
-                <button id="cf-flip-button" class="game-control-button" disabled>FLIP COIN</button>
-            </div>
-            <div id="message-cf" class="message-box"></div>
-            <button id="back-to-menu-cf" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
+            <button id="horse-racing-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
         </div>
 
-        <!-- 7. PANDA FIGHTING GAME VIEW -->
-        <div id="panda-fighting-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S BRAWLERS (2x Payout)</h2>
-            <div class="display">
-                BALANCE: $<span id="balance-pf">0</span> | BET: $<span id="current-bet-pf">0</span>
-            </div>
-            <div class="brawler-display">
-                <div class="brawler" id="brawler-1" data-brawler="Panda Smash">
-                    <h3>Panda Smash</h3>
-                    <div class="brawler-icon">🥊</div>
+        <!-- Panda Fighting Game -->
+        <div id="panda-fighting" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S BRAWLERS</h2>
+            
+            <div id="brawlers-display" class="brawler-display">
+                <div class="brawler">
+                    <span id="brawler-1-emoji">🐼</span>
+                    <p id="brawler-1-name" class="text-lg">Rocky</p>
                 </div>
-                <div class="brawler" id="brawler-2" data-brawler="Bamboo Fury">
-                    <h3>Bamboo Fury</h3>
-                    <div class="brawler-icon">🥋</div>
+                <div class="text-4xl text-red-500 font-bold">VS</div>
+                <div class="brawler">
+                    <span id="brawler-2-emoji">🐾</span>
+                    <p id="brawler-2-name" class="text-lg">Bamboo</p>
                 </div>
-            </div>
-            <div class="brawler-bet-controls">
-                <input type="number" id="pf-bet-input" value="10" min="5" max="50">
-                <button id="pf-fight-button" class="game-control-button" disabled>START BRAWL</button>
-            </div>
-            <div id="message-pf" class="message-box"></div>
-            <button id="back-to-menu-pf" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
-        </div>
-
-        <!-- 8. POKER GAME VIEW -->
-        <div id="poker-container" style="display: none;">
-            <h2 class="game-title">FLUFF'S POKER (Simplified)</h2>
-             <div class="display">
-                BALANCE: $<span id="balance-poker">0</span> | POT: $<span id="current-pot-poker">0</span> | ANTE: $<span id="poker-ante">10</span>
-            </div>
-            <div class="poker-table">
-                <h3>Community Cards (Flop, Turn, River)</h3>
-                <div id="community-cards" class="card-area"></div>
-                
-                <h3>Dealer Hand: <span id="dealer-hand-rank" class="poker-hand-label">?</span></h3>
-                <div id="dealer-cards-poker" class="card-area"></div>
-                
-                <h3>Player Hand: <span id="player-hand-rank" class="poker-hand-label">?</span></h3>
-                <div id="player-cards-poker" class="card-area"></div>
             </div>
             
-            <div id="poker-betting-controls">
-                <input type="number" id="poker-bet-input" value="10" min="5" max="50" style="width: 100%; margin-bottom: 10px;">
-                <button id="poker-deal-button" class="game-control-button">Place Ante ($10) & Deal</button>
+            <div id="fighting-result" class="text-xl text-center mb-4 min-h-[30px]">Pick a champion and place your bet! (2x Payout)</div>
+
+            <div class="flex flex-col space-y-3">
+                <input type="number" id="fighter-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                
+                <div class="flex space-x-3">
+                    <button id="bet-brawler-1-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeBrawlerBet(1)">BET ON ROCKY</button>
+                    <button id="bet-brawler-2-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeBrawlerBet(2)">BET ON BAMBOO</button>
+                </div>
+
+                <button id="start-brawl-btn" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="startBrawl()">START BRAWL</button>
             </div>
-
-            <div id="poker-controls" style="display: none;">
-                <button id="poker-fold" class="game-control-button" style="background-color: #ff0000;">FOLD (Lose Ante)</button>
-                <button id="poker-bet-call" class="game-control-button" style="width: 66%;">CALL/BET ($20 Total)</button>
-            </div>
-
-            <div id="message-poker" class="message-box"></div>
-
-            <button id="back-to-menu-poker" class="game-control-button" style="background-color: #302b63; box-shadow: 0 5px 0 #24243e; color: #fff;">
-                Back to Lobby
-            </button>
+            <button id="fighting-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
         </div>
 
+        <!-- Coin Flip Game -->
+        <div id="coin-flip" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S COIN FLIP</h2>
+            
+            <div id="coin-emoji" class="coin-display">🪙</div>
+            
+            <div id="flip-result" class="text-xl text-center mb-4 min-h-[30px]">Bet on Panda or Bamboo! (2x Payout)</div>
 
+            <div class="flex flex-col space-y-3">
+                <input type="number" id="flip-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                
+                <div class="flex space-x-3">
+                    <button id="bet-heads-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeFlipBet('Heads')">BET ON 🐼</button>
+                    <button id="bet-tails-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeFlipBet('Tails')">BET ON 🎋</button>
+                </div>
+
+                <button id="start-flip-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="startFlip()">FLIP COIN</button>
+            </div>
+            <button id="flip-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
+        </div>
+        
+        <!-- Poker Game -->
+        <div id="poker" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S POKER (Simplified Hold'em)</h2>
+            
+            <div class="text-center mb-4">
+                <p>Dealer's Hand: <span id="poker-dealer-score" class="neon-text">?</span></p>
+                <div id="poker-dealer-hand" class="hand-container justify-center"></div>
+            </div>
+            <div class="text-center mb-4">
+                <p>Community Cards (Flop, Turn, River):</p>
+                <div id="poker-community-cards" class="hand-container justify-center"></div>
+            </div>
+            <div class="text-center mb-4 border-t border-gray-700 pt-4">
+                <p>Your Hand: <span id="poker-player-score" class="neon-text">?</span></p>
+                <div id="poker-player-hand" class="hand-container justify-center"></div>
+            </div>
+
+            <div id="poker-result" class="text-xl text-center mb-4 min-h-[30px]">Place your bet and hit DEAL!</div>
+
+            <div class="flex flex-col space-y-3">
+                <input type="number" id="poker-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                <div class="flex space-x-3">
+                    <button id="poker-deal-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="dealPoker()">DEAL</button>
+                    <button id="poker-fold-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="foldPoker()">FOLD (Lose Bet)</button>
+                    <button id="poker-call-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="callPoker()">CALL (Double Bet)</button>
+                </div>
+            </div>
+            <button id="poker-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
+        </div>
+
+        <!-- Craps Game -->
+        <div id="craps" class="p-6 game-card rounded-xl hidden space-y-4">
+            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S CRAPS</h2>
+
+            <div id="dice-display" class="text-5xl text-center mb-4 min-h-[50px]">
+                <span id="die1">🎲</span> + <span id="die2">🎲</span> = <span id="craps-roll-total">?</span>
+            </div>
+
+            <div id="craps-point-display" class="text-xl text-center mb-4">POINT: <span id="craps-point" class="neon-text">OFF</span></div>
+            
+            <div id="craps-message" class="text-xl text-center mb-4 min-h-[30px]">Place a Pass Line Bet or Roll!</div>
+
+            <div class="flex flex-col space-y-3">
+                <input type="number" id="craps-bet" placeholder="Pass Line Bet (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
+                
+                <button id="craps-pass-line-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeCrapsBet()">PLACE PASS LINE BET</button>
+
+                <button id="craps-roll-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="rollCraps()">ROLL DICE</button>
+            </div>
+            <button id="craps-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
+        </div>
     </div>
-    
-    <!-- LOAN MODAL UI -->
-    <div id="loan-modal" class="modal-overlay" style="display:none;">
+
+
+    <!-- Modals -->
+    <div id="loan-modal" class="modal hidden">
         <div class="modal-content">
-            <h2>A DEAL WITH FLUFF 🐼</h2>
-            <p id="loan-message-text">Fluff's body guards escort you to Fluff's office. He has a deal.</p>
-            <p>He will give you a **loan of $100** but you have to pay it back in the next hour. Do you accept or get kicked out of the casino until you earn more money?</p>
-            <div class="modal-buttons">
-                <button id="btn-accept-loan">Accept Loan ($100)</button>
-                <button id="btn-kick-out">Get Kicked Out</button>
+            <h3 class="text-2xl font-bold mb-4 text-red-400">GAME OVER!</h3>
+            <p id="loan-message" class="mb-6 text-lg">Fluff's body guards escort you to Fluff's office. He has a deal. He will give you a loan of $100 but you have to pay it back in the next hour. Do you accept or get kicked out of the casino until you earn more money?</p>
+            <div class="flex justify-around">
+                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg" onclick="acceptLoan()">Accept Loan ($100)</button>
+                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" onclick="kickOut()">Get Kicked Out</button>
             </div>
         </div>
     </div>
 
+    <div id="job-lockout-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4 text-red-400">BREAK OVER!</h3>
+            <p id="lockout-message" class="mb-6 text-lg">Your 5-minute break is over! You must return to work. You are locked out of games until your employment cooldown ends.</p>
+            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" onclick="closeJobLockoutModal()">Return to Menu</button>
+        </div>
+    </div>
 
-    <script type="module">
-        // --- FIREBASE IMPORTS ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <div id="job-cooldown-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4 text-yellow-400">Application Cooldown</h3>
+            <p id="cooldown-message" class="mb-6 text-lg">You must wait before applying again. Cooldown remaining: <span id="cooldown-time"></span></p>
+            <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" onclick="closeJobCooldownModal()">OK</button>
+        </div>
+    </div>
 
-        // --- FIREBASE GLOBAL VARIABLES (MANDATORY ENVIRONMENT INJECTION) ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        let db, auth;
-        let userId = null;
-        let isAuthReady = false;
-        
-        // Firestore path reference
-        const GAME_DATA_PATH = `/artifacts/${appId}/users/`;
-        const GAME_DOC_ID = 'fluff_casino'; // Single document for all player data
 
-        // --- SHARED GAME STATE & UI MANAGEMENT ---
+    <script>
+        // --- GAME STATE VARIABLES ---
+        let gameState = {
+            currentBalance: 500,
+            currentView: 'main-menu',
+            lastLoanTime: 0, // Timestamp of last accepted loan
+            loanCooldown: 300000, // 5 minutes (300,000 ms)
+            job: null, // Stores the accepted job title
+            jobBreakEndTime: 0, // Timestamp when the 5-minute break ends
+            jobCooldownEndTime: 0, // Timestamp when the 1-hour job cooldown ends
+            
+            // Blackjack State
+            deck: [],
+            dealerHand: [],
+            playerHand: [],
+            blackjackBet: 0,
+            
+            // Roulette State
+            rouletteBet: {},
+            rouletteChipValue: 5,
+            
+            // Horse Racing State
+            horses: [
+                { id: 1, name: 'Bamboo Blitz', emoji: '💚', position: 0, odds: 3.0 },
+                { id: 2, name: 'Panda Power', emoji: '🐼', position: 0, odds: 4.0 },
+                { id: 3, name: 'Yin-Yang Dash', emoji: '☯️', position: 0, odds: 5.0 },
+                { id: 4, name: 'Paw Print Fury', emoji: '🐾', position: 0, odds: 6.0 },
+            ],
+            horseBet: 0,
+            selectedHorseId: null,
 
-        const mainMenu = document.getElementById('main-menu');
-        const loadingScreen = document.getElementById('loading-screen');
-        const slotMachineContainer = document.getElementById('slot-machine-container');
-        const blackjackContainer = document.getElementById('blackjack-container');
-        const rouletteContainer = document.getElementById('roulette-container');
-        const horseRacingContainer = document.getElementById('horse-racing-container');
-        const coinFlipContainer = document.getElementById('coin-flip-container'); // NEW
-        const pandaFightingContainer = document.getElementById('panda-fighting-container'); // NEW
-        const pokerContainer = document.getElementById('poker-container'); // NEW
-        const loanModal = document.getElementById('loan-modal');
-        const loanMessageText = document.getElementById('loan-message-text');
+            // Panda Fighting State
+            fighterBet: 0,
+            selectedFighter: null,
+            
+            // Coin Flip State
+            flipBet: 0,
+            selectedFlipSide: null,
 
-        let currentBalance = 0; // Starts at 0, loaded from Firestore
-        let lastLoanTime = 0; // Loaded from Firestore
-        const MIN_BET = 5; // Global minimum bet for all games
-        const LOAN_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
+            // Poker State
+            pokerDeck: [],
+            pokerDealerHand: [],
+            pokerPlayerHand: [],
+            pokerCommunityCards: [],
+            pokerBet: 0,
+            pokerPhase: 'preflop', // preflop, flop, turn, river, showdown
+            
+            // Craps State
+            crapsPoint: null,
+            crapsBetAmount: 0,
+            crapsBetType: null, // 'pass_line'
+        };
 
-        let saveTimeout;
-        
+        const SLOT_SYMBOLS = ['🐼', '🎋', '💚', '☯️', '💰', '🐾']; // Panda-themed
+        const MIN_BET = 5; // Minimum bet for most games
+        const SLOT_MIN_BET = 10; // Slots has a higher min bet
+        const JOB_BREAK_DURATION = 300000; // 5 minutes in ms
+        const JOB_COOLDOWN_DURATION = 3600000; // 1 hour in ms (60 * 60 * 1000)
+
+        // --- UTILITY FUNCTIONS ---
+
         /**
-         * Saves the current game state (balance and loan time) to Firestore.
+         * Updates the balance display and saves the state to local file storage.
          */
-        async function saveGameState(balance, loanTime) {
-            if (!userId) return; // Cannot save without a user ID
+        function updateBalance(amount) {
+            gameState.currentBalance += amount;
+            document.getElementById('balance-display').textContent = `$${gameState.currentBalance.toLocaleString()}`;
+        }
 
-            // Debounce saving to avoid hitting limits too quickly
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(async () => {
-                const docRef = doc(db, GAME_DATA_PATH + userId + '/game_data', GAME_DOC_ID);
+        function saveGameStateToFile() {
+            const dataToSave = JSON.stringify({
+                currentBalance: gameState.currentBalance,
+                lastLoanTime: gameState.lastLoanTime,
+                job: gameState.job,
+                jobBreakEndTime: gameState.jobBreakEndTime,
+                jobCooldownEndTime: gameState.jobCooldownEndTime,
+            });
+
+            const blob = new Blob([dataToSave], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fluffs_casino_save.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Display message
+            const saveBtn = document.getElementById('save-button');
+            saveBtn.textContent = 'Game Saved!';
+            setTimeout(() => { saveBtn.textContent = '💾 Save Game Progress'; }, 1500);
+        }
+
+        function loadGameStateFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
                 try {
-                    await setDoc(docRef, {
-                        balance: balance,
-                        lastLoanTime: loanTime,
-                        lastUpdated: Date.now()
-                    }, { merge: true });
-                } catch (e) {
-                    console.error("Error saving document: ", e);
+                    const loadedData = JSON.parse(e.target.result);
+                    
+                    gameState.currentBalance = loadedData.currentBalance || 500;
+                    gameState.lastLoanTime = loadedData.lastLoanTime || 0;
+                    gameState.job = loadedData.job || null;
+                    gameState.jobBreakEndTime = loadedData.jobBreakEndTime || 0;
+                    gameState.jobCooldownEndTime = loadedData.jobCooldownEndTime || 0;
+
+                    updateBalance(0); // Update display
+                    
+                    const loadBtn = document.getElementById('load-button');
+                    loadBtn.textContent = 'Game Loaded!';
+                    setTimeout(() => { loadBtn.textContent = '📂 Load Game Progress'; }, 1500);
+                } catch (error) {
+                    alert('Error loading save file. The file may be corrupted.');
                 }
-            }, 500); // Wait 500ms before saving
+            };
+            reader.readAsText(file);
         }
 
-        /**
-         * Sets the new balance and loan time, updating local state and triggering save.
-         */
-        function setGameState(newBalance, newLoanTime) {
-            currentBalance = newBalance;
-            lastLoanTime = newLoanTime;
-            updateBalanceDisplay();
-            saveGameState(newBalance, newLoanTime);
-        }
+        // Expose functions to global scope for button clicks
+        window.saveGame = saveGameStateToFile;
+        window.loadGame = loadGameStateFromFile;
+
 
         /**
-         * Updates the displayed balance across all game displays and checks for loan trigger.
+         * Checks the balance and triggers the loan modal if necessary.
          */
-        function updateBalanceDisplay() {
-            // Update all balance displays
-            document.getElementById('balance-slot').textContent = currentBalance;
-            document.getElementById('balance-bj').textContent = currentBalance;
-            document.getElementById('balance-roulette').textContent = currentBalance;
-            document.getElementById('balance-horse').textContent = currentBalance;
-            document.getElementById('balance-cf').textContent = currentBalance;
-            document.getElementById('balance-pf').textContent = currentBalance;
-            document.getElementById('balance-poker').textContent = currentBalance;
-            
-            // Check for the loan trigger only if we are ready and not showing the modal
-            if (isAuthReady && currentBalance < MIN_BET && loanModal.style.display === 'none') {
-                triggerLoanModal();
-            }
-
-            // Update specific game states
-            if (slotMachineContainer.style.display !== 'none') updateSlotMachineState();
-            if (blackjackContainer.style.display !== 'none') updateBlackjackState();
-            if (rouletteContainer.style.display !== 'none') updateRouletteState();
-            if (horseRacingContainer.style.display !== 'none') updateHorseRacingState();
-            if (coinFlipContainer.style.display !== 'none') updateCoinFlipState();
-            if (pandaFightingContainer.style.display !== 'none') updatePandaFightingState();
-            if (pokerContainer.style.display !== 'none') updatePokerState();
-        }
-        
-        /**
-         * Triggers the game over modal with Fluff's loan offer.
-         */
-        function triggerLoanModal() {
-            const now = Date.now();
-            const timeSinceLastLoan = now - lastLoanTime;
-
-            if (timeSinceLastLoan < LOAN_COOLDOWN_MS) {
-                const remainingTimeMs = LOAN_COOLDOWN_MS - timeSinceLastLoan;
-                const minutes = Math.ceil(remainingTimeMs / 60000);
+        function checkLoanEligibility(minBet = MIN_BET) {
+            if (gameState.currentBalance < minBet) {
+                const now = Date.now();
+                const timeSinceLastLoan = now - gameState.lastLoanTime;
                 
-                loanMessageText.innerHTML = `Fluff says his ledger is full. You must wait before taking another loan. Try again in **${minutes} minute${minutes !== 1 ? 's' : ''}**.`;
-                
-                document.getElementById('btn-accept-loan').style.display = 'none';
-                document.getElementById('btn-kick-out').textContent = 'Okay, I understand';
-            } else {
-                loanMessageText.innerHTML = "Fluff's body guards escort you to Fluff's office. He has a deal.";
-                document.getElementById('btn-accept-loan').style.display = 'block';
-                document.getElementById('btn-kick-out').textContent = 'Get Kicked Out';
-            }
+                document.getElementById('loan-modal').classList.remove('hidden');
 
-            loanModal.style.display = 'flex';
-            
-            // Temporarily disable game controls while modal is open
-            document.querySelectorAll('.game-control-button').forEach(btn => btn.disabled = true);
-            document.getElementById('btn-slot-machine').disabled = true;
-            document.getElementById('btn-blackjack').disabled = true;
-            document.getElementById('btn-roulette').disabled = true;
-            document.getElementById('btn-horse-racing').disabled = true;
-            document.getElementById('btn-coin-flip').disabled = true;
-            document.getElementById('btn-panda-fighting').disabled = true;
-            document.getElementById('btn-poker').disabled = true;
+                if (timeSinceLastLoan < gameState.loanCooldown && gameState.lastLoanTime !== 0) {
+                    const remainingTime = gameState.loanCooldown - timeSinceLastLoan;
+                    const minutes = Math.ceil(remainingTime / 60000);
+                    document.getElementById('loan-message').textContent = `Fluff says his ledger is full. You must wait for the loan cooldown. Try again in ${minutes} minutes.`;
+                    document.querySelector('#loan-modal button:first-child').classList.add('disabled-btn');
+                    document.querySelector('#loan-modal button:first-child').disabled = true;
+                } else {
+                    document.getElementById('loan-message').textContent = "Fluff's body guards escort you to Fluff's office. He has a deal. He will give you a loan of $100 but you have to pay it back in the next hour. Do you accept or get kicked out of the casino until you earn more money?";
+                    document.querySelector('#loan-modal button:first-child').classList.remove('disabled-btn');
+                    document.querySelector('#loan-modal button:first-child').disabled = false;
+                }
+                return true;
+            }
+            return false;
         }
-        
-        document.getElementById('btn-accept-loan').addEventListener('click', () => {
-            const newBalance = currentBalance + 100;
-            const newLoanTime = Date.now();
-            setGameState(newBalance, newLoanTime);
-            
-            loanModal.style.display = 'none';
-            
-            // Re-enable game controls
-            document.querySelectorAll('.game-control-button').forEach(btn => btn.disabled = false);
-            document.getElementById('btn-slot-machine').disabled = false;
-            document.getElementById('btn-blackjack').disabled = false;
-            document.getElementById('btn-roulette').disabled = false;
-            document.getElementById('btn-horse-racing').disabled = false;
-            document.getElementById('btn-coin-flip').disabled = false;
-            document.getElementById('btn-panda-fighting').disabled = false;
-            document.getElementById('btn-poker').disabled = false;
 
+        function acceptLoan() {
+            if (document.querySelector('#loan-modal button:first-child').disabled) return;
 
-            // Show a message in the menu
-            showMessageInMenu("Loan accepted! Fluff trusts you'll pay him back.", '#00ff00');
-        });
+            updateBalance(100);
+            gameState.lastLoanTime = Date.now();
+            document.getElementById('loan-modal').classList.add('hidden');
+        }
 
-        document.getElementById('btn-kick-out').addEventListener('click', () => {
-            loanModal.style.display = 'none';
-            
-            // Re-enable main menu buttons if the user can afford MIN_BET
-            const canPlay = currentBalance >= MIN_BET;
-            document.getElementById('btn-slot-machine').disabled = !canPlay;
-            document.getElementById('btn-blackjack').disabled = !canPlay;
-            document.getElementById('btn-roulette').disabled = !canPlay;
-            document.getElementById('btn-horse-racing').disabled = !canPlay;
-            document.getElementById('btn-coin-flip').disabled = !canPlay;
-            document.getElementById('btn-panda-fighting').disabled = !canPlay;
-            document.getElementById('btn-poker').disabled = !canPlay;
+        function kickOut() {
+            document.getElementById('loan-modal').classList.add('hidden');
+            switchView('main-menu');
+        }
 
-            if (!canPlay) {
-                showMessageInMenu("Kicked out. You must earn money elsewhere to play.", 'red');
-            }
-        });
+        function closeJobLockoutModal() {
+            document.getElementById('job-lockout-modal').classList.add('hidden');
+            switchView('main-menu');
+        }
+
+        function closeJobCooldownModal() {
+            document.getElementById('job-cooldown-modal').classList.add('hidden');
+            switchView('main-menu');
+        }
 
 
         /**
-         * Switches the active view displayed to the user.
-         * @param {string} viewId - The ID of the view container to show.
+         * Handles view switching and game initialization/cleanup.
          */
         function switchView(viewId) {
-            if (!isAuthReady) {
-                console.warn("Attempted to switch view before Firebase auth was ready.");
+            // Check Job Break Lockout
+            if (viewId !== 'main-menu' && viewId !== 'job-menu' && viewId !== 'job-application' && gameState.jobBreakEndTime > Date.now()) {
+                document.getElementById('job-lockout-modal').classList.remove('hidden');
+                document.getElementById('lockout-message').textContent = `Your 5-minute break is over! You must return to work. You are locked out of games until your job cooldown ends. (Next job application available in ${formatTime(gameState.jobCooldownEndTime - Date.now())})`;
+                return;
+            }
+
+            // Hide all main content views
+            document.querySelectorAll('.casino-container > div').forEach(div => {
+                if (div.id !== 'loan-modal' && div.id !== 'job-lockout-modal') {
+                    div.classList.add('hidden');
+                }
+            });
+
+            // Show the requested view
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                gameState.currentView = viewId;
+            }
+
+            // Game-specific initialization
+            if (viewId === 'slot-machine') initializeSlotMachine();
+            if (viewId === 'blackjack') initializeBlackjack();
+            if (viewId === 'roulette') initializeRoulette();
+            if (viewId === 'horse-racing') initializeHorseRacing();
+            if (viewId === 'panda-fighting') initializePandaFighting();
+            if (viewId === 'coin-flip') initializeCoinFlip();
+            if (viewId === 'poker') initializePoker();
+            if (viewId === 'craps') initializeCraps();
+            if (viewId === 'main-menu') updateJobCooldownDisplay();
+
+            // Handle Back to Lobby button visibility
+            const isGameView = viewId !== 'main-menu' && viewId !== 'job-menu' && viewId !== 'job-application';
+            document.getElementById('main-menu-back-btn').classList.toggle('hidden', !isGameView);
+            document.getElementById('job-button').classList.toggle('hidden', isGameView || gameState.jobBreakEndTime > Date.now());
+        }
+
+        // --- JOB SYSTEM LOGIC ---
+
+        function updateJobCooldownDisplay() {
+            const now = Date.now();
+            const jobCooldownDiv = document.getElementById('job-cooldown-display');
+            const jobButton = document.getElementById('job-button');
+
+            // Job Break Lockout Timer
+            if (gameState.jobBreakEndTime > now) {
+                const remainingBreak = gameState.jobBreakEndTime - now;
+                jobCooldownDiv.classList.remove('hidden');
+                jobCooldownDiv.textContent = `EMPLOYED: Break ends in ${formatTime(remainingBreak)}.`;
+                jobButton.classList.add('disabled-btn');
+                jobButton.disabled = true;
+                
+                // Save/Load buttons are in the main menu, which is where the player must be when this timer is running.
+                return;
+            }
+
+            // Job Cooldown Timer
+            if (gameState.jobCooldownEndTime > now) {
+                const remainingCooldown = gameState.jobCooldownEndTime - now;
+                jobCooldownDiv.classList.remove('hidden');
+                jobCooldownDiv.textContent = `Job Cooldown: ${formatTime(remainingCooldown)}`;
+                jobButton.classList.add('disabled-btn');
+                jobButton.disabled = true;
                 return;
             }
             
-            mainMenu.style.display = 'none';
-            slotMachineContainer.style.display = 'none';
-            blackjackContainer.style.display = 'none';
-            rouletteContainer.style.display = 'none';
-            horseRacingContainer.style.display = 'none';
-            coinFlipContainer.style.display = 'none';
-            pandaFightingContainer.style.display = 'none';
-            pokerContainer.style.display = 'none';
-            
-            updateBalanceDisplay(); // Ensure balance is fresh when switching
-
-            // Ensure the back button is enabled on all game screens upon entry/return
-            document.querySelectorAll('[id^="back-to-menu-"]').forEach(btn => btn.disabled = false);
-
-            if (viewId === 'main-menu') {
-                mainMenu.style.display = 'block';
-                document.title = "Fluff's Casino | Main Menu";
-            } else if (viewId === 'slot-machine-container') {
-                slotMachineContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Fluff's Slots";
-                initializeSlotMachine();
-            } else if (viewId === 'blackjack-container') {
-                blackjackContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Fluff's Blackjack";
-                initializeBlackjack();
-            } else if (viewId === 'roulette-container') {
-                rouletteContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Fluff's Roulette";
-                initializeRoulette();
-            } else if (viewId === 'horse-racing-container') {
-                horseRacingContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Fluff's Races";
-                initializeHorseRacing();
-            } else if (viewId === 'coin-flip-container') {
-                coinFlipContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Coin Flip";
-                initializeCoinFlip();
-            } else if (viewId === 'panda-fighting-container') {
-                pandaFightingContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Fluff's Brawlers";
-                initializePandaFighting();
-            } else if (viewId === 'poker-container') {
-                pokerContainer.style.display = 'block';
-                document.title = "Fluff's Casino | Fluff's Poker";
-                initializePoker();
-            }
-        }
-        
-        /**
-         * Displays a message at the bottom of the main menu view.
-         */
-        function showMessageInMenu(msg, color = '#ffde59') {
-             let menuMsg = document.getElementById('menu-message');
-            if (!menuMsg) {
-                menuMsg = document.createElement('div');
-                menuMsg.id = 'menu-message';
-                menuMsg.classList.add('message-box');
-                menuMsg.style.height = 'auto';
-                mainMenu.appendChild(menuMsg);
-            }
-            menuMsg.textContent = msg;
-            menuMsg.style.color = color;
+            // No Cooldown/Lockout
+            jobCooldownDiv.classList.add('hidden');
+            jobButton.classList.remove('disabled-btn');
+            jobButton.disabled = false;
         }
 
-        /**
-         * Initializes event listeners for the main menu buttons.
-         */
-        function initMenuListeners() {
-            document.getElementById('btn-slot-machine').addEventListener('click', () => switchView('slot-machine-container'));
-            document.getElementById('btn-blackjack').addEventListener('click', () => switchView('blackjack-container'));
-            document.getElementById('btn-roulette').addEventListener('click', () => switchView('roulette-container'));
-            document.getElementById('btn-horse-racing').addEventListener('click', () => switchView('horse-racing-container'));
-            document.getElementById('btn-coin-flip').addEventListener('click', () => switchView('coin-flip-container'));
-            document.getElementById('btn-panda-fighting').addEventListener('click', () => switchView('panda-fighting-container'));
-            document.getElementById('btn-poker').addEventListener('click', () => switchView('poker-container'));
-            
-            // Initialize back buttons
-            document.querySelectorAll('[id^="back-to-menu-"]').forEach(btn => {
-                btn.onclick = () => switchView('main-menu');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check cooldown every second
+            setInterval(updateJobCooldownDisplay, 1000);
+            updateBalance(0); // Initial balance update
+
+            // Job selection event listeners
+            document.querySelectorAll('.job-select-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const jobTitle = e.target.getAttribute('data-job');
+                    gameState.job = jobTitle;
+                    document.getElementById('application-job-title').textContent = jobTitle;
+                    document.getElementById('job-select-message').classList.add('hidden');
+                    switchView('job-application');
+                });
             });
+
+            // Job Application submission
+            document.getElementById('application-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                processJobApplication();
+            });
+
+            switchView('main-menu'); // Start on main menu
+        });
+
+        function formatTime(ms) {
+            const totalSeconds = Math.ceil(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}m ${seconds}s`;
+        }
+
+        function processJobApplication() {
+            const name = document.getElementById('app-name').value;
+            const email = document.getElementById('app-email').value;
+            const phone = document.getElementById('app-phone').value;
+            const education = document.getElementById('app-education').value;
+            const resume = document.getElementById('app-resume').value;
+            const message = document.getElementById('application-message');
+
+            // Validation 1: All required fields filled
+            if (!name || !email || phone.length < 10 || !education || !resume) {
+                message.textContent = 'Please fill out all required fields.';
+                return;
+            }
+
+            // Validation 2: Basic email format check
+            if (!email.includes('@') || !email.includes('.')) {
+                message.textContent = 'Please enter a valid email address.';
+                return;
+            }
+
+            // Validation 3: Resume Length
+            if (resume.length < 200) {
+                 message.textContent = `Your resume is too short. Please provide at least 200 characters (currently: ${resume.length}).`;
+                return;
+            }
+
+            // Validation 4: "No Junk" Rule (Resume must contain letters and numbers)
+            const letterCount = (resume.match(/[a-zA-Z]/g) || []).length;
+            const nonSpaceCount = resume.replace(/\s/g, '').length;
             
-            showMessageInMenu(''); 
+            if (letterCount / nonSpaceCount < 0.5) { // Ensure at least 50% of non-space characters are letters
+                message.textContent = 'Your resume appears to contain random characters or too many symbols. Please write a realistic work history.';
+                return;
+            }
+
+            // Application Accepted!
+            message.textContent = `Congratulations, ${name}! You've been hired as a ${gameState.job}!`;
+            message.classList.remove('text-red-400');
+            message.classList.add('text-green-400');
+
+            // Grant Paycheck and start the break timer
+            updateBalance(300);
+            gameState.jobBreakEndTime = Date.now() + JOB_BREAK_DURATION;
+            
+            // Set the next cooldown for applying for a job
+            gameState.jobCooldownEndTime = Date.now() + JOB_COOLDOWN_DURATION;
+
+            // Reset form for next time
+            document.getElementById('application-form').reset();
+
+            // After a short delay, go to main menu
+            setTimeout(() => {
+                switchView('main-menu');
+                message.classList.add('hidden');
+                message.classList.remove('text-green-400');
+                message.classList.add('text-red-400');
+            }, 3000); 
         }
 
-        // --- GAME LOGIC STUBS (Same as before, simplified for space) ---
+        // --- GAME LOGIC ---
 
-        // SLOTS LOGIC (Functions: initializeSlotMachine, updateSlotMachineState, spin, checkSlotWin, showSlotMessage)
-        const SLOT_BET_AMOUNT = 10;
-        const slotSymbols = ['🎋', '🐼', '💚', '☯️', '💰', '🐾'];
-        let reels, messageSlotDisplay, spinButton;
-
-        function updateSlotMachineState() {
-            if (spinButton) {
-                spinButton.disabled = currentBalance < SLOT_BET_AMOUNT;
-                if (currentBalance < SLOT_BET_AMOUNT) showSlotMessage("Out of funds! Go talk to Fluff.", 'red');
-            }
-        }
-        function showSlotMessage(msg, color = '#ffde59') { if (messageSlotDisplay) { messageSlotDisplay.textContent = msg; messageSlotDisplay.style.color = color; } }
-        function checkSlotWin(results) { const [r1, r2, r3] = results; if (r1 === r2 && r2 === r3) return 10; if (r1 === r2 || r1 === r3 || r2 === r3) return 2; return 0; }
-        async function spin() {
-            if (currentBalance < SLOT_BET_AMOUNT) { updateBalanceDisplay(); return; }
-            setGameState(currentBalance - SLOT_BET_AMOUNT, lastLoanTime);
-            spinButton.disabled = true;
-            document.getElementById('back-to-menu-slot').disabled = true;
-            showSlotMessage("Spinning...", '#ffde59');
-            reels.forEach(reel => { reel.classList.add('spinning'); reel.classList.remove('win'); });
-            const results = [];
-            for (let i = 0; i < reels.length; i++) {
-                const resultSymbol = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
-                results.push(resultSymbol);
-                await new Promise(resolve => setTimeout(resolve, i * 500));
-                reels[i].classList.remove('spinning');
-                reels[i].querySelector('.reel-symbol').textContent = resultSymbol;
-            }
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const payout = checkSlotWin(results);
-            let winAmount = 0;
-            if (payout > 0) {
-                winAmount = SLOT_BET_AMOUNT * payout;
-                setGameState(currentBalance + winAmount, lastLoanTime);
-                showSlotMessage(`PANDA-TASTIC WIN! You won $${winAmount}!`, '#00ff00');
-                reels.forEach(reel => reel.classList.add('win'));
-            } else {
-                showSlotMessage("Fluff hopes you'll win next time!", '#ccc');
-            }
-            spinButton.disabled = false;
-            document.getElementById('back-to-menu-slot').disabled = false;
-        }
+        // SLOTS
         function initializeSlotMachine() {
-            reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
-            messageSlotDisplay = document.getElementById('message-slot');
-            spinButton = document.getElementById('spin-button');
-            updateBalanceDisplay();
-            showSlotMessage("");
-            reels.forEach(reel => reel.querySelector('.reel-symbol').textContent = slotSymbols[0]);
-            spinButton.onclick = spin;
-            document.getElementById('back-to-menu-slot').disabled = false;
+            document.getElementById('reel1').textContent = '?';
+            document.getElementById('reel2').textContent = '?';
+            document.getElementById('reel3').textContent = '?';
+            document.getElementById('slot-result').textContent = 'Place your bet to start!';
+            document.getElementById('spin-btn').classList.remove('disabled-btn');
+            document.getElementById('spin-btn').disabled = false;
+            document.getElementById('slot-back-btn').disabled = false;
         }
 
-        // BLACKJACK LOGIC (Not detailed here due to length, but kept in the file as is)
-        const BJ_DECK = ['A', 'A', 'A', 'A', '2', '2', '2', '2', '3', '3', '3', '3', '4', '4', '4', '4', '5', '5', '5', '5', '6', '6', '6', '6', '7', '7', '7', '7', '8', '8', '8', '8', '9', '9', '9', '9', '10', '10', '10', '10', 'J', 'J', 'J', 'J', 'Q', 'Q', 'Q', 'Q', 'K', 'K', 'K', 'K'];
-        const BJ_MIN_BET = MIN_BET;
-        let bjDeck, playerHand, dealerHand, bjCurrentBet, bjGameActive;
-        let bjBetInput, bjPlaceBetBtn, dealerCardsDiv, playerCardsDiv, bjControls, bjMessageDiv;
-        let dealerScoreSpan, playerScoreSpan, bjCurrentBetSpan;
-        function updateBlackjackState() {
-            if (bjBetInput && bjPlaceBetBtn) {
-                bjBetInput.disabled = currentBalance < BJ_MIN_BET;
-                bjPlaceBetBtn.disabled = currentBalance < BJ_MIN_BET;
-                if (currentBalance < BJ_MIN_BET) showBjMessage("Out of funds! Go talk to Fluff.", 'red'); else bjBetInput.max = currentBalance;
+        function spinSlots() {
+            const betInput = document.getElementById('slot-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(SLOT_MIN_BET)) return;
+            if (bet < SLOT_MIN_BET) {
+                document.getElementById('slot-result').textContent = `Minimum bet is $${SLOT_MIN_BET}!`;
+                return;
             }
-        }
-        function showBjMessage(msg, color = '#ffde59') { bjMessageDiv.textContent = msg; bjMessageDiv.style.color = color; }
-        function calculateScore(hand) { 
-            let score = 0; let aces = 0;
-            for (const card of hand) {
-                if (card === 'A') { aces++; score += 11; } else if (['K', 'Q', 'J', '10'].includes(card)) { score += 10; } else { score += parseInt(card); }
-            }
-            while (score > 21 && aces > 0) { score -= 10; aces--; }
-            return score;
-        }
-        function dealCard(hand, isHidden = false) { 
-            if (bjDeck.length === 0) { showBjMessage("Deck reshuffled!", 'yellow'); bjDeck = [...BJ_DECK].sort(() => Math.random() - 0.5); }
-            const card = bjDeck.pop(); hand.push(card); return { card, isHidden };
-        }
-        function renderHand(hand, element, hideFirst = false) { 
-             element.innerHTML = '';
-             hand.forEach((card, index) => {
-                 const cardDiv = document.createElement('div');
-                 cardDiv.className = 'card';
-                 if (index === 0 && hideFirst) {
-                     cardDiv.classList.add('hidden');
-                     cardDiv.textContent = '🂠';
-                 } else {
-                     cardDiv.textContent = card;
-                 }
-                 element.appendChild(cardDiv);
-             });
-        }
-        function placeBet() { 
-             let bet = parseInt(bjBetInput.value);
-             if (isNaN(bet) || bet < BJ_MIN_BET || bet > currentBalance) { showBjMessage(`Invalid bet! Bet must be between $${BJ_MIN_BET} and $${currentBalance}.`, 'red'); return; }
-             bjCurrentBet = bet;
-             setGameState(currentBalance - bjCurrentBet, lastLoanTime);
-             bjCurrentBetSpan.textContent = bjCurrentBet;
-             document.getElementById('bj-betting').style.display = 'none';
-             bjControls.style.display = 'flex';
-             bjPlaceBetBtn.disabled = true;
-             bjBetInput.disabled = true;
-             document.getElementById('back-to-menu-bj').disabled = true;
-             startGame();
-        }
-        function startGame() { 
-             bjGameActive = true; playerHand = []; dealerHand = [];
-             dealCard(playerHand); dealCard(dealerHand, true);
-             dealCard(playerHand); dealCard(dealerHand);
-             renderHand(playerHand, playerCardsDiv);
-             renderHand(dealerHand, dealerCardsDiv, true);
-             let playerScore = calculateScore(playerHand);
-             playerScoreSpan.textContent = playerScore;
-             let dealerScore = calculateScore([dealerHand[1]]); 
-             dealerScoreSpan.textContent = dealerScore;
-             showBjMessage("Hit or Stand?");
-             if (playerScore === 21) {
-                 dealerScore = calculateScore(dealerHand);
-                 renderHand(dealerHand, dealerCardsDiv);
-                 if (dealerScore === 21) { endGame("PUSH! Both have Blackjack.", 1); } else { endGame("BLACKJACK! Player wins 3:2!", 2.5); }
-             } else if (playerScore > 21) { endGame("BUST! You went over 21.", 0); }
-        }
-        function hit() {
-             if (!bjGameActive) return;
-             dealCard(playerHand);
-             renderHand(playerHand, playerCardsDiv);
-             let playerScore = calculateScore(playerHand);
-             playerScoreSpan.textContent = playerScore;
-             if (playerScore > 21) { endGame("BUST! You went over 21.", 0); } else if (playerScore === 21) { stand(); }
-        }
-        async function stand() { 
-             if (!bjGameActive) return; bjGameActive = false; bjControls.style.display = 'none';
-             showBjMessage("Dealer revealing hole card...", '#ccc');
-             await new Promise(resolve => setTimeout(resolve, 1000));
-             let dealerScore = calculateScore(dealerHand);
-             renderHand(dealerHand, dealerCardsDiv); dealerScoreSpan.textContent = dealerScore;
-             while (dealerScore < 17) {
-                 showBjMessage("Dealer hits...", '#ccc');
-                 await new Promise(resolve => setTimeout(resolve, 1500));
-                 dealCard(dealerHand);
-                 renderHand(dealerHand, dealerCardsDiv);
-                 dealerScore = calculateScore(dealerHand);
-                 dealerScoreSpan.textContent = dealerScore;
-             }
-             let playerScore = calculateScore(playerHand);
-             if (dealerScore > 21) { endGame("DEALER BUSTS! Player Wins!", 2); } else if (dealerScore > playerScore) { endGame("DEALER WINS! " + dealerScore + " to " + playerScore + ".", 0); } else if (playerScore > dealerScore) { endGame("PLAYER WINS! " + playerScore + " to " + dealerScore + "!", 2); } else { endGame("PUSH! It's a tie.", 1); }
-        }
-        function endGame(message, payoutMultiplier) { 
-             bjGameActive = false;
-             bjControls.style.display = 'none';
-             document.getElementById('bj-betting').style.display = 'flex';
-             const winAmount = bjCurrentBet * payoutMultiplier;
-             setGameState(currentBalance + winAmount, lastLoanTime);
-             let finalMessage;
-             if (payoutMultiplier === 0) { finalMessage = message + ` You lost $${bjCurrentBet}.`; bjMessageDiv.style.color = 'red'; } else if (payoutMultiplier === 1) { finalMessage = message + ` Your bet of $${bjCurrentBet} is returned.`; bjMessageDiv.style.color = '#ffde59'; } else { const profit = winAmount - bjCurrentBet; finalMessage = message + ` You won $${profit}! (Total return $${winAmount})`; bjMessageDiv.style.color = '#00ff00'; }
-             showBjMessage(finalMessage);
-             bjCurrentBet = 0; bjCurrentBetSpan.textContent = 0;
-             bjPlaceBetBtn.disabled = false; bjBetInput.disabled = false;
-             document.getElementById('back-to-menu-bj').disabled = false;
-             bjBetInput.value = Math.min(10, currentBalance);
-        }
-        function initializeBlackjack() {
-             bjBetInput = document.getElementById('bj-bet-input');
-             bjPlaceBetBtn = document.getElementById('bj-place-bet');
-             dealerCardsDiv = document.getElementById('dealer-cards');
-             playerCardsDiv = document.getElementById('player-cards');
-             bjControls = document.getElementById('bj-controls');
-             bjMessageDiv = document.getElementById('bj-message');
-             dealerScoreSpan = document.getElementById('dealer-score');
-             playerScoreSpan = document.getElementById('player-score');
-             bjCurrentBetSpan = document.getElementById('current-bet-bj');
-             bjDeck = [...BJ_DECK].sort(() => Math.random() - 0.5);
-             playerHand = []; dealerHand = []; bjCurrentBet = 0; bjGameActive = false;
-             dealerCardsDiv.innerHTML = ''; playerCardsDiv.innerHTML = ''; dealerScoreSpan.textContent = 0; playerScoreSpan.textContent = 0; bjCurrentBetSpan.textContent = 0;
-             bjBetInput.value = Math.min(10, currentBalance); bjControls.style.display = 'none';
-             document.getElementById('bj-betting').style.display = 'flex';
-             showBjMessage("Place your bet and click 'Place Bet' to start!");
-             updateBalanceDisplay(); 
-             bjPlaceBetBtn.onclick = placeBet; document.getElementById('bj-hit').onclick = hit; document.getElementById('bj-stand').onclick = stand;
-             document.getElementById('back-to-menu-bj').disabled = false;
-        }
-
-        // ROULETTE LOGIC (Same as before, simplified for space)
-        const ROULETTE_NUMBERS = 37;
-        const ROULETTE_COLORS = {
-            0: 'green', 1: 'red', 2: 'black', 3: 'red', 4: 'black', 5: 'red', 6: 'black', 7: 'red', 8: 'black', 9: 'red', 
-            10: 'black', 11: 'black', 12: 'red', 13: 'black', 14: 'red', 15: 'black', 16: 'red', 17: 'black', 18: 'red',
-            19: 'red', 20: 'black', 21: 'red', 22: 'black', 23: 'red', 24: 'black', 25: 'red', 26: 'black', 27: 'red',
-            28: 'black', 29: 'black', 30: 'red', 31: 'black', 32: 'red', 33: 'black', 34: 'red', 35: 'black', 36: 'red'
-        };
-        const ROULETTE_MIN_BET = MIN_BET;
-        let rouletteBets = {};
-        let rouletteBetInput, rouletteSpinBtn, rouletteResultDisplay, rouletteMessageDiv, rouletteCurrentBetSpan;
-        function updateRouletteState() { 
-             if (rouletteBetInput && rouletteSpinBtn) {
-                 const totalBet = Object.values(rouletteBets).reduce((acc, bet) => acc + bet, 0);
-                 rouletteCurrentBetSpan.textContent = totalBet;
-                 if (currentBalance < ROULETTE_MIN_BET && totalBet === 0) { rouletteBetInput.disabled = true; rouletteSpinBtn.disabled = true; showRouletteMessage("Out of funds! Go talk to Fluff.", 'red'); } else if (totalBet === 0) { rouletteSpinBtn.disabled = true; rouletteBetInput.disabled = false; showRouletteMessage("Place a bet to spin.", '#ffde59'); } else { rouletteSpinBtn.disabled = false; rouletteBetInput.disabled = false; }
-                 rouletteBetInput.max = currentBalance;
-             }
-        }
-        function showRouletteMessage(msg, color = '#ffde59') { rouletteMessageDiv.textContent = msg; rouletteMessageDiv.style.color = color; }
-        function placeRouletteBet(event) { 
-             const betType = event.currentTarget.dataset.bet;
-             let betAmount = parseInt(rouletteBetInput.value);
-             if (isNaN(betAmount) || betAmount < ROULETTE_MIN_BET) { showRouletteMessage(`Min bet is $${ROULETTE_MIN_BET}.`, 'red'); return; }
-             if (currentBalance < betAmount) { showRouletteMessage("You don't have enough money for that bet!", 'red'); return; }
-             setGameState(currentBalance - betAmount, lastLoanTime);
-             rouletteBets[betType] = (rouletteBets[betType] || 0) + betAmount;
-             event.currentTarget.classList.add('bet-placed');
-             let label = event.currentTarget.querySelector('.bet-label');
-             if (!label) { label = document.createElement('span'); label.className = 'bet-label'; event.currentTarget.appendChild(label); }
-             label.textContent = `$${rouletteBets[betType]}`;
-             updateBalanceDisplay();
-             showRouletteMessage(`$${betAmount} placed on ${betType}. Spin when ready!`);
-        }
-        async function spinRoulette() { 
-             const totalBet = Object.values(rouletteBets).reduce((acc, bet) => acc + bet, 0);
-             if (totalBet === 0) { showRouletteMessage("You must place at least one bet!", 'red'); return; }
-             rouletteSpinBtn.disabled = true; rouletteBetInput.disabled = true;
-             document.getElementById('back-to-menu-roulette').disabled = true;
-             showRouletteMessage("Wheel spinning...", '#ccc');
-             const winningNumber = Math.floor(Math.random() * ROULETTE_NUMBERS);
-             const winningColor = ROULETTE_COLORS[winningNumber];
-             const spinDuration = 3000; const startTime = Date.now();
-             function animateSpin() {
-                 const elapsed = Date.now() - startTime;
-                 if (elapsed < spinDuration) {
-                     const tempNumber = Math.floor(Math.random() * ROULETTE_NUMBERS);
-                     const tempColor = ROULETTE_COLORS[tempNumber];
-                     rouletteResultDisplay.textContent = tempNumber;
-                     rouletteResultDisplay.style.color = tempColor === 'red' ? '#ff0000' : tempColor === 'black' ? '#fff' : '#00ff00';
-                     requestAnimationFrame(animateSpin);
-                 } else {
-                     rouletteResultDisplay.textContent = winningNumber;
-                     rouletteResultDisplay.style.color = winningColor === 'red' ? '#ff0000' : winningColor === 'black' ? '#fff' : '#00ff00';
-                     processRoulettePayout(winningNumber, winningColor);
-                 }
-             }
-             animateSpin();
-        }
-        function processRoulettePayout(winningNumber, winningColor) { 
-             let totalWin = 0; let totalWager = 0;
-             for (const betType in rouletteBets) {
-                 const wager = rouletteBets[betType]; totalWager += wager; let payoutMultiplier = 0;
-                 if (!isNaN(parseInt(betType))) { if (parseInt(betType) === winningNumber) { payoutMultiplier = 36; } }
-                 else if (betType === 'Red' && winningNumber !== 0 && ROULETTE_COLORS[winningNumber] === 'red') { payoutMultiplier = 2; } else if (betType === 'Black' && winningNumber !== 0 && ROULETTE_COLORS[winningNumber] === 'black') { payoutMultiplier = 2; }
-                 else if (betType === '0' && winningNumber === 0) { payoutMultiplier = 36; }
-                 else if (betType === '1st 12' && winningNumber >= 1 && winningNumber <= 12) { payoutMultiplier = 3; } else if (betType === '2nd 12' && winningNumber >= 13 && winningNumber <= 24) { payoutMultiplier = 3; } else if (betType === '3rd 12' && winningNumber >= 25 && winningNumber <= 36) { payoutMultiplier = 3; }
-                 if (payoutMultiplier > 0) { totalWin += wager * payoutMultiplier; }
-             }
-             setGameState(currentBalance + totalWin, lastLoanTime);
-             let profit = totalWin - totalWager; let finalMessage; let color;
-             if (profit > 0) { finalMessage = `WINNER! ${winningNumber} (${winningColor}). You won $${profit}! (Total return $${totalWin})`; color = '#00ff00'; } else if (profit < 0) { finalMessage = `Lost. ${winningNumber} (${winningColor}). You lost $${Math.abs(profit)}.`; color = 'red'; } else { finalMessage = `PUSH. ${winningNumber} (${winningColor}). You broke even.`; color = '#ffde59'; }
-             showRouletteMessage(finalMessage, color);
-             rouletteBets = {};
-             document.querySelectorAll('#roulette-container .roulette-bet-btn').forEach(btn => { btn.classList.remove('bet-placed'); const label = btn.querySelector('.bet-label'); if (label) label.remove(); });
-             rouletteSpinBtn.disabled = false; rouletteBetInput.disabled = false;
-             document.getElementById('back-to-menu-roulette').disabled = false;
-             rouletteBetInput.value = Math.min(5, currentBalance);
-        }
-        function initializeRoulette() {
-            rouletteBetInput = document.getElementById('roulette-bet-input'); rouletteSpinBtn = document.getElementById('roulette-spin-btn'); rouletteResultDisplay = document.getElementById('roulette-result-display'); rouletteMessageDiv = document.getElementById('message-roulette'); rouletteCurrentBetSpan = document.getElementById('current-bet-roulette');
-            rouletteBets = {}; rouletteBetInput.value = 5; rouletteResultDisplay.textContent = '0';
-            const gridContainer = document.getElementById('roulette-grid');
-            gridContainer.innerHTML = '<div class="roulette-bet-btn green" data-bet="0">0</div>';
-            for (let i = 1; i <= 36; i++) {
-                const color = ROULETTE_COLORS[i]; const btn = document.createElement('div'); btn.className = `roulette-bet-btn ${color}`; btn.textContent = i; btn.dataset.bet = i.toString(); gridContainer.appendChild(btn);
-            }
-            document.querySelectorAll('#roulette-container .roulette-bet-btn').forEach(btn => { btn.onclick = placeRouletteBet; });
-            rouletteSpinBtn.onclick = spinRoulette;
-            document.getElementById('back-to-menu-roulette').disabled = false;
-            updateRouletteState(); updateBalanceDisplay(); showRouletteMessage("Place your chip on the board!");
-        }
-
-        // HORSE RACING LOGIC (Same as before, simplified for space)
-        const HORSE_PAYOUT = 4;
-        const horseNames = ['Bamboo Blitz', 'Panda Dash', 'Green Glimmer', 'Yin-Yang Zephyr'];
-        const horseIcons = ['🐎', '🦓', '🦄', '🦒'];
-        let horseBetAmount = 0; let chosenHorse = -1; let horseRacingActive = false;
-        let horseBetInput, raceButton, trackDiv, messageHorseDiv, chosenHorseNameSpan;
-        let horseButtons;
-        function updateHorseRacingState() { 
-            if (horseBetInput && raceButton) {
-                if (currentBalance < MIN_BET) { horseBetInput.disabled = true; raceButton.disabled = true; horseButtons.forEach(btn => btn.disabled = true); showHorseMessage("Out of funds! Go talk to Fluff.", 'red'); } else { horseBetInput.disabled = false; horseButtons.forEach(btn => btn.disabled = false); horseBetInput.max = currentBalance; }
-                raceButton.disabled = horseBetAmount === 0 || horseRacingActive;
-            }
-        }
-        function showHorseMessage(msg, color = '#ffde59') { if (messageHorseDiv) { messageHorseDiv.textContent = msg; messageHorseDiv.style.color = color; } }
-        function placeHorseBet(horseIndex) {
-            const bet = parseInt(horseBetInput.value);
-            if (isNaN(bet) || bet < MIN_BET) { showHorseMessage(`Min bet is $${MIN_BET}.`, 'red'); return; }
-            if (bet > currentBalance) { showHorseMessage("Bet is too high for your current balance!", 'red'); return; }
-            if (horseBetAmount > 0) { setGameState(currentBalance + horseBetAmount, lastLoanTime); }
-            setGameState(currentBalance - bet, lastLoanTime);
-            horseBetAmount = bet; chosenHorse = horseIndex;
-            chosenHorseNameSpan.textContent = horseNames[horseIndex];
-            horseButtons.forEach((btn, i) => { btn.classList.toggle('bet-on-horse', i === horseIndex); });
-            showHorseMessage(`$${horseBetAmount} placed on ${horseNames[horseIndex]}. Good luck!`);
-        }
-        async function startRace() { /* ... */ }
-        function endRace(winningHorseIndex) {
-            horseRacingActive = false;
-            let finalMessage; let color; let winAmount = 0;
-            if (winningHorseIndex === chosenHorse) {
-                winAmount = horseBetAmount * HORSE_PAYOUT;
-                setGameState(currentBalance + winAmount, lastLoanTime);
-                const profit = winAmount - horseBetAmount; finalMessage = `BAMBOO WIN! ${horseNames[winningHorseIndex]} wins! You won $${profit}. (Total $${winAmount})`; color = '#00ff00';
-            } else {
-                finalMessage = `PHOTO FINISH! ${horseNames[winningHorseIndex]} won. You lost $${horseBetAmount}.`; color = 'red';
-            }
-            showHorseMessage(finalMessage, color);
-            horseBetAmount = 0; chosenHorse = -1;
-            horseButtons.forEach(btn => btn.classList.remove('bet-on-horse'));
-            chosenHorseNameSpan.textContent = "None";
-            raceButton.disabled = false; horseButtons.forEach(btn => btn.disabled = false);
-            document.getElementById('back-to-menu-horse').disabled = false;
-            showHorseMessage(finalMessage, color);
-        }
-        function initializeHorseRacing() { /* ... */ }
-
-        // --- NEW GAME LOGIC: COIN FLIP ---
-        let cfBetInput, cfHeadsBtn, cfTailsBtn, cfFlipBtn, cfMessageDiv, cfChoiceDisplay;
-        let cfCurrentBet = 0;
-        let cfChoice = null;
-
-        function updateCoinFlipState() {
-            cfFlipBtn.disabled = cfCurrentBet === 0 || currentBalance < cfCurrentBet;
-            cfHeadsBtn.disabled = cfCurrentBet > 0 || currentBalance < MIN_BET;
-            cfTailsBtn.disabled = cfCurrentBet > 0 || currentBalance < MIN_BET;
-
-            if (currentBalance < MIN_BET) showCfMessage("Out of funds! Go talk to Fluff.", 'red');
-            cfBetInput.max = currentBalance;
-        }
-
-        function showCfMessage(msg, color = '#ffde59') {
-            if (cfMessageDiv) { cfMessageDiv.textContent = msg; cfMessageDiv.style.color = color; }
-        }
-
-        function placeCoinFlipBet(choice) {
-            const bet = parseInt(cfBetInput.value);
-            if (isNaN(bet) || bet < MIN_BET || bet > currentBalance) { showCfMessage(`Invalid bet! Min $${MIN_BET}.`, 'red'); return; }
-
-            if (cfCurrentBet > 0) {
-                setGameState(currentBalance + cfCurrentBet, lastLoanTime);
-                cfCurrentBet = 0;
+            if (bet > gameState.currentBalance) {
+                document.getElementById('slot-result').textContent = "Insufficient funds!";
+                return;
             }
 
-            cfCurrentBet = bet;
-            cfChoice = choice;
-            setGameState(currentBalance - cfCurrentBet, lastLoanTime);
+            updateBalance(-bet);
+            document.getElementById('slot-result').textContent = "Spinning...";
+            document.getElementById('spin-btn').classList.add('disabled-btn');
+            document.getElementById('spin-btn').disabled = true;
+            document.getElementById('slot-back-btn').disabled = true;
 
-            cfChoiceDisplay.textContent = choice;
-            cfBetInput.disabled = true;
+            const reels = [
+                document.getElementById('reel1'),
+                document.getElementById('reel2'),
+                document.getElementById('reel3')
+            ];
 
-            cfHeadsBtn.classList.remove('bet-on-horse');
-            cfTailsBtn.classList.remove('bet-on-horse');
-            document.getElementById(`cf-bet-${choice.toLowerCase()}`).classList.add('bet-on-horse');
+            const results = [];
 
-            showCfMessage(`$${cfCurrentBet} placed on ${choice}. Ready to flip!`);
-            updateCoinFlipState();
-        }
-
-        async function flipCoin() {
-            if (cfCurrentBet === 0) return;
-
-            cfFlipBtn.disabled = true;
-            document.getElementById('back-to-menu-cf').disabled = true;
-            showCfMessage("Flipping...", '#ccc');
-            const coinDiv = document.getElementById('coin');
-            coinDiv.classList.add('flipping');
-            
-            await new Promise(resolve => setTimeout(resolve, 3000));
-
-            const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
-            const resultEmoji = result === 'Heads' ? '🐼' : '🎋';
-            coinDiv.classList.remove('flipping');
-            coinDiv.textContent = resultEmoji;
-
-            let winAmount = 0;
-            let finalMessage;
-            let color;
-
-            if (result === cfChoice) {
-                winAmount = cfCurrentBet * 2;
-                setGameState(currentBalance + winAmount, lastLoanTime);
-                const profit = winAmount - cfCurrentBet;
-                finalMessage = `WINNER! It's ${resultEmoji} ${result}! You won $${profit}.`;
-                color = '#00ff00';
-            } else {
-                finalMessage = `LOST! It's ${resultEmoji} ${result}. You lost $${cfCurrentBet}.`;
-                color = 'red';
-            }
-            
-            showCfMessage(finalMessage, color);
-            
-            cfCurrentBet = 0;
-            cfChoice = null;
-            cfChoiceDisplay.textContent = 'None';
-            cfBetInput.disabled = false;
-            cfHeadsBtn.classList.remove('bet-on-horse');
-            cfTailsBtn.classList.remove('bet-on-horse');
-            document.getElementById('coin').textContent = '🪙'; // Reset coin symbol
-
-            updateCoinFlipState();
-            document.getElementById('back-to-menu-cf').disabled = false;
-        }
-
-        function initializeCoinFlip() {
-            cfBetInput = document.getElementById('cf-bet-input');
-            cfHeadsBtn = document.getElementById('cf-bet-heads');
-            cfTailsBtn = document.getElementById('cf-bet-tails');
-            cfFlipBtn = document.getElementById('cf-flip-button');
-            cfMessageDiv = document.getElementById('message-cf');
-            cfChoiceDisplay = document.getElementById('cf-choice-display');
-            
-            cfCurrentBet = 0;
-            cfChoice = null;
-            cfBetInput.value = Math.min(10, currentBalance);
-            document.getElementById('coin').style.opacity = 1;
-            document.getElementById('coin').textContent = '🪙'; // Ensure reset
-
-            cfHeadsBtn.onclick = () => placeCoinFlipBet('Heads');
-            cfTailsBtn.onclick = () => placeCoinFlipBet('Tails');
-            cfFlipBtn.onclick = flipCoin;
-            
-            updateCoinFlipState();
-            showCfMessage("Place your bet and choose Heads (🐼) or Tails (🎋)!");
-        }
-
-        // --- NEW GAME LOGIC: PANDA FIGHTING (BRAWLERS) ---
-        let pfBetInput, pfFightBtn, pfMessageDiv;
-        let pfCurrentBet = 0;
-        let pfChosenBrawler = null;
-
-        const brawlers = {
-            'Panda Smash': '🥊',
-            'Bamboo Fury': '🥋'
-        };
-
-        function updatePandaFightingState() {
-            pfFightBtn.disabled = pfCurrentBet === 0 || currentBalance < pfCurrentBet;
-            document.querySelectorAll('.brawler').forEach(btn => {
-                btn.classList.toggle('chosen', btn.dataset.brawler === pfChosenBrawler);
-                btn.disabled = pfCurrentBet > 0 || currentBalance < MIN_BET;
-            });
-            if (currentBalance < MIN_BET) showPfMessage("Out of funds! Go talk to Fluff.", 'red');
-            pfBetInput.max = currentBalance;
-        }
-
-        function showPfMessage(msg, color = '#ffde59') {
-            if (pfMessageDiv) { pfMessageDiv.textContent = msg; pfMessageDiv.style.color = color; }
-        }
-
-        function placePandaBet(brawlerName) {
-            const bet = parseInt(pfBetInput.value);
-            if (isNaN(bet) || bet < MIN_BET || bet > currentBalance) { showPfMessage(`Invalid bet! Min $${MIN_BET}.`, 'red'); return; }
-
-            if (pfCurrentBet > 0) { setGameState(currentBalance + pfCurrentBet, lastLoanTime); pfCurrentBet = 0; }
-            
-            pfCurrentBet = bet;
-            pfChosenBrawler = brawlerName;
-            setGameState(currentBalance - pfCurrentBet, lastLoanTime);
-
-            pfBetInput.disabled = true;
-            showPfMessage(`$${pfCurrentBet} placed on ${brawlerName}!`);
-            updatePandaFightingState();
-        }
-
-        async function startPandaFight() {
-            if (pfCurrentBet === 0) return;
-
-            pfFightBtn.disabled = true;
-            document.getElementById('back-to-menu-pf').disabled = true;
-            showPfMessage("The brawlers enter the ring...", '#ccc');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            const brawlerNames = Object.keys(brawlers);
-            const winningBrawler = brawlerNames[Math.floor(Math.random() * brawlerNames.length)];
-
-            // Animation/Message sequence
-            showPfMessage(`Brawl in progress! ${brawlers['Panda Smash']} vs ${brawlers['Bamboo Fury']}...`, '#ffde59');
-            await new Promise(resolve => setTimeout(resolve, 2500));
-            showPfMessage(`And the winner is... ${winningBrawler}!`, '#00ff00');
-            
-            let winAmount = 0;
-            let finalMessage;
-            let color;
-            
-            if (winningBrawler === pfChosenBrawler) {
-                winAmount = pfCurrentBet * 2;
-                setGameState(currentBalance + winAmount, lastLoanTime);
-                const profit = winAmount - pfCurrentBet;
-                finalMessage = `VICTORY! ${winningBrawler} wins! You won $${profit}.`;
-                color = '#00ff00';
-            } else {
-                finalMessage = `DEFEAT! ${winningBrawler} prevails. You lost $${pfCurrentBet}.`;
-                color = 'red';
-            }
-
-            // Final state reset
-            pfCurrentBet = 0;
-            pfChosenBrawler = null;
-            pfBetInput.disabled = false;
-            pfBetInput.value = Math.min(10, currentBalance);
-            
-            updatePandaFightingState();
-            pfFightBtn.disabled = false;
-            document.getElementById('back-to-menu-pf').disabled = false;
-            showPfMessage(finalMessage, color);
-        }
-
-        function initializePandaFighting() {
-            pfBetInput = document.getElementById('pf-bet-input');
-            pfFightBtn = document.getElementById('pf-fight-button');
-            pfMessageDiv = document.getElementById('message-pf');
-            
-            pfCurrentBet = 0;
-            pfChosenBrawler = null;
-            pfBetInput.value = Math.min(10, currentBalance);
-
-            document.getElementById('brawler-1').onclick = () => placePandaBet('Panda Smash');
-            document.getElementById('brawler-2').onclick = () => placePandaBet('Bamboo Fury');
-            pfFightBtn.onclick = startPandaFight;
-
-            updatePandaFightingState();
-            showPfMessage("Choose your champion and place your bet!");
-        }
-
-        // --- NEW GAME LOGIC: POKER (SIMPLIFIED TEXAS HOLD'EM) ---
-        const POKER_DECK = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'].flatMap(rank => 
-                           ['H', 'D', 'C', 'S'].map(suit => rank + suit));
-        const POKER_ANTE = 10;
-        const POKER_BET = 20;
-        
-        let pokerDeck, playerHandPoker, dealerHandPoker, communityCards;
-        let pokerPot = 0;
-        let pokerStage = 'ante';
-        
-        let pokerBetInput, pokerDealBtn, pokerFoldBtn, pokerBetCallBtn, pokerMessageDiv;
-
-        function updatePokerState() {
-             const canAffordAnte = currentBalance >= POKER_ANTE;
-             const canAffordBet = currentBalance >= POKER_BET;
-
-             pokerBetInput.max = currentBalance;
-             document.getElementById('poker-ante').textContent = POKER_ANTE;
-             document.getElementById('current-pot-poker').textContent = pokerPot;
-
-             if (pokerStage === 'ante') {
-                pokerBetInput.disabled = !canAffordAnte;
-                pokerDealBtn.disabled = !canAffordAnte;
-                pokerFoldBtn.disabled = true;
-                pokerBetCallBtn.disabled = true;
-                document.getElementById('poker-controls').style.display = 'none';
-                document.getElementById('poker-betting-controls').style.display = 'block';
-                if (!canAffordAnte) showPokerMessage("Out of funds! Go talk to Fluff.", 'red');
-                pokerDealBtn.textContent = `Place Ante ($${POKER_ANTE}) & Deal`;
-             } else if (pokerStage === 'preflop') {
-                pokerBetInput.disabled = true;
-                pokerDealBtn.disabled = true;
-                pokerFoldBtn.disabled = false;
-                pokerBetCallBtn.disabled = !canAffordBet;
-                document.getElementById('poker-controls').style.display = 'flex';
-                document.getElementById('poker-betting-controls').style.display = 'none';
-                pokerBetCallBtn.textContent = `CALL/BET (Total: $${POKER_BET})`;
-             } else {
-                pokerBetInput.disabled = true;
-                pokerDealBtn.disabled = false;
-                pokerFoldBtn.disabled = true;
-                pokerBetCallBtn.disabled = true;
-                document.getElementById('poker-controls').style.display = 'none';
-                document.getElementById('poker-betting-controls').style.display = 'block';
-                pokerDealBtn.textContent = `Play Again (Ante $${POKER_ANTE})`;
-             }
-        }
-        
-        function showPokerMessage(msg, color = '#ffde59') {
-            if (pokerMessageDiv) { pokerMessageDiv.textContent = msg; pokerMessageDiv.style.color = color; }
-        }
-
-        function dealPokerCard(hand, isHidden = false) {
-            if (pokerDeck.length === 0) return null;
-            const card = pokerDeck.pop();
-            hand.push(card);
-            return card;
-        }
-
-        function renderPokerHand(hand, element, hideAll = false, isCommunity = false) {
-            element.innerHTML = '';
-            hand.forEach((card, index) => {
-                const cardDiv = document.createElement('div');
-                cardDiv.className = isCommunity ? 'card community-card' : 'card';
-                
-                if (hideAll) {
-                    cardDiv.classList.add('hidden');
-                    cardDiv.textContent = '🂠';
-                } else {
-                    const rank = card.slice(0, -1);
-                    const suit = card.slice(-1);
-                    const suitEmoji = { 'H': '♥️', 'D': '♦️', 'C': '♣️', 'S': '♠️' }[suit];
-                    cardDiv.textContent = `${rank}${suitEmoji}`;
-                    cardDiv.style.color = (suit === 'H' || suit === 'D') ? 'red' : 'black';
-                }
-                element.appendChild(cardDiv);
-            });
-        }
-        
-        async function placeAnteAndDeal() {
-            if (currentBalance < POKER_ANTE) return;
-
-            pokerDeck = [...POKER_DECK].sort(() => Math.random() - 0.5);
-            playerHandPoker = [];
-            dealerHandPoker = [];
-            communityCards = [];
-            pokerPot = 0;
-            pokerStage = 'preflop';
-            pokerMessageDiv.textContent = '';
-            document.getElementById('player-hand-rank').textContent = '?';
-            document.getElementById('dealer-hand-rank').textContent = '?';
-
-            setGameState(currentBalance - POKER_ANTE, lastLoanTime);
-            pokerPot += POKER_ANTE;
-
-            dealPokerCard(playerHandPoker); dealPokerCard(dealerHandPoker, true);
-            dealPokerCard(playerHandPoker); dealPokerCard(dealerHandPoker, true);
-            
-            dealPokerCard([]);
-            for(let i = 0; i < 3; i++) dealPokerCard(communityCards);
-
-            renderPokerHand(playerHandPoker, document.getElementById('player-cards-poker'));
-            renderPokerHand(dealerHandPoker, document.getElementById('dealer-cards-poker'), true);
-            renderPokerHand(communityCards, document.getElementById('community-cards'), false, true);
-
-            showPokerMessage("Ante paid. Your hand is dealt. Call/Bet or Fold?", '#ffde59');
-            updatePokerState();
-            document.getElementById('back-to-menu-poker').disabled = true;
-        }
-        
-        function fold() {
-            pokerStage = 'showdown';
-            showPokerMessage(`Folded! You lose your ante ($${POKER_ANTE}). Better luck next time.`, 'red');
-            updatePokerState();
-            document.getElementById('back-to-menu-poker').disabled = false;
-        }
-
-        async function callBet() {
-            if (currentBalance < POKER_BET) return;
-
-            setGameState(currentBalance - POKER_BET, lastLoanTime);
-            pokerPot += POKER_BET;
-
-            showPokerMessage(`Called/Bet $${POKER_BET}! Now for the Turn and River...`, '#ffde59');
-            document.getElementById('poker-controls').style.display = 'none';
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            dealPokerCard([]);
-            dealPokerCard(communityCards);
-            renderPokerHand(communityCards, document.getElementById('community-cards'), false, true);
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            dealPokerCard([]);
-            dealPokerCard(communityCards);
-            renderPokerHand(communityCards, document.getElementById('community-cards'), false, true);
-
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            showdown();
-        }
-
-        function getHandRank(hand) {
-            // Simplified ranker: maps ranks to numeric value for comparison
-            const ranks = hand.map(c => c.slice(0, -1));
-            const highCard = ranks.map(r => ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].indexOf(r)).sort((a, b) => b - a)[0];
-            const highCardName = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'][highCard];
-            return { rankValue: highCard, name: `High Card ${highCardName}` };
-        }
-
-
-        function showdown() {
-            pokerStage = 'showdown';
-            renderPokerHand(dealerHandPoker, document.getElementById('dealer-cards-poker'));
-            
-            const playerResult = getHandRank(playerHandPoker);
-            const dealerResult = getHandRank(dealerHandPoker);
-
-            document.getElementById('player-hand-rank').textContent = playerResult.name;
-            document.getElementById('dealer-hand-rank').textContent = dealerResult.name;
-
-            let outcome;
-            if (playerResult.rankValue > dealerResult.rankValue) {
-                outcome = 'win';
-            } else if (dealerResult.rankValue > playerResult.rankValue) {
-                outcome = 'loss';
-            } else {
-                outcome = 'push';
-            }
-
-            let winAmount = 0;
-            let finalMessage;
-            let color;
-            
-            if (outcome === 'win') {
-                winAmount = pokerPot * 2;
-                setGameState(currentBalance + winAmount, lastLoanTime);
-                finalMessage = `PLAYER WINS! You win the $${pokerPot} pot!`;
-                color = '#00ff00';
-            } else if (outcome === 'loss') {
-                finalMessage = `DEALER WINS! You lose the $${pokerPot} pot.`;
-                color = 'red';
-            } else {
-                winAmount = pokerPot;
-                setGameState(currentBalance + winAmount, lastLoanTime);
-                finalMessage = "CHOP! It's a tie, your money is returned.";
-                color = '#ffde59';
-            }
-            
-            pokerPot = 0;
-            showPokerMessage(finalMessage, color);
-            updatePokerState();
-            document.getElementById('back-to-menu-poker').disabled = false;
-        }
-
-        function initializePoker() {
-            pokerBetInput = document.getElementById('poker-bet-input');
-            pokerDealBtn = document.getElementById('poker-deal-button');
-            pokerFoldBtn = document.getElementById('poker-fold');
-            pokerBetCallBtn = document.getElementById('poker-bet-call');
-            pokerMessageDiv = document.getElementById('message-poker');
-
-            pokerBetInput.value = POKER_ANTE;
-            pokerPot = 0;
-            pokerStage = 'ante';
-            document.getElementById('player-cards-poker').innerHTML = '';
-            document.getElementById('dealer-cards-poker').innerHTML = '';
-            document.getElementById('community-cards').innerHTML = '';
-            document.getElementById('player-hand-rank').textContent = '?';
-            document.getElementById('dealer-hand-rank').textContent = '?';
-
-            pokerDealBtn.onclick = placeAnteAndDeal;
-            pokerFoldBtn.onclick = fold;
-            pokerBetCallBtn.onclick = callBet;
-
-            updatePokerState();
-            showPokerMessage(`Place your ante of $${POKER_ANTE} to deal the hand.`);
-        }
-
-
-        // --- FIREBASE INITIALIZATION AND DATA LOAD ---
-
-        async function setupFirebase() {
-            try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                     console.error("Firebase config is missing. Running in non-persistent mode.");
-                     isAuthReady = true;
-                     loadingScreen.style.display = 'none';
-                     switchView('main-menu');
-                     return;
-                }
-
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                // Sign in anonymously or with custom token
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                // Wait for auth state to be confirmed
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('user-id-display').textContent = userId;
-                        
-                        // Set up the listener for real-time data
-                        const docRef = doc(db, GAME_DATA_PATH + userId + '/game_data', GAME_DOC_ID);
-                        onSnapshot(docRef, (docSnap) => {
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
-                                
-                                // Load data if not already initialized or if external change detected
-                                if (data.balance !== currentBalance || data.lastLoanTime !== lastLoanTime) {
-                                    currentBalance = data.balance;
-                                    lastLoanTime = data.lastLoanTime;
-                                    updateBalanceDisplay();
-                                }
-                            } else if (!isAuthReady) {
-                                // First time user: set initial balance and save
-                                console.log("New player! Initializing game state...");
-                                setGameState(500, 0); 
-                            }
-                            
-                            if (!isAuthReady) {
-                                isAuthReady = true;
-                                loadingScreen.style.display = 'none';
-                                switchView('main-menu');
-                            }
-                        }, (error) => {
-                             console.error("Firestore Snapshot Error: ", error);
-                             // Fallback to local data if listener fails
-                             if (!isAuthReady) {
-                                 isAuthReady = true;
-                                 loadingScreen.style.display = 'none';
-                                 switchView('main-menu');
-                             }
-                        });
-
-                    } else {
-                        console.error("Authentication failed.");
-                        isAuthReady = true;
-                        loadingScreen.style.display = 'none';
-                        switchView('main-menu');
+            let spinCount = 0;
+            const spinInterval = setInterval(() => {
+                reels.forEach((reel, index) => {
+                    if (spinCount < 50 + index * 10) { // Spin longer for each reel
+                        reel.textContent = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
                     }
                 });
 
-            } catch (e) {
-                console.error("Fatal Firebase Initialization Error:", e);
-                // Fallback to non-persistent mode if setup fails
-                isAuthReady = true;
-                loadingScreen.style.display = 'none';
-                switchView('main-menu');
+                spinCount++;
+                if (spinCount >= 80) { // Stop after max spins
+                    clearInterval(spinInterval);
+                    
+                    // Final results
+                    reels.forEach((reel) => {
+                        results.push(SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)]);
+                    });
+
+                    document.getElementById('reel1').textContent = results[0];
+                    document.getElementById('reel2').textContent = results[1];
+                    document.getElementById('reel3').textContent = results[2];
+
+                    processSlotPayout(bet, results);
+                }
+            }, 50);
+        }
+
+        function processSlotPayout(bet, results) {
+            let winAmount = 0;
+            let message = "";
+
+            if (results[0] === results[1] && results[1] === results[2]) {
+                // Jackpot: 3 in a row
+                winAmount = bet * 10;
+                message = `JACKPOT! ${results[0]}${results[1]}${results[2]}! You won $${winAmount}! 🏆`;
+            } else {
+                message = "Try again!";
+            }
+
+            if (winAmount > 0) {
+                updateBalance(winAmount);
+            }
+            document.getElementById('slot-result').textContent = message;
+            document.getElementById('spin-btn').classList.remove('disabled-btn');
+            document.getElementById('spin-btn').disabled = false;
+            document.getElementById('slot-back-btn').disabled = false;
+        }
+
+        // BLACKJACK
+        function initializeBlackjack() {
+            gameState.deck = createDeck();
+            gameState.dealerHand = [];
+            gameState.playerHand = [];
+            gameState.blackjackBet = 0;
+            document.getElementById('dealer-hand').innerHTML = '';
+            document.getElementById('player-hand').innerHTML = '';
+            document.getElementById('dealer-score').textContent = 0;
+            document.getElementById('player-score').textContent = 0;
+            document.getElementById('blackjack-result').textContent = 'Place your bet and hit DEAL!';
+            document.getElementById('blackjack-deal-btn').classList.remove('disabled-btn');
+            document.getElementById('blackjack-deal-btn').disabled = false;
+            document.getElementById('blackjack-hit-btn').classList.add('disabled-btn');
+            document.getElementById('blackjack-hit-btn').disabled = true;
+            document.getElementById('blackjack-stand-btn').classList.add('disabled-btn');
+            document.getElementById('blackjack-stand-btn').disabled = true;
+            document.getElementById('blackjack-bet').disabled = false;
+            document.getElementById('blackjack-back-btn').disabled = false;
+        }
+
+        function createDeck() {
+            const suits = ['♠', '♥', '♦', '♣'];
+            const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            let deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ value, suit });
+                }
+            }
+            // Shuffle
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function getCardValue(card) {
+            if (['K', 'Q', 'J'].includes(card.value)) return 10;
+            if (card.value === 'A') return 11;
+            return parseInt(card.value);
+        }
+
+        function calculateScore(hand) {
+            let score = hand.reduce((sum, card) => sum + getCardValue(card), 0);
+            let aces = hand.filter(card => card.value === 'A').length;
+
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            return score;
+        }
+
+        function renderHand(hand, elementId, hideFirst = false) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            hand.forEach((card, index) => {
+                const isHidden = hideFirst && index === 0;
+                const color = (card.suit === '♥' || card.suit === '♦') ? 'text-red-600' : 'text-black';
+                
+                let cardHTML = '';
+                if (isHidden) {
+                    cardHTML = `<div class="card hidden"><p>?</p></div>`;
+                } else {
+                    cardHTML = `
+                        <div class="card bg-gray-200">
+                            <span class="text-sm self-start ${color}">${card.suit}</span>
+                            <span class="${color}">${card.value}</span>
+                            <span class="text-sm self-end ${color}">${card.suit}</span>
+                        </div>
+                    `;
+                }
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function dealBlackjack() {
+            const betInput = document.getElementById('blackjack-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(MIN_BET)) return;
+            if (bet < MIN_BET) {
+                document.getElementById('blackjack-result').textContent = `Minimum bet is $${MIN_BET}!`;
+                return;
+            }
+            if (bet > gameState.currentBalance) {
+                document.getElementById('blackjack-result').textContent = "Insufficient funds!";
+                return;
+            }
+
+            initializeBlackjack();
+            gameState.blackjackBet = bet;
+            updateBalance(-bet);
+
+            // Deal initial cards
+            for (let i = 0; i < 2; i++) {
+                gameState.playerHand.push(gameState.deck.pop());
+                gameState.dealerHand.push(gameState.deck.pop());
+            }
+
+            renderHand(gameState.playerHand, 'player-hand');
+            renderHand(gameState.dealerHand, 'dealer-hand', true);
+            document.getElementById('player-score').textContent = calculateScore(gameState.playerHand);
+            document.getElementById('dealer-score').textContent = '??';
+
+            document.getElementById('blackjack-result').textContent = 'Hit or Stand?';
+            document.getElementById('blackjack-deal-btn').classList.add('disabled-btn');
+            document.getElementById('blackjack-deal-btn').disabled = true;
+            document.getElementById('blackjack-hit-btn').classList.remove('disabled-btn');
+            document.getElementById('blackjack-hit-btn').disabled = false;
+            document.getElementById('blackjack-stand-btn').classList.remove('disabled-btn');
+            document.getElementById('blackjack-stand-btn').disabled = false;
+            document.getElementById('blackjack-bet').disabled = true;
+            document.getElementById('blackjack-back-btn').disabled = true;
+
+            // Check for instant Blackjack
+            if (calculateScore(gameState.playerHand) === 21) {
+                document.getElementById('blackjack-result').textContent = 'BLACKJACK! 🎉';
+                standBlackjack(); // Auto-stand
             }
         }
 
+        function hitBlackjack() {
+            gameState.playerHand.push(gameState.deck.pop());
+            renderHand(gameState.playerHand, 'player-hand');
+            const score = calculateScore(gameState.playerHand);
+            document.getElementById('player-score').textContent = score;
 
-        // --- Global Initialization ---
-        window.onload = function() {
-            initMenuListeners();
-            setupFirebase(); // Start the Firebase auth and data load process
-        };
+            if (score > 21) {
+                document.getElementById('blackjack-result').textContent = 'BUST! You lose.';
+                endBlackjackGame(false);
+            } else if (score === 21) {
+                document.getElementById('blackjack-result').textContent = '21! Auto-stand.';
+                standBlackjack();
+            }
+        }
 
+        function standBlackjack() {
+            // Reveal dealer's hidden card
+            renderHand(gameState.dealerHand, 'dealer-hand');
+            document.getElementById('dealer-score').textContent = calculateScore(gameState.dealerHand);
+
+            // Dealer's turn
+            while (calculateScore(gameState.dealerHand) < 17) {
+                gameState.dealerHand.push(gameState.deck.pop());
+                renderHand(gameState.dealerHand, 'dealer-hand');
+                document.getElementById('dealer-score').textContent = calculateScore(gameState.dealerHand);
+            }
+
+            const playerScore = calculateScore(gameState.playerHand);
+            const dealerScore = calculateScore(gameState.dealerHand);
+            let message = '';
+            let win = false;
+
+            if (dealerScore > 21) {
+                message = 'Dealer busts! You win! 🥳';
+                win = true;
+            } else if (playerScore > dealerScore) {
+                message = 'You win! 🥳';
+                win = true;
+            } else if (playerScore < dealerScore) {
+                message = 'Dealer wins. 😔';
+                win = false;
+            } else {
+                message = 'Push! It\'s a tie. 🤝';
+                win = null; // Push means bet is returned
+            }
+
+            document.getElementById('blackjack-result').textContent = message;
+            endBlackjackGame(win);
+        }
+
+        function endBlackjackGame(win) {
+            document.getElementById('blackjack-hit-btn').classList.add('disabled-btn');
+            document.getElementById('blackjack-hit-btn').disabled = true;
+            document.getElementById('blackjack-stand-btn').classList.add('disabled-btn');
+            document.getElementById('blackjack-stand-btn').disabled = true;
+            document.getElementById('blackjack-deal-btn').classList.remove('disabled-btn');
+            document.getElementById('blackjack-deal-btn').disabled = false;
+            document.getElementById('blackjack-bet').disabled = false;
+            document.getElementById('blackjack-back-btn').disabled = false;
+
+            if (win === true) {
+                const multiplier = (calculateScore(gameState.playerHand) === 21 && gameState.playerHand.length === 2) ? 2.5 : 2; // Blackjack pays 3:2
+                updateBalance(gameState.blackjackBet * multiplier);
+            } else if (win === null) {
+                updateBalance(gameState.blackjackBet); // Return bet
+            }
+        }
+        
+        // ROULETTE
+        function initializeRoulette() {
+            gameState.rouletteBet = {};
+            document.getElementById('roulette-message').textContent = 'Place your bet and spin!';
+            document.getElementById('roulette-wheel-result').textContent = '?';
+            document.getElementById('roulette-spin-btn').classList.remove('disabled-btn');
+            document.getElementById('roulette-spin-btn').disabled = false;
+            document.getElementById('roulette-chip-value').disabled = false;
+            document.getElementById('roulette-back-btn').disabled = false;
+            updateRouletteChipValue();
+            updateRouletteBetDisplay();
+            document.querySelectorAll('.roulette-bet-btn').forEach(btn => btn.disabled = false);
+        }
+
+        function updateRouletteChipValue() {
+            const input = document.getElementById('roulette-chip-value');
+            gameState.rouletteChipValue = parseInt(input.value) || MIN_BET;
+            if (gameState.rouletteChipValue < MIN_BET) gameState.rouletteChipValue = MIN_BET;
+            input.value = gameState.rouletteChipValue;
+            document.getElementById('roulette-chip-value-display').textContent = `$${gameState.rouletteChipValue}`;
+        }
+
+        function placeRouletteBet(button, betKey) {
+            if (checkLoanEligibility(gameState.rouletteChipValue)) return;
+            if (gameState.rouletteChipValue > gameState.currentBalance) {
+                document.getElementById('roulette-message').textContent = "Insufficient funds for this chip value!";
+                return;
+            }
+
+            const amount = gameState.rouletteChipValue;
+            gameState.rouletteBet[betKey] = (gameState.rouletteBet[betKey] || 0) + amount;
+            updateBalance(-amount);
+
+            document.getElementById('roulette-message').textContent = `Bet of $${amount} placed on ${betKey}.`;
+            updateRouletteBetDisplay();
+        }
+
+        function updateRouletteBetDisplay() {
+            document.querySelectorAll('[id^="bet-chip-"]').forEach(span => span.innerHTML = '');
+
+            for (const [key, amount] of Object.entries(gameState.rouletteBet)) {
+                if (amount > 0) {
+                    document.getElementById(`bet-chip-${key}`).innerHTML = `<span class="roulette-chip">$${amount}</span>`;
+                }
+            }
+        }
+
+        function spinRoulette() {
+            const totalBet = Object.values(gameState.rouletteBet).reduce((sum, amount) => sum + amount, 0);
+            if (totalBet === 0) {
+                document.getElementById('roulette-message').textContent = "Please place a bet before spinning!";
+                return;
+            }
+            
+            document.getElementById('roulette-message').textContent = "Wheel spinning...";
+            document.getElementById('roulette-spin-btn').classList.add('disabled-btn');
+            document.getElementById('roulette-spin-btn').disabled = true;
+            document.getElementById('roulette-chip-value').disabled = true;
+            document.getElementById('roulette-back-btn').disabled = true;
+            document.querySelectorAll('.roulette-bet-btn').forEach(btn => btn.disabled = true);
+
+            const outcomes = [
+                { num: 0, color: 'Green' }, ...Array.from({ length: 36 }, (_, i) => {
+                    const num = i + 1;
+                    return { num, color: (num % 2 === 0) ? (num >= 11 && num <= 18 || num >= 29 && num <= 36 ? 'Black' : 'Red') : (num >= 1 && num <= 10 || num >= 19 && num <= 28 ? 'Red' : 'Black') };
+                })
+            ];
+
+            // Animation
+            let spinCount = 0;
+            const spinDuration = 3000;
+            const startTime = Date.now();
+            
+            const animateSpin = () => {
+                const elapsedTime = Date.now() - startTime;
+                if (elapsedTime < spinDuration) {
+                    const currentOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+                    document.getElementById('roulette-wheel-result').textContent = currentOutcome.num;
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    const winningIndex = Math.floor(Math.random() * outcomes.length);
+                    const winningOutcome = outcomes[winningIndex];
+                    document.getElementById('roulette-wheel-result').textContent = winningOutcome.num;
+                    processRoulettePayout(winningOutcome.num, winningOutcome.color);
+                }
+            };
+
+            animateSpin();
+        }
+
+        function processRoulettePayout(winningNumber, winningColor) {
+            let totalWin = 0;
+            const number = winningNumber;
+            const color = winningColor;
+
+            for (const [betKey, betAmount] of Object.entries(gameState.rouletteBet)) {
+                let win = 0;
+
+                // Color Bets (2x, Green 35x)
+                if (betKey === 'Red' && color === 'Red') win = betAmount * 2;
+                else if (betKey === 'Black' && color === 'Black') win = betAmount * 2;
+                else if (betKey === 'Green' && color === 'Green') win = betAmount * 35;
+
+                // Dozen Bets (3x)
+                else if (betKey === '1st12' && number >= 1 && number <= 12) win = betAmount * 3;
+                else if (betKey === '2nd12' && number >= 13 && number <= 24) win = betAmount * 3;
+                else if (betKey === '3rd12' && number >= 25 && number <= 36) win = betAmount * 3;
+                
+                totalWin += win;
+            }
+            
+            let message = `The ball landed on ${number} (${color}).`;
+            if (totalWin > 0) {
+                updateBalance(totalWin);
+                message += ` You won $${totalWin}! 🎉`;
+            } else {
+                message += ` No win. 😔`;
+            }
+
+            document.getElementById('roulette-message').textContent = message;
+            
+            // Cleanup
+            gameState.rouletteBet = {};
+            updateRouletteBetDisplay();
+            document.getElementById('roulette-spin-btn').classList.remove('disabled-btn');
+            document.getElementById('roulette-spin-btn').disabled = false;
+            document.getElementById('roulette-chip-value').disabled = false;
+            document.getElementById('roulette-back-btn').disabled = false;
+            document.querySelectorAll('.roulette-bet-btn').forEach(btn => btn.disabled = false);
+        }
+
+        // HORSE RACING
+        function initializeHorseRacing() {
+            gameState.horseBet = 0;
+            gameState.selectedHorseId = null;
+            document.getElementById('race-message').textContent = 'Pick a horse and place your bet (4x Payout)!';
+            document.getElementById('start-race-btn').classList.add('disabled-btn');
+            document.getElementById('start-race-btn').disabled = true;
+            document.getElementById('horse-racing-back-btn').disabled = false;
+            
+            // Reset horse positions
+            gameState.horses.forEach(h => h.position = 0);
+            
+            // Render initial track
+            const trackContainer = document.getElementById('race-track');
+            trackContainer.innerHTML = `<p class="text-center text-gray-500">Track ready. Place your bet!</p>`;
+            
+            // Render horse buttons
+            const horseButtonContainer = document.getElementById('horse-bet-buttons');
+            horseButtonContainer.innerHTML = '';
+            gameState.horses.forEach(horse => {
+                horseButtonContainer.innerHTML += `
+                    <button id="horse-btn-${horse.id}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg" onclick="selectHorse(${horse.id})">
+                        ${horse.emoji} ${horse.name}
+                    </button>
+                `;
+            });
+        }
+
+        function selectHorse(horseId) {
+            gameState.selectedHorseId = horseId;
+            document.getElementById('race-message').textContent = `Betting on Horse #${horseId}: ${gameState.horses.find(h => h.id === horseId).name}. Ready to bet.`;
+            
+            // Highlight selected horse button
+            document.querySelectorAll('[id^="horse-btn-"]').forEach(btn => {
+                btn.classList.remove('bg-yellow-500', 'text-gray-900');
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            });
+            const selectedBtn = document.getElementById(`horse-btn-${horseId}`);
+            selectedBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            selectedBtn.classList.add('bg-yellow-500', 'text-gray-900');
+
+            document.getElementById('start-race-btn').classList.remove('disabled-btn');
+            document.getElementById('start-race-btn').disabled = false;
+        }
+
+        function renderRaceTrack() {
+            const trackContainer = document.getElementById('race-track');
+            trackContainer.innerHTML = '';
+            
+            gameState.horses.forEach(horse => {
+                trackContainer.innerHTML += `
+                    <div class="horse-row">
+                        <div class="horse-name">${horse.name} ${horse.emoji}</div>
+                        <div class="progress-bar-container">
+                            <div id="progress-${horse.id}" class="progress-bar" style="width: ${horse.position}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function startRace() {
+            const betInput = document.getElementById('horse-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(MIN_BET)) return;
+            if (!gameState.selectedHorseId) {
+                document.getElementById('race-message').textContent = "Please select a horse!";
+                return;
+            }
+            if (bet < MIN_BET) {
+                document.getElementById('race-message').textContent = `Minimum bet is $${MIN_BET}!`;
+                return;
+            }
+            if (bet > gameState.currentBalance) {
+                document.getElementById('race-message').textContent = "Insufficient funds!";
+                return;
+            }
+
+            gameState.horseBet = bet;
+            updateBalance(-bet);
+            document.getElementById('race-message').textContent = "AND THEY'RE OFF!";
+            document.getElementById('start-race-btn').classList.add('disabled-btn');
+            document.getElementById('start-race-btn').disabled = true;
+            document.getElementById('horse-racing-back-btn').disabled = true;
+            document.getElementById('horse-bet-buttons').querySelectorAll('button').forEach(btn => btn.disabled = true);
+            
+            renderRaceTrack();
+            
+            let raceInterval;
+            const raceEndPosition = 100;
+            let finishedHorses = 0;
+
+            raceInterval = setInterval(() => {
+                let winningHorse = null;
+                
+                gameState.horses.forEach(horse => {
+                    if (horse.position < raceEndPosition) {
+                        // Movement is weighted by odds (higher odds = slower, lower odds = faster/more frequent movement)
+                        const movementFactor = (10 - horse.odds) / 10; // Simple inverse scale: 3.0 -> 0.7, 6.0 -> 0.4
+                        const speed = (Math.random() * 2 + 1) * movementFactor;
+                        horse.position = Math.min(raceEndPosition, horse.position + speed);
+                        
+                        document.getElementById(`progress-${horse.id}`).style.width = `${horse.position}%`;
+
+                        if (horse.position >= raceEndPosition && !winningHorse) {
+                            winningHorse = horse;
+                            finishedHorses++;
+                        }
+                    }
+                });
+                
+                if (finishedHorses === 1) {
+                    clearInterval(raceInterval);
+                    processRacePayout(winningHorse);
+                }
+            }, 50);
+        }
+
+        function processRacePayout(winningHorse) {
+            let message = '';
+            let winAmount = 0;
+            
+            if (winningHorse.id === gameState.selectedHorseId) {
+                winAmount = gameState.horseBet * 4; // 3:1 payout + original bet returned
+                updateBalance(winAmount);
+                message = `${winningHorse.emoji} ${winningHorse.name} WINS! You won $${winAmount}! 🎉`;
+            } else {
+                message = `${winningHorse.emoji} ${winningHorse.name} WINS. Your horse did not place. 😔`;
+            }
+            
+            document.getElementById('race-message').textContent = message;
+            document.getElementById('start-race-btn').classList.remove('disabled-btn');
+            document.getElementById('start-race-btn').disabled = false;
+            document.getElementById('horse-racing-back-btn').disabled = false;
+            document.getElementById('horse-bet-buttons').querySelectorAll('button').forEach(btn => btn.disabled = false);
+        }
+
+        // PANDA FIGHTING
+        function initializePandaFighting() {
+            gameState.fighterBet = 0;
+            gameState.selectedFighter = null;
+            document.getElementById('fighting-result').textContent = 'Pick a champion and place your bet! (2x Payout)';
+            document.getElementById('start-brawl-btn').classList.add('disabled-btn');
+            document.getElementById('start-brawl-btn').disabled = true;
+            document.getElementById('fighting-back-btn').disabled = false;
+            document.getElementById('bet-brawler-1-btn').disabled = false;
+            document.getElementById('bet-brawler-2-btn').disabled = false;
+
+            // Reset button colors
+            document.getElementById('bet-brawler-1-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-brawler-1-btn').classList.add('bg-blue-600', 'hover:bg-blue-700');
+            document.getElementById('bet-brawler-2-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-brawler-2-btn').classList.add('bg-red-600', 'hover:bg-red-700');
+        }
+
+        function placeBrawlerBet(fighterId) {
+            gameState.selectedFighter = fighterId;
+            document.getElementById('fighting-result').textContent = `Betting on Brawler ${fighterId}. Ready to brawl!`;
+            
+            // Highlight selected button
+            document.getElementById('bet-brawler-1-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-brawler-1-btn').classList.add('bg-blue-600', 'hover:bg-blue-700');
+            document.getElementById('bet-brawler-2-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-brawler-2-btn').classList.add('bg-red-600', 'hover:bg-red-700');
+
+            const selectedBtn = document.getElementById(`bet-brawler-${fighterId}-btn`);
+            selectedBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'bg-red-600', 'hover:bg-red-700');
+            selectedBtn.classList.add('bg-yellow-500', 'text-gray-900');
+
+            document.getElementById('start-brawl-btn').classList.remove('disabled-btn');
+            document.getElementById('start-brawl-btn').disabled = false;
+        }
+
+        function startBrawl() {
+            const betInput = document.getElementById('fighter-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(MIN_BET)) return;
+            if (!gameState.selectedFighter) {
+                document.getElementById('fighting-result').textContent = "Please select a brawler!";
+                return;
+            }
+            if (bet < MIN_BET) {
+                document.getElementById('fighting-result').textContent = `Minimum bet is $${MIN_BET}!`;
+                return;
+            }
+            if (bet > gameState.currentBalance) {
+                document.getElementById('fighting-result').textContent = "Insufficient funds!";
+                return;
+            }
+
+            gameState.fighterBet = bet;
+            updateBalance(-bet);
+            
+            document.getElementById('fighting-result').textContent = "BRAWL IN PROGRESS...";
+            document.getElementById('start-brawl-btn').classList.add('disabled-btn');
+            document.getElementById('start-brawl-btn').disabled = true;
+            document.getElementById('fighting-back-btn').disabled = true;
+            document.getElementById('bet-brawler-1-btn').disabled = true;
+            document.getElementById('bet-brawler-2-btn').disabled = true;
+
+            // Simple weighted random winner (Brawler 1 is slightly favored)
+            const winnerId = (Math.random() < 0.55) ? 1 : 2; 
+
+            setTimeout(() => {
+                processBrawlPayout(winnerId);
+            }, 2000);
+        }
+
+        function processBrawlPayout(winnerId) {
+            let message = '';
+            let winAmount = 0;
+            const winnerName = (winnerId === 1) ? 'Rocky' : 'Bamboo';
+
+            if (winnerId === gameState.selectedFighter) {
+                winAmount = gameState.fighterBet * 2;
+                updateBalance(winAmount);
+                message = `${winnerName} WINS! You won $${winAmount}! 🏆`;
+            } else {
+                message = `${winnerName} WINS. Your champion was defeated. 😔`;
+            }
+            
+            document.getElementById('fighting-result').textContent = message;
+            document.getElementById('start-brawl-btn').classList.remove('disabled-btn');
+            document.getElementById('start-brawl-btn').disabled = false;
+            document.getElementById('fighting-back-btn').disabled = false;
+            document.getElementById('bet-brawler-1-btn').disabled = false;
+            document.getElementById('bet-brawler-2-btn').disabled = false;
+        }
+
+        // COIN FLIP
+        function initializeCoinFlip() {
+            gameState.flipBet = 0;
+            gameState.selectedFlipSide = null;
+            document.getElementById('flip-result').textContent = 'Bet on Panda or Bamboo! (2x Payout)';
+            document.getElementById('start-flip-btn').classList.add('disabled-btn');
+            document.getElementById('start-flip-btn').disabled = true;
+            document.getElementById('flip-back-btn').disabled = false;
+            document.getElementById('bet-heads-btn').disabled = false;
+            document.getElementById('bet-tails-btn').disabled = false;
+            document.getElementById('coin-emoji').textContent = '🪙';
+            
+            // Reset button colors
+            document.getElementById('bet-heads-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-heads-btn').classList.add('bg-green-600', 'hover:bg-green-700');
+            document.getElementById('bet-tails-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-tails-btn').classList.add('bg-red-600', 'hover:bg-red-700');
+        }
+
+        function placeFlipBet(side) {
+            gameState.selectedFlipSide = side;
+            document.getElementById('flip-result').textContent = `Betting on ${side}. Ready to flip!`;
+            
+            // Highlight selected button
+            document.getElementById('bet-heads-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-heads-btn').classList.add('bg-green-600', 'hover:bg-green-700');
+            document.getElementById('bet-tails-btn').classList.remove('bg-yellow-500', 'text-gray-900');
+            document.getElementById('bet-tails-btn').classList.add('bg-red-600', 'hover:bg-red-700');
+
+            const selectedBtn = document.getElementById(side === 'Heads' ? 'bet-heads-btn' : 'bet-tails-btn');
+            selectedBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'bg-red-600', 'hover:bg-red-700');
+            selectedBtn.classList.add('bg-yellow-500', 'text-gray-900');
+
+            document.getElementById('start-flip-btn').classList.remove('disabled-btn');
+            document.getElementById('start-flip-btn').disabled = false;
+        }
+
+        function startFlip() {
+            const betInput = document.getElementById('flip-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(MIN_BET)) return;
+            if (!gameState.selectedFlipSide) {
+                document.getElementById('flip-result').textContent = "Please select a side!";
+                return;
+            }
+            if (bet < MIN_BET) {
+                document.getElementById('flip-result').textContent = `Minimum bet is $${MIN_BET}!`;
+                return;
+            }
+            if (bet > gameState.currentBalance) {
+                document.getElementById('flip-result').textContent = "Insufficient funds!";
+                return;
+            }
+
+            gameState.flipBet = bet;
+            updateBalance(-bet);
+            
+            document.getElementById('flip-result').textContent = "FLIPPING...";
+            document.getElementById('start-flip-btn').classList.add('disabled-btn');
+            document.getElementById('start-flip-btn').disabled = true;
+            document.getElementById('flip-back-btn').disabled = true;
+            document.getElementById('bet-heads-btn').disabled = true;
+            document.getElementById('bet-tails-btn').disabled = true;
+
+            document.getElementById('coin-emoji').classList.add('animate-spin');
+
+            // Simple random winner
+            const result = (Math.random() < 0.5) ? 'Heads' : 'Tails'; 
+
+            setTimeout(() => {
+                document.getElementById('coin-emoji').classList.remove('animate-spin');
+                document.getElementById('coin-emoji').textContent = (result === 'Heads') ? '🐼' : '🎋';
+                processFlipPayout(result);
+            }, 2000);
+        }
+
+        function processFlipPayout(result) {
+            let message = '';
+            let winAmount = 0;
+
+            if (result === gameState.selectedFlipSide) {
+                winAmount = gameState.flipBet * 2;
+                updateBalance(winAmount);
+                message = `It's ${result}! You won $${winAmount}! 🥳`;
+            } else {
+                message = `It's ${result}. You lose. 😔`;
+            }
+            
+            document.getElementById('flip-result').textContent = message;
+            document.getElementById('start-flip-btn').classList.remove('disabled-btn');
+            document.getElementById('start-flip-btn').disabled = false;
+            document.getElementById('flip-back-btn').disabled = false;
+            document.getElementById('bet-heads-btn').disabled = false;
+            document.getElementById('bet-tails-btn').disabled = false;
+        }
+        
+        // POKER
+        function initializePoker() {
+            gameState.pokerDeck = createDeck();
+            gameState.pokerDealerHand = [];
+            gameState.pokerPlayerHand = [];
+            gameState.pokerCommunityCards = [];
+            gameState.pokerBet = 0;
+            gameState.pokerPhase = 'preflop';
+            document.getElementById('poker-dealer-hand').innerHTML = '';
+            document.getElementById('poker-player-hand').innerHTML = '';
+            document.getElementById('poker-community-cards').innerHTML = '';
+            document.getElementById('poker-result').textContent = 'Place your bet and hit DEAL!';
+            document.getElementById('poker-deal-btn').classList.remove('disabled-btn');
+            document.getElementById('poker-deal-btn').disabled = false;
+            document.getElementById('poker-fold-btn').classList.add('disabled-btn');
+            document.getElementById('poker-fold-btn').disabled = true;
+            document.getElementById('poker-call-btn').classList.add('disabled-btn');
+            document.getElementById('poker-call-btn').disabled = true;
+            document.getElementById('poker-bet').disabled = false;
+            document.getElementById('poker-back-btn').disabled = false;
+        }
+
+        function dealPoker() {
+            const betInput = document.getElementById('poker-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(MIN_BET)) return;
+            if (bet < MIN_BET) {
+                document.getElementById('poker-result').textContent = `Minimum bet is $${MIN_BET}!`;
+                return;
+            }
+            if (bet > gameState.currentBalance) {
+                document.getElementById('poker-result').textContent = "Insufficient funds!";
+                return;
+            }
+            
+            initializePoker(); // Full reset
+
+            gameState.pokerBet = bet;
+            updateBalance(-bet);
+
+            // Deal hole cards
+            gameState.pokerPlayerHand.push(gameState.pokerDeck.pop(), gameState.pokerDeck.pop());
+            gameState.pokerDealerHand.push(gameState.pokerDeck.pop(), gameState.pokerDeck.pop());
+
+            renderHand(gameState.pokerPlayerHand, 'poker-player-hand');
+            renderHand(gameState.pokerDealerHand, 'poker-dealer-hand', true);
+            
+            gameState.pokerPhase = 'preflop';
+            document.getElementById('poker-result').textContent = 'Dealer has dealt. Call to continue or Fold.';
+            document.getElementById('poker-deal-btn').classList.add('disabled-btn');
+            document.getElementById('poker-deal-btn').disabled = true;
+            document.getElementById('poker-fold-btn').classList.remove('disabled-btn');
+            document.getElementById('poker-fold-btn').disabled = false;
+            document.getElementById('poker-call-btn').classList.remove('disabled-btn');
+            document.getElementById('poker-call-btn').disabled = false;
+            document.getElementById('poker-bet').disabled = true;
+            document.getElementById('poker-back-btn').disabled = true;
+        }
+
+        function foldPoker() {
+            document.getElementById('poker-result').textContent = 'FOLD! You lose the initial bet. 😔';
+            endPokerGame(false);
+        }
+
+        function callPoker() {
+            // Player calls, double the bet
+            const callBet = gameState.pokerBet;
+            if (callBet > gameState.currentBalance) {
+                document.getElementById('poker-result').textContent = "Insufficient funds to CALL! You must Fold.";
+                return;
+            }
+
+            updateBalance(-callBet);
+            gameState.pokerBet += callBet;
+            
+            // Draw all community cards (Flop, Turn, River)
+            gameState.pokerDeck.pop(); // Burn card
+            gameState.pokerCommunityCards.push(gameState.pokerDeck.pop(), gameState.pokerDeck.pop(), gameState.pokerDeck.pop()); // Flop
+            gameState.pokerDeck.pop(); // Burn card
+            gameState.pokerCommunityCards.push(gameState.pokerDeck.pop()); // Turn
+            gameState.pokerDeck.pop(); // Burn card
+            gameState.pokerCommunityCards.push(gameState.pokerDeck.pop()); // River
+
+            renderHand(gameState.pokerCommunityCards, 'poker-community-cards');
+            
+            document.getElementById('poker-result').textContent = 'All cards dealt. Determining winner...';
+            
+            // Show dealer's hand
+            renderHand(gameState.pokerDealerHand, 'poker-dealer-hand');
+            
+            // Determine winner after a short delay
+            setTimeout(() => {
+                const playerHand = gameState.pokerPlayerHand.concat(gameState.pokerCommunityCards);
+                const dealerHand = gameState.pokerDealerHand.concat(gameState.pokerCommunityCards);
+                
+                // Simplified winner check: highest pair value
+                const playerRank = getSimplifiedPokerRank(playerHand);
+                const dealerRank = getSimplifiedPokerRank(dealerHand);
+                
+                let win = null;
+                let message = '';
+
+                if (playerRank > dealerRank) {
+                    win = true;
+                    message = `YOU WIN! (Rank: ${playerRank}) vs Dealer (Rank: ${dealerRank}). 🎉`;
+                } else if (playerRank < dealerRank) {
+                    win = false;
+                    message = `DEALER WINS! (Rank: ${dealerRank}) vs You (Rank: ${playerRank}). 😔`;
+                } else {
+                    win = null;
+                    message = `PUSH! It's a tie. Your bet is returned. 🤝`;
+                }
+                
+                document.getElementById('poker-result').textContent = message;
+                endPokerGame(win);
+
+            }, 2000);
+        }
+
+        // Extremely simplified ranking function for Poker
+        function getSimplifiedPokerRank(hand) {
+            // Count card values (A=14, K=13, Q=12, J=11)
+            const cardCounts = {};
+            hand.forEach(card => {
+                let value = getCardValue(card);
+                if (card.value === 'A') value = 14;
+                if (card.value === 'K') value = 13;
+                if (card.value === 'Q') value = 12;
+                if (card.value === 'J') value = 11;
+                cardCounts[value] = (cardCounts[value] || 0) + 1;
+            });
+            
+            let maxCount = 0;
+            let maxRank = 0; // Highest value of the highest count group
+
+            for (const [value, count] of Object.entries(cardCounts)) {
+                const numValue = parseInt(value);
+                if (count > maxCount) {
+                    maxCount = count;
+                    maxRank = numValue;
+                } else if (count === maxCount && numValue > maxRank) {
+                    maxRank = numValue;
+                }
+            }
+            
+            // Simple Rank: 100 * (Number of Matching Cards) + (Highest Card Value of that Match)
+            // e.g., Three 8s = 308. Two 10s = 210.
+            return maxCount * 100 + maxRank;
+        }
+
+        function endPokerGame(win) {
+            document.getElementById('poker-fold-btn').classList.add('disabled-btn');
+            document.getElementById('poker-fold-btn').disabled = true;
+            document.getElementById('poker-call-btn').classList.add('disabled-btn');
+            document.getElementById('poker-call-btn').disabled = true;
+            document.getElementById('poker-deal-btn').classList.remove('disabled-btn');
+            document.getElementById('poker-deal-btn').disabled = false;
+            document.getElementById('poker-bet').disabled = false;
+            document.getElementById('poker-back-btn').disabled = false;
+
+            if (win === true) {
+                updateBalance(gameState.pokerBet * 2); // Win total pot
+            } else if (win === null) {
+                updateBalance(gameState.pokerBet); // Return original bet (Push)
+            }
+        }
+        
+        // CRAPS
+        function initializeCraps() {
+            gameState.crapsPoint = null;
+            gameState.crapsBetAmount = 0;
+            gameState.crapsBetType = null;
+            document.getElementById('craps-point').textContent = 'OFF';
+            document.getElementById('craps-roll-total').textContent = '?';
+            document.getElementById('die1').textContent = '🎲';
+            document.getElementById('die2').textContent = '🎲';
+            document.getElementById('craps-message').textContent = 'Place a Pass Line Bet or Roll!';
+            document.getElementById('craps-roll-btn').classList.add('disabled-btn');
+            document.getElementById('craps-roll-btn').disabled = true;
+            document.getElementById('craps-pass-line-btn').classList.remove('disabled-btn');
+            document.getElementById('craps-pass-line-btn').disabled = false;
+            document.getElementById('craps-bet').disabled = false;
+            document.getElementById('craps-back-btn').disabled = false;
+        }
+
+        function placeCrapsBet() {
+            const betInput = document.getElementById('craps-bet');
+            const bet = parseInt(betInput.value);
+
+            if (checkLoanEligibility(MIN_BET)) return;
+            if (bet < MIN_BET) {
+                document.getElementById('craps-message').textContent = `Minimum bet is $${MIN_BET}!`;
+                return;
+            }
+            if (bet > gameState.currentBalance) {
+                document.getElementById('craps-message').textContent = "Insufficient funds!";
+                return;
+            }
+            if (gameState.crapsBetAmount > 0) {
+                 document.getElementById('craps-message').textContent = "Bet already placed. Roll the dice!";
+                return;
+            }
+
+            gameState.crapsBetAmount = bet;
+            gameState.crapsBetType = 'pass_line';
+            updateBalance(-bet);
+
+            document.getElementById('craps-message').textContent = `Pass Line bet of $${bet} placed. Roll the dice!`;
+            document.getElementById('craps-roll-btn').classList.remove('disabled-btn');
+            document.getElementById('craps-roll-btn').disabled = false;
+            document.getElementById('craps-pass-line-btn').classList.add('disabled-btn');
+            document.getElementById('craps-pass-line-btn').disabled = true;
+            document.getElementById('craps-bet').disabled = true;
+            document.getElementById('craps-back-btn').disabled = true;
+        }
+
+        function rollDice() {
+            const die1 = Math.floor(Math.random() * 6) + 1;
+            const die2 = Math.floor(Math.random() * 6) + 1;
+            return { die1, die2, total: die1 + die2 };
+        }
+        
+        const dieEmojis = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
+        
+        function getDiceEmoji(roll) {
+            // Simplified: just return the number
+            return roll;
+        }
+
+        function rollCraps() {
+            document.getElementById('craps-roll-btn').disabled = true;
+            document.getElementById('craps-message').textContent = "Rolling...";
+
+            // Animation
+            let rollCount = 0;
+            const rollInterval = setInterval(() => {
+                const roll = rollDice();
+                document.getElementById('die1').textContent = getDiceEmoji(roll.die1);
+                document.getElementById('die2').textContent = getDiceEmoji(roll.die2);
+                document.getElementById('craps-roll-total').textContent = '?';
+                rollCount++;
+                if (rollCount >= 20) {
+                    clearInterval(rollInterval);
+                    const finalRoll = rollDice();
+                    document.getElementById('die1').textContent = getDiceEmoji(finalRoll.die1);
+                    document.getElementById('die2').textContent = getDiceEmoji(finalRoll.die2);
+                    document.getElementById('craps-roll-total').textContent = finalRoll.total;
+                    processCrapsRoll(finalRoll.total);
+                }
+            }, 100);
+        }
+
+        function processCrapsRoll(total) {
+            let message = '';
+            let win = false;
+            let gameOver = false;
+
+            if (gameState.crapsPoint === null) {
+                // Come Out Roll
+                if (total === 7 || total === 11) {
+                    message = `Natural ${total}! You win the Pass Line bet! 🎉`;
+                    win = true;
+                    gameOver = true;
+                } else if (total === 2 || total === 3 || total === 12) {
+                    message = `Craps ${total}! Pass Line loses. 😔`;
+                    win = false;
+                    gameOver = true;
+                } else {
+                    // Set Point
+                    gameState.crapsPoint = total;
+                    document.getElementById('craps-point').textContent = total;
+                    message = `Point is set to ${total}. Roll again to hit the point or seven out!`;
+                    document.getElementById('craps-roll-btn').disabled = false;
+                }
+            } else {
+                // Point Roll
+                if (total === gameState.crapsPoint) {
+                    message = `You hit the Point, ${total}! Pass Line wins! 🎉`;
+                    win = true;
+                    gameOver = true;
+                } else if (total === 7) {
+                    message = `Seven Out! Pass Line loses. 😔`;
+                    win = false;
+                    gameOver = true;
+                } else {
+                    // Keep rolling
+                    message = `Rolled ${total}. Try again for the Point of ${gameState.crapsPoint}.`;
+                    document.getElementById('craps-roll-btn').disabled = false;
+                }
+            }
+
+            document.getElementById('craps-message').textContent = message;
+
+            if (gameOver) {
+                if (win) {
+                    updateBalance(gameState.crapsBetAmount * 2);
+                }
+                // Reset for next game
+                setTimeout(() => {
+                    initializeCraps();
+                    document.getElementById('craps-message').textContent = message + " Start a new game.";
+                }, 2000);
+            }
+        }
+        
     </script>
 </body>
 </html>

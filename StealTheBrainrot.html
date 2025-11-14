@@ -83,14 +83,14 @@
             background-color: rgba(239, 68, 68, 0.4); border-color: #ef4444;
         }
         .base-item {
-             width: 80%; height: 80%; font-size: 22px; /* Reduced base icon size */
-             border-radius: 50%;
-             pointer-events: none;
-             position: relative;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-         }
+            width: 80%; height: 80%; font-size: 22px; /* Reduced base icon size */
+            border-radius: 50%;
+            pointer-events: none;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .mutation-icon, .trait-icon {
             position: absolute;
             width: 18px; /* Smaller icons */
@@ -107,8 +107,8 @@
         }
         .mutation-icon { top: -5px; left: -5px; } /* Offset to corner */
         .trait-icon { bottom: -5px; right: -5px; font-size: 14px; } /* Offset to corner */
-        
-        /* Styles for selection modal */
+
+        /* NEW: Styles for selection modal */
         .base-slot.selectable {
             cursor: pointer;
         }
@@ -166,8 +166,8 @@
             box-shadow: 0 0 25px rgba(0,0,0,0.6);
         }
         .small-modal-content {
-             max-width: 500px;
-             max-height: auto;
+            max-width: 500px;
+            max-height: auto;
         }
         .index-grid {
             display: grid;
@@ -239,12 +239,11 @@
         <header class="flex flex-wrap justify-between items-center pb-1">
             <h1 class="text-xl sm:text-2xl font-bold text-white">Steal The Brainrot</h1>
             <nav class="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <span id="witch-fuse-countdown" class="text-xs sm:text-sm text-pink-400 font-semibold"></span>
                 <button id="pause-button" class="btn btn-blue">Pause</button>
                 <button id="save-button" class="btn btn-green">Cloud Save</button>
                 <button id="load-button" class="btn btn-green">Cloud Load</button>
-                <button id="export-button" class="btn btn-gray">Save File</button> <!-- Local Save -->
-                <button id="import-button" class="btn btn-gray">Load File</button> <!-- Local Load -->
+                <button id="save-file-button" class="btn btn-gray">Save File</button>
+                <button id="load-file-button" class="btn btn-gray">Load File</button>
                 <button id="index-button" class="btn btn-gray">Index <span id="index-counter">(0/0)</span></button>
                 <button id="open-rebirth-button" class="btn btn-purple">Rebirth</button>
             </nav>
@@ -256,6 +255,7 @@
             </div>
             <div class="text-center">
                 <div class="text-base font-semibold text-yellow-300">Next spawn in: <span id="timer-display">00:00</span></div>
+                <div id="witch-fuse-countdown" class="text-sm font-semibold text-pink-400"></div>
                 <div id="active-events-list" class="flex gap-1 justify-center mt-1 h-4"></div>
                 <div class="text-xs text-gray-400">Rebirths: <span id="rebirth-display">0</span></div>
             </div>
@@ -272,7 +272,7 @@
             <button id="open-craft-machine-button" class="btn btn-orange">Craft</button>
             <button id="open-ritual-button" class="btn btn-red">Ritual</button>
             <button id="open-dealer-button" class="btn btn-green">Dealer</button>
-            <button id="open-trader-button" class="btn btn-blue">Trader</button>
+            <button id="open-trader-button" class="btn btn-blue">Trader</button> <!-- NEW TRADER BUTTON -->
         </div>
 
         <main class="flex-grow flex flex-col gap-2 overflow-hidden">
@@ -331,7 +331,7 @@
     <div id="fuse-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="fuse-modal-title" class="text-2xl font-bold">Fuse</h2><button id="close-fuse-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="fuse-modal-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     <div id="dealer-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Brainrot Dealer</h2><button id="close-dealer-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="dealer-list" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 space-y-4"></div></div></div>
     
-    <!-- Selection Modal -->
+    <!-- NEW: Selection Modal -->
     <div id="selection-modal" class="modal-overlay hidden">
         <div class="modal-content small-modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -359,13 +359,12 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
-            getFirestore, doc, getDoc, setDoc, addDoc, collection, 
-            query, where, onSnapshot, serverTimestamp, setLogLevel,
-            runTransaction, updateDoc 
+            getFirestore, doc, getDoc, setDoc, onSnapshot, collection, 
+            query, where, addDoc, getDocs, runTransaction, serverTimestamp, setLogLevel 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Data Definitions (MUST be first to avoid ReferenceErrors) ---
-        const JAYCE_PASSWORD = "PANCAKES!"; 
+        const JAYCE_PASSWORD_HASH = "8b3873499d143c7b80a6c01e67b2d55e2d633519d5e3f89e2c608b61c1623910"; 
         const SELL_MULTIPLIER = 0.5;
         const rarities = {
             'Common':       { color: '#9ca3af', weight: 900, glow: '#9ca3af' },
@@ -538,18 +537,19 @@
                     { name: 'La Spooky Grande', chance: 1 }
                 ]
             },
-            'OP Lucky Block': { // NEW OP Block
-                icon: '👑',
-                color: '#fde047',
-                weight: 0, // Admin spawn only
-                isMultiLoot: true, // Special flag for multi-roll
+            // NEW OP LUCKY BLOCK
+            'OP Lucky Block': {
+                icon: '💎',
+                color: '#3b82f6', // Diamond Blue
+                weight: 0.1, // Very rare, but added to normal pool
+                isMultiLoot: true, // Special flag for multi-loot
                 lootTable: [
-                    { name: 'Odin Din Din Dun', chance: 0.90 }, // 90%
-                    { name: 'Job Job Job Sahur', chance: 0.50 }, // 50%
-                    { name: 'Tax Tax Tax Sahur', chance: 0.15 }, // 15%
-                    { name: 'Mieteteira Bicicleteira', chance: 0.10 }, // 10%
-                    { name: 'Spooky and Pumpky', chance: 0.03 }, // 3%
-                    { name: 'Baby Jayce', chance: 0.0001 } // 0.01%
+                    { name: 'Odin Din Din Dun', chance: 90 }, // 90% chance for this item
+                    { name: 'Job Job Job Sahur', chance: 50 }, // 50% chance for this item
+                    { name: 'Tax Tax Tax Sahur', chance: 15 }, // 15% chance for this item
+                    { name: 'Mieteteira Bicicleteira', chance: 10 }, // 10% chance for this item
+                    { name: 'Spooky and Pumpky', chance: 3 }, // 3% chance for this item
+                    { name: 'Baby Jayce', chance: 0.0001 } // 0.0001% chance (1 in 1,000,000)
                 ]
             }
         };
@@ -617,7 +617,7 @@
                 { name: 'Money Money Puggy', icon: '🤑', cost: 11e9, mps: 58e6 }, { name: 'Ketupat Kepat', icon: ' K ', cost: 12e9, mps: 60e6 },
                 { name: 'Tictac Sahur', icon: '⏰', cost: 13e9, mps: 62e6 }, { name: 'Ketchuru and Musturu', icon: '🌭', cost: 14e9, mps: 65e6 },
                 { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 68e6 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 70e6 },
-                { name: 'Mega Mega Mega Knight Sahur', icon: '🛡️', cost: 1e20, mps: 1e17 } // NEW
+                { name: 'Mega Mega Mega Knight Sahur', icon: '🛡️', cost: 1e20, mps: 1e16 } // NEW SECRET
             ],
             'OG': [
                 { name: 'Strawberry Elephant', icon: '🍓🐘', cost: 1e18, mps: 1e15, event: 'Strawberry' }, { name: 'Meowl', icon: '🐱', cost: 2e18, mps: 2e15, event: 'Meowl' },
@@ -633,15 +633,15 @@
             'Pop Pop Sahur':          { icon: '🍿', rarity: 'Brainrot God', cost: 11e6, mps: 690000 }, 'Torrtuginni Dragonfrutini': { icon: '🐢', rarity: 'Secret', cost: 2e9, mps: 4e6 },
             'Pot Hotspot':            { icon: '냄', rarity: 'Secret', cost: 3e9, mps: 8e6 }, 'Esok Sekolah':            { icon: '🏫', rarity: 'Secret', cost: 4e9, mps: 15e6 },
             'Spaghetti Tualetti':     { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
-            'Chihuanini Taconini':    { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':        { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
+            'Chihuanini Taconini':    { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':          { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
             'Los Tipi Tacos':         { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
             'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
-            'Carloo':                 { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':      { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
-            'Alessio':                { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':      { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
-            'Blackhole Goat':         { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':     { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
+            'Carloo':                 { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':        { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
+            'Alessio':                { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':        { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
+            'Blackhole Goat':         { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':       { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
             '67':                     { icon: '6️⃣7️⃣', rarity: 'Secret', cost: 50e9, mps: 200e6 }, 'La Grande Combinasion': { icon: '🤯', rarity: 'Secret', cost: 100e9, mps: 500e6 }, 
-            'Los Tungtungtungcitos': { icon: '🎶', rarity: 'Brainrot God', cost: 40e6, mps: 2e6 }, 'Los Tortus':            { icon: '🐢', rarity: 'Secret', cost: 30e9, mps: 140e6 }, 
-            'Los Jobcitos':           { icon: '💼', rarity: 'Secret', cost: 35e9, mps: 160e6 }, 'Los Combinasionas':     { icon: '🤔', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 
+            'Los Tungtungtungcitos': { icon: '🎶', rarity: 'Brainrot God', cost: 40e6, mps: 2e6 }, 'Los Tortus':              { icon: '🐢', rarity: 'Secret', cost: 30e9, mps: 140e6 }, 
+            'Los Jobcitos':           { icon: '💼', rarity: 'Secret', cost: 35e9, mps: 160e6 }, 'Los Combinasionas':       { icon: '🤔', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 
             'Los 67':                 { icon: '🇲🇽', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Baby Jayce': { icon: '👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
             'Taco Baby Jayce': { icon: '👶🌮', rarity: 'Secret', cost: 1e20, mps: 1e17 }, 'Ghost Baby Jayce': { icon: '👻👶', rarity: 'Secret', cost: 1e20, mps: 1e17 },
             'Vampira Cappucina': { icon: '🧛', rarity: 'Mythic', cost: 90e3, mps: 8500 }, 'Zombie Tralala': { icon: '🧟', rarity: 'Mythic', cost: 95e3, mps: 9000 },
@@ -651,7 +651,7 @@
             'Pumpkini Spyderini': { icon: '🎃🕷️', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 'Trickolino': { icon: '🍬', rarity: 'Secret', cost: 65e9, mps: 280e6 },
             'Telemorte': { icon: '📺💀', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Los Spooky Combinasionas': { icon: '👻🤔', rarity: 'Secret', cost: 75e9, mps: 350e6 },
             'La Casa Boo': { icon: '🏚️👻', rarity: 'Secret', cost: 90e9, mps: 450e6 },
-            'Tax Tax Tax Sahur': { icon: '💸', rarity: 'Secret', cost: 20e12, mps: 8e9 } // NEW
+            'Tax Tax Tax Sahur': { icon: '🧾', rarity: 'Secret', cost: 50e9, mps: 200e6 } // NEW OP BLOCK EXCLUSIVE
         };
 
         const ritualExclusives = {
@@ -770,25 +770,26 @@
         const totalBrainrotsCount = allBrainrotNames.size;
 
         // --- DOM Elements ---
-        let loadingSpinner, gameRoot, pauseButton, saveButton, loadButton, indexButton, indexCounter,
+        let loadingSpinner, gameRoot, pauseButton, saveButton, loadButton, saveFileButton, loadFileButton, indexButton, indexCounter,
             openRebirthButton, moneyDisplay, mpsDisplay, timerDisplay, activeEventsList, rebirthDisplay,
             baseCountDisplay, openNormalFuseButton, openWitchFuseButton, openTacoFuseButton,
-            openCraftMachineButton, openRitualButton, openDealerButton, conveyorBelt, baseContainer,
+            openCraftMachineButton, openRitualButton, openDealerButton, openTraderButton, conveyorBelt, baseContainer,
             sellButton, indexModal, closeIndexButton, indexGridContainer, rebirthModal, closeRebirthButton,
             rebirthInfo, confirmRebirthButton, jayceModal, closeJayceButton, jaycePasswordScreen,
             jaycePasswordInput, jayceLoginButton, jayceError, jayceCommandScreen, jayceLogoutButton,
             ritualModal, closeRitualButton, ritualList, craftMachineModal, closeCraftMachineButton,
             craftMachineList, fuseModal, fuseModalTitle, closeFuseModalButton, fuseModalList,
-            dealerModal, closeDealerButton, dealerList, globalTooltip, notification, loadFileInput, exportButton,
-            importButton, witchFuseCountdown, openTraderButton,
+            dealerModal, closeDealerButton, dealerList, globalTooltip, notification, loadFileInput,
             selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt, 
-            selectionModalGrid, selectionModalConfirm, selectionModalCancel;
+            selectionModalGrid, selectionModalConfirm, selectionModalCancel, witchFuseCountdownDisplay;
+
 
         // --- Firebase Globals ---
         let app, auth, db;
         let userId;
-        let eventsDocPath, userSaveDocPath, dealerDocPath;
-        let globalEventListener = null, dealerEventListener = null;
+        let userSaveDocPath, globalEventsDocPath, dealerStockDocPath;
+        let globalEventListener = null;
+        let dealerStockListener = null;
         let isAdmin = false;
 
         // --- Game State ---
@@ -803,56 +804,57 @@
         let currentSelectionCallback = null;
         let selectedIndices = [];
         
-        // --- Hardcoded Firebase Config ---
         const HARDCODED_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyB_8Eao4PirrTF6DBjjbUmhL6MyXnt6vzY",
-            authDomain: "steal-the-brainrot-admin-panel.firebaseapp.com",
-            projectId: "steal-the-brainrot-admin-panel",
-            storageBucket: "steal-the-brainrot-admin-panel.firebasestorage.app",
-            messagingSenderId: "559691711111",
-            appId: "1:559691711111:web:27dff3446aea0ef624ee22",
-            measurementId: "G-3FPEYCR4JM"
+           apiKey: "AIzaSyB_8Eao4PirrTF6DBjjbUmhL6MyXnt6vzY",
+           authDomain: "steal-the-brainrot-admin-panel.firebaseapp.com",
+           projectId: "steal-the-brainrot-admin-panel",
+           storageBucket: "steal-the-brainrot-admin-panel.firebasestorage.app",
+           messagingSenderId: "559691711111",
+           appId: "1:559691711111:web:27dff3446aea0ef624ee22",
+           measurementId: "G-3FPEYCR4JM"
         };
-
 
         async function initializeFirebase() {
             try {
                 let firebaseConfig;
-                // Use hardcoded config IF NOT in the special environment
-                if (typeof __firebase_config !== 'undefined') {
-                    console.log("Using environment Firebase config.");
-                    firebaseConfig = JSON.parse(__firebase_config);
-                } else {
-                    console.log("Using hardcoded Firebase config.");
+                // Check if the hardcoded config is the placeholder
+                if (HARDCODED_FIREBASE_CONFIG.apiKey.startsWith("AIzaSyB_")) {
                     firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+                    console.log("Using hardcoded Firebase config.");
+                } else if (typeof __firebase_config !== 'undefined') {
+                    firebaseConfig = JSON.parse(__firebase_config);
+                    console.log("Using environment Firebase config.");
+                } else {
+                    throw new Error("No Firebase config found.");
                 }
                 
-                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("YOUR_API")) {
-                    throw new Error("Invalid Firebase configuration.");
-                }
-
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 setLogLevel('Debug');
+                console.log("Firebase Initialized");
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
                         console.log("User signed in:", userId);
                         
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'c_d19bc2a77fb557fd_brainrot_tycoon.html-934';
                         userSaveDocPath = `/artifacts/${appId}/users/${userId}/saveData/gameSave`;
-                        eventsDocPath = `/artifacts/${appId}/public/data/globalEvents/latest`; // Corrected path
-                        dealerDocPath = `/artifacts/${appId}/public/data/dealer/stock`; // Corrected path
+                        globalEventsDocPath = `/artifacts/${appId}/public/data/globalEvents/latest`;
+                        dealerStockDocPath = `/artifacts/${appId}/public/data/dealer/stock`;
 
-                        // Load game, then init logic
-                        await loadGame();
-                        // Init UI elements *before* starting loops
+                        console.log("User Path:", userSaveDocPath);
+                        console.log("Events Path:", globalEventsDocPath);
+                        console.log("Dealer Path:", dealerStockDocPath);
+                        
+                        // Load UI elements FIRST
                         initGameLogic(); 
                         
-                        setupGlobalEventListener();
-                        setupDealerStockListener();
+                        // THEN load data
+                        await loadGame(); // Load data from Firebase
+                        setupGlobalEventListener(); // Start listening for admin events
+                        setupDealerStockListener(); // Start listening for dealer stock
                         
                         loadingSpinner.classList.add('hidden');
                         gameRoot.classList.remove('hidden');
@@ -867,7 +869,6 @@
                                 await signInAnonymously(auth);
                             }
                         } else {
-                            // Fallback for local testing
                             await signInAnonymously(auth);
                         }
                     }
@@ -875,15 +876,11 @@
             } catch (error) {
                 console.error("Firebase Init Error:", error);
                 showNotification("Firebase Error. Running in Offline Mode.", "red");
-                // Fallback to offline mode
+                // Fallback to offline mode if init fails
+                initGameLogic(); // Load UI
+                loadGameData({}, "Offline"); // Load default local data
                 loadingSpinner.classList.add('hidden');
                 gameRoot.classList.remove('hidden');
-                initGameLogic(); // Start game logic without auth
-                // Show local save/load buttons
-                if(exportButton) exportButton.classList.remove('hidden');
-                if(importButton) importButton.classList.remove('hidden');
-                if(saveButton) saveButton.textContent = "Save File";
-                if(loadButton) loadButton.textContent = "Load File";
             }
         }
 
@@ -894,8 +891,8 @@
             pauseButton = document.getElementById('pause-button');
             saveButton = document.getElementById('save-button');
             loadButton = document.getElementById('load-button');
-            exportButton = document.getElementById('export-button');
-            importButton = document.getElementById('import-button');
+            saveFileButton = document.getElementById('save-file-button');
+            loadFileButton = document.getElementById('load-file-button');
             indexButton = document.getElementById('index-button');
             indexCounter = document.getElementById('index-counter');
             openRebirthButton = document.getElementById('open-rebirth-button');
@@ -946,9 +943,6 @@
             globalTooltip = document.getElementById('global-tooltip');
             notification = document.getElementById('notification');
             loadFileInput = document.getElementById('load-file-input');
-            witchFuseCountdown = document.getElementById('witch-fuse-countdown');
-
-            // Selection Modal elements
             selectionModal = document.getElementById('selection-modal');
             selectionModalTitle = document.getElementById('selection-modal-title');
             closeSelectionModalButton = document.getElementById('close-selection-modal-button');
@@ -956,33 +950,14 @@
             selectionModalGrid = document.getElementById('selection-modal-grid');
             selectionModalConfirm = document.getElementById('selection-modal-confirm');
             selectionModalCancel = document.getElementById('selection-modal-cancel');
-            
-            // --- Attach Event Listeners ---
+            witchFuseCountdownDisplay = document.getElementById('witch-fuse-countdown');
+
+            // --- Add Event Listeners ---
             pauseButton.addEventListener('click', togglePause);
             saveButton.addEventListener('click', saveGame); // Cloud Save
             loadButton.addEventListener('click', loadGame); // Cloud Load
-            
-            exportButton.addEventListener('click', saveGameToFile); // Local Save
-            importButton.addEventListener('click', loadGameFromFile); // Local Load
-            
-            loadFileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const text = e.target.result;
-                        const parsedData = JSON.parse(text);
-                        loadGameData(parsedData, "File");
-                    } catch (error) {
-                        console.error("Error reading save file:", error);
-                        showNotification("Load Failed: Invalid file format.", "red");
-                    }
-                };
-                reader.readAsText(file);
-                event.target.value = null; // Reset input
-            });
-
+            saveFileButton.addEventListener('click', saveGameToFile); // Local Save
+            loadFileButton.addEventListener('click', loadGameFromFile); // Local Load
             sellButton.addEventListener('click', toggleSellMode);
             indexButton.addEventListener('click', openIndexModal);
             closeIndexButton.addEventListener('click', closeIndexModal);
@@ -995,32 +970,8 @@
             closeJayceButton.addEventListener('click', closeJayceModal);
             jayceLoginButton.addEventListener('click', jayceLogin);
             jaycePasswordInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') jayceLogin() });
-            baseContainer.addEventListener('mouseover', (e) => { 
-                const slot = e.target.closest('.base-slot'); 
-                if (!slot) return; 
-                const index = parseInt(slot.dataset.index, 10); 
-                const brainrot = baseSlots[index]; 
-                if (brainrot) { 
-                    const sellPrice = Math.floor(brainrot.cost * SELL_MULTIPLIER); 
-                    let tooltipHTML = `<div class="font-bold">${brainrot.name}</div><div>Sell: <span class="text-green-400">$${formatLargeNumber(sellPrice)}</span></div><div>Base MPS: <span class="text-yellow-400">${formatLargeNumber(brainrot.mps)}</span></div>`;
-                    if (brainrot.mutation && brainrot.mutation.name !== 'None') { tooltipHTML += `<div>${brainrot.mutation.name}: <span style="color: ${brainrot.mutation.color}">x${brainrot.mutation.multiplier} MPS</span></div>`; }
-                    if (brainrot.trait) { tooltipHTML += `<div>${brainrot.trait.name}: <span style="color: ${brainrot.trait.color}">x${brainrot.trait.multiplier} MPS</span></div>`; }
-                    globalTooltip.innerHTML = tooltipHTML;
-                    const rect = slot.getBoundingClientRect(); 
-                    globalTooltip.classList.remove('hidden'); 
-                    const tooltipRect = globalTooltip.getBoundingClientRect(); 
-                    let top = rect.top - tooltipRect.height - 8; 
-                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2); 
-                    if (top < 0) { top = rect.bottom + 8; } 
-                    if (left < 0) { left = 5; } 
-                    if (left + tooltipRect.width > window.innerWidth) { left = window.innerWidth - tooltipRect.width - 5; } 
-                    globalTooltip.style.top = `${top}px`; 
-                    globalTooltip.style.left = `${left}px`; 
-                } 
-            });
-            baseContainer.addEventListener('mouseout', () => { globalTooltip.classList.add('hidden'); });
-
-            // --- Modal Listeners ---
+            jayceLogoutButton.addEventListener('click', jayceLogout);
+            
             openRitualButton.addEventListener('click', openRitualModal);
             closeRitualButton.addEventListener('click', closeRitualModal);
             ritualModal.addEventListener('click', (e) => { if (e.target === ritualModal) closeRitualModal(); });
@@ -1059,12 +1010,11 @@
                     buyFromDealer(e.target.dataset.itemName);
                 }
             });
-            
+
             openTraderButton.addEventListener('click', () => {
                 showNotification("Trader coming soon!", "cyan");
             });
 
-            // Selection Modal Listeners
             closeSelectionModalButton.addEventListener('click', closeSelectionModal);
             selectionModalCancel.addEventListener('click', closeSelectionModal);
             selectionModal.addEventListener('click', (e) => { if(e.target === selectionModal) closeSelectionModal() });
@@ -1075,7 +1025,50 @@
                 }
             });
 
-            // --- Admin Panel Listeners ---
+            loadFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const text = e.target.result;
+                        const parsedData = JSON.parse(text);
+                        loadGameData(parsedData, "File");
+                    } catch (error) {
+                        console.error("Error reading save file:", error);
+                        showNotification("Load Failed: Invalid file format.", "red");
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = null;
+            });
+
+            baseContainer.addEventListener('mouseover', (e) => { 
+                const slot = e.target.closest('.base-slot'); 
+                if (!slot) return; 
+                const index = parseInt(slot.dataset.index, 10); 
+                const brainrot = baseSlots[index]; 
+                if (brainrot) { 
+                    const sellPrice = Math.floor(brainrot.cost * SELL_MULTIPLIER); 
+                    let tooltipHTML = `<div class="font-bold">${brainrot.name}</div><div>Sell: <span class="text-green-400">$${formatLargeNumber(sellPrice)}</span></div><div>Base MPS: <span class="text-yellow-400">${formatLargeNumber(brainrot.mps)}</span></div>`;
+                    if (brainrot.mutation && brainrot.mutation.name !== 'None') { tooltipHTML += `<div>${brainrot.mutation.name}: <span style="color: ${brainrot.mutation.color}">x${brainrot.mutation.multiplier} MPS</span></div>`; }
+                    if (brainrot.trait) { tooltipHTML += `<div>${brainrot.trait.name}: <span style="color: ${brainrot.trait.color}">x${brainrot.trait.multiplier} MPS</span></div>`; }
+                    globalTooltip.innerHTML = tooltipHTML;
+                    const rect = slot.getBoundingClientRect(); 
+                    globalTooltip.classList.remove('hidden'); 
+                    const tooltipRect = globalTooltip.getBoundingClientRect(); 
+                    let top = rect.top - tooltipRect.height - 8; 
+                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2); 
+                    if (top < 0) { top = rect.bottom + 8; } 
+                    if (left < 0) { left = 5; } 
+                    if (left + tooltipRect.width > window.innerWidth) { left = window.innerWidth - tooltipRect.width - 5; } 
+                    globalTooltip.style.top = `${top}px`; 
+                    globalTooltip.style.left = `${left}px`; 
+                } 
+            });
+            baseContainer.addEventListener('mouseout', () => { globalTooltip.classList.add('hidden'); });
+
+            // Admin panel listeners
             document.getElementById('jayce-send-chat').addEventListener('click', () => {
                 const message = document.getElementById('jayce-chat-input').value;
                 const displayName = document.getElementById('jayce-display-name').value || 'Admin';
@@ -1084,7 +1077,6 @@
                     document.getElementById('jayce-chat-input').value = '';
                 }
             });
-
             document.getElementById('jayce-spawn-button').addEventListener('click', () => { 
                 const value = document.getElementById('jayce-spawn-select').value; 
                 const mutation = mutations[document.getElementById('jayce-spawn-mutation').value];
@@ -1098,7 +1090,7 @@
                 }
                 
                 if (value.startsWith('lucky_block_')) { 
-                    const blockType = value.replace('lucky_block_', ''); 
+                    const blockType = value.replace('lucky_block_', '');
                     sendGlobalEvent('spawn_lucky_block', { name: blockType });
                 } else { 
                     sendGlobalEvent('spawn', { name: value, mutation, trait });
@@ -1140,85 +1132,91 @@
                 const eventName = document.getElementById('jayce-event-select').value;
                 sendGlobalEvent('event', { name: eventName });
             });
-            document.getElementById('jayce-restock-button').addEventListener('click', () => {
+             document.getElementById('jayce-restock-button').addEventListener('click', () => {
                 const itemName = document.getElementById('jayce-restock-select').value;
                 sendGlobalEvent('restock_dealer', { item: itemName });
             });
-            jayceLogoutButton.addEventListener('click', jayceLogout);
+
 
             // --- Start Game Logic ---
             updateDerivedState();
-            initBase(); // Init base slots based on maxBaseSlots
-            renderBase(); // Render the empty slots
+            initBase();
             populateAdminDropdowns();
             gameInterval = setInterval(gameLoop, 1000 / 60);
             timerInterval = setInterval(updateTimers, 1000);
             setTimeout(spawnBrainrotOnBelt, 1000);
             checkTacoTuesday();
-            updateAllUI(); // Update UI with initial values
+            updateAllUI();
         }
 
         function setupGlobalEventListener() {
             if (globalEventListener || !db) return; // Don't run if no DB or already listening
 
-            const q = doc(db, eventsDocPath); // Listen to the single doc
-            globalEventListener = onSnapshot(q, (docSnap) => {
-                if (docSnap.exists()) {
-                    const event = docSnap.data();
-                    // Basic check to not re-play old events
-                    if (event.timestamp) {
-                        const eventTime = event.timestamp.toDate();
-                        const now = new Date();
-                        const diff = (now.getTime() - eventTime.getTime()) / 1000;
-                        if (diff < 60) { // Only process events from the last 60 seconds
-                            console.log("Global Event Received:", event);
-                            handleGlobalEvent(event);
-                        }
+            console.log("Setting up global event listener...");
+            try {
+                globalEventListener = onSnapshot(doc(db, globalEventsDocPath), (doc) => {
+                    if (doc.exists()) {
+                        const event = doc.data();
+                        // Check if event is new by comparing timestamp (optional, but good practice)
+                        // For simplicity, we'll just handle any event we get
+                        console.log("Global Event Received:", event);
+                        handleGlobalEvent(event);
                     }
-                }
-            }, (error) => {
-                console.error("Error listening to global events:", error);
-            });
+                }, (error) => {
+                    console.error("Error listening to global events:", error);
+                    showNotification("Lost connection to global events.", "red");
+                });
+            } catch (error) {
+                 console.error("Failed to set up global listener:", error);
+            }
         }
-        
+
         function setupDealerStockListener() {
-            if (dealerEventListener || !db) return;
+            if (dealerStockListener || !db) return;
             
-            const q = doc(db, dealerDocPath);
-            dealerEventListener = onSnapshot(q, (docSnap) => {
-                if (docSnap.exists()) {
-                    currentDealerStock = docSnap.data();
-                    console.log("Dealer stock updated from Firebase.");
-                    if (dealerModal.classList.contains('hidden')) {
-                        // Don't re-render if modal is closed
+            console.log("Setting up dealer stock listener...");
+            try {
+                dealerStockListener = onSnapshot(doc(db, dealerStockDocPath), (doc) => {
+                    if (doc.exists()) {
+                        currentDealerStock = doc.data();
+                        console.log("Dealer stock updated from cloud.");
+                        if (dealerModal.classList.contains('hidden')) {
+                            // Don't re-render if modal is closed
+                        } else {
+                            renderDealerModal(); // Re-render modal if open
+                        }
                     } else {
-                        renderDealerModal(); // Re-render if open
+                        // No global stock, initialize it
+                        console.log("No global stock found, initializing...");
+                        initializeGlobalDealerStock();
                     }
-                } else {
-                    console.log("No global dealer stock found, initializing...");
-                    initializeGlobalDealerStock();
-                }
-            }, (error) => {
-                console.error("Error listening to dealer stock:", error);
-            });
+                }, (error) => {
+                    console.error("Error listening to dealer stock:", error);
+                });
+            } catch (error) {
+                console.error("Failed to set up dealer listener:", error);
+            }
         }
 
         async function initializeGlobalDealerStock() {
-            if (!db) return;
+            if (!db || !isAdmin) return; // Only admin can initialize stock
+            console.log("Admin initializing global stock...");
+            let initialStock = {};
+            for (const name in dealerExclusives) {
+                initialStock[name] = dealerExclusives[name].initialStock;
+            }
             try {
-                const initialStock = {};
-                for (const name in dealerExclusives) {
-                    initialStock[name] = dealerExclusives[name].initialStock;
-                }
-                await setDoc(doc(db, dealerDocPath), initialStock);
-                console.log("Global dealer stock initialized.");
+                await setDoc(doc(db, dealerStockDocPath), initialStock);
                 currentDealerStock = initialStock;
             } catch (error) {
-                console.error("Failed to initialize dealer stock:", error);
+                console.error("Failed to initialize global stock:", error);
             }
         }
 
         function handleGlobalEvent(event) {
+            // Check for timestamp to avoid old events? For now, just run it.
+            if (!event || !event.type) return;
+
             switch(event.type) {
                 case 'chat':
                     showNotification(`${event.displayName || 'JAYCE'}: ${event.message}`, 'white');
@@ -1236,7 +1234,7 @@
                     startTacoEvent();
                     break;
                 case 'all_events':
-                     for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
+                    for (const eventName in weatherEvents) { startWeatherEvent(eventName); }
                     break;
                 case 'stop_all_events':
                     activeEvents = {};
@@ -1247,9 +1245,9 @@
                     showNotification("All events have been stopped.", "gray");
                     break;
                 case 'restock_dealer':
-                    // This event just *triggers* a stock reset, listener handles the data
-                    // The admin function will have already updated the doc
-                    showNotification("Dealer stock has been restocked!", "green");
+                    // This event is just a trigger; the listener will handle the data change
+                    // But we can show a notification
+                    showNotification(`Dealer was restocked by an admin!`, "green");
                     break;
             }
         }
@@ -1257,47 +1255,40 @@
         async function sendGlobalEvent(type, payload) {
             if (!isAdmin) {
                 showNotification("Admin login required.", "red");
-                // Simulate locally if admin
-                if (type !== 'chat') handleGlobalEvent({ type, ...payload });
                 return;
             }
             if (!db) {
                 showNotification("Not connected to Firebase.", "red");
                 return;
             }
-            
-            if (type === 'restock_dealer') {
-                // This is a special case that modifies the dealer doc, not events
-                try {
-                    const item = payload.item;
-                    if (item === 'All') {
-                        // Reset all stock
-                        const initialStock = {};
-                        for (const name in dealerExclusives) {
-                            initialStock[name] = dealerExclusives[name].initialStock;
-                        }
-                        await setDoc(doc(db, dealerDocPath), initialStock);
-                    } else {
-                        // Reset stock for one item
-                        await updateDoc(doc(db, dealerDocPath), {
-                            [item]: dealerExclusives[item].initialStock
-                        });
-                    }
-                    showNotification("Dealer stock restocked globally!", "green");
-                } catch (error) {
-                    console.error("Error restocking dealer:", error);
-                    showNotification("Failed to restock dealer.", "red");
-                }
-                return; // Don't send a global event doc for this
-            }
-            
-            // For all other events, update the single global event doc
             try {
-                await setDoc(doc(db, eventsDocPath), {
-                    ...payload,
-                    type: type,
-                    timestamp: serverTimestamp() // This is the trigger
-                });
+                // For 'restock_dealer', we update the dealer doc, not the events doc
+                if (type === 'restock_dealer') {
+                    const item = payload.item;
+                    await runTransaction(db, async (transaction) => {
+                        const stockDoc = await transaction.get(doc(db, dealerStockDocPath));
+                        let newStock = stockDoc.exists() ? stockDoc.data() : {};
+                        
+                        if (item === 'All') {
+                            for (const name in dealerExclusives) {
+                                newStock[name] = dealerExclusives[name].initialStock;
+                            }
+                        } else {
+                            newStock[item] = dealerExclusives[item].initialStock;
+                        }
+                        transaction.set(doc(db, dealerStockDocPath), newStock);
+                    });
+                    showNotification("Dealer stock updated globally.", "green");
+
+                } else {
+                    // For all other events, update the global event doc
+                    await setDoc(doc(db, globalEventsDocPath), {
+                        ...payload,
+                        type: type,
+                        timestamp: serverTimestamp() // This marks it as new
+                    });
+                    showNotification("Global command sent!", "cyan");
+                }
             } catch (error) {
                 console.error("Error sending global event:", error);
                 showNotification("Failed to send command.", "red");
@@ -1307,29 +1298,59 @@
         function gameLoop() { if (!isPaused) { updateMoney(); updateBeltItems(); } }
         
         function updateTimers() { 
-            if (!isPaused) { 
-                timeUntilLegendary--; 
-                timeUntilMythic--; 
-                timeUntilBrainrotGod--; 
-                if (timeUntilLegendary <= 0) { spawnSpecificBrainrot('Legendary'); timeUntilLegendary = 60; } 
-                if (timeUntilMythic <= 0) { spawnSpecificBrainrot('Mythic'); timeUntilMythic = 300; } 
-                if (timeUntilBrainrotGod <= 0) { spawnSpecificBrainrot('Brainrot God'); timeUntilBrainrotGod = 1800; } 
-                updateTimerDisplay(); 
-                updateActiveEvents(); 
-                updateWitchFuseCountdown(); // Update countdown
-            } 
+            if (isPaused) return;
+            
+            timeUntilLegendary--; 
+            timeUntilMythic--; 
+            timeUntilBrainrotGod--; 
+            
+            if (timeUntilLegendary <= 0) { spawnSpecificBrainrot('Legendary'); timeUntilLegendary = 60; } 
+            if (timeUntilMythic <= 0) { spawnSpecificBrainrot('Mythic'); timeUntilMythic = 300; } 
+            if (timeUntilBrainrotGod <= 0) { spawnSpecificBrainrot('Brainrot God'); timeUntilBrainrotGod = 1800; } 
+            
+            updateTimerDisplay(); 
+            updateActiveEvents(); 
+            updateWitchFuseCountdown();
         }
-        
-        function updateDerivedState() { maxBaseSlots = 10 + rebirths; } // Multiplier is now trait-based
+
+        function updateWitchFuseCountdown() {
+            const now = new Date();
+            let nextFriday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0); // Midnight today
+            
+            // Find the next Friday (day 5)
+            while (nextFriday.getDay() !== 5) {
+                nextFriday.setDate(nextFriday.getDate() + 1);
+            }
+
+            // If it IS Friday, the event is over.
+            if (now.getDay() === 5) {
+                witchFuseCountdownDisplay.textContent = "Witch Fuse has left!";
+                openWitchFuseButton.classList.add('hidden');
+                return;
+            }
+
+            const diff = nextFriday.getTime() - now.getTime();
+            if (diff <= 0) {
+                witchFuseCountdownDisplay.textContent = "Witch Fuse has left!";
+                openWitchFuseButton.classList.add('hidden');
+            } else {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                witchFuseCountdownDisplay.textContent = `Witch Fuse Leaves in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                openWitchFuseButton.classList.remove('hidden');
+            }
+        }
+
+
+        function updateDerivedState() { maxBaseSlots = 10 + rebirths; moneyMultiplier = 1; } // Multiplier is now trait-based
         
         function initBase() {
-            baseContainer.innerHTML = ''; // Clear previous slots
-            // Ensure baseSlots array has the correct length *before* filling
-            baseSlots.length = maxBaseSlots;
+            baseContainer.innerHTML = '';
+            baseSlots = Array(maxBaseSlots).fill(null);
             for (let i = 0; i < maxBaseSlots; i++) {
-                if (baseSlots[i] === undefined) {
-                    baseSlots[i] = null; // Fill any new slots with null
-                }
                 const slot = document.createElement('div');
                 slot.classList.add('base-slot');
                 slot.dataset.index = i;
@@ -1354,10 +1375,8 @@
             if (!blockType) {
                 let random = Math.random() * totalLuckyBlockWeight;
                 for (const name in luckyBlockManifest) {
-                    if (luckyBlockManifest[name].weight > 0) { // Only count spawnable blocks
-                        if (random < luckyBlockManifest[name].weight) { blockType = name; break; }
-                        random -= luckyBlockManifest[name].weight;
-                    }
+                    if (random < luckyBlockManifest[name].weight) { blockType = name; break; }
+                    random -= luckyBlockManifest[name].weight;
                 }
             }
             if (!blockType) return;
@@ -1372,55 +1391,51 @@
         }
         
         function openLuckyBlock(block, blockType) {
-            const blockData = luckyBlockManifest[blockType];
-            if (!blockData) return;
-
-            // Remove block from belt
             block.element.remove();
             beltItems = beltItems.filter(b => b.id !== block.id);
-            
-            if (blockData.isMultiLoot) {
-                // OP LUCKY BLOCK LOGIC
-                let itemsWon = [];
-                blockData.lootTable.forEach(loot => {
-                    if (Math.random() < loot.chance) {
-                        itemsWon.push(loot.name);
-                    }
-                });
+            const blockData = luckyBlockManifest[blockType];
+            const lootTable = blockData.lootTable;
 
-                if (itemsWon.length === 0) {
-                    showNotification("The OP Block was empty... how unlucky!", "gray");
+            if (blockData.isMultiLoot) {
+                // --- MULTI-LOOT LOGIC (OP BLOCK) ---
+                let itemsFound = [];
+                for (const loot of lootTable) {
+                    if (Math.random() * 100 < loot.chance) { // Check percentage
+                        const prizeData = findBrainrotData(loot.name);
+                        if (prizeData) {
+                            itemsFound.push(prizeData);
+                        }
+                    }
+                }
+
+                if (itemsFound.length === 0) {
+                    showNotification(`The OP Lucky Block was empty... how unlucky!`, "gray");
                     return;
                 }
 
-                let placedItems = 0;
-                itemsWon.forEach(prizeName => {
+                let itemsPlaced = 0;
+                for (const prizeData of itemsFound) {
                     const emptySlotIndex = baseSlots.findIndex(s => s === null);
-                    if (emptySlotIndex === -1) { 
-                        showNotification("Base is full! Some items were lost.", "red");
-                        return; // Stop placing items if base is full
-                    }
-                    
-                    let prizeData = findBrainrotData(prizeName);
-                    if (prizeData) {
+                    if (emptySlotIndex !== -1) {
                         const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
                         baseSlots[emptySlotIndex] = brainrot;
-                        discoveredBrainrots.add(prizeName);
-                        showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
-                        placedItems++;
+                        discoveredBrainrots.add(prizeData.name);
+                        if (brainrot.event) startWeatherEvent(brainrot.event);
+                        itemsPlaced++;
+                    } else {
+                        break; // Stop if base is full
                     }
-                });
-                if (placedItems > 0) {
-                    renderBase();
-                    updateAllUI();
                 }
+                
+                showNotification(`You found ${itemsPlaced} items! (Base is full)`, rarities['Secret'].color);
+                renderBase();
+                updateAllUI();
 
             } else {
-                // NORMAL LUCKY BLOCK LOGIC
+                // --- SINGLE-LOOT LOGIC (NORMAL BLOCKS) ---
                 const emptySlotIndex = baseSlots.findIndex(s => s === null);
                 if (emptySlotIndex === -1) { showNotification("Your base is full!", "red"); return; }
-                
-                const lootTable = blockData.lootTable;
+            
                 const totalChance = lootTable.reduce((s, l) => s + l.chance, 0);
                 let random = Math.random() * totalChance;
                 let prizeName = '';
@@ -1428,38 +1443,28 @@
                     if (random < loot.chance) { prizeName = loot.name; break; }
                     random -= loot.chance;
                 }
-                
-                if (prizeName) {
-                    let prizeData = findBrainrotData(prizeName);
-                    if (prizeData) {
-                        const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
-                        baseSlots[emptySlotIndex] = brainrot;
-                        discoveredBrainrots.add(prizeName);
-                        if (brainrot.event) startWeatherEvent(brainrot.event);
-                        showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
-                        renderBase();
-                        updateAllUI();
-                    }
-                } else {
-                    showNotification("The block was empty...", "gray");
+                let prizeData = findBrainrotData(prizeName);
+                if (prizeData) {
+                    const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null };
+                    baseSlots[emptySlotIndex] = brainrot;
+                    discoveredBrainrots.add(prizeName);
+                    if (brainrot.event) startWeatherEvent(brainrot.event);
+                    showNotification(`You found a ${prizeName}!`, rarities[prizeData.rarity].color);
+                    renderBase();
+                    updateAllUI();
                 }
             }
         }
 
         function findBrainrotData(name) {
             if(name === 'Los Orcalitos (Ritual)') name = 'Los Orcalitos';
-            // Search all exclusive lists first
             if (dealerExclusives[name]) { return { name, ...dealerExclusives[name] }; }
             if (ritualExclusives[name]) { return { name, ...ritualExclusives[name] }; }
             if (craftExclusives[name]) { return { name, ...craftExclusives[name] }; }
             if (fuseExclusives[name]) { return { name, ...fuseExclusives[name] }; }
             if (luckyBlockExclusives[name]) { return { name, ...luckyBlockExclusives[name] }; }
-            // Search the main manifest
-            for (const rarity in brainrotManifest) { 
-                const found = brainrotManifest[rarity].find(b => b.name === name); 
-                if (found) return { ...found, rarity }; 
-            }
-            return null; // Not found
+            for (const rarity in brainrotManifest) { const found = brainrotManifest[rarity].find(b => b.name === name); if (found) return { ...found, rarity }; }
+            return null;
         }
 
         function spawnSpecificBrainrot(rarityName) {
@@ -1473,7 +1478,6 @@
             let brainrotData = findBrainrotData(brainrotName);
             if (!brainrotData) { console.error("Spawn Error: Brainrot not found:", brainrotName); return; }
             const rarityData = rarities[brainrotData.rarity];
-            if (!rarityData) { console.error("Spawn Error: Invalid rarity:", brainrotData.rarity); return; }
             const itemWrapper = document.createElement('div');
             itemWrapper.classList.add('belt-item-wrapper');
             let mutationIcon = '';
@@ -1497,30 +1501,13 @@
             conveyorBelt.appendChild(itemWrapper);
         }
 
-        function updateBeltItems() { 
-            const beltWidth = conveyorBelt.offsetWidth; 
-            const speed = 1.2; 
-            beltItems = beltItems.filter(item => { 
-                item.position += speed; 
-                if (item.element) item.element.style.transform = `translateX(${item.position}px) translateY(-50%)`; 
-                if (item.position > beltWidth + 50) { 
-                    if (item.element) item.element.remove(); 
-                    return false; 
-                } 
-                return true; 
-            }); 
-        }
+        function updateBeltItems() { const beltWidth = conveyorBelt.offsetWidth; const speed = 1.2; beltItems = beltItems.filter(item => { item.position += speed; item.element.style.transform = `translateX(${item.position}px) translateY(-50%)`; if (item.position > beltWidth + 50) { item.element.remove(); return false; } return true; }); }
         
         function buyBrainrot(brainrot) { 
             const emptySlotIndex = baseSlots.findIndex(slot => slot === null); 
-            if (money < brainrot.cost) {
-                showNotification("Not enough money!", "red");
-                return;
-            }
-            if (emptySlotIndex === -1) {
-                showNotification("Base is full!", "red");
-                return;
-            }
+            if (money < brainrot.cost) { showNotification("Not enough money!", "red"); return; }
+            if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
+            
             money -= brainrot.cost; 
             
             // Check for trait application
@@ -1536,8 +1523,8 @@
                 }
             }
             
-            // Sanitize item for baseSlots (remove DOM element)
-            const { element, position, id, ...safeBrainrotData } = brainrot;
+            // Remove circular reference
+            const { element, position, ...safeBrainrotData } = brainrot;
             baseSlots[emptySlotIndex] = { ...safeBrainrotData, trait: appliedTrait }; 
             
             discoveredBrainrots.add(brainrot.name); 
@@ -1548,30 +1535,16 @@
             updateAllUI(); 
         }
         
-        function handleBaseSlotClick(index) { 
-            if (isSellMode && baseSlots[index]) { 
-                const brainrotToSell = baseSlots[index]; 
-                const sellPrice = Math.floor(brainrotToSell.cost * SELL_MULTIPLIER); 
-                money += sellPrice; 
-                baseSlots[index] = null; 
-                renderBase(); 
-                updateAllUI(); 
-            } 
-        }
+        function handleBaseSlotClick(index) { if (isSellMode && baseSlots[index]) { const brainrotToSell = baseSlots[index]; const sellPrice = Math.floor(brainrotToSell.cost * SELL_MULTIPLIER); money += sellPrice; baseSlots[index] = null; renderBase(); updateAllUI(); } }
         
         function renderBase() { 
             const slots = baseContainer.children; 
             for (let i = 0; i < maxBaseSlots; i++) { 
                 const slot = slots[i]; 
-                if (!slot) continue; // Slot doesn't exist (e.g., during init)
+                if (!slot) continue; 
                 const brainrot = baseSlots[i]; 
                 if (brainrot) { 
-                    const rarityData = rarities[brainrot.rarity];
-                    if (!rarityData) {
-                        console.warn("Invalid rarity in renderBase:", brainrot);
-                        slot.innerHTML = `<div class="base-item" style="border-color: #fff; background-color: #374151;">?</div>`;
-                        continue;
-                    }
+                    const rarityData = rarities[brainrot.rarity]; 
                     let mutationIcon = '';
                     if (brainrot.mutation && brainrot.mutation.name !== 'None') { 
                         mutationIcon = `<div class="mutation-icon" style="background: ${brainrot.mutation.color};" title="${brainrot.mutation.name} (x${brainrot.mutation.multiplier} MPS)">${brainrot.mutation.icon}</div>`; 
@@ -1588,7 +1561,6 @@
         }
         
         function updateAllUI() { 
-            if (!moneyDisplay) return; // Exit if UI not ready
             moneyDisplay.textContent = formatLargeNumber(Math.floor(money)); 
             const count = baseSlots.filter(s => s !== null).length; 
             baseCountDisplay.textContent = `${count} / ${maxBaseSlots}`; 
@@ -1598,7 +1570,7 @@
                 if (b) {
                     const mutationMultiplier = b.mutation?.multiplier || 1;
                     const traitMultiplier = b.trait?.multiplier || 1;
-                    totalMPS += (b.mps || 0) * mutationMultiplier * traitMultiplier;
+                    totalMPS += b.mps * mutationMultiplier * traitMultiplier;
                 }
             });
             mpsDisplay.textContent = formatLargeNumber(totalMPS * baseRebirthMultiplier); 
@@ -1606,7 +1578,7 @@
             updateIndexCounter(); 
         }
         
-        function updateIndexCounter() { if (indexCounter) indexCounter.textContent = `(${discoveredBrainrots.size}/${totalBrainrotsCount})`; }
+        function updateIndexCounter() { indexCounter.textContent = `(${discoveredBrainrots.size}/${totalBrainrotsCount})`; }
         
         function updateMoney() { 
             let totalMPS = 0;
@@ -1615,15 +1587,15 @@
                 if (b) {
                     const mutationMultiplier = b.mutation?.multiplier || 1;
                     const traitMultiplier = b.trait?.multiplier || 1;
-                    totalMPS += (b.mps || 0) * mutationMultiplier * traitMultiplier;
+                    totalMPS += b.mps * mutationMultiplier * traitMultiplier;
                 }
             });
             money += (totalMPS * baseRebirthMultiplier) / 60; 
-            if (moneyDisplay) moneyDisplay.textContent = formatLargeNumber(Math.floor(money)); 
+            moneyDisplay.textContent = formatLargeNumber(Math.floor(money)); 
         }
         
-        function updateTimerDisplay() { if (timerDisplay) { const nextSpawnTime = Math.min(timeUntilLegendary, timeUntilMythic, timeUntilBrainrotGod); const minutes = Math.floor(nextSpawnTime / 60).toString().padStart(2, '0'); const seconds = (nextSpawnTime % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${minutes}:${seconds}`; } }
-        function handleRebirth() { if (!checkRebirthEligibility()) return; rebirths++; money = 100; luck += 1; updateDerivedState(); initBase(); beltItems.forEach(item => item.element.remove()); beltItems = []; renderBase(); updateAllUI(); closeRebirthModal(); showNotification("Rebirth successful! Welcome to Rebirth " + rebirths, "purple"); }
+        function updateTimerDisplay() { const nextSpawnTime = Math.min(timeUntilLegendary, timeUntilMythic, timeUntilBrainrotGod); const minutes = Math.floor(nextSpawnTime / 60).toString().padStart(2, '0'); const seconds = (nextSpawnTime % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${minutes}:${seconds}`; }
+        function handleRebirth() { if (!checkRebirthEligibility()) return; rebirths++; money = 100; updateDerivedState(); initBase(); beltItems.forEach(item => item.element.remove()); beltItems = []; renderBase(); updateAllUI(); closeRebirthModal(); }
         function checkRebirthEligibility() { const requirement = rebirthRequirements[rebirths]; if (!requirement) return false; const hasMoney = money >= requirement.cost; const baseUnitNames = baseSlots.filter(s => s).map(s => s.name); const hasUnits = requirement.units.every(unitName => baseUnitNames.includes(unitName)); return hasMoney && hasUnits; }
         function renderRebirthModal() { const requirement = rebirthRequirements[rebirths]; if (!requirement) { rebirthInfo.innerHTML = `<p class="text-xl font-bold text-center text-green-400">You have reached the maximum rebirth!</p>`; confirmRebirthButton.disabled = true; confirmRebirthButton.textContent = "Max Rebirth"; return; } const hasMoney = money >= requirement.cost; const baseUnitNames = baseSlots.filter(s => s).map(s => s.name); const unitsMet = requirement.units.map(u => baseUnitNames.includes(u)); const hasAllUnits = unitsMet.every(met => met); let reqHTML = `<h3 class="text-lg font-bold mb-2">Rebirth ${rebirths + 1} Requirements:</h3>`; reqHTML += `<p class="${hasMoney ? 'requirement-met' : 'requirement-not-met'}">💰 Money: $${formatLargeNumber(requirement.cost)}</p>`; reqHTML += `<h4 class="font-semibold mt-2">Required Brainrots:</h4><ul class="list-disc list-inside">`; requirement.units.forEach((unitName, index) => { reqHTML += `<li class="${unitsMet[index] ? 'requirement-met' : 'requirement-not-met'}">${unitName}</li>`; }); reqHTML += `</ul>`; rebirthInfo.innerHTML = reqHTML; confirmRebirthButton.disabled = !(hasMoney && hasAllUnits); confirmRebirthButton.textContent = `Confirm Rebirth (${rebirths + 1})`; }
         function togglePause() { isPaused = !isPaused; pauseButton.textContent = isPaused ? "Resume" : "Pause"; conveyorBelt.classList.toggle('paused', isPaused); }
@@ -1684,16 +1656,14 @@
         function performRitual(ritualKey, indicesToUse) {
             const recipe = ritualRecipes[ritualKey];
             const hasEmptySlot = baseSlots.some(s => s === null);
-            if (!hasEmptySlot) {
-                showNotification("Base is full!", "red");
-                return;
-            }
+            if (!hasEmptySlot) { showNotification("Base is full!", "red"); return; }
             
-            // Consume items from the provided indices
+            // Remove used items
             indicesToUse.forEach(index => {
                 baseSlots[index] = null;
             });
-            
+
+            // Add new item
             const emptySlotIndex = baseSlots.findIndex(s => s === null);
             const resultData = findBrainrotData(ritualKey);
             baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
@@ -1729,16 +1699,13 @@
         function performCraft(craftKey, indicesToUse) {
             const recipe = craftRecipes[craftKey];
             const hasEmptySlot = baseSlots.some(s => s === null);
-            if (!hasEmptySlot) {
-                showNotification("Base is full!", "red");
-                return;
-            }
+            if (!hasEmptySlot) { showNotification("Base is full!", "red"); return; }
 
-            // Consume items
+            // Remove used items
             indicesToUse.forEach(index => {
                 baseSlots[index] = null;
             });
-
+            
             const emptySlotIndex = baseSlots.findIndex(s => s === null);
             const resultData = findBrainrotData(craftKey);
             baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
@@ -1778,14 +1745,10 @@
         function performFuse(inputRarity, type, indicesToUse) {
             const recipe = fuseRecipes[type].find(r => r.inputRarity === inputRarity);
             if (!recipe) return;
-            
             const hasEmptySlot = baseSlots.some(s => s === null);
-            if (!hasEmptySlot) {
-                showNotification("Base is full!", "red");
-                return;
-            }
+            if (!hasEmptySlot) { showNotification("Base is full!", "red"); return; }
             
-            // Consume items
+            // Remove used items
             indicesToUse.forEach(index => {
                 baseSlots[index] = null;
             });
@@ -1793,7 +1756,18 @@
             const emptySlotIndex = baseSlots.findIndex(s => s === null);
             const resultName = recipe.output[Math.floor(Math.random() * recipe.output.length)];
             const resultData = findBrainrotData(resultName);
-            baseSlots[emptySlotIndex] = { ...resultData, mutation: getRandomMutation(), trait: null };
+            
+            let eventLuck = Object.values(activeEvents).reduce((s, e) => s + (e.luck || 0), 0);
+            let mutation = getRandomMutation(); // Get base mutation
+            
+            // Apply fuse luck
+            if( (type === 'Normal' && activeEvents['Fuse Luck']) || (type === 'Witch' && activeEvents['Witch Luck']) ) {
+                if (Math.random() < 0.25) mutation = mutations['Gold'];
+                if (Math.random() < 0.10) mutation = mutations['Diamond'];
+                if (Math.random() < 0.05) mutation = mutations['Rainbow'];
+            }
+
+            baseSlots[emptySlotIndex] = { ...resultData, mutation: mutation, trait: null };
             discoveredBrainrots.add(resultData.name);
             showNotification(`Fuse complete! You got a ${resultData.name}!`, rarities[resultData.rarity].color);
             renderBase(); updateAllUI(); renderFuseModal(type);
@@ -1805,7 +1779,7 @@
 
             for (const name in dealerExclusives) {
                 const data = dealerExclusives[name];
-                const stock = currentDealerStock[name] || 0;
+                const stock = currentDealerStock[name] === undefined ? data.initialStock : currentDealerStock[name];
                 const canAfford = money >= data.cost;
                 const canBuy = hasEmptySlot && canAfford && stock > 0;
 
@@ -1825,72 +1799,74 @@
                 dealerList.appendChild(dealerEl);
             }
         }
-
+        
         async function buyFromDealer(itemName) {
-            if (!db) {
-                showNotification("Dealer is offline (no DB connection).", "red");
-                return;
-            }
+            if (!db) { showNotification("Not connected to Firebase.", "red"); return; }
+            
             const data = dealerExclusives[itemName];
             const emptySlotIndex = baseSlots.findIndex(s => s === null);
             
             if (money < data.cost) { showNotification("Not enough money!", "red"); return; }
             if (emptySlotIndex === -1) { showNotification("Base is full!", "red"); return; }
-
+            
             try {
                 await runTransaction(db, async (transaction) => {
-                    const stockDoc = await transaction.get(doc(db, dealerDocPath));
+                    const stockDocRef = doc(db, dealerStockDocPath);
+                    const stockDoc = await transaction.get(stockDocRef);
+                    
                     if (!stockDoc.exists()) {
-                        throw new Error("Dealer stock document does not exist!");
+                        throw new Error("Dealer stock does not exist!");
                     }
                     
-                    const currentStock = stockDoc.data()[itemName];
-                    if (currentStock > 0) {
-                        transaction.update(doc(db, dealerDocPath), { [itemName]: currentStock - 1 });
-                        
-                        // Add to base locally
-                        money -= data.cost;
-                        const brainrot = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
-                        baseSlots[emptySlotIndex] = brainrot;
-                        discoveredBrainrots.add(itemName);
-                        renderBase();
-                        updateAllUI();
-                        showNotification(`Bought ${itemName} from Dealer!`, "green");
-                    } else {
+                    let stockData = stockDoc.data();
+                    const currentItemStock = stockData[itemName] === undefined ? data.initialStock : stockData[itemName];
+                    
+                    if (currentItemStock <= 0) {
                         throw new Error("Item is out of stock!");
                     }
+                    
+                    // All checks passed, update stock
+                    transaction.update(stockDocRef, { [itemName]: currentItemStock - 1 });
                 });
-                // Re-render modal *after* transaction to show new stock (listener will also do this)
-                renderDealerModal();
+                
+                // Transaction successful, add item locally
+                money -= data.cost;
+                baseSlots[emptySlotIndex] = { name: itemName, ...data, mutation: getRandomMutation(), trait: null };
+                discoveredBrainrots.add(itemName);
+                renderBase();
+                updateAllUI();
+                renderDealerModal(); // Re-render to show updated stock
+                showNotification(`Bought ${itemName} from Dealer!`, "green");
+
             } catch (error) {
                 console.error("Dealer transaction failed: ", error);
                 showNotification(error.message, "red");
-                // Re-render modal to show the stock error
-                renderDealerModal();
+                renderDealerModal(); // Re-render to show correct stock
             }
         }
+
         
-        async function saveGame() {
+        async function saveGame() { // Cloud Save
             if (!db || !userId) {
                 showNotification("Cannot save: Not connected to cloud.", "red");
                 return;
             }
             
-            // Sanitize baseSlots to remove DOM elements
+            // Sanitize data
             const safeBaseSlots = baseSlots.map(slot => {
                 if (!slot) return null;
-                const { element, position, id, ...cleanSlot } = slot;
+                const { element, position, ...cleanSlot } = slot;
                 return cleanSlot;
             });
             
             const saveData = { 
                 money: money, 
-                baseSlots: safeBaseSlots, // Save the clean version
+                baseSlots: safeBaseSlots,
                 discovered: Array.from(discoveredBrainrots),
                 rebirths: rebirths, 
                 luck: luck, 
                 activeEvents: activeEvents,
-                timestamp: serverTimestamp() // Add timestamp
+                timestamp: serverTimestamp()
             };
             
             try {
@@ -1902,34 +1878,34 @@
             }
         }
         
-        async function loadGame() { // This is the FIREBASE loader
+        async function loadGame() { // Cloud Load
             if (!db || !userId) {
-                showNotification("Cannot load: Not connected to cloud.", "red");
+                showNotification("Not connected to cloud.", "red");
                 return;
-            }
+            } 
             try {
                 const docSnap = await getDoc(doc(db, userSaveDocPath));
                 if (docSnap.exists()) {
                     const parsedData = docSnap.data();
-                    loadGameData(parsedData, "Cloud"); // Pass source
+                    loadGameData(parsedData, "Cloud");
                 } else {
-                    showNotification("No cloud save found. Starting fresh!", "cyan");
-                    // New player, just continue with defaults
+                    showNotification("No cloud save found. Starting new game.", "cyan");
+                    loadGameData({}, "New"); // Load defaults
                 }
             } catch (error) {
                 console.error("Failed to load save data:", error);
                 showNotification("Load Failed: Could not reach cloud save.", "red");
+                loadGameData({}, "Offline"); // Load defaults
             }
         }
 
         function saveGameToFile() {
-            // Sanitize data
             const safeBaseSlots = baseSlots.map(slot => {
                 if (!slot) return null;
-                const { element, position, id, ...cleanSlot } = slot;
+                const { element, position, ...cleanSlot } = slot;
                 return cleanSlot;
             });
-
+            
             const saveData = { 
                 money: money, 
                 baseSlots: safeBaseSlots,
@@ -1937,7 +1913,7 @@
                 rebirths: rebirths, 
                 luck: luck, 
                 activeEvents: activeEvents,
-                dealerStock: currentDealerStock, // Include dealer stock for local saves
+                dealerStock: currentDealerStock, // Also save local dealer stock cache
                 timestamp: Date.now()
             };
 
@@ -1963,27 +1939,17 @@
                 luck = parsedData.luck || 0;
                 activeEvents = parsedData.activeEvents || {};
                 
-                // Only load dealer stock from local files
+                // Only load dealer stock from local file
                 if (source === "File" && parsedData.dealerStock) {
                     currentDealerStock = parsedData.dealerStock;
                 }
                 
-                updateDerivedState(); // Updates maxBaseSlots
-                initBase(); // Re-initializes base slots container
+                updateDerivedState();
+                initBase();
                 
                 const loadedBase = parsedData.baseSlots || [];
                 for(let i = 0; i < maxBaseSlots; i++) {
-                    if(loadedBase[i]) {
-                        // Re-find data to ensure it's up to date
-                        const data = findBrainrotData(loadedBase[i].name);
-                        if(data) {
-                            baseSlots[i] = { ...data, mutation: loadedBase[i].mutation, trait: loadedBase[i].trait };
-                        } else {
-                            baseSlots[i] = null; // Item no longer exists
-                        }
-                    } else {
-                        baseSlots[i] = null;
-                    }
+                    baseSlots[i] = loadedBase[i] || null;
                 }
 
                 discoveredBrainrots = new Set(parsedData.discovered || []);
@@ -2001,8 +1967,30 @@
         function openJayceModal() { jayceModal.classList.remove('hidden'); }
         function closeJayceModal() { jayceModal.classList.add('hidden'); }
         
-        function jayceLogin() { 
-            if (jaycePasswordInput.value.trim() === JAYCE_PASSWORD) { 
+        async function hashPassword(password) {
+            if (!crypto.subtle) {
+                return null; // Crypto API not available
+            }
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        async function jayceLogin() { 
+            const inputPassword = jaycePasswordInput.value;
+            
+            if (!crypto.subtle) {
+                jayceError.textContent = 'Crypto API not available (Requires HTTPS).';
+                showNotification("Login failed: Page is not secure (HTTPS).", "red");
+                return;
+            }
+
+            const inputHash = await hashPassword(inputPassword);
+            
+            if (inputHash === JAYCE_PASSWORD_HASH) { // Compare hashes
                 isAdmin = true;
                 jaycePasswordScreen.classList.add('hidden'); 
                 jayceCommandScreen.classList.remove('hidden'); 
@@ -2099,7 +2087,7 @@
                 giveTrait.appendChild(option.cloneNode(true));
                 eventSelect.appendChild(option.cloneNode(true));
             });
-            
+
             for(const name in dealerExclusives) {
                 const option = document.createElement('option');
                 option.value = name;
@@ -2181,7 +2169,6 @@
         }
 
         function updateActiveEventsUI() {
-            if (!activeEventsList) return;
             activeEventsList.innerHTML = '';
             for (const eventName in activeEvents) {
                 const event = activeEvents[eventName];
@@ -2197,7 +2184,6 @@
         }
 
         function startTacoEvent() {
-            if (!openTacoFuseButton) return;
             openTacoFuseButton.classList.remove('hidden');
             if (tacoEventInterval) clearInterval(tacoEventInterval);
             tacoEventInterval = setInterval(() => {
@@ -2207,49 +2193,8 @@
             }, 300000); // 5 minutes
             showNotification('Taco Tuesday is active! Taco Blocks will spawn!', '#f59e0b');
         }
-        
-        function updateWitchFuseCountdown() {
-            if (!witchFuseCountdown) return;
 
-            const now = new Date();
-            const dayOfWeek = now.getDay(); // 0 = Sunday, 5 = Friday
-            const targetDay = 5; // Friday
-
-            let daysUntilFriday = (targetDay - dayOfWeek + 7) % 7;
-            
-            if (daysUntilFriday === 0 && now.getHours() >= 0) {
-                // It IS Friday
-                witchFuseCountdown.textContent = "Witch Fuse has left!";
-                if (openWitchFuseButton) openWitchFuseButton.classList.add('hidden');
-                return;
-            }
-
-            // It's not Friday yet, show countdown
-            if (openWitchFuseButton) openWitchFuseButton.classList.remove('hidden');
-
-            const nextFriday = new Date(now);
-            nextFriday.setDate(now.getDate() + daysUntilFriday);
-            nextFriday.setHours(0, 0, 0, 0); // Midnight at the *start* of Friday
-
-            const diff = nextFriday.getTime() - now.getTime();
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-            witchFuseCountdown.textContent = `Witch Fuse Leaves in: ${d}d ${h}h ${m}m ${s}s`;
-        }
-
-
-        function formatLargeNumber(num) { 
-            if (num === undefined || num === null) return '0';
-            if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; 
-            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; 
-            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; 
-            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; 
-            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; 
-            return Math.floor(num).toLocaleString(); 
-        }
+        function formatLargeNumber(num) { if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return Math.floor(num).toLocaleString(); }
         
         // --- Selection Modal Logic ---
         function openRitualSelectionModal(ritualKey) {
@@ -2337,8 +2282,8 @@
 
             // Get all items from base that are valid ingredients
             const availableItems = baseSlots.map((slot, index) => ({ slot, index }))
-                .filter(item => item.slot && (requiredCounts[item.slot.name] || requiredRarities[item.slot.rarity])); 
-                        
+                .filter(item => item.slot && (requiredCounts[item.slot.name] || requiredRarities[item.slot.rarity]));
+                
             if (availableItems.length === 0) {
                 selectionModalGrid.innerHTML = `<p class="col-span-full text-center">You have no required items in your base.</p>`;
                 return;
@@ -2372,7 +2317,7 @@
         function toggleSelection(index, requiredCounts, requiredRarities = {}) {
             const slotEl = selectionModalGrid.querySelector(`.base-slot[data-index="${index}"]`);
             const item = baseSlots[index];
-            if (!item || !slotEl) return;
+            if (!item) return;
 
             const findIndex = selectedIndices.indexOf(index);
             
@@ -2465,7 +2410,7 @@
             selectedIndices = [];
         }
 
-        // --- Start Game ---
+        // --- Init ---
         window.onload = initializeFirebase; // Start Firebase on load
 
     </script>

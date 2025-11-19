@@ -531,11 +531,24 @@
                 color: '#f59e0b',
                 weight: 0, 
                 lootTable: [
-                    { name: 'Chihuanini Taconini', chance: 50 },
+                    { name: 'Chihuanini Taconini', chance: 49.5 },
                     { name: 'Gattito Tacoto', chance: 32 },
                     { name: 'Los Tipi Tacos', chance: 10 },
                     { name: 'Quesadilla Crocodila', chance: 5 },
-                    { name: 'Los Nooo My Hotspotsitos', chance: 3 }
+                    { name: 'Los Nooo My Hotspotsitos', chance: 3 },
+                    { name: 'Burrito Bandito', chance: 0.5 } // Buffed & Rarest
+                ]
+            },
+            'Los Taco Lucky Block': { // New Block
+                icon: '🌮🎉',
+                color: '#d97706', // Darker Amber
+                weight: 0,
+                lootTable: [
+                    { name: 'Los Chihuahinis', chance: 75 },
+                    { name: 'Los Gattitos', chance: 15 },
+                    { name: 'Los Cucarachas', chance: 5 },
+                    { name: 'Los Quesadillos', chance: 4.5 },
+                    { name: 'Los Burritos', chance: 0.5 }
                 ]
             },
             'Admin Lucky Block': { // Admin only
@@ -695,7 +708,7 @@
             'Spaghetti Tualetti':     { icon: '🍝', rarity: 'Secret', cost: 5e9, mps: 20e6 }, 'La Secret Combinasion': { icon: '🤫', rarity: 'Secret', cost: 10e9, mps: 60e6 },
             'Chihuanini Taconini':    { icon: '🌮', rarity: 'Brainrot God', cost: 15e6, mps: 800000 }, 'Gattito Tacoto':          { icon: '🐈', rarity: 'Brainrot God', cost: 18e6, mps: 900000 },
             'Los Tipi Tacos':         { icon: '💃', rarity: 'Brainrot God', cost: 20e6, mps: 1e6 }, 'Quesadilla Crocodila':  { icon: '🐊', rarity: 'Secret', cost: 12e9, mps: 70e6 },
-            'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Rare', cost: 600, mps: 60 },
+            'Los Nooo My Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 15e9, mps: 80e6 }, 'Burrito Bandito': { icon: '🌯', rarity: 'Secret', cost: 50e9, mps: 200e6 },
             'Carloo':                 { icon: '👨‍🎨', rarity: 'Mythic', cost: 100e3, mps: 8000 }, 'Los Bombinitos':        { icon: '💣', rarity: 'Brainrot God', cost: 25e6, mps: 1.2e6 }, 
             'Alessio':                { icon: '👨‍💻', rarity: 'Brainrot God', cost: 30e6, mps: 1.5e6 }, 'Crabbo Limonetta':        { icon: '🦀', rarity: 'Brainrot God', cost: 35e6, mps: 1.8e6 }, 
             'Blackhole Goat':         { icon: '🐐', rarity: 'Secret', cost: 20e9, mps: 100e6 }, 'Guerriro Digitale':       { icon: '👾', rarity: 'Secret', cost: 25e9, mps: 120e6 }, 
@@ -711,7 +724,14 @@
             'Pumpkini Spyderini': { icon: '🎃🕷️', rarity: 'Secret', cost: 60e9, mps: 250e6 }, 'Trickolino': { icon: '🍬', rarity: 'Secret', cost: 65e9, mps: 280e6 },
             'Telemorte': { icon: '📺💀', rarity: 'Secret', cost: 70e9, mps: 300e6 }, 'Los Spooky Combinasionas': { icon: '👻🤔', rarity: 'Secret', cost: 75e9, mps: 350e6 },
             'La Casa Boo': { icon: '🏚️👻', rarity: 'Secret', cost: 90e9, mps: 450e6 },
-            'Tax Tax Tax Sahur': { icon: '🧾', rarity: 'Secret', cost: 50e9, mps: 200e6 } // NEW OP BLOCK EXCLUSIVE
+            'Tax Tax Tax Sahur': { icon: '🧾', rarity: 'Secret', cost: 50e9, mps: 200e6 },
+            
+            // Los Taco Lucky Block Items
+            'Los Chihuahinis': { icon: '🌮🐕', rarity: 'Brainrot God', cost: 500e6, mps: 20e6 },
+            'Los Gattitos': { icon: '🌮🐈', rarity: 'Brainrot God', cost: 800e6, mps: 30e6 },
+            'Los Cucarachas': { icon: '🪳', rarity: 'Secret', cost: 50e9, mps: 250e6 },
+            'Los Quesadillos': { icon: '🧀🐊', rarity: 'Secret', cost: 100e9, mps: 500e6 },
+            'Los Burritos': { icon: '🌯✨', rarity: 'Secret', cost: 1e12, mps: 5e9 }
         };
         
         // Fishing Exclusives (and general new items)

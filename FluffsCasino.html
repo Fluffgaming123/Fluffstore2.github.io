@@ -230,9 +230,9 @@
     <div class="casino-container">
         <h1 class="text-4xl sm:text-5xl my-6">FLUFF'S CASINO 🐼</h1>
 
-        <!-- Header Bar (Now only shows Balance) -->
-        <div class="flex justify-center items-center mb-6 p-4 game-card rounded-xl">
-            <div class="text-xl">Balance: <span id="balance-display" class="neon-text">$500</span></div>
+        <!-- Header Bar (Added ID for JS targeting) -->
+        <div id="game-header" class="flex justify-center items-center mb-6 p-4 game-card rounded-xl">
+            <div class="text-xl font-bold">Balance: <span id="balance-display" class="neon-text text-2xl">$500</span></div>
         </div>
         <!-- Hidden input for file loading, kept here for easy global access -->
         <input type="file" id="load-file" accept=".json" class="hidden" onchange="loadGame(event)">
@@ -610,6 +610,9 @@
         const SLOT_MIN_BET = 10; // Slots has a higher min bet
         const JOB_BREAK_DURATION = 300000; // 5 minutes in ms
         const JOB_COOLDOWN_DURATION = 3600000; // 1 hour in ms (60 * 60 * 1000)
+        
+        // Dice Emojis for Craps
+        const DICE_EMOJIS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
         // --- UTILITY FUNCTIONS ---
 
@@ -667,7 +670,14 @@
                     loadBtn.textContent = 'Game Loaded!';
                     setTimeout(() => { loadBtn.textContent = '📂 Load Game Progress'; }, 1500);
                 } catch (error) {
-                    alert('Error loading save file. The file may be corrupted.');
+                    // Use a message box for errors instead of alert()
+                    const errorMessage = "Error loading save file. The file may be corrupted.";
+                    document.getElementById('loan-message').textContent = errorMessage;
+                    document.getElementById('loan-modal').classList.remove('hidden');
+                    document.querySelector('#loan-modal button:first-child').classList.add('disabled-btn');
+                    document.querySelector('#loan-modal button:first-child').disabled = true;
+                    document.querySelector('#loan-modal button:last-child').textContent = 'Close';
+                    document.querySelector('#loan-modal button:last-child').onclick = () => document.getElementById('loan-modal').classList.add('hidden');
                 }
             };
             reader.readAsText(file);
@@ -687,6 +697,9 @@
                 const timeSinceLastLoan = now - gameState.lastLoanTime;
                 
                 document.getElementById('loan-modal').classList.remove('hidden');
+                document.querySelector('#loan-modal button:last-child').textContent = 'Get Kicked Out';
+                document.querySelector('#loan-modal button:last-child').onclick = kickOut;
+
 
                 if (timeSinceLastLoan < gameState.loanCooldown && gameState.lastLoanTime !== 0) {
                     const remainingTime = gameState.loanCooldown - timeSinceLastLoan;
@@ -732,16 +745,27 @@
          * Handles view switching and game initialization/cleanup.
          */
         function switchView(viewId) {
-            // Check Job Break Lockout
-            if (viewId !== 'main-menu' && viewId !== 'job-menu' && viewId !== 'job-application' && gameState.jobBreakEndTime > Date.now()) {
+            const isGamblingView = viewId !== 'main-menu' && viewId !== 'job-menu' && viewId !== 'job-application';
+            
+            // FIX: Check Job Lockout. Blocks play if the 5-minute gambling window has expired 
+            // AND they are still in the 1-hour overall employment cooldown.
+            if (isGamblingView && 
+                gameState.jobBreakEndTime < Date.now() && 
+                gameState.jobCooldownEndTime > Date.now()
+            ) {
                 document.getElementById('job-lockout-modal').classList.remove('hidden');
-                document.getElementById('lockout-message').textContent = `Your 5-minute break is over! You must return to work. You are locked out of games until your job cooldown ends. (Next job application available in ${formatTime(gameState.jobCooldownEndTime - Date.now())})`;
+                document.getElementById('lockout-message').textContent = `Your 5-minute break is over! You must return to work. You are locked out of games until your employment cooldown ends. (Next job application available in ${formatTime(gameState.jobCooldownEndTime - Date.now())})`;
                 return;
             }
 
             // Hide all main content views
             document.querySelectorAll('.casino-container > div').forEach(div => {
-                if (div.id !== 'loan-modal' && div.id !== 'job-lockout-modal') {
+                if (div.id !== 'loan-modal' && 
+                    div.id !== 'job-lockout-modal' && 
+                    div.id !== 'job-cooldown-modal' && 
+                    div.id !== 'game-header' && // FIX: Don't hide header
+                    div.tagName !== 'H1' // FIX: Don't hide Title
+                    ) {
                     div.classList.add('hidden');
                 }
             });
@@ -765,9 +789,8 @@
             if (viewId === 'main-menu') updateJobCooldownDisplay();
 
             // Handle Back to Lobby button visibility
-            const isGameView = viewId !== 'main-menu' && viewId !== 'job-menu' && viewId !== 'job-application';
-            document.getElementById('main-menu-back-btn').classList.toggle('hidden', !isGameView);
-            document.getElementById('job-button').classList.toggle('hidden', isGameView || gameState.jobBreakEndTime > Date.now());
+            document.getElementById('main-menu-back-btn').classList.toggle('hidden', !isGamblingView);
+            document.getElementById('job-button').classList.toggle('hidden', isGamblingView || gameState.jobBreakEndTime > Date.now());
         }
 
         // --- JOB SYSTEM LOGIC ---
@@ -1858,11 +1881,8 @@
             return { die1, die2, total: die1 + die2 };
         }
         
-        const dieEmojis = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
-        
         function getDiceEmoji(roll) {
-            // Simplified: just return the number
-            return roll;
+            return DICE_EMOJIS[roll - 1]; // Array is 0-indexed
         }
 
         function rollCraps() {

@@ -1,12 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Clicker Game</title>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, onSnapshot, collection, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // --- USER PROVIDED FIREBASE CONFIGURATION (Used as fallback/default) ---
+    const LOCAL_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyAr3P4JTkAon4rENKDqzyLXz46NjLU7hi4",
+        authDomain: "banana-clicker1.firebaseapp.com",
+        projectId: "banana-clicker1",
+        storageBucket: "banana-clicker1.firebasestorage.app",
+        messagingSenderId: "722609375434",
+        appId: "1:722609375434:web:6b702b319b9a19a1180c33",
+        measurementId: "G-LPC8C65ZSC"
+    };
+
     // --- Firebase Setup ---
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    // Use environment variables if available, otherwise fall back to the user's config.
+    const appId = typeof __app_id !== 'undefined' ? __app_id : LOCAL_FIREBASE_CONFIG.appId;
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : LOCAL_FIREBASE_CONFIG;
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     const app = initializeApp(firebaseConfig);
@@ -21,13 +39,14 @@
     let bananasPerClick = 1;
     let bananasPerSecond = 0;
     let bananaCoin = 0;
-    let bananaCoinPerSecond = 0; // NEW BCPS variable
+    let bananaCoinPerSecond = 0;
     let totalClicks = 0;
     let bananaEvolutions = 0;
     let evolutionMultiplier = 1;
     let talentPoints = 0;
     let lastSaveTime = Date.now();
     let activeBCFuture = null;
+    let currentCoinRate = 10000; // Initialize here
 
     const upgradeInterval = 1000;
     let isAuthReady = false;
@@ -38,7 +57,7 @@
     const bpcValueEl = document.getElementById('bpcValue');
     const bpsValueEl = document.getElementById('bpsValue');
     const bcValueEl = document.getElementById('bcValue');
-    const bcpsValueEl = document.getElementById('bcpsValue'); // NEW
+    const bcpsValueEl = document.getElementById('bcpsValue');
     const userIdDisplayEl = document.getElementById('userIdDisplay');
     const evoValueEl = document.getElementById('evoValue');
     const evoMultValueEl = document.getElementById('evoMultValue');
@@ -52,7 +71,7 @@
     const leaderboardListEl = document.getElementById('leaderboard-list');
     const talentTreeListEl = document.getElementById('talent-tree-list');
     const bcFutureResultEl = document.getElementById('bc-future-result');
-    const investmentListEl = document.getElementById('investment-list'); // NEW
+    const investmentListEl = document.getElementById('investment-list');
 
     // --- Upgrade Definitions (currency: 'banana' or 'coin') ---
     const UPGRADE_DEFINITIONS = [
@@ -128,10 +147,10 @@
             totalClicks: totalClicks,
             bananaEvolutions: bananaEvolutions,
             talentPoints: talentPoints, 
-            lastSaveTime: Date.now(),    
+            lastSaveTime: Date.now(),   
             currentCoinRate: currentCoinRate,
             upgrades: JSON.stringify(upgrades),
-            investments: JSON.stringify(investments), // SAVE NEW INVESTMENT STATE
+            investments: JSON.stringify(investments),
             talents: JSON.stringify(talents), 
             activeBCFuture: activeBCFuture,
             unlockedAchievements: JSON.stringify(achievements.filter(a => a.unlocked).map(a => a.id)),
@@ -200,7 +219,7 @@
                 currentCoinRate = data.currentCoinRate || 10000;
                 
                 if (data.upgrades) { upgrades = JSON.parse(data.upgrades); } else { upgrades = JSON.parse(JSON.stringify(UPGRADE_DEFINITIONS)); }
-                if (data.investments) { investments = JSON.parse(data.investments); } else { investments = JSON.parse(JSON.stringify(INVESTMENT_DEFINITIONS)); } // LOAD NEW STATE
+                if (data.investments) { investments = JSON.parse(data.investments); } else { investments = JSON.parse(JSON.stringify(INVESTMENT_DEFINITIONS)); }
                 if (data.talents) { talents = JSON.parse(data.talents); } else { talents = JSON.parse(JSON.stringify(TALENT_DEFINITIONS)); }
 
                 if (data.unlockedAchievements) {
@@ -223,7 +242,7 @@
                 lastSaveTime = Date.now();
             } else {
                 upgrades = JSON.parse(JSON.stringify(UPGRADE_DEFINITIONS));
-                investments = JSON.parse(JSON.stringify(INVESTMENT_DEFINITIONS)); // Initialize investments
+                investments = JSON.parse(JSON.stringify(INVESTMENT_DEFINITIONS));
                 talents = JSON.parse(JSON.stringify(TALENT_DEFINITIONS));
                 recalculateStats();
                 updateUI();
@@ -289,7 +308,7 @@
         let evoMultBonus = 0;
         let talentBPCMult = 1;
         let talentBPSMult = 1;
-        let rawBCPS = 0; // NEW BCPS calculation
+        let rawBCPS = 0;
 
         // 1. Calculate base stats from Banana upgrades
         upgrades.filter(u => u.currency === 'banana').forEach(u => {
@@ -300,7 +319,7 @@
             }
         });
         
-        // 2. Calculate raw BCPS from investments (NEW)
+        // 2. Calculate raw BCPS from investments
         investments.forEach(i => {
             rawBCPS += i.bcpsIncrease * i.count;
         });
@@ -319,7 +338,7 @@
         bananasPerClick = Math.floor(rawBPC * evolutionMultiplier * talentBPCMult);
         bananasPerSecond = Math.floor(rawBPS * evolutionMultiplier * talentBPSMult);
         
-        // Apply final multiplier to BCPS (BCPS is not affected by BC multiplier talents)
+        // Apply final multiplier to BCPS
         bananaCoinPerSecond = rawBCPS * evolutionMultiplier;
 
         // Update Evolution/Talent UI
@@ -362,7 +381,7 @@
     }
 
     /**
-     * NEW: Creates a floating text animation when the banana is clicked.
+     * Creates a floating text animation when the banana is clicked.
      */
     function showClickAnimation(amount) {
         const animationEl = document.createElement('span');
@@ -426,7 +445,7 @@
     }
     
     /**
-     * NEW: Renders the BCPS Investment panel.
+     * Renders the BCPS Investment panel.
      */
     function renderInvestments() {
         investmentListEl.innerHTML = '';
@@ -517,7 +536,6 @@
     }
     
     // --- Trading Logic ---
-    let currentCoinRate = 10000;
     const MIN_COIN_RATE = 5000;
     const MAX_COIN_RATE = 15000;
 
@@ -633,13 +651,13 @@
         renderBCUpgrades();
         renderAchievements();
         renderTalentTree();
-        renderInvestments(); // NEW: Render investments
+        renderInvestments();
     }
 
     window.clickBanana = function() {
         bananas += bananasPerClick;
         totalClicks++;
-        showClickAnimation(bananasPerClick); // NEW: Show visual feedback
+        showClickAnimation(bananasPerClick);
         updateUI();
         checkAchievements();
         saveGame();
@@ -683,7 +701,7 @@
     }
 
     /**
-     * NEW: Purchase a BananaCoin Investment (BCPS).
+     * Purchase a BananaCoin Investment (BCPS).
      */
     window.buyInvestment = function(id) {
         const investment = investments.find(i => i.id === id);
@@ -766,11 +784,6 @@
             return;
         }
         
-        // NOTE: Keeping confirm() as it was in the original code, but advise against it.
-        if (!confirm(`Are you sure you want to EVOLVE to Level ${nextEvo.evo}? You will reset your bananas and banana upgrades, but gain a permanent ${nextEvo.multiplier}x multiplier and 1 Talent Point!`)) {
-            return;
-        }
-
         // --- Perform Evolution ---
         bananaEvolutions = nextEvo.evo;
         talentPoints += 1; // Grant talent point
@@ -828,7 +841,7 @@
     function gameLoop() {
         // Add bananas based on BPS
         bananas += bananasPerSecond * (upgradeInterval / 1000);
-        // Add BananaCoin based on BCPS (NEW)
+        // Add BananaCoin based on BCPS
         bananaCoin += bananaCoinPerSecond * (upgradeInterval / 1000);
 
         recalculateStats();
@@ -864,7 +877,8 @@
             setInterval(updateCoinRate, 5000);
 
         } else {
-            userId = 'Anonymous-User';
+            // Fallback for environment without auth or if sign-in failed
+            userId = 'Anonymous-User-' + crypto.randomUUID();
             isAuthReady = true;
             recalculateStats();
             updateUI();

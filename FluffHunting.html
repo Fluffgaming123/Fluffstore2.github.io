@@ -80,7 +80,6 @@
 <body>
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Buffs / Clock -->
     <div class="buff-container">
         <div id="clockDisplay" class="active-buff clock-buff"><i class="fas fa-sun"></i> <span id="timeOfDay">12:00 PM</span></div>
         <div id="bossTimerDisplay" class="boss-timer">Alpha: <span id="bossTime">5:00</span></div>
@@ -113,7 +112,6 @@
 
     <div id="modalOverlay" class="overlay hidden"></div>
 
-    <!-- Admin Panel -->
     <div id="admin-modal" class="modal hidden">
         <div class="modal-header"><span>ADMIN CONTROL</span><button class="close-btn close-modal">X</button></div>
         <div id="admin-login">
@@ -148,7 +146,6 @@
         </div>
     </div>
 
-    <!-- Shop Modal -->
     <div id="shop-modal" class="modal hidden">
         <div class="modal-header"><span>Hunting Supply</span><button class="close-btn close-modal">X</button></div>
         <div class="shop-section-title">Weapons</div><div class="shop-grid" id="shopGridRifles"></div>
@@ -156,32 +153,27 @@
         <div class="shop-section-title">Consumables</div><div class="shop-grid" id="shopGridMisc"></div>
     </div>
 
-    <!-- Camp Modal -->
     <div id="camp-modal" class="modal hidden">
         <div class="modal-header"><span>Hunter's Camp</span><button class="close-btn close-modal">X</button></div>
         <div style="text-align:center; margin-bottom:10px; color:#5D4037;">Upgrade with Gems (Drops from Alphas)</div>
         <div class="shop-grid" id="campGrid"></div>
     </div>
 
-    <!-- Travel Modal -->
     <div id="travel-modal" class="modal hidden">
         <div class="modal-header"><span>World Map</span><button class="close-btn close-modal">X</button></div>
         <div class="shop-grid" id="travelGrid"></div>
     </div>
 
-    <!-- Pedia Modal -->
     <div id="pedia-modal" class="modal hidden">
         <div class="modal-header"><span>Animal-pedia</span><button class="close-btn close-modal">X</button></div>
         <div class="pedia-grid" id="pediaGrid"></div>
     </div>
 
-    <!-- Achievements Modal -->
     <div id="achieve-modal" class="modal hidden">
         <div class="modal-header"><span>Trophy Room</span><button class="close-btn close-modal">X</button></div>
         <div class="achieve-list" id="achieveList"></div>
     </div>
 
-    <!-- Prestige Confirm Modal -->
     <div id="prestige-modal" class="modal hidden" style="max-width: 400px;">
         <div class="modal-header">Prestige?</div>
         <p style="text-align: center; color: #5D4037;">Reset cash and items for a <strong>x1.5 Multiplier</strong>.<br><br>Cost: $1,000,000</p>
@@ -193,14 +185,28 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- 1. FIREBASE INIT ---
-        const firebaseConfig = JSON.parse(__firebase_config);
+        // --- CONFIGURATION (HYBRID SUPPORT) ---
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            firebaseConfig = {
+                apiKey: "AIzaSyDBbczfuXlY-_KGU6TWgPn-DBwx-4K-h3s",
+                authDomain: "fluff-hunting.firebaseapp.com",
+                projectId: "fluff-hunting",
+                storageBucket: "fluff-hunting.firebasestorage.app",
+                messagingSenderId: "976040530256",
+                appId: "1:976040530256:web:da5d2de46ec892e581dc55",
+                measurementId: "G-EY74EEZ1DT"
+            };
+        }
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'fluff-forest-game';
 
-        // --- 2. DOM ELEMENTS ---
+        // --- DOM & CONFIG ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -235,7 +241,7 @@
             adminSpawnSelect: document.getElementById('adminSpawnSelect')
         };
 
-        // --- 3. GAME STATE ---
+        // --- GAME STATE ---
         let userId = null; let initialLoadDone = false; let canSave = false;
         let cash = 0; let gems = 0;
         let prestigeLevel = 0; let prestigeMultiplier = 1;
@@ -257,7 +263,7 @@
         let killCount = 0; let hasKilledMythic = false;
         let animalStats = {}; 
 
-        // --- 4. CONFIG ---
+        // --- ARRAYS ---
         const weapons = [
             { id: 'rifle_start', name: "Rusty Rifle", type: 'rifle', damage: 10, price: 0, owned: true },
             { id: 'rifle_hunts', name: ".270 Huntsman", type: 'rifle', damage: 40, price: 2500, owned: false },
@@ -340,7 +346,7 @@
                     this.currentHp = this.maxHp;
                     this.value = 0;
                     this.scale = 3.0;
-                    this.speedX = 0.5; // Boss speed increased to show up faster
+                    this.speedX = 0.5;
                 } else {
                     let rStart = stats.rare ? 2 : 0;
                     let subList = rarities.slice(rStart);
@@ -417,7 +423,6 @@
                     else if(currentWorldId==='swamp') this.drawCroc(col);
                     else this.drawBear(col);
                 } else {
-                    // Draw dispatch
                     if(this.type==='deer') this.drawDeer(col);
                     else if(this.type==='rabbit') this.drawRabbit(col);
                     else if(this.type==='bird') this.drawBird(col);
@@ -433,14 +438,12 @@
                     else if(this.type==='moose') this.drawMoose(col);
                 }
                 ctx.restore();
-                
                 if(!this.isBoss && this.currentHp<this.maxHp) {
                     let p = Math.max(0, this.currentHp/this.maxHp);
                     ctx.fillStyle="black"; ctx.fillRect(this.x-20,this.y-50*this.scale,40,6);
                     ctx.fillStyle=p>0.5?"#00E676":"#FF1744"; ctx.fillRect(this.x-19,this.y-49*this.scale,38*p,4);
                 }
             }
-            // --- Draw Methods (Simplified for Robustness) ---
             drawDeer(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-20,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(25,-22,2,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-10,10,5,20); ctx.fillRect(10,10,5,20); ctx.strokeStyle="#5D4037"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(20,-50); ctx.lineTo(10,-60); ctx.stroke(); ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(30,-50); ctx.lineTo(40,-60); ctx.stroke(); }
             drawMoose(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(30,-20,20,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#D7CCC8"; ctx.beginPath(); ctx.arc(30,-45,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(35,-25,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-15,20,8,30); ctx.fillRect(15,20,8,30); }
             drawRabbit(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(10,-10,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(8,-25,4,10,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(12,-12,2,0,Math.PI*2); ctx.fill(); }
@@ -448,9 +451,9 @@
             drawWolf(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,25,15,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-10,12,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.moveTo(15,-20); ctx.lineTo(25,-30); ctx.lineTo(30,-15); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(24,-12,2,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-15,10,5,15); ctx.fillRect(15,10,5,15); }
             drawOwl(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,20,25,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(-8,-10,8,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(8,-10,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(-8,-10,3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(8,-10,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#FF9800"; ctx.beginPath(); ctx.moveTo(0,-5); ctx.lineTo(-4,0); ctx.lineTo(4,0); ctx.fill(); }
             drawBear(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,40,30,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(35,-15,20,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(25,-30,6,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(45,-30,6,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(40,-20,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-20,20,10,20); ctx.fillRect(20,20,10,20); }
-            drawPolar(c) { let col=c; if(this.rarity.name==='Common') col='white'; this.drawBear(col); }
+            drawPolar(c) { this.drawBear(c); }
             drawPenguin(c) { ctx.fillStyle="white"; ctx.beginPath(); ctx.ellipse(0,0,15,25,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.ellipse(0,0,15,25,0,Math.PI,Math.PI*2); ctx.fill(); ctx.fillStyle="orange"; ctx.beginPath(); ctx.moveTo(5,-20); ctx.lineTo(15,-18); ctx.lineTo(5,-15); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(8,-20,2,0,Math.PI*2); ctx.fill(); }
-            drawFox(c) { ctx.fillStyle=c; if(this.rarity.name==='Common') ctx.fillStyle='#ECEFF1'; ctx.beginPath(); ctx.ellipse(0,0,25,12,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-5,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(24,-7,2,0,Math.PI*2); ctx.fill(); }
+            drawFox(c) { ctx.fillStyle="#ECEFF1"; if(c!==rarities[0].color) ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,25,12,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-5,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.moveTo(-25,0); ctx.lineTo(-45,-5); ctx.lineTo(-45,5); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(24,-7,2,0,Math.PI*2); ctx.fill(); }
             drawCroc(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.rect(-40,-10,80,20); ctx.fill(); ctx.beginPath(); ctx.moveTo(40,-5); ctx.lineTo(70,0); ctx.lineTo(40,5); ctx.fill(); ctx.fillStyle="#1B5E20"; ctx.beginPath(); ctx.moveTo(-40,0); ctx.lineTo(-70,0); ctx.stroke(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(45,-8,2,0,Math.PI*2); ctx.fill(); }
             drawFrog(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(5,-5,4,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(5,-5,2,0,Math.PI*2); ctx.fill(); }
         }
@@ -467,8 +470,7 @@
             draw() { ctx.globalAlpha=this.life; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,3,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
         }
 
-        // --- 6. HELPER FUNCTIONS ---
-
+        // --- 6. LOGIC FUNCTIONS ---
         function spawnEntity() {
             if(bossActive) return; 
             let roll = Math.random();
@@ -678,7 +680,11 @@
                 if(typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
                 else await signInAnonymously(auth);
                 console.log("Auth OK");
-            } catch(e) { console.error(e); notif("Auth Error"); }
+            } catch(e) { 
+                console.error(e);
+                // Fallback for mismatch errors
+                try { await signInAnonymously(auth); } catch(e2) {}
+            }
         }
 
         async function saveGame(silent) {
@@ -774,12 +780,10 @@
                 e.update(); e.draw(); 
                 if(e.marked) {
                     if(e.isBoss) {
-                        // Boss removal logic: Reset Boss state immediately
                         bossEntity = null;
                         bossActive = false; 
                         els.bossHealthContainer.style.display = 'none';
                         bossSpawnTimer = 300;
-                        // If boss was not killed (HP > 0), trigger escaped notif inside update loop logic
                     }
                     entities.splice(i,1); 
                 }

@@ -185,11 +185,13 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- CONFIGURATION (HYBRID SUPPORT) ---
+        // --- 1. FIREBASE CONFIGURATION (HYBRID FIX) ---
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
+            // We are in the Preview Environment (Use internal secure keys)
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
+            // We are on your hosted site (Use your hardcoded keys)
             firebaseConfig = {
                 apiKey: "AIzaSyDBbczfuXlY-_KGU6TWgPn-DBwx-4K-h3s",
                 authDomain: "fluff-hunting.firebaseapp.com",
@@ -206,7 +208,7 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'fluff-forest-game';
 
-        // --- DOM & CONFIG ---
+        // --- 2. DOM ELEMENTS ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -241,7 +243,7 @@
             adminSpawnSelect: document.getElementById('adminSpawnSelect')
         };
 
-        // --- GAME STATE ---
+        // --- 3. GAME STATE VARIABLES ---
         let userId = null; let initialLoadDone = false; let canSave = false;
         let cash = 0; let gems = 0;
         let prestigeLevel = 0; let prestigeMultiplier = 1;
@@ -255,15 +257,17 @@
         let campUpgrades = { turret: 0, spotter: 0 };
         let currentWorldId = 'forest';
         let worldsUnlocked = ['forest'];
+        
         let bossSpawnTimer = 300; 
         let bossActive = false;
         let bossEntity = null;
+
         let trees = []; let mountains = [];
         let entities = []; let particles = [];
         let killCount = 0; let hasKilledMythic = false;
         let animalStats = {}; 
 
-        // --- ARRAYS ---
+        // --- 4. CONFIGURATION (TOP LEVEL) ---
         const weapons = [
             { id: 'rifle_start', name: "Rusty Rifle", type: 'rifle', damage: 10, price: 0, owned: true },
             { id: 'rifle_hunts', name: ".270 Huntsman", type: 'rifle', damage: 40, price: 2500, owned: false },
@@ -438,12 +442,14 @@
                     else if(this.type==='moose') this.drawMoose(col);
                 }
                 ctx.restore();
+                
                 if(!this.isBoss && this.currentHp<this.maxHp) {
                     let p = Math.max(0, this.currentHp/this.maxHp);
                     ctx.fillStyle="black"; ctx.fillRect(this.x-20,this.y-50*this.scale,40,6);
                     ctx.fillStyle=p>0.5?"#00E676":"#FF1744"; ctx.fillRect(this.x-19,this.y-49*this.scale,38*p,4);
                 }
             }
+            // --- Draw Methods (Simplified for Robustness) ---
             drawDeer(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-20,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(25,-22,2,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-10,10,5,20); ctx.fillRect(10,10,5,20); ctx.strokeStyle="#5D4037"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(20,-50); ctx.lineTo(10,-60); ctx.stroke(); ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(30,-50); ctx.lineTo(40,-60); ctx.stroke(); }
             drawMoose(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(30,-20,20,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#D7CCC8"; ctx.beginPath(); ctx.arc(30,-45,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(35,-25,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-15,20,8,30); ctx.fillRect(15,20,8,30); }
             drawRabbit(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(10,-10,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(8,-25,4,10,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(12,-12,2,0,Math.PI*2); ctx.fill(); }

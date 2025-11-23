@@ -75,10 +75,16 @@
         #boss-health-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 300px; height: 20px; background: #333; border: 2px solid #fff; border-radius: 10px; display: none; }
         #boss-health-bar { width: 100%; height: 100%; background: #D50000; border-radius: 8px; transition: width 0.1s; }
         #boss-name { position: absolute; top: -25px; width: 100%; text-align: center; color: #D50000; font-size: 1.2rem; text-shadow: 1px 1px 0 #fff; }
+        #conn-status { position: absolute; top: 10px; right: 10px; width: 12px; height: 12px; border-radius: 50%; background: red; border: 2px solid white; z-index: 20; }
+        #conn-status.online { background: #00E676; }
+        #conn-status.loading { background: #FFEB3B; }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+
+    <!-- Connection Dot -->
+    <div id="conn-status" title="Connection Status"></div>
 
     <div class="buff-container">
         <div id="clockDisplay" class="active-buff clock-buff"><i class="fas fa-sun"></i> <span id="timeOfDay">12:00 PM</span></div>
@@ -112,6 +118,7 @@
 
     <div id="modalOverlay" class="overlay hidden"></div>
 
+    <!-- Admin Panel -->
     <div id="admin-modal" class="modal hidden">
         <div class="modal-header"><span>ADMIN CONTROL</span><button class="close-btn close-modal">X</button></div>
         <div id="admin-login">
@@ -146,6 +153,7 @@
         </div>
     </div>
 
+    <!-- Shop Modal -->
     <div id="shop-modal" class="modal hidden">
         <div class="modal-header"><span>Hunting Supply</span><button class="close-btn close-modal">X</button></div>
         <div class="shop-section-title">Weapons</div><div class="shop-grid" id="shopGridRifles"></div>
@@ -153,27 +161,32 @@
         <div class="shop-section-title">Consumables</div><div class="shop-grid" id="shopGridMisc"></div>
     </div>
 
+    <!-- Camp Modal -->
     <div id="camp-modal" class="modal hidden">
         <div class="modal-header"><span>Hunter's Camp</span><button class="close-btn close-modal">X</button></div>
         <div style="text-align:center; margin-bottom:10px; color:#5D4037;">Upgrade with Gems (Drops from Alphas)</div>
         <div class="shop-grid" id="campGrid"></div>
     </div>
 
+    <!-- Travel Modal -->
     <div id="travel-modal" class="modal hidden">
         <div class="modal-header"><span>World Map</span><button class="close-btn close-modal">X</button></div>
         <div class="shop-grid" id="travelGrid"></div>
     </div>
 
+    <!-- Pedia Modal -->
     <div id="pedia-modal" class="modal hidden">
         <div class="modal-header"><span>Animal-pedia</span><button class="close-btn close-modal">X</button></div>
         <div class="pedia-grid" id="pediaGrid"></div>
     </div>
 
+    <!-- Achievements Modal -->
     <div id="achieve-modal" class="modal hidden">
         <div class="modal-header"><span>Trophy Room</span><button class="close-btn close-modal">X</button></div>
         <div class="achieve-list" id="achieveList"></div>
     </div>
 
+    <!-- Prestige Confirm Modal -->
     <div id="prestige-modal" class="modal hidden" style="max-width: 400px;">
         <div class="modal-header">Prestige?</div>
         <p style="text-align: center; color: #5D4037;">Reset cash and items for a <strong>x1.5 Multiplier</strong>.<br><br>Cost: $1,000,000</p>
@@ -185,13 +198,11 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- 1. FIREBASE CONFIGURATION (HYBRID FIX) ---
+        // --- 1. FIREBASE INIT (HYBRID) ---
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
-            // We are in the Preview Environment (Use internal secure keys)
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
-            // We are on your hosted site (Use your hardcoded keys)
             firebaseConfig = {
                 apiKey: "AIzaSyDBbczfuXlY-_KGU6TWgPn-DBwx-4K-h3s",
                 authDomain: "fluff-hunting.firebaseapp.com",
@@ -211,7 +222,6 @@
         // --- 2. DOM ELEMENTS ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-
         const els = {
             cash: document.getElementById('cashDisplay'),
             gem: document.getElementById('gemDisplay'),
@@ -240,10 +250,11 @@
             adminControls: document.getElementById('admin-controls'),
             adminLoginDiv: document.getElementById('admin-login'),
             adminAmt: document.getElementById('adminAmt'),
-            adminSpawnSelect: document.getElementById('adminSpawnSelect')
+            adminSpawnSelect: document.getElementById('adminSpawnSelect'),
+            connStatus: document.getElementById('conn-status')
         };
 
-        // --- 3. GAME STATE VARIABLES ---
+        // --- 3. GAME STATE ---
         let userId = null; let initialLoadDone = false; let canSave = false;
         let cash = 0; let gems = 0;
         let prestigeLevel = 0; let prestigeMultiplier = 1;
@@ -257,17 +268,15 @@
         let campUpgrades = { turret: 0, spotter: 0 };
         let currentWorldId = 'forest';
         let worldsUnlocked = ['forest'];
-        
         let bossSpawnTimer = 300; 
         let bossActive = false;
         let bossEntity = null;
-
         let trees = []; let mountains = [];
         let entities = []; let particles = [];
         let killCount = 0; let hasKilledMythic = false;
         let animalStats = {}; 
 
-        // --- 4. CONFIGURATION (TOP LEVEL) ---
+        // --- 4. CONFIGURATION ---
         const weapons = [
             { id: 'rifle_start', name: "Rusty Rifle", type: 'rifle', damage: 10, price: 0, owned: true },
             { id: 'rifle_hunts', name: ".270 Huntsman", type: 'rifle', damage: 40, price: 2500, owned: false },
@@ -449,7 +458,7 @@
                     ctx.fillStyle=p>0.5?"#00E676":"#FF1744"; ctx.fillRect(this.x-19,this.y-49*this.scale,38*p,4);
                 }
             }
-            // --- Draw Methods (Simplified for Robustness) ---
+            // --- Draw Methods ---
             drawDeer(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-20,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(25,-22,2,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-10,10,5,20); ctx.fillRect(10,10,5,20); ctx.strokeStyle="#5D4037"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(20,-50); ctx.lineTo(10,-60); ctx.stroke(); ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(30,-50); ctx.lineTo(40,-60); ctx.stroke(); }
             drawMoose(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(30,-20,20,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#D7CCC8"; ctx.beginPath(); ctx.arc(30,-45,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(35,-25,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c; ctx.fillRect(-15,20,8,30); ctx.fillRect(15,20,8,30); }
             drawRabbit(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(10,-10,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(8,-25,4,10,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(12,-12,2,0,Math.PI*2); ctx.fill(); }
@@ -476,7 +485,8 @@
             draw() { ctx.globalAlpha=this.life; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,3,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
         }
 
-        // --- 6. LOGIC FUNCTIONS ---
+        // --- 6. FUNCTIONS ---
+
         function spawnEntity() {
             if(bossActive) return; 
             let roll = Math.random();
@@ -523,6 +533,9 @@
             els.pres.textContent = prestigeLevel;
             if(cash>=1000000) els.prestigeBtn.classList.remove('hidden');
             else els.prestigeBtn.classList.add('hidden');
+            
+            // Status dot
+            els.connStatus.className = userId ? 'online' : (initialLoadDone ? '' : 'loading');
         }
 
         function createExplosion(x, y, color) {
@@ -576,8 +589,10 @@
                 const ent = entities[i];
                 const dist = Math.sqrt(Math.pow(cx-ent.x,2)+Math.pow(cy-ent.y,2));
                 if(dist < ent.radius+20) {
-                    if(!ent.isBoss && ent.stats.type !== currentWeapon.type) {
-                        particles.push(new TextParticle(ent.x, ent.y-20, "Wrong Gun!", "#fff", 0)); return;
+                    if(!ent.isBoss) {
+                        if(ent.stats.type !== currentWeapon.type) {
+                            particles.push(new TextParticle(ent.x, ent.y-20, "Wrong Gun!", "#fff", 0)); return;
+                        }
                     }
                     let dmg = currentWeapon.damage;
                     let crit = scopeUpgradeLevel>0 && Math.random()<0.2;
@@ -694,7 +709,9 @@
         }
 
         async function saveGame(silent) {
-            if(!userId || !canSave) return;
+            if(!userId) { if(!silent) notif("Not Signed In"); return; }
+            if(!canSave) { if(!silent) notif("Still Loading..."); return; }
+            
             const data = { 
                 cash, gems, prestigeLevel, killCount, hasKilledMythic, scopeUpgradeLevel, gearOwned, campUpgrades, worldsUnlocked, currentWorldId, 
                 currentWeaponId:currentWeapon.id, 
@@ -703,7 +720,7 @@
                 animalStats, 
                 lastSave: Date.now() 
             };
-            try { await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'data', 'save1'), data); if(!silent) notif("Saved"); } catch(e){}
+            try { await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'data', 'save1'), data); if(!silent) notif("Game Saved"); } catch(e){ console.error(e); if(!silent) notif("Save Failed"); }
         }
 
         async function loadGame(retries=5) {
@@ -720,9 +737,10 @@
                     if(d.weaponsOwned) weapons.forEach(w=>{if(d.weaponsOwned.includes(w.id))w.owned=true;});
                     if(d.currentWeaponId) { const fw=weapons.find(w=>w.id===d.currentWeaponId); if(fw&&fw.owned) currentWeapon=fw; }
                     if(d.achievementsAchieved) achievements.forEach(a=>{if(d.achievementsAchieved.includes(a.id))a.achieved=true;});
-                    prestigeMultiplier=1+(prestigeLevel*0.5); updateHUD(); updateWorldVisuals(); notif("Loaded!");
+                    prestigeMultiplier=1+(prestigeLevel*0.5); updateHUD(); updateWorldVisuals(); notif("Progress Loaded!");
                 }
                 canSave=true;
+                updateHUD();
             } catch(e) { if(retries>0) setTimeout(()=>loadGame(retries-1),2000); else notif("Cloud Error"); }
         }
 

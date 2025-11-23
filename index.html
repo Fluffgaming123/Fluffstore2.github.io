@@ -36,16 +36,25 @@
                 Fluff's <span class="text-emerald-400">Games</span>
             </h1>
             <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto">
-                This is the 2nd part too Fluff Store and you should try <a href="spew14.github.io/html/" class="text-emerald-400 hover:text-emerald-300 underline transition duration-150">spew14.github.io/html/</a>
+                This is the 2nd part too Fluff Store and you should try <a href="https://spew14.github.io/games/" class="text-emerald-400 hover:text-emerald-300 underline transition duration-150">spew14.github.io/games/</a>
             </p>
-            <div class="mt-8 flex justify-center space-x-4">
-                <!-- Fluff's Casino Button (ONLY AT THE TOP) -->
+            
+            <!-- BUTTON CONTAINER: Uses flex-wrap and gap-4 for better mobile layout -->
+            <div class="mt-8 flex justify-center space-x-4 flex-wrap gap-4">
+                
+                <!-- 1. Fluff's Casino Button (Primary Feature) -->
                 <a href="FluffsCasino.html" class="inline-block bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
                     🎰 Fluff's Casino
                 </a>
-                <!-- Smooth scroll to the games section -->
+                
+                <!-- 2. Existing View Games Button (Scrolls down) -->
                 <a href="#games" class="inline-block bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
                     View Games
+                </a>
+                
+                <!-- 3. Credits Button -->
+                <a href="credits.html" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                    📜 Credits
                 </a>
             </div>
         </div>
@@ -106,12 +115,42 @@
                     </div>
                 </a>
 
-                <!-- Game Card 6: Simple Pong -->
-                <a href="BrainrotSurfers" class="block">
+                <!-- Game Card 6: Brainrot Surfers -->
+                <a href="BrainrotSurfers.html" class="block">
                     <div class="bg-slate-800 p-6 rounded-xl shadow-2xl hover:shadow-indigo-500/50 transition duration-300 transform hover:-translate-y-1 border-b-4 border-indigo-600">
                         <h3 class="text-2xl font-semibold mb-2 text-white">Brainrot Surfers</h3>
                         <p class="text-slate-400 mb-4">Surf with fimilar brainrots.</p>
                         <span class="inline-block text-sm font-medium text-indigo-400 border border-indigo-400 rounded-full px-3 py-1">Brainrotted</span>
+                    </div>
+                </a>
+
+                <!-- Game Card 7 (Coming Soon) -->
+                <a href="#" onclick="return false;" class="block cursor-not-allowed">
+                    <div class="bg-slate-700 p-6 rounded-xl shadow-xl transition duration-300 opacity-70 border-b-4 border-gray-500">
+                        <h3 class="text-2xl font-semibold mb-2 text-white/80">Project Alpha</h3>
+                        <p class="text-slate-400 mb-4">A new competitive game is under active development by the Fluff team.</p>
+                        <span class="inline-block text-sm font-medium text-gray-400 border border-gray-400 rounded-full px-3 py-1">Competitive</span>
+                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-600 rounded-full px-3 py-1 ml-2">Coming Soon</span>
+                    </div>
+                </a>
+                
+                <!-- Game Card 8 (Coming Soon) -->
+                <a href="#" onclick="return false;" class="block cursor-not-allowed">
+                    <div class="bg-slate-700 p-6 rounded-xl shadow-xl transition duration-300 opacity-70 border-b-4 border-gray-500">
+                        <h3 class="text-2xl font-semibold mb-2 text-white/80">Fluff's Dungeon Crawler</h3>
+                        <p class="text-slate-400 mb-4">Explore deep dungeons, find loot, and defeat epic bosses.</p>
+                        <span class="inline-block text-sm font-medium text-gray-400 border border-gray-400 rounded-full px-3 py-1">RPG</span>
+                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-600 rounded-full px-3 py-1 ml-2">Coming Soon</span>
+                    </div>
+                </a>
+                
+                <!-- Game Card 9 (Coming Soon) -->
+                <a href="#" onclick="return false;" class="block cursor-not-allowed">
+                    <div class="bg-slate-700 p-6 rounded-xl shadow-xl transition duration-300 opacity-70 border-b-4 border-gray-500">
+                        <h3 class="text-2xl font-semibold mb-2 text-white/80">The Brainrot King</h3>
+                        <p class="text-slate-400 mb-4">Rule the brainrots and expand your territory in this strategy game.</p>
+                        <span class="inline-block text-sm font-medium text-gray-400 border border-gray-400 rounded-full px-3 py-1">Strategy</span>
+                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-600 rounded-full px-3 py-1 ml-2">Coming Soon</span>
                     </div>
                 </a>
 
@@ -127,6 +166,7 @@
             <p>&copy; 2025 [fluffgaming123]. Built by Fluff and his team of 60 coders, also don't forget Fluff's Legal team</p>
             <div class="mt-2 space-x-4">
                 <a href="https://github.com/[fluffgaming123]" class="hover:text-emerald-400 transition duration-150">GitHub Profile</a>
+                <!-- Corrected contact link to use mailto: -->
                 <a href="mailto:stephaniepilat06@gmail.com" class="hover:text-emerald-400 transition duration-150">Contact</a>
             </div>
         </div>

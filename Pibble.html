@@ -122,6 +122,37 @@
             top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 24px; pointer-events: none;
         }
+
+        /* Toast Notification */
+        #toast-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: bold;
+            font-size: 14px;
+            color: #4b5563;
+            border: 2px solid #fbbf24;
+            animation: toastSlide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @keyframes toastSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body id="game-body" class="h-screen w-screen flex flex-col text-gray-800 relative overflow-hidden bg-forest">
@@ -135,6 +166,9 @@
 
     <!-- Particles -->
     <div id="particles" class="absolute inset-0 pointer-events-none z-50"></div>
+
+    <!-- Notification Container -->
+    <div id="toast-container"></div>
 
     <!-- Top Bar -->
     <div class="w-full bg-white/90 backdrop-blur border-b border-amber-200 p-4 flex justify-between items-center z-40 shadow-sm h-16 transition-colors duration-500" id="top-bar">
@@ -193,10 +227,22 @@
             <div class="text-xs font-bold text-amber-800">Cloud</div>
         </button>
         
-        <button onclick="window.resetGame()" class="menu-btn flex flex-col items-center justify-center w-16 h-full hover:bg-red-50 active:scale-95 transition-all gap-1 text-red-300 hover:text-red-500">
+        <button onclick="window.askReset()" class="menu-btn flex flex-col items-center justify-center w-16 h-full hover:bg-red-50 active:scale-95 transition-all gap-1 text-red-300 hover:text-red-500">
             <div class="text-xl">🗑️</div>
             <div class="text-[10px] font-bold">Reset</div>
         </button>
+    </div>
+
+    <!-- MODAL: Generic Confirm -->
+    <div id="modal-confirm" class="modal z-[80]">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 m-4 shadow-2xl border-4 border-amber-200 relative flex flex-col items-center text-center">
+            <div class="text-4xl mb-4">❓</div>
+            <h2 id="confirm-text" class="text-xl font-bold text-gray-800 mb-6">Are you sure?</h2>
+            <div class="flex gap-4 w-full">
+                <button onclick="window.closeModal('confirm')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl">Cancel</button>
+                <button id="confirm-yes-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl">Yes</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: Egg Store -->
@@ -223,7 +269,7 @@
                 <div class="flex gap-2 flex-wrap">
                     <button onclick="window.equipBest()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow transition active:scale-95 flex items-center gap-1">⚡ Best</button>
                     <button id="multi-delete-btn" onclick="window.toggleMultiDelete()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold py-2 px-3 rounded-lg shadow transition active:scale-95 flex items-center gap-1">🗑️ Delete</button>
-                    <button id="confirm-delete-btn" onclick="window.confirmDelete()" class="hidden bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow transition active:scale-95 animate-pulse">Confirm</button>
+                    <button id="confirm-delete-btn" onclick="window.askDelete()" class="hidden bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow transition active:scale-95 animate-pulse">Confirm</button>
                 </div>
             </div>
             <div id="inventory-grid" class="flex-1 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 p-2"></div>
@@ -272,22 +318,19 @@
         <div class="text-2xl font-bold animate-pulse text-amber-300">Hatching...</div>
     </div>
 
-    <!-- MODAL: Setup Guide (Hidden by default) -->
+    <!-- MODAL: Setup Guide -->
     <div id="modal-setup" class="modal z-[100]">
         <div class="bg-white w-full max-w-2xl rounded-2xl p-6 m-4 shadow-2xl border-4 border-red-500 relative flex flex-col">
             <button onclick="window.closeModal('setup')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             <h2 class="text-2xl font-bold text-red-600 mb-4 flex items-center gap-2">⚠️ Action Required: Database Setup</h2>
-            
             <div class="space-y-4 text-sm text-gray-700 overflow-y-auto max-h-[60vh]">
-                <p class="font-bold">Your game cannot save or load because your Firestore Database is locked.</p>
-                
+                <p class="font-bold">Database access is locked. Please enable Test Mode:</p>
                 <div class="bg-gray-100 p-4 rounded-lg border border-gray-300">
                     <p class="font-bold mb-2">1. Go to Firebase Console:</p>
-                    <a href="https://console.firebase.google.com/project/pibble-clicker/firestore/rules" target="_blank" class="text-blue-500 underline">Click here to open your Database Rules</a>
+                    <a href="https://console.firebase.google.com/project/pibble-clicker/firestore/rules" target="_blank" class="text-blue-500 underline">Click here to open Database Rules</a>
                 </div>
-
                 <div class="bg-gray-100 p-4 rounded-lg border border-gray-300">
-                    <p class="font-bold mb-2">2. Paste these Exact Rules:</p>
+                    <p class="font-bold mb-2">2. Paste these Rules:</p>
                     <pre class="bg-gray-800 text-green-400 p-3 rounded text-xs font-mono overflow-x-auto select-all">
 rules_version = '2';
 service cloud.firestore {
@@ -297,14 +340,8 @@ service cloud.firestore {
     }
   }
 }</pre>
-                    <p class="text-xs text-gray-500 mt-1">Note: This sets your database to public mode for testing.</p>
                 </div>
-
-                <div class="bg-gray-100 p-4 rounded-lg border border-gray-300">
-                    <p class="font-bold">3. Click "Publish"</p>
-                </div>
-                
-                <button onclick="location.reload()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl">I have fixed it, Refresh Game!</button>
+                <button onclick="location.reload()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl">I have fixed it, Refresh!</button>
             </div>
         </div>
     </div>
@@ -326,13 +363,9 @@ service cloud.firestore {
         const IMG_CARTI = "https://www.dropbox.com/scl/fi/8b3gd5o0hj0ib4uto4hsx/Screenshot-2025-11-23-214442.png?rlkey=6wesf1goww69h9xci9c9lgnuw&st=3nuwxefm&raw=1";
         const IMG_TARGET = "https://www.dropbox.com/scl/fi/zm7lzdkstptg90ajhfj52/Screenshot-2025-11-23-220426.png?rlkey=g6uw11dyj8gto1tttpxndqpi3&st=v3twapkk&raw=1";
         const IMG_SAVE = "https://www.dropbox.com/scl/fi/5s528frsmulk8dqg6g99g/Screenshot-2025-11-23-220434.png?rlkey=d16510b29sb1mzm8fb743voy9&st=38452i28&raw=1";
-        
-        // Water Assets
         const IMG_FLOPPA = "https://www.dropbox.com/scl/fi/6eqisepsgst9z5rvtc23r/Pet_floppa.webp?rlkey=v2y3g46husabjc4zbq8lml0u3&st=eopbi1sd&raw=1";
         const IMG_UNDERWATER = "https://www.dropbox.com/scl/fi/j5h3krggeldgz3zv20y4g/water.jpg?rlkey=0dlu29ikmcds4n8si9a6w73op&st=3ijnh1fx&raw=1";
         const IMG_SCARY = "https://www.dropbox.com/scl/fi/fw6ke1z4092u1sq3ymch4/Screenshot-2025-11-23-222453.png?rlkey=ikm3dw9ak3ey27te7jzcyrlw1&st=5w87w44l&raw=1";
-
-        // Desert Assets
         const IMG_FLYING = "https://www.dropbox.com/scl/fi/shz36dk1aqc0bkgraeynk/Screenshot-2025-11-23-222759.png?rlkey=6ru7cjmvgc6ckdc1e979eolpo&st=dirm4toa&raw=1";
         const IMG_ANGRY = "https://www.dropbox.com/scl/fi/8h8c1dujqsn60irwa7av2/Screenshot-2025-11-23-222749.png?rlkey=f4a4dca339vabph6iggy3kci4&st=mxmh33f9&raw=1";
 
@@ -349,7 +382,7 @@ service cloud.firestore {
         let selectedForDelete = [];
         let musicPlaying = false;
         let currentUser = null;
-        window.hasShownSetup = false; // Ensure setup modal shows only once per session
+        window.hasShownSetup = false;
 
         // --- FIREBASE SETUP ---
         const firebaseConfig = {
@@ -366,13 +399,8 @@ service cloud.firestore {
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Auth Init
         const initAuth = async () => {
-            try {
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Auth failed.", error);
-            }
+            try { await signInAnonymously(auth); } catch (error) { console.error("Auth failed.", error); }
         };
         initAuth();
         
@@ -440,26 +468,21 @@ service cloud.firestore {
 
         window.clickPibble = (e) => {
             if (!musicPlaying) window.toggleMusic();
-            
             let mult = 1.0;
             game.equipped.forEach(id => {
                 const pet = game.pets.find(p => p.id === id);
                 if (pet) mult += (pet.mult - 1);
             });
-            
             const gain = Math.floor(1 * mult);
             game.pibbles += gain;
-            
             const base = document.getElementById('sfx-click-base');
             const clone = base.cloneNode();
             clone.volume = 0.5;
             clone.play().catch(() => {});
-
             const btn = document.getElementById('pibble-btn');
             btn.classList.remove('clicked');
             void btn.offsetWidth;
             btn.classList.add('clicked');
-            
             createFloater(e.clientX, e.clientY, gain);
             updateUI();
             saveGame();
@@ -473,7 +496,7 @@ service cloud.firestore {
                 window.closeModal('egg-store');
                 playHatchAnimation(eggKey);
             } else {
-                alert("Not enough Pibbles!");
+                window.showToast("Not enough Pibbles!", "error");
             }
         };
 
@@ -487,6 +510,7 @@ service cloud.firestore {
             renderEquippedPets();
             updateUI();
             saveGame();
+            window.showToast("Best pets equipped!");
         };
 
         window.toggleMultiDelete = () => {
@@ -509,21 +533,37 @@ service cloud.firestore {
             renderInventory();
         };
 
-        window.confirmDelete = () => {
+        // --- CUSTOM CONFIRM SYSTEM ---
+        let pendingConfirmAction = null;
+
+        window.askConfirm = (msg, onYes) => {
+            document.getElementById('confirm-text').innerText = msg;
+            document.getElementById('modal-confirm').classList.add('active');
+            pendingConfirmAction = onYes;
+        };
+
+        // Bind the YES button in the modal
+        document.getElementById('confirm-yes-btn').onclick = () => {
+            if(pendingConfirmAction) pendingConfirmAction();
+            window.closeModal('confirm');
+            pendingConfirmAction = null;
+        };
+
+        window.askDelete = () => {
             if (selectedForDelete.length === 0) return;
-            if (confirm(`Delete ${selectedForDelete.length} pets? Permanent!`)) {
+            window.askConfirm(`Delete ${selectedForDelete.length} pets? This cannot be undone!`, () => {
                 game.pets = game.pets.filter(p => !selectedForDelete.includes(p.id));
                 selectedForDelete = [];
                 window.toggleMultiDelete();
                 saveGame();
                 renderInventory();
                 updateUI();
-            }
+                window.showToast("Pets deleted!", "success");
+            });
         };
 
         window.travelTo = (areaKey) => {
             const targetArea = AREAS[areaKey];
-            
             if (game.unlockedAreas.includes(areaKey)) {
                 game.currentArea = areaKey;
                 window.closeModal('travel');
@@ -532,7 +572,7 @@ service cloud.firestore {
                 saveGame();
             } else {
                 if (game.pibbles >= targetArea.cost) {
-                    if(confirm(`Unlock ${targetArea.name} for ${formatNumber(targetArea.cost)} Pibbles?`)) {
+                    window.askConfirm(`Unlock ${targetArea.name} for ${formatNumber(targetArea.cost)}?`, () => {
                         game.pibbles -= targetArea.cost;
                         game.unlockedAreas.push(areaKey);
                         game.currentArea = areaKey;
@@ -540,45 +580,66 @@ service cloud.firestore {
                         updateAreaVisuals();
                         updateUI();
                         saveGame();
-                    }
+                        window.showToast(`Unlocked ${targetArea.name}!`);
+                    });
                 } else {
-                    alert(`Need ${formatNumber(targetArea.cost)} Pibbles to unlock!`);
+                    window.showToast(`Need ${formatNumber(targetArea.cost)} Pibbles!`, "error");
                 }
             }
+        };
+
+        window.askReset = () => {
+            window.askConfirm("FULL RESET? All progress will be lost!", () => {
+                localStorage.removeItem('pibbleClicker_v5');
+                location.reload();
+            });
+        };
+
+        // --- NOTIFICATION SYSTEM ---
+        window.showToast = (msg, type = 'neutral') => {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = 'toast';
+            
+            let icon = 'ℹ️';
+            if(type === 'error') { icon = '❌'; el.style.borderColor = '#ef4444'; el.style.color = '#991b1b'; }
+            if(type === 'success') { icon = '✅'; el.style.borderColor = '#22c55e'; el.style.color = '#166534'; }
+            
+            el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+            container.appendChild(el);
+            
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-20px)';
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
         };
 
         // --- DB FUNCTIONS ---
         
         window.syncSave = async () => {
-            if (!currentUser) return alert("Not connected to cloud!");
+            if (!currentUser) return window.showToast("Not connected to cloud!", "error");
             try {
-                // Ensure no undefined values exist by serialization
                 const safeGame = JSON.parse(JSON.stringify(game));
-                
                 await setDoc(doc(db, 'users', currentUser.uid), safeGame);
                 await setDoc(doc(db, 'leaderboard', currentUser.uid), {
                     score: game.pibbles,
                     name: `Player ${currentUser.uid.substr(0,4)}`
                 });
-                alert("Game Saved to Cloud! ☁️");
+                window.showToast("Game Saved to Cloud!", "success");
                 fetchLeaderboard();
             } catch (e) {
-                // Suppress permission error in console, trigger modal instead
                 if (e.code !== 'permission-denied') console.error(e);
-                
                 if (e.code === 'permission-denied') {
-                    if(!window.hasShownSetup) {
-                        window.openModal('setup');
-                        window.hasShownSetup = true;
-                    }
+                    if(!window.hasShownSetup) { window.openModal('setup'); window.hasShownSetup = true; }
                 } else {
-                    alert("Save failed: " + e.message);
+                    window.showToast("Save failed: " + e.message, "error");
                 }
             }
         };
 
         window.loadSave = async () => {
-            if (!currentUser) return alert("Not connected to cloud!");
+            if (!currentUser) return window.showToast("Not connected to cloud!", "error");
             try {
                 const docSnap = await getDoc(doc(db, 'users', currentUser.uid));
                 if (docSnap.exists()) {
@@ -588,21 +649,16 @@ service cloud.firestore {
                     updateAreaVisuals();
                     updateUI();
                     renderEquippedPets();
-                    alert("Save Loaded! 📥");
+                    window.showToast("Save Loaded!", "success");
                 } else {
-                    alert("No cloud save found.");
+                    window.showToast("No cloud save found.", "error");
                 }
             } catch (e) {
-                // Suppress permission error in console, trigger modal instead
                 if (e.code !== 'permission-denied') console.error(e);
-
                 if (e.code === 'permission-denied') {
-                    if(!window.hasShownSetup) {
-                        window.openModal('setup');
-                        window.hasShownSetup = true;
-                    }
+                    if(!window.hasShownSetup) { window.openModal('setup'); window.hasShownSetup = true; }
                 } else {
-                    alert("Load failed: " + e.message);
+                    window.showToast("Load failed: " + e.message, "error");
                 }
             }
         };
@@ -637,15 +693,10 @@ service cloud.firestore {
                 if(scores.length === 0) list.innerHTML = '<div class="text-center text-gray-400 mt-4">No scores yet. Be the first!</div>';
 
             } catch (e) {
-                // Suppress permission error in console, show informative UI
                 if (e.code !== 'permission-denied') console.error(e);
-
                 if (e.code === 'permission-denied') {
                     list.innerHTML = '<div class="text-center text-red-400 mt-4 text-xs">Database Locked.<br>See Setup Guide.</div>';
-                    if(!window.hasShownSetup) {
-                        window.openModal('setup');
-                        window.hasShownSetup = true;
-                    }
+                    if(!window.hasShownSetup) { window.openModal('setup'); window.hasShownSetup = true; }
                 } else {
                     list.innerHTML = '<div class="text-center text-red-400 mt-4">Failed to load.</div>';
                 }
@@ -661,13 +712,6 @@ service cloud.firestore {
         };
 
         window.closeModal = (id) => document.getElementById(`modal-${id}`).classList.remove('active');
-
-        window.resetGame = () => {
-            if(confirm("Full Reset?")) {
-                localStorage.removeItem('pibbleClicker_v5');
-                location.reload();
-            }
-        };
 
         // --- INTERNAL HELPERS ---
 
@@ -715,14 +759,14 @@ service cloud.firestore {
                 mult: template.mult,
                 img: template.img,
                 rarity: template.rarity,
-                style: template.style || '' // Ensure valid string to prevent save errors
+                style: template.style || ''
             };
             
             game.pets.push(newPet);
             saveGame();
             updateUI();
             
-            alert(`You hatched a ${newPet.name}! (x${newPet.mult})`);
+            window.showToast(`You hatched a ${newPet.name}!`, "success");
             window.openModal('inventory');
         }
 
@@ -801,7 +845,7 @@ service cloud.firestore {
                 
                 card.onclick = () => {
                     if (isDeleteMode) {
-                        if (isEquipped) return alert("Unequip first!");
+                        if (isEquipped) return window.showToast("Unequip first!", "error");
                         if (selectedForDelete.includes(pet.id)) selectedForDelete = selectedForDelete.filter(id => id !== pet.id);
                         else selectedForDelete.push(pet.id);
                         renderInventory();
@@ -810,7 +854,7 @@ service cloud.firestore {
                         if (isEquipped) {
                             game.equipped = game.equipped.filter(id => id !== pet.id);
                         } else {
-                            if (game.equipped.length >= 5) return alert("Max 5 pets!");
+                            if (game.equipped.length >= 5) return window.showToast("Max 5 pets!", "error");
                             game.equipped.push(pet.id);
                         }
                         saveGame();
@@ -835,7 +879,6 @@ service cloud.firestore {
                 
                 const el = document.createElement('div');
                 el.className = 'orbiting-pet';
-                // Negative delay to space them out
                 const delay = - (10 / game.equipped.length) * index;
                 el.style.animationDelay = `${delay}s`;
                 
@@ -900,7 +943,6 @@ service cloud.firestore {
                 btn.className = `w-full relative h-20 rounded-xl overflow-hidden border-2 transition group shadow-md text-left flex items-center justify-between px-4 mb-2
                     ${unlocked ? 'border-green-500 hover:border-green-600' : 'border-gray-300 hover:border-gray-400 opacity-80'}`;
                 
-                // Simplified BG preview
                 let bgStyle = '';
                 if(key==='forest') bgStyle = 'background-color: #f0fdf4;';
                 if(key==='lava') bgStyle = 'background-color: #450a0a;';

@@ -31,9 +31,15 @@
         .bg-fastfood { background-color: #fef2f2; background-image: repeating-linear-gradient(45deg, #ef4444 0, #ef4444 10px, #fef2f2 10px, #fef2f2 20px); }
         .bg-meme { background: repeating-conic-gradient(#ef4444 0% 10%, #eab308 10% 20%, #22c55e 20% 30%, #3b82f6 30% 40%, #a855f7 40% 50%); opacity: 0.8; }
         .bg-space { background-color: #000; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px); background-size: 550px 550px, 350px 350px, 250px 250px; background-position: 0 0, 40px 60px, 130px 270px; }
+        .bg-jurassic { background-color: #14532d; background-image: radial-gradient(#15803d 20%, transparent 20%), radial-gradient(#166534 20%, transparent 20%); background-size: 80px 80px; background-position: 0 0, 40px 40px; }
+        .bg-backrooms { background-color: #fef08a; background-image: repeating-linear-gradient(90deg, #fde047 0, #fde047 20px, #facc15 20px, #facc15 40px); opacity: 0.9; }
+        .bg-gym { background-color: #374151; background-image: radial-gradient(#6b7280 10%, transparent 10%); background-size: 20px 20px; }
+        .bg-gamer { background-color: #000; background-image: linear-gradient(90deg, rgba(255,0,0,.1), rgba(0,255,0,.1), rgba(0,0,255,.1)); animation: rgbBg 5s linear infinite; }
+        .bg-heaven { background: linear-gradient(to bottom, #bae6fd, #f0f9ff); }
 
         @keyframes lavaPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.2); } }
         @keyframes waterFlow { 0% { background-position: 0 0; } 100% { background-position: 500px 500px; } }
+        @keyframes rgbBg { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
         /* --- UI & Effects --- */
         .pibble-main { transition: transform 0.05s; cursor: pointer; z-index: 20; }
@@ -62,18 +68,23 @@
         .rarity-legendary { color: #facc15; text-shadow: 0 0 10px #fef08a; }
         .rarity-mythical { color: #f87171; text-shadow: 0 0 10px #fecaca; }
         .rarity-godly { color: #22d3ee; text-shadow: 0 0 10px #a5f3fc; animation: pulse 2s infinite; }
-        .rarity-secret { color: #000; text-shadow: 0 0 10px #fff; animation: pulse 0.5s infinite; }
+        .rarity-secret { color: #fff; text-shadow: 0 0 10px #f0f; animation: pulse 0.5s infinite; }
 
         .pet-card.selected { border-color: #ef4444 !important; background-color: #fee2e2 !important; transform: scale(0.95); }
         .pet-card.selected::after { content: '❌'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; }
 
-        #toast-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        #toast-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
         .toast { background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: bold; font-size: 14px; color: #374151; border: 2px solid #fbbf24; animation: toastSlide 0.3s; display: flex; align-items: center; gap: 8px; }
-        @keyframes toastSlide { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastSlide { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .auto-buy-btn.active { background-color: #ef4444 !important; color: white !important; border-color: #b91c1c !important; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .auto-active-icon { animation: spin 2s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* XP Bar */
+        .xp-bar-container { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 200px; height: 10px; background: rgba(0,0,0,0.2); border-radius: 5px; overflow: hidden; z-index: 40; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #fcd34d, #f59e0b); width: 0%; transition: width 0.3s; }
+        .level-badge { position: absolute; top: 60px; left: 50%; transform: translateX(-140px); background: #f59e0b; color: white; font-weight: bold; padding: 2px 8px; border-radius: 12px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 41; white-space: nowrap; }
     </style>
 </head>
 <body id="game-body" class="h-screen w-screen flex flex-col text-gray-800 relative overflow-hidden bg-forest">
@@ -97,6 +108,12 @@
             <span id="score">0</span>
             <img src="https://www.dropbox.com/scl/fi/st1kw1y86rnnp5l3sklif/Pibblepng.png?rlkey=px7fn1ymhvjv74syzj24ljqzu&st=dnqxvzc1&raw=1" class="w-6 h-6 object-contain">
         </div>
+    </div>
+
+    <!-- XP Bar -->
+    <div class="level-badge" id="level-badge">Lvl 1 (+10%)</div>
+    <div class="xp-bar-container">
+        <div id="xp-bar" class="xp-bar-fill"></div>
     </div>
 
     <!-- Main Game -->
@@ -171,12 +188,21 @@
 
     <div id="modal-cloud" class="modal"><div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border-4 border-amber-200 relative flex flex-col h-[70vh]">
         <button onclick="window.closeModal('cloud')" class="absolute top-2 right-2 text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b pb-2">☁️ Cloud</h2>
+        <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b pb-2">☁️ Cloud & Levels</h2>
+        
+        <div class="mb-4">
+            <label class="text-xs font-bold text-gray-500 block mb-1">Display Name</label>
+            <div class="flex gap-2">
+                <input type="text" id="username-input" class="flex-1 p-2 border rounded" placeholder="Enter name" maxlength="15">
+                <button onclick="window.saveName()" class="bg-amber-500 text-white font-bold px-4 rounded shadow">Set</button>
+            </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4 mb-6">
             <button onclick="window.syncSave()" class="bg-green-500 text-white font-bold py-3 rounded shadow">Save</button>
             <button onclick="window.loadSave()" class="bg-blue-500 text-white font-bold py-3 rounded shadow">Load</button>
         </div>
-        <h3 class="font-bold text-amber-700 mb-2">🏆 Leaderboard</h3>
+        <h3 class="font-bold text-amber-700 mb-2">🏆 Level Leaderboard</h3>
         <div id="leaderboard-list" class="flex-1 bg-amber-50 rounded border overflow-y-auto p-2 text-sm">Loading...</div>
     </div></div>
 
@@ -188,12 +214,21 @@
             <button onclick="window.checkAdmin()" class="w-full bg-green-600 py-2 rounded font-bold">Login</button>
         </div>
         <div id="admin-controls" class="hidden space-y-2">
-            <button onclick="window.adminAddMoney()" class="w-full bg-blue-600 py-2 rounded font-bold">+100T Pibbles</button>
+            <button onclick="window.adminAddMoney()" class="w-full bg-blue-600 py-2 rounded font-bold">+100Qi Pibbles</button>
             <button onclick="window.adminUnlockAll()" class="w-full bg-purple-600 py-2 rounded font-bold">Unlock All Worlds</button>
             <button onclick="window.adminGiveAll()" class="w-full bg-yellow-600 py-2 rounded font-bold">Give All Pets</button>
             <button onclick="window.toggleAdminLuck()" id="btn-luck" class="w-full bg-pink-600 py-2 rounded font-bold">Luck: Normal</button>
+            <button onclick="window.adminLevelUp()" class="w-full bg-orange-600 py-2 rounded font-bold">+10 Levels</button>
             <button onclick="window.askReset()" class="w-full bg-red-600 py-2 rounded font-bold">Wipe Save</button>
         </div>
+    </div></div>
+
+    <div id="modal-setup" class="modal z-[100]"><div class="bg-white w-full max-w-2xl rounded-2xl p-6 border-4 border-red-500 relative flex flex-col">
+        <button onclick="window.closeModal('setup')" class="absolute top-4 right-4 text-2xl">&times;</button>
+        <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ Database Locked</h2>
+        <p class="mb-2">To fix Cloud Save, enable Test Mode in Firebase Console:</p>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded text-xs font-mono mb-4">allow read, write: if true;</pre>
+        <button onclick="location.reload()" class="w-full bg-red-500 text-white font-bold py-3 rounded">Refresh</button>
     </div></div>
 
     <div id="hatch-overlay" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center text-white"><div id="hatch-egg" class="text-9xl animate-bounce cursor-pointer mb-8">🥚</div><div class="text-2xl font-bold animate-pulse text-amber-300">Hatching...</div></div>
@@ -201,7 +236,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- ASSETS ---
         const I = {
@@ -245,11 +280,26 @@
             P67: "https://www.dropbox.com/scl/fi/lpfkhzsv9g2orr7lhj1lk/Screenshot-2025-11-25-163124.png?rlkey=gmy41sij7ur6hv740qy9wg18s&st=yoac4meg&raw=1",
             ASTRO: "https://www.dropbox.com/scl/fi/6pzzhpqrkyvowxov8rgu7/Screenshot-2025-11-25-163242.png?rlkey=r1vr6yppaltnz9egh26k86eai&st=aidjdiu1&raw=1",
             UFO: "https://www.dropbox.com/scl/fi/iivakihzbam05ie0zmdje/Screenshot-2025-11-25-163247.png?rlkey=dw0jkdc3q6oybxio8c9diqwnq&st=73g57i8s&raw=1",
-            DEVOURER: "https://www.dropbox.com/scl/fi/hpqrreyzjnu0mhn3s4kuc/Screenshot-2025-11-25-163256.png?rlkey=lbn3rmi00gjd0spnksm2ery46&st=n3bpqal2&raw=1"
+            DEVOURER: "https://www.dropbox.com/scl/fi/hpqrreyzjnu0mhn3s4kuc/Screenshot-2025-11-25-163256.png?rlkey=lbn3rmi00gjd0spnksm2ery46&st=n3bpqal2&raw=1",
+            CAVE: "https://www.dropbox.com/scl/fi/391egq2c6n7omsmde48zc/Gemini_Generated_Image_bie9r4bie9r4bie9.png?rlkey=dcdl4mepi1ajpacyrrhfiykzq&st=xnl1lud4&raw=1",
+            DINO: "https://www.dropbox.com/scl/fi/5kfastoghc5881tpqb6c0/Gemini_Generated_Image_4xf7aj4xf7aj4xf7.png?rlkey=vwsv4fdx55uzoc84ozd9lhv7z&st=s4xf15nf&raw=1",
+            METEOR: "https://www.dropbox.com/scl/fi/ehd9siqypdojxvj36gdke/Gemini_Generated_Image_17oric17oric17or.png?rlkey=htzssuufqipd3i2shg37jrtk0&st=hi9q4fqn&raw=1",
+            HAZMAT: "https://www.dropbox.com/scl/fi/zb5qas48uwayj6s6oc2ad/Screenshot-2025-11-26-141952.png?rlkey=3msh41c6xhrw0e61jot9iy8dx&st=wjwg02c3&raw=1",
+            ENTITY: "https://www.dropbox.com/scl/fi/uqnqs2ywkc5lel75bselv/Screenshot-2025-11-26-142043.png?rlkey=2lbkg3q0dgj4wvolyn5u7h1qs&st=30ttw39n&raw=1",
+            GLITCH: "https://www.dropbox.com/scl/fi/r074rnj3rnxd39zna98hl/Screenshot-2025-11-26-142139.png?rlkey=44x5tcpom2koarhnz4ydb8fr6&st=in7b8ks5&raw=1",
+            WEIGHT: "https://www.dropbox.com/scl/fi/st1kw1y86rnnp5l3sklif/Pibblepng.png?rlkey=px7fn1ymhvjv74syzj24ljqzu&st=dnqxvzc1&raw=1",
+            PROTEIN: "https://www.dropbox.com/scl/fi/99g2gewtyil4ixqxvdhn4/Screenshot-2025-11-26-142659.png?rlkey=zi9y0pwfg47nivajofh9bjpdy&st=z5pnpzmw&raw=1",
+            GIGA: "https://www.dropbox.com/scl/fi/936f0rhy9b0pqimvk6k76/Screenshot-2025-11-26-142841.png?rlkey=28ff3aw3va6gt8l08v2sj5jdr&st=1eo5552s&raw=1",
+            HEADSET: "https://www.dropbox.com/scl/fi/2yqnxgj067c47lza4bc7k/Screenshot-2025-11-26-143008.png?rlkey=5juiced7zufcpq0wn2vorklsv&st=dr7upyup&raw=1",
+            KEYBOARD: "https://www.dropbox.com/scl/fi/glwx11gimqscwfmpxy9rn/Screenshot-2025-11-26-143228.png?rlkey=67x0g93zzsxv2d3dan71t47b1&st=yoy7pw6z&raw=1",
+            GRASS: "https://www.dropbox.com/scl/fi/5p2z13eqi4jumvg4bj429/Screenshot-2025-11-26-143337.png?rlkey=5h2agixqp75m6m3z9f88mg48h&st=888zw6v6&raw=1",
+            GHOST: "https://www.dropbox.com/scl/fi/s1y5865gycwgqsy5zs1c5/Screenshot-2025-11-26-143515.png?rlkey=3mtg147zr56jlkc0lgq9khb43&st=ag201iny&raw=1",
+            ANGEL: "https://www.dropbox.com/scl/fi/ek8goso4pp1jumr2jkgei/Screenshot-2025-11-26-143613.png?rlkey=pvl5bjzlfzy2dcc9g4b25p8i9&st=ppc2g9gj&raw=1",
+            BIBLICAL: "https://www.dropbox.com/scl/fi/dgzfds3pf2yxxo0pb0c7x/Screenshot-2025-11-26-143735.png?rlkey=1l1ob42if1zejlv6o2fnmresa&st=vibdneun&raw=1"
         };
 
         // --- GAME STATE ---
-        let game = { pibbles: 0, currentArea: 'forest', unlockedAreas: ['forest'], pets: [], equipped: [], luck: 1 };
+        let game = { pibbles: 0, currentArea: 'forest', unlockedAreas: ['forest'], pets: [], equipped: [], luck: 1, level: 1, xp: 0, maxXp: 100, username: "Player" };
         let isDeleteMode = false, selectedForDelete = [], musicPlaying = false, currentUser = null, autoHatch = false, autoHatchInterval = null;
 
         // --- FIREBASE ---
@@ -273,7 +323,12 @@
             'fall': { name: "Autumn Woods", icon: "🍂", className: "bg-fall", cost: 10000000000, eggs: ['fall'] },
             'fastfood': { name: "Burger Town", icon: "🍔", className: "bg-fastfood", cost: 50000000000, eggs: ['fastfood'] },
             'meme': { name: "Meme Verse", icon: "🐸", className: "bg-meme", cost: 250000000000, eggs: ['meme'] },
-            'space': { name: "Galactic Void", icon: "🌌", className: "bg-space", cost: 1000000000000, eggs: ['space'] }
+            'space': { name: "Galactic Void", icon: "🌌", className: "bg-space", cost: 1000000000000, eggs: ['space'] },
+            'jurassic': { name: "Jurassic Jungle", icon: "🦖", className: "bg-jurassic", cost: 5000000000000, eggs: ['prehistoric'] },
+            'backrooms': { name: "The Backrooms", icon: "🚪", className: "bg-backrooms", cost: 25000000000000, eggs: ['liminal'] },
+            'gym': { name: "Pibble Gym", icon: "💪", className: "bg-gym", cost: 100000000000000, eggs: ['protein'] },
+            'gamer': { name: "Gamer Room", icon: "🎮", className: "bg-gamer", cost: 500000000000000, eggs: ['rgb'] },
+            'heaven': { name: "Heaven", icon: "☁️", className: "bg-heaven", cost: 1000000000000000, eggs: ['angelic'] }
         };
 
         const EGGS = {
@@ -291,7 +346,12 @@
             'fall': { name: "Fall Egg", cost: 25000000000, color: "bg-orange-100 border-orange-500", drops: [{id:'leaves',c:49.59},{id:'pie',c:49.59},{id:'turkey',c:0.83}] },
             'fastfood': { name: "Fastfood Egg", cost: 100000000000, color: "bg-red-50 border-red-500", drops: [{id:'burger',c:53.85},{id:'hotdog',c:45.38},{id:'taco',c:0.77},{id:'nugget',c:0.1}] },
             'meme': { name: "Meme Egg", cost: 500000000000, color: "bg-purple-200 border-purple-500", drops: [{id:'nyan',c:53.85},{id:'los',c:45.38},{id:'p67',c:0.77}] },
-            'space': { name: "Cosmic Egg", cost: 2000000000000, color: "bg-black border-white text-white", drops: [{id:'astro',c:53.85},{id:'ufo',c:45.38},{id:'devourer',c:0.77}] }
+            'space': { name: "Cosmic Egg", cost: 2000000000000, color: "bg-black border-white text-white", drops: [{id:'astro',c:53.85},{id:'ufo',c:45.38},{id:'devourer',c:0.77}] },
+            'prehistoric': { name: "Prehistoric Egg", cost: 5000000000000, color: "bg-green-800 border-green-950 text-white", drops: [{id:'cave',c:49.5},{id:'dino',c:49.5},{id:'meteor',c:1.0}] },
+            'liminal': { name: "Liminal Egg", cost: 25000000000000, color: "bg-yellow-200 border-yellow-600", drops: [{id:'hazmat',c:49.5},{id:'entity',c:49.5},{id:'glitch',c:1.0}] },
+            'protein': { name: "Protein Egg", cost: 100000000000000, color: "bg-gray-400 border-gray-700 text-white", drops: [{id:'weight',c:48.0},{id:'protein',c:48.0},{id:'giga',c:4.0}] },
+            'rgb': { name: "RGB Egg", cost: 500000000000000, color: "bg-black border-pink-500 text-green-400", drops: [{id:'headset',c:49.9},{id:'keyboard',c:49.9},{id:'grass',c:0.2}] },
+            'angelic': { name: "Angelic Egg", cost: 1000000000000000, color: "bg-white border-yellow-300 text-yellow-600", drops: [{id:'ghost',c:49.5},{id:'angel',c:49.5},{id:'biblical',c:1.0}] }
         };
 
         const PET_TYPES = {
@@ -309,13 +369,55 @@
             'leaves':{name:"Leaves Pibble",mult:2e12,img:I.LEAVES,rarity:'common'}, 'pie':{name:"Pie Pibble",mult:2e12,img:I.PIE,rarity:'rare'}, 'turkey':{name:"Turkey Pibble",mult:20e12,img:I.TURKEY,rarity:'legendary'},
             'burger':{name:"Burger Pibble",mult:50e12,img:I.BURGER,rarity:'common'}, 'hotdog':{name:"Hotdog Pibble",mult:50e12,img:I.HOTDOG,rarity:'common'}, 'taco':{name:"Taco Pibble",mult:100e12,img:I.TACO,rarity:'epic'}, 'nugget':{name:"Nugget Pibble",mult:500e12,img:I.NUGGET,rarity:'godly'},
             'nyan':{name:"Nyan Pibble",mult:1e15,img:I.NYAN,rarity:'epic'}, 'los':{name:"Los Pibbles",mult:2e15,img:I.LOS,rarity:'legendary'}, 'p67':{name:"67 Pibble",mult:10e15,img:I.P67,rarity:'godly'},
-            'astro':{name:"Astro Pibble",mult:100e15,img:I.ASTRO,rarity:'epic'}, 'ufo':{name:"UFO Pibble",mult:200e15,img:I.UFO,rarity:'legendary'}, 'devourer':{name:"Devourer Pibble",mult:1e18,img:I.DEVOURER,rarity:'secret'}
+            'astro':{name:"Astro Pibble",mult:100e15,img:I.ASTRO,rarity:'epic'}, 'ufo':{name:"UFO Pibble",mult:200e15,img:I.UFO,rarity:'legendary'}, 'devourer':{name:"Devourer Pibble",mult:1e18,img:I.DEVOURER,rarity:'secret'},
+            'cave':{name:"Caveman Pibble",mult:5e18,img:I.CAVE,rarity:'common'}, 'dino':{name:"Dino Pibble",mult:5e18,img:I.DINO,rarity:'rare'}, 'meteor':{name:"Meteor Pibble",mult:500e18,img:I.METEOR,rarity:'godly'},
+            'hazmat':{name:"Hazmat Pibble",mult:20e18,img:I.HAZMAT,rarity:'common'}, 'entity':{name:"Entity Pibble",mult:20e18,img:I.ENTITY,rarity:'epic'}, 'glitch':{name:"Glitch Pibble",mult:2e21,img:I.GLITCH,rarity:'secret'},
+            'weight':{name:"Weight Pibble",mult:100e18,img:I.WEIGHT,rarity:'common'}, 'protein':{name:"Protein Pibble",mult:100e18,img:I.PROTEIN,rarity:'epic'}, 'giga':{name:"Giga Pibble",mult:10e21,img:I.GIGA,rarity:'godly'},
+            'headset':{name:"Headset Pibble",mult:500e18,img:I.HEADSET,rarity:'common'}, 'keyboard':{name:"Keyboard Pibble",mult:500e18,img:I.KEYBOARD,rarity:'epic'}, 'grass':{name:"Touch Grass Pibble",mult:50e21,img:I.GRASS,rarity:'secret'},
+            'ghost':{name:"Ghost Pibble",mult:1e21,img:I.GHOST,rarity:'common'}, 'angel':{name:"Angel Pibble",mult:1e21,img:I.ANGEL,rarity:'legendary'}, 'biblical':{name:"Biblically Accurate Pibble",mult:100e21,img:I.BIBLICAL,rarity:'godly'}
         };
 
         // --- BINDINGS ---
         window.toggleMusic=()=>{const a=document.getElementById('bgm');if(musicPlaying){a.pause();musicPlaying=0;document.getElementById('music-btn').innerText="🎵 Off"}else{a.volume=0.3;a.play().then(()=>{musicPlaying=1;document.getElementById('music-btn').innerText="🎵 On"}).catch(e=>console.log(e))}};
-        window.clickPibble=(e)=>{if(!musicPlaying)window.toggleMusic();let m=1;game.equipped.forEach(id=>{const p=game.pets.find(x=>x.id===id);if(p)m+=(p.mult-1)});game.pibbles+=Math.floor(m);playSfx('click');animPibble();createFloater(e.clientX,e.clientY,Math.floor(m));updateUI();saveGame()};
+        window.clickPibble=(e)=>{
+            if(!musicPlaying)window.toggleMusic();
+            let m=1;
+            game.equipped.forEach(id=>{const p=game.pets.find(x=>x.id===id);if(p)m+=(p.mult-1)});
+            
+            // Apply Level Multiplier
+            const levelBonus = 1 + (game.level * 0.1); 
+            m *= levelBonus;
+
+            game.pibbles+=Math.floor(m);
+            addXP(1); 
+            playSfx('click');animPibble();createFloater(e.clientX,e.clientY,Math.floor(m));updateUI();saveGame();
+        };
         
+        // --- LEVEL SYSTEM ---
+        function addXP(amount) {
+            game.xp += amount;
+            if(game.xp >= game.maxXp) {
+                game.xp -= game.maxXp;
+                game.level++;
+                game.maxXp = Math.floor(100 * Math.pow(1.2, game.level)); 
+                showToast(`Level Up! Lvl ${game.level} (+${(game.level*10).toFixed(0)}% Bonus)`, "success");
+                addXP(0); 
+            }
+            updateUI();
+        }
+
+        window.saveName = () => {
+            const nameInput = document.getElementById('username-input');
+            const name = nameInput.value.trim();
+            if(name.length > 0 && name.length <= 15) {
+                game.username = name;
+                saveGame();
+                showToast(`Name set to ${name}`);
+            } else {
+                showToast("Invalid name (1-15 chars)", "error");
+            }
+        };
+
         // --- EGG LOGIC ---
         window.buyEgg=(k, n=1)=>{
             const e=EGGS[k], total=e.cost*n;
@@ -340,9 +442,10 @@
                         game.pibbles -= e.cost;
                         const np = generatePet(k);
                         game.pets.push(np);
+                        addXP(50); // Auto hatch gives XP
                         updateUI();
                         showToast(`Got ${np.name}!`);
-                        saveGame(); // Ensure progress is saved
+                        saveGame();
                     } else {
                         window.toggleAutoBuy(k);
                         showToast("Out of Pibbles!");
@@ -360,7 +463,7 @@
         // --- ADMIN ---
         document.addEventListener('keydown',e=>{if(e.key==='-')document.getElementById('modal-admin').classList.add('active')});
         window.checkAdmin=()=>{if(document.getElementById('admin-pass').value==="Pibble67"){document.getElementById('admin-login').classList.add('hidden');document.getElementById('admin-controls').classList.remove('hidden')}else showToast("Wrong Password","error")};
-        window.adminAddMoney=()=>{game.pibbles+=100e12;updateUI();showToast("Rich!")};
+        window.adminAddMoney=()=>{game.pibbles+=100e18;updateUI();showToast("Rich!")};
         window.adminUnlockAll=()=>{game.unlockedAreas=Object.keys(AREAS);saveGame();showToast("Worlds Unlocked!")};
         window.adminGiveAll=()=>{Object.keys(PET_TYPES).forEach(k=>{game.pets.push({id:Date.now()+Math.random(),type:k,...PET_TYPES[k]})});saveGame();showToast("Pets Added!")};
         window.toggleAdminLuck=()=>{
@@ -368,12 +471,35 @@
             document.getElementById('btn-luck').innerText = game.luck > 1 ? "Luck: x10 (Active)" : "Luck: Normal";
             showToast(`Luck set to x${game.luck}`);
         };
+        window.adminLevelUp=()=>{
+            addXP(game.maxXp * 10);
+        }
 
         // --- HELPERS ---
         function playSfx(t){const id=t==='rare'?'sfx-rare':'sfx-click-base';const s=document.getElementById(id).cloneNode();s.volume=0.5;s.play().catch(()=>{})}
         function animPibble(){const b=document.getElementById('pibble-btn');b.classList.remove('clicked');void b.offsetWidth;b.classList.add('clicked')}
         function createFloater(x,y,n){const d=document.createElement('div');d.className='floater text-4xl';d.innerHTML=`+${fmt(n)}`;d.style.left=`${x}px`;d.style.top=`${y-50}px`;document.getElementById('particles').appendChild(d);setTimeout(()=>d.remove(),1000)}
-        function updateUI(){document.getElementById('score').innerText=fmt(game.pibbles);let m=1;game.equipped.forEach(id=>{const p=game.pets.find(x=>x.id===id);if(p)m+=(p.mult-1)});document.getElementById('click-mult').innerText='x'+fmt(m)}
+        
+        function updateUI(){
+            document.getElementById('score').innerText=fmt(game.pibbles);
+            let m=1;game.equipped.forEach(id=>{const p=game.pets.find(x=>x.id===id);if(p)m+=(p.mult-1)});
+            const levelBonus = 1 + (game.level * 0.1);
+            m *= levelBonus;
+            
+            document.getElementById('click-mult').innerText='x'+fmt(m);
+            
+            // XP Bar Update
+            document.getElementById('level-badge').innerText = `Lvl ${game.level} (+${(game.level*10).toFixed(0)}%)`;
+            const pct = Math.min(100, (game.xp / game.maxXp) * 100);
+            document.getElementById('xp-bar').style.width = `${pct}%`;
+            
+            // Username Input Placeholder
+            if(game.username && game.username !== "Player") {
+                const input = document.getElementById('username-input');
+                if(input && input.value === "") input.value = game.username;
+            }
+        }
+
         function updArea(){const c=AREAS[game.currentArea].className;document.body.className=`h-screen w-screen flex flex-col text-gray-800 overflow-hidden ${c}`;document.getElementById('area-name').innerText=AREAS[game.currentArea].name;document.getElementById('area-icon').innerText=AREAS[game.currentArea].icon;document.getElementById('store-area-name').innerText=AREAS[game.currentArea].name}
         function updateDelBtn(){const b=document.getElementById('multi-delete-btn');const c=document.getElementById('confirm-delete-btn');if(isDeleteMode){b.innerText='❌ Cancel';b.classList.replace('bg-gray-200','bg-red-200');c.classList.remove('hidden')}else{b.innerText='🗑️ Delete';b.classList.replace('bg-red-200','bg-gray-200');c.classList.add('hidden')}}
         
@@ -439,6 +565,7 @@
                 newPets.push(np);
                 game.pets.push(np);
             }
+            addXP(100 * n); // XP for hatching
             saveGame();
             renderInv();
             if(n===1) { showToast(`Hatched ${newPets[0].name}!`,"success"); window.openModal('inventory'); }
@@ -450,18 +577,20 @@
             localStorage.setItem('pibbleClicker_v6', JSON.stringify(game));
             if (currentUser) {
                 const now = Date.now();
-                if (now - lastCloudSave > 5000) { // Throttle 5s
+                if (now - lastCloudSave > 5000) {
                     lastCloudSave = now;
                     setDoc(doc(db, 'users', currentUser.uid), JSON.parse(JSON.stringify(game))).catch(()=>{});
                 }
             }
         }
 
-        function loadGame(){const s=localStorage.getItem('pibbleClicker_v6');if(s)try{const d=JSON.parse(s);game={...game,...d};if(!game.unlockedAreas)game.unlockedAreas=['forest']}catch(e){}}
+        function loadGame(){const s=localStorage.getItem('pibbleClicker_v6');if(s)try{const d=JSON.parse(s);game={...game,...d};if(!game.unlockedAreas)game.unlockedAreas=['forest']; if(!game.level)game.level=1; if(!game.xp)game.xp=0; if(!game.maxXp)game.maxXp=100; if(!game.username)game.username="Player"}catch(e){}}
         
-        window.syncSave=async()=>{if(!currentUser)return showToast("Not logged in","error");await setDoc(doc(db,'users',currentUser.uid),JSON.parse(JSON.stringify(game)));await setDoc(doc(db,'leaderboard',currentUser.uid),{score:game.pibbles,name:`Player ${currentUser.uid.slice(0,4)}`});showToast("Cloud Saved!")};
+        window.syncSave=async()=>{if(!currentUser)return showToast("Not logged in","error");await setDoc(doc(db,'users',currentUser.uid),JSON.parse(JSON.stringify(game)));await setDoc(doc(db,'leaderboard',currentUser.uid),{score:game.level,name:game.username || `Player ${currentUser.uid.slice(0,4)}`});showToast("Cloud Saved!")};
         window.loadSave=async()=>{if(!currentUser)return showToast("Not logged in","error");const s=await getDoc(doc(db,'users',currentUser.uid));if(s.exists()){game={...game,...s.data()};updArea();updateUI();renderOrbit();showToast("Loaded!")}else showToast("No save found","error")};
-        async function fetchLeaderboard(){const q=query(collection(db,'leaderboard'),orderBy('score','desc'));const s=await getDocs(q);const l=document.getElementById('leaderboard-list');l.innerHTML='';s.docs.slice(0,10).forEach((d,i)=>{l.innerHTML+=`<div class="flex justify-between border-b p-1"><span>#${i+1} ${d.data().name}</span><span class="font-bold">${fmt(d.data().score)}</span></div>`})}
+        
+        // LEADERBOARD UPDATED TO SORT BY LEVEL
+        async function fetchLeaderboard(){const q=query(collection(db,'leaderboard'),orderBy('score','desc'));const s=await getDocs(q);const l=document.getElementById('leaderboard-list');l.innerHTML='';s.docs.slice(0,10).forEach((d,i)=>{l.innerHTML+=`<div class="flex justify-between border-b p-1"><span>#${i+1} ${d.data().name}</span><span class="font-bold">Lvl ${fmt(d.data().score)}</span></div>`})}
 
         function fmt(n){if(n>=1e33)return(n/1e33).toFixed(2)+'Dc';if(n>=1e30)return(n/1e30).toFixed(2)+'N';if(n>=1e27)return(n/1e27).toFixed(2)+'O';if(n>=1e24)return(n/1e24).toFixed(2)+'Sp';if(n>=1e21)return(n/1e21).toFixed(2)+'Sx';if(n>=1e18)return(n/1e18).toFixed(2)+'Qi';if(n>=1e15)return(n/1e15).toFixed(2)+'Q';if(n>=1e12)return(n/1e12).toFixed(2)+'T';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(2)+'k';return Math.floor(n).toLocaleString()}
         window.openModal=id=>{document.getElementById(`modal-${id}`).classList.add('active');if(id==='inventory')renderInv();if(id==='travel')renderTravelList();if(id==='egg-store')renderEggStore()};

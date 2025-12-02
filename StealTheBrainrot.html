@@ -249,6 +249,38 @@
             'La Mobill Combination': { icon: '📱🔥', rarity: 'Secret', cost: 50e9, mps: 300e6 }, 'La Meal Combination': { icon: '🍔🍟', rarity: 'Secret', cost: 60e9, mps: 350e6 }, 'Los Bicicletas': { icon: '🚲👥', rarity: 'Secret', cost: 70e9, mps: 400e6 }, 'Los Siblings': { icon: '👫', rarity: 'Secret', cost: 80e9, mps: 450e6 }, 'Los ketupatsitos': { icon: '🍚👥', rarity: 'Secret', cost: 90e9, mps: 500e6 }, 'Tacorini Cowboini': { icon: '🌮🤠', rarity: 'Secret', cost: 100e9, mps: 600e6 }, 'La aquatic combination': { icon: '🌊🤯', rarity: 'Secret', cost: 120e9, mps: 700e6 },
             'La Mega Combination': { icon: '👑🤯', rarity: 'Secret', cost: 200e9, mps: 1e12 }
         };
+        const craftRecipes = { 
+            'Las Cappuchinas': { ingredients: { 'Ballerina Cappuccina': 2, 'Tralalita Tralala': 2 } }, 
+            'Belula Beluga': { ingredients: { 'Tralalita Tralala': 2, 'Matteo': 1, 'Alessio': 1 } }, 
+            'Fragola La La La': { ingredients: { 'Odin Din Din Dun': 3, 'Sammyni Spyderini': 1 } }, 
+            'La Karkerkar Combinasion': { ingredients: { 'Karkerkar Kurkur': 2 } }, 
+            'La Sahur Combinasion': { ingredients: { 'Ta Ta Ta Ta Sahur': 1, 'Te Te Te Sahur': 1, 'Graipuss Medussi': 1, 'Job Job Job Sahur': 1 } }, 
+            'Las Sis': { ingredients: { 'Las Cappuchinas': 1, 'Las Tralaleritas': 2 } }, 
+            'Celularcini Viciosini': { ingredients: { 'Pot Hotspot': 1, 'Job Job Job Sahur': 1, 'La Grande Combinasion': 2 } }, 
+            'Los Bros': { ingredients: { 'Los Tungtungtungcitos': 1, 'Los Combinasionas': 1, 'La Grande Combinasion': 1, 'Los Tralaleritos': 1 } }, 
+            'Tralaledon': { ingredients: { 'Tralalero Tralala': 3, 'Nuclearo Dinossauro': 1 } }, 
+            'Los Tacoritas': { ingredients: { 'Tacorita Bicicleta': 2 } }, 
+            'Los Primos': { ingredients: { 'Los Orcalitos': 1, '67': 1, 'Los Bros': 1, 'Los Tralaleritos': 1 } }, 
+            'Los Fluffs': { ingredients: { 'Burrito Bandito': 1, 'Los Puggies': 1, 'Los Tralaleritos': 1 } }, 
+            'Napole Horse Horse': { ingredients: { 'Centrucci Nuclucci': 2, 'Odin Din Din Dun': 1, 'Money Money Man': 1 } }, 
+            'La La La La La La La La Craft Combination': { ingredients: { 'Chicleteira Bicicleteira': 1, 'Blackhole Goat': 2, 'Agarrini La Palini': 1 } }, 
+            'Supreme Taco Combination': { ingredients: { 'La Supreme Combinasion': 1, 'Tacorita Bicicleta': 1, 'Burrito Bandito': 1 } }, 
+            'Los Burritos Gang': { ingredients: { 'Los Burritos': 4 } }, 
+            'Trash Combination': { ingredients: { 'Agarrini La Palini': 1, 'Bisonte Giuppitere': 1, 'La Vacca Saturno Saturnita': 1, 'Torrtuginni Dragonfrutini': 1 } }, 
+            'NOooo My Laaaptop': { ingredients: { 'Los Nooo My Hotspotsitos': 1, 'Guerriro Digitale': 3, 'Celularcini Viciosini': 1 } }, 
+            'Tralaleritos Gang': { ingredients: { 'Los Tralaleritos': 4 } }, 
+            'Job Gang': { ingredients: { 'Los Jobcitos': 4 } }, 
+            'Spooky and Pumpky Gang': { ingredients: { 'Spooky and Pumpky': 4 } }, 
+            'Rich Rich Man': { ingredients: { 'Money Money Man': 3 } },
+            'La Mobill Combination': { ingredients: { 'Los Nooo My Hotspotsitos': 1, 'Pot Hotspot': 1, 'Celularcini Viciosini': 1, 'La Grande Combinasion': 1 } },
+            'La Meal Combination': { ingredients: { 'Ketchuru and Musturu': 1, 'Garama and Madundung': 1, 'Burguro And Fryuro': 1 } },
+            'Los Bicicletas': { ingredients: { 'Tacorita Bicicleta': 1, 'Chicleteira Bicicleteira': 1 } },
+            'Los Siblings': { ingredients: { 'Las Sis': 1, 'Los Bros': 1 } },
+            'Los ketupatsitos': { ingredients: { 'Ketupat Kepat': 1, 'Los 67': 1, 'Job Job Job Sahur': 1 } },
+            'Tacorini Cowboini': { ingredients: { 'Tacorita Bicicleta': 1, 'Napole Horse Horse': 1 } },
+            'La aquatic combination': { ingredients: { 'Graipuss Medussi': 1, 'Tralalero Tralala': 2, 'Eviledon': 1 } },
+            'La Mega Combination': { ingredients: { 'La Grande Combinasion': 1, 'La Supreme Combinasion': 1, 'La Taco Combinasion': 1 } }
+        };
         const fuseExclusives = { 'Tipi Topi Taco': { icon: '🌮', rarity: 'Brainrot God', cost: 60e6, mps: 2.5e6 }, 'Capi Taco': { icon: '🧢', rarity: 'Brainrot God', cost: 70e6, mps: 3e6 }, 'Bombardini Tortini': { icon: '💣', rarity: 'Brainrot God', cost: 80e6, mps: 3.5e6 }, 'Nooo My Hotspot': { icon: '🔥', rarity: 'Secret', cost: 1e12, mps: 500e6 }, 'Tacorita Bicicleta': { icon: '🚲', rarity: 'Secret', cost: 1.5e12, mps: 700e6 }, 'Perrito Burrito': { icon: '🐶', rarity: 'Secret', cost: 2e12, mps: 900e6 }, 'Chillin Chili': { icon: '🌶️', rarity: 'Secret', cost: 2.5e12, mps: 1.1e9 }, 'Quesadillo Vampiro': { icon: '🧛', rarity: 'Secret', cost: 3e12, mps: 1.3e9 }, 'Chipso and Queso': { icon: '🧀', rarity: 'Secret', cost: 3.5e12, mps: 1.5e9 }, 'La Taco Combinasion': { icon: '🤯', rarity: 'Secret', cost: 5e12, mps: 2e9 }, 'Tukanno Bananno': { icon: '🍌', rarity: 'Brainrot God', cost: 50e6, mps: 2.5e6 }, 'Brr es Teh Patipum': { icon: '🧊', rarity: 'Brainrot God', cost: 55e6, mps: 2.8e6 }, 'Agarrini La Palini': { icon: '✋', rarity: 'Secret', cost: 1.2e12, mps: 600e6 }, 'Los Hotspotsitos': { icon: '🔥', rarity: 'Secret', cost: 2.2e12, mps: 1e9 }, 'La Supreme Combinasion': { icon: '👑', rarity: 'Secret', cost: 10e12, mps: 5e9 }, 'Jacko Jack Jack': { icon: '🎃', rarity: 'Brainrot God', cost: 50e6, mps: 2.5e6 }, 'Tentacolo Tecnico': { icon: '🐙', rarity: 'Brainrot God', cost: 55e6, mps: 2.8e6 }, 'Snailenzo': { icon: '🐌', rarity: 'Brainrot God', cost: 60e6, mps: 3e6 }, 'Vulturino Skeletono': { icon: '💀', rarity: 'Secret', cost: 1.5e12, mps: 700e6 }, 'Los Mobilis': { icon: '📱', rarity: 'Secret', cost: 2e12, mps: 900e6 }, 'Mieteteira Bicicleteira': { icon: '🚲', rarity: 'Secret', cost: 2.5e12, mps: 1.1e9 }, 'Eviledon': { icon: '😈', rarity: 'Secret', cost: 3e12, mps: 1.3e9 }, 'Spooky and Pumpky': { icon: '👻', rarity: 'Secret', cost: 3.5e12, mps: 1.5e9 }, 'Headless Horseman': { icon: '🐴', rarity: 'Secret', cost: 5e12, mps: 2e9 } };
         const fuseRecipes = { 
             'Taco': [{ inputRarity: 'Brainrot God', count: 4, output: ['Tipi Topi Taco', 'Capi Taco', 'Bombardini Tortini'] }, { inputRarity: 'Secret', count: 4, output: ['Nooo My Hotspot', 'Tacorita Bicicleta', 'Perrito Burrito', 'Chillin Chili', 'Quesadillo Vampiro', 'Chipso and Queso', 'La Taco Combinasion'] }], 
@@ -269,7 +301,7 @@
         // Limited Items Config
         const limitedItemsConfig = {
             'Taco Combination': { name: 'Taco Combination', icon: '🌮➕', cost: 0, mps: 50000000000, rarity: 'Limited', ingredients: {'Quesadilla Crocodila': 1, 'Burrito Bandito': 1, 'Los Nooo My Hotspotsitos': 1, 'Mariachi Corazoni': 1} },
-            'W or L': { name: 'W or L', icon: '🏆', cost: 0, mps: 100000000000, rarity: 'Limited', ingredients: {'Cuadramat and Pakrahmatmamat': 1, 'Los Quesadillas': 1, 'Los Burritos': 1, 'Los 67': 1} },
+            'W or L': { name: 'W or L', icon: '🏆', cost: 0, mps: 100000000000, rarity: 'Limited', ingredients: {'Cuadramat and Pakrahmatmamat': 1, 'Los Quesadillos': 1, 'Los Burritos': 1, 'Los 67': 1} },
             'Evo Mega Mega Mega Mega Mega Knight': { name: 'Evo Mega Mega Mega Mega Mega Knight', icon: '🛡️⚔️', cost: 0, mps: 80000000000, rarity: 'Limited', ingredients: {'Spaghetti Tualetti': 1, 'La Karkerkar Combinasion': 1, 'Los Chicleteiras': 1, 'Mieteteira Bicicleteira': 1} },
             'La Hotspot Combination': { name: 'La Hotspot Combination', icon: '🔥📡', cost: 0, mps: 70000000000, rarity: 'Limited', ingredients: {'Los Nooo My Hotspotsitos': 1, 'Pot Hotspot': 1, 'Los Combinasionas': 1} }
         };
@@ -560,6 +592,15 @@
             updateDerivedState();
             initBase();
             populateAdminDropdowns();
+            
+            // Fallback for Crafting UI
+            if (currentCraftRecipes.length === 0) {
+                // If global state isn't ready, populate with defaults
+                const defaultRecipes = Object.keys(craftRecipes).slice(0, 4);
+                currentCraftRecipes = defaultRecipes;
+                updateCraftUI();
+            }
+
             gameInterval = setInterval(gameLoop, 1000 / 60);
             timerInterval = setInterval(updateTimers, 1000);
             setTimeout(spawnBrainrotOnBelt, 1000);
@@ -855,23 +896,29 @@
             const events = Object.values(weatherEvents).filter(e => !e.luck); // Non-luck events
             const lucks = Object.values(weatherEvents).filter(e => e.luck); // Luck events
             
-            // Item Logic (50% Secret Unit, 50% Lucky Block)
-            const secretUnits = brainrotManifest['Secret'];
-            const luckyBlocks = Object.keys(luckyBlockManifest);
+            // RESTRICTED SECRET POOL (No "Super Good" Brainrots > 500M MPS)
+            // Filter brainrotManifest['Secret'] to exclude extremely high tier items
+            const allowedSecrets = brainrotManifest['Secret'].filter(b => b.mps < 100000000); 
+            // Fallback if empty (shouldn't be)
+            const secretPool = allowedSecrets.length > 0 ? allowedSecrets : brainrotManifest['Secret'];
+
+            // RESTRICTED LUCKY BLOCK POOL (No "OP" or "Admin" Blocks)
+            // Explicitly allow only "fair" blocks
+            const allowedBlocks = ['Mythic Lucky Block', 'Aquatic Lucky Block', 'Piñata']; 
             
             let selectedItem = {};
             
             if (r2 < 0.5) {
                 // Spawn Secret Unit
                 // Map 0.0-0.5 range to array index
-                const index = Math.floor((r2 * 2) * secretUnits.length);
-                const unit = secretUnits[index] || secretUnits[0];
+                const index = Math.floor((r2 * 2) * secretPool.length);
+                const unit = secretPool[index] || secretPool[0];
                 selectedItem = { type: 'unit', name: unit.name, display: unit.name };
             } else {
                 // Spawn Lucky Block
                 // Map 0.5-1.0 range to array index
-                const index = Math.floor(((r2 - 0.5) * 2) * luckyBlocks.length);
-                const blockName = luckyBlocks[index] || luckyBlocks[0];
+                const index = Math.floor(((r2 - 0.5) * 2) * allowedBlocks.length);
+                const blockName = allowedBlocks[index] || allowedBlocks[0];
                 selectedItem = { type: 'block', name: blockName, display: blockName };
             }
 

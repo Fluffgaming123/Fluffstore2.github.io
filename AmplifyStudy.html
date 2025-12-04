@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stop blocking my game please</title>
+    <!-- DISGUISED TITLE -->
+    <title>Amplify</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
 
         body {
             font-family: 'Fredoka', sans-serif;
@@ -41,7 +43,6 @@
         @keyframes waterFlow { 0% { background-position: 0 0; } 100% { background-position: 500px 500px; } }
         @keyframes rgbBg { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
-        /* --- UI & Effects --- */
         .pibble-main { transition: transform 0.05s; cursor: pointer; z-index: 20; }
         .pibble-main:active { transform: scale(0.9); }
         .clicked { animation: bounce 0.15s; }
@@ -61,7 +62,6 @@
         .modal { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 60; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
 
-        /* Rarity Colors */
         .rarity-common { color: #9ca3af; }
         .rarity-rare { color: #60a5fa; }
         .rarity-epic { color: #c084fc; }
@@ -81,164 +81,190 @@
         .auto-active-icon { animation: spin 2s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* XP Bar */
         .xp-bar-container { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 200px; height: 10px; background: rgba(0,0,0,0.2); border-radius: 5px; overflow: hidden; z-index: 40; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #fcd34d, #f59e0b); width: 0%; transition: width 0.3s; }
         .level-badge { position: absolute; top: 60px; left: 50%; transform: translateX(-140px); background: #f59e0b; color: white; font-weight: bold; padding: 2px 8px; border-radius: 12px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 41; white-space: nowrap; }
 
-        /* POOP */
         .poop-icon { position: absolute; font-size: 4rem; cursor: pointer; animation: poopBounce 0.5s infinite alternate; z-index: 55; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.1s; }
         .poop-icon:active { transform: scale(0.9); }
         @keyframes poopBounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
+
+        /* PANIC SCREEN */
+        #panic-screen { 
+            display: none; 
+            position: fixed; inset: 0; 
+            background: white; 
+            z-index: 9999; 
+            color: black; 
+            font-family: 'Times New Roman', Times, serif; 
+            padding: 40px; 
+            overflow-y: auto; 
+            line-height: 1.6;
+        }
     </style>
 </head>
-<body id="game-body" class="h-screen w-screen flex flex-col text-gray-800 relative overflow-hidden bg-forest">
+<body class="h-screen w-screen flex flex-col text-gray-800 relative overflow-hidden bg-forest">
 
-    <!-- Audio -->
-    <audio id="bgm" loop><source src="https://www.dropbox.com/scl/fi/vvon9xafx9b07jl8ciaa7/pibble-theme-song-made-with-Voicemod.mp3?rlkey=jwr2xl0urd6r0c2q62mgnpk3d&st=rrrtf7i3&dl=1" type="audio/mpeg"></audio>
-    <audio id="sfx-click-base" src="https://www.dropbox.com/scl/fi/h9voxecvwr5alqo53hpe0/wash-my-belly-yay-made-with-Voicemod.mp3?rlkey=z32mem9oc74n2oo5pywxfjfx8&st=37iimp94&dl=1"></audio>
-    <audio id="sfx-rare" src="https://www.dropbox.com/scl/fi/lwmw607dlzsepnog48q0p/wash-ma-belly-made-with-Voicemod.mp3?rlkey=tltp7tw8cj2xqzvjj170kztdk&st=b9wjyo5h&dl=1"></audio>
-    <audio id="sfx-fart" src="https://www.dropbox.com/scl/fi/dws2pwcp1lztgtihsxzzl/perfect-fart.mp3?rlkey=by0xfd9fnmj17gu4xs78kqpm4&st=mp6yzwuj&dl=1"></audio>
-
-    <!-- Layers -->
-    <div id="particles" class="absolute inset-0 pointer-events-none z-50"></div>
-    <div id="toast-container"></div>
-
-    <!-- Top Bar -->
-    <div class="w-full bg-white/90 backdrop-blur border-b border-amber-200 p-4 flex justify-between items-center z-40 shadow-sm h-16">
-        <div class="font-bold text-lg md:text-xl text-amber-800 flex items-center gap-2">
-            <span id="area-icon">🌲</span> <span id="area-name">Pibble Forest</span>
-        </div>
-        <button onclick="window.toggleMusic()" id="music-btn" class="text-xs bg-amber-100 px-2 py-1 rounded-full border border-amber-300 text-amber-600 hover:bg-amber-200 transition">🎵 Music: Off</button>
-        <div class="font-bold text-xl md:text-2xl text-amber-600 flex items-center gap-2 bg-amber-100 px-4 py-1 rounded-full border border-amber-300">
-            <span id="score">0</span>
-            <img src="https://www.dropbox.com/scl/fi/st1kw1y86rnnp5l3sklif/Pibblepng.png?rlkey=px7fn1ymhvjv74syzj24ljqzu&st=dnqxvzc1&raw=1" class="w-6 h-6 object-contain">
-        </div>
+    <!-- PANIC SCREEN -->
+    <div id="panic-screen">
+        <h1 class="text-3xl font-bold mb-4 text-center">Chapter 4: The Impact of the Industrial Revolution</h1>
+        <p class="mb-4">The Industrial Revolution, which began in Britain in the late 18th century, marked a major turning point in history. It shifted the world from an agrarian and handicraft economy to one dominated by industry and machine manufacturing. This period saw the development of new technologies such as the steam engine, the spinning jenny, and the power loom, which revolutionized the production of textiles and other goods.</p>
+        <p class="mb-4">One of the most significant impacts of the Industrial Revolution was the rise of urbanization. As factories sprang up in cities, people moved from rural areas to urban centers in search of work. This massive migration led to the rapid growth of cities like Manchester and London, but it also created challenging living conditions, including overcrowding, poor sanitation, and pollution.</p>
+        <p class="mb-4">The social structure of society also underwent a profound transformation. A new industrial middle class emerged, comprised of factory owners, entrepreneurs, and merchants who amassed significant wealth. Meanwhile, the working class, often laboring in harsh conditions for long hours, began to organize into labor unions to advocate for better wages and working rights. This class struggle would become a defining feature of the 19th and early 20th centuries.</p>
+        <p class="mb-4">Furthermore, the Industrial Revolution had global consequences. It fueled imperialism as industrialized nations sought raw materials and new markets for their goods. This led to the colonization of vast regions in Africa and Asia, altering the geopolitical landscape of the world. The economic and technological advancements of this era laid the foundation for the modern world we live in today.</p>
+        <p class="text-sm text-gray-500 mt-8 text-center italic">(Press 'P' to return to study mode)</p>
     </div>
 
-    <!-- XP Bar -->
-    <div class="level-badge" id="level-badge">Lvl 1 (+10%)</div>
-    <div class="xp-bar-container">
-        <div id="xp-bar" class="xp-bar-fill"></div>
-    </div>
+    <!-- GAME CONTAINER (Wrapped to hide easily) -->
+    <div id="game-container" class="w-full h-full flex flex-col">
 
-    <!-- Main Game -->
-    <div class="flex-1 relative flex items-center justify-center">
-        <div id="orbit-ring" class="orbit-container"></div>
-        <div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center group z-20">
-            <div class="absolute inset-0 bg-white/50 rounded-full blur-3xl animate-pulse group-hover:bg-white/70"></div>
-            <div id="pibble-btn" class="pibble-main w-full h-full flex items-center justify-center" onclick="window.clickPibble(event)">
-                <img src="https://www.dropbox.com/scl/fi/st1kw1y86rnnp5l3sklif/Pibblepng.png?rlkey=px7fn1ymhvjv74syzj24ljqzu&st=dnqxvzc1&raw=1" 
-                     alt="Pibble" class="w-full h-full object-contain drop-shadow-2xl hover:brightness-105" draggable="false">
+        <!-- Audio -->
+        <audio id="bgm" loop><source src="https://www.dropbox.com/scl/fi/vvon9xafx9b07jl8ciaa7/pibble-theme-song-made-with-Voicemod.mp3?rlkey=jwr2xl0urd6r0c2q62mgnpk3d&st=rrrtf7i3&dl=1" type="audio/mpeg"></audio>
+        <audio id="sfx-click-base" src="https://www.dropbox.com/scl/fi/h9voxecvwr5alqo53hpe0/wash-my-belly-yay-made-with-Voicemod.mp3?rlkey=z32mem9oc74n2oo5pywxfjfx8&st=37iimp94&dl=1"></audio>
+        <audio id="sfx-rare" src="https://www.dropbox.com/scl/fi/lwmw607dlzsepnog48q0p/wash-ma-belly-made-with-Voicemod.mp3?rlkey=tltp7tw8cj2xqzvjj170kztdk&st=b9wjyo5h&dl=1"></audio>
+        <audio id="sfx-fart" src="https://www.dropbox.com/scl/fi/dws2pwcp1lztgtihsxzzl/perfect-fart.mp3?rlkey=by0xfd9fnmj17gu4xs78kqpm4&st=mp6yzwuj&dl=1"></audio>
+
+        <!-- Layers -->
+        <div id="particles" class="absolute inset-0 pointer-events-none z-50"></div>
+        <div id="toast-container"></div>
+
+        <!-- Top Bar -->
+        <div class="w-full bg-white/90 backdrop-blur border-b border-amber-200 p-4 flex justify-between items-center z-40 shadow-sm h-16">
+            <div class="font-bold text-lg md:text-xl text-amber-800 flex items-center gap-2">
+                <span id="area-icon">🌲</span> <span id="area-name">Pibble Forest</span>
             </div>
-        </div>
-        <div class="absolute bottom-24 font-bold text-amber-700/90 text-sm md:text-base bg-white/80 px-4 py-1 rounded-full backdrop-blur-sm shadow-lg">
-            Click Multiplier: <span id="click-mult">x1.00</span>
-        </div>
-    </div>
-
-    <!-- Bottom Menu -->
-    <div class="h-20 md:h-24 bg-white border-t border-amber-200 flex items-center justify-center gap-2 md:gap-4 px-2 z-40 shadow-lg">
-        <button onclick="window.openModal('egg-store')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1">
-            <div class="text-3xl">🥚</div><div class="text-xs font-bold text-amber-800">Shop</div>
-        </button>
-        <button onclick="window.openModal('inventory')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1 relative">
-            <div class="text-3xl">🎒</div><div class="text-xs font-bold text-amber-800">Pets</div>
-            <div id="inv-count" class="absolute top-2 right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 hidden">0</div>
-        </button>
-        <button onclick="window.openModal('travel')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1">
-            <div class="text-3xl">🗺️</div><div class="text-xs font-bold text-amber-800">Travel</div>
-        </button>
-        <button onclick="window.openModal('cloud')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1">
-            <div class="text-3xl">☁️</div><div class="text-xs font-bold text-amber-800">Cloud</div>
-        </button>
-        <button onclick="window.askReset()" class="flex flex-col items-center justify-center w-12 h-full hover:bg-red-50 active:scale-95 transition gap-1 text-red-400">
-            <div class="text-xl">🗑️</div><div class="text-[9px] font-bold">Reset</div>
-        </button>
-    </div>
-
-    <!-- Modals -->
-    <div id="modal-confirm" class="modal z-[80]">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl border-4 border-amber-200">
-            <div class="text-4xl mb-2">❓</div>
-            <h2 id="confirm-text" class="text-xl font-bold text-gray-800 mb-6">Confirm?</h2>
-            <div class="flex gap-4"><button onclick="window.closeModal('confirm')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-xl">Cancel</button><button id="confirm-yes-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-xl">Yes</button></div>
-        </div>
-    </div>
-
-    <div id="modal-egg-store" class="modal"><div class="bg-white w-full max-w-lg rounded-2xl p-4 m-4 shadow-2xl border-4 border-amber-200 relative flex flex-col h-[80vh]">
-        <button onclick="window.closeModal('egg-store')" class="absolute top-2 right-2 text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold text-amber-800 mb-2 border-b pb-2">🥚 Egg Store</h2>
-        <p class="text-xs text-gray-500 mb-2">Area: <span id="store-area-name" class="font-bold">--</span></p>
-        <div id="egg-list" class="flex-1 overflow-y-auto space-y-3 p-1"></div>
-    </div></div>
-
-    <div id="modal-inventory" class="modal"><div class="bg-white w-full max-w-3xl h-[85vh] rounded-2xl p-4 m-4 shadow-2xl border-4 border-amber-200 relative flex flex-col">
-        <button onclick="window.closeModal('inventory')" class="absolute top-2 right-2 text-2xl">&times;</button>
-        <div class="flex justify-between items-end border-b pb-2 mb-2">
-            <div><h2 class="text-2xl font-bold text-amber-800">🎒 Pets</h2><span class="text-xs text-gray-500">Equipped: <span id="equipped-count">0</span>/5</span></div>
-            <div class="flex gap-2">
-                <button onclick="window.equipBest()" class="bg-blue-500 text-white px-3 py-1 rounded shadow text-xs font-bold">⚡ Best</button>
-                <button id="multi-delete-btn" onclick="window.toggleMultiDelete()" class="bg-gray-200 px-3 py-1 rounded shadow text-xs font-bold">🗑️ Delete</button>
-                <button id="confirm-delete-btn" onclick="window.askDelete()" class="hidden bg-red-500 text-white px-3 py-1 rounded shadow text-xs font-bold animate-pulse">Confirm</button>
-            </div>
-        </div>
-        <div id="inventory-grid" class="flex-1 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 p-1"></div>
-    </div></div>
-
-    <div id="modal-travel" class="modal"><div class="bg-white w-full max-w-md rounded-2xl p-4 m-4 shadow-2xl border-4 border-amber-200 relative h-[80vh] flex flex-col">
-        <button onclick="window.closeModal('travel')" class="absolute top-2 right-2 text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b pb-2">🗺️ Travel</h2>
-        <div id="travel-list" class="flex-1 overflow-y-auto space-y-2 p-1"></div>
-    </div></div>
-
-    <div id="modal-cloud" class="modal"><div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border-4 border-amber-200 relative flex flex-col h-[70vh]">
-        <button onclick="window.closeModal('cloud')" class="absolute top-2 right-2 text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b pb-2">☁️ Cloud & Levels</h2>
-        
-        <div class="mb-4">
-            <label class="text-xs font-bold text-gray-500 block mb-1">Display Name</label>
-            <div class="flex gap-2">
-                <input type="text" id="username-input" class="flex-1 p-2 border rounded" placeholder="Enter name" maxlength="15">
-                <button onclick="window.saveName()" class="bg-amber-500 text-white font-bold px-4 rounded shadow">Set</button>
+            <button onclick="window.toggleMusic()" id="music-btn" class="text-xs bg-amber-100 px-2 py-1 rounded-full border border-amber-300 text-amber-600 hover:bg-amber-200 transition">🎵 Music: Off</button>
+            <div class="font-bold text-xl md:text-2xl text-amber-600 flex items-center gap-2 bg-amber-100 px-4 py-1 rounded-full border border-amber-300">
+                <span id="score">0</span>
+                <img src="https://www.dropbox.com/scl/fi/st1kw1y86rnnp5l3sklif/Pibblepng.png?rlkey=px7fn1ymhvjv74syzj24ljqzu&st=dnqxvzc1&raw=1" class="w-6 h-6 object-contain">
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <button onclick="window.syncSave()" class="bg-green-500 text-white font-bold py-3 rounded shadow">Save</button>
-            <button onclick="window.loadSave()" class="bg-blue-500 text-white font-bold py-3 rounded shadow">Load</button>
+        <!-- XP Bar -->
+        <div class="level-badge" id="level-badge">Lvl 1 (+10%)</div>
+        <div class="xp-bar-container">
+            <div id="xp-bar" class="xp-bar-fill"></div>
         </div>
-        <h3 class="font-bold text-amber-700 mb-2">🏆 Level Leaderboard</h3>
-        <div id="leaderboard-list" class="flex-1 bg-amber-50 rounded border overflow-y-auto p-2 text-sm">Loading...</div>
-    </div></div>
 
-    <div id="modal-admin" class="modal z-[90]"><div class="bg-gray-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border-4 border-gray-700 relative text-white">
-        <button onclick="window.closeModal('admin')" class="absolute top-2 right-2 text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold text-green-400 mb-4">💻 Admin Panel</h2>
-        <div id="admin-login">
-            <input type="password" id="admin-pass" placeholder="Password" class="w-full p-2 rounded bg-gray-800 border border-gray-600 mb-2">
-            <button onclick="window.checkAdmin()" class="w-full bg-green-600 py-2 rounded font-bold">Login</button>
+        <!-- Main Game -->
+        <div class="flex-1 relative flex items-center justify-center">
+            <div id="orbit-ring" class="orbit-container"></div>
+            <div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center group z-20">
+                <div class="absolute inset-0 bg-white/50 rounded-full blur-3xl animate-pulse group-hover:bg-white/70"></div>
+                <div id="pibble-btn" class="pibble-main w-full h-full flex items-center justify-center" onclick="window.clickPibble(event)">
+                    <img src="https://www.dropbox.com/scl/fi/st1kw1y86rnnp5l3sklif/Pibblepng.png?rlkey=px7fn1ymhvjv74syzj24ljqzu&st=dnqxvzc1&raw=1" 
+                        alt="Pibble" class="w-full h-full object-contain drop-shadow-2xl hover:brightness-105" draggable="false">
+                </div>
+            </div>
+            <div class="absolute bottom-24 font-bold text-amber-700/90 text-sm md:text-base bg-white/80 px-4 py-1 rounded-full backdrop-blur-sm shadow-lg">
+                Click Multiplier: <span id="click-mult">x1.00</span>
+            </div>
         </div>
-        <div id="admin-controls" class="hidden space-y-2">
-            <button onclick="window.adminAddMoney()" class="w-full bg-blue-600 py-2 rounded font-bold">+100Qi Pibbles</button>
-            <button onclick="window.adminUnlockAll()" class="w-full bg-purple-600 py-2 rounded font-bold">Unlock All Worlds</button>
-            <button onclick="window.adminGiveAll()" class="w-full bg-yellow-600 py-2 rounded font-bold">Give All Pets</button>
-            <button onclick="window.toggleAdminLuck()" id="btn-luck" class="w-full bg-pink-600 py-2 rounded font-bold">Luck: Normal</button>
-            <button onclick="window.adminLevelUp()" class="w-full bg-orange-600 py-2 rounded font-bold">+10 Levels</button>
-            <button onclick="window.adminForcePoop()" class="w-full bg-amber-800 py-2 rounded font-bold">💩 Force Poop</button>
-            <button onclick="window.askReset()" class="w-full bg-red-600 py-2 rounded font-bold">Wipe Save</button>
+
+        <!-- Bottom Menu -->
+        <div class="h-20 md:h-24 bg-white border-t border-amber-200 flex items-center justify-center gap-2 md:gap-4 px-2 z-40 shadow-lg">
+            <button onclick="window.openModal('egg-store')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1">
+                <div class="text-3xl">🥚</div><div class="text-xs font-bold text-amber-800">Shop</div>
+            </button>
+            <button onclick="window.openModal('inventory')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1 relative">
+                <div class="text-3xl">🎒</div><div class="text-xs font-bold text-amber-800">Pets</div>
+                <div id="inv-count" class="absolute top-2 right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 hidden">0</div>
+            </button>
+            <button onclick="window.openModal('travel')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1">
+                <div class="text-3xl">🗺️</div><div class="text-xs font-bold text-amber-800">Travel</div>
+            </button>
+            <button onclick="window.openModal('cloud')" class="flex flex-col items-center justify-center w-16 md:w-24 h-full hover:bg-amber-50 active:scale-95 transition gap-1">
+                <div class="text-3xl">☁️</div><div class="text-xs font-bold text-amber-800">Cloud</div>
+            </button>
+            <button onclick="window.askReset()" class="flex flex-col items-center justify-center w-12 h-full hover:bg-red-50 active:scale-95 transition gap-1 text-red-400">
+                <div class="text-xl">🗑️</div><div class="text-[9px] font-bold">Reset</div>
+            </button>
         </div>
-    </div></div>
 
-    <div id="modal-setup" class="modal z-[100]"><div class="bg-white w-full max-w-2xl rounded-2xl p-6 border-4 border-red-500 relative flex flex-col">
-        <button onclick="window.closeModal('setup')" class="absolute top-4 right-4 text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ Database Locked</h2>
-        <p class="mb-2">To fix Cloud Save, enable Test Mode in Firebase Console:</p>
-        <pre class="bg-gray-800 text-green-400 p-3 rounded text-xs font-mono mb-4">allow read, write: if true;</pre>
-        <button onclick="location.reload()" class="w-full bg-red-500 text-white font-bold py-3 rounded">Refresh</button>
-    </div></div>
+        <!-- Modals (All wrapped in game-container so they hide on panic) -->
+        <div id="modal-confirm" class="modal z-[80]">
+            <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl border-4 border-amber-200">
+                <div class="text-4xl mb-2">❓</div>
+                <h2 id="confirm-text" class="text-xl font-bold text-gray-800 mb-6">Confirm?</h2>
+                <div class="flex gap-4"><button onclick="window.closeModal('confirm')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-xl">Cancel</button><button id="confirm-yes-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-xl">Yes</button></div>
+            </div>
+        </div>
 
-    <div id="hatch-overlay" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center text-white"><div id="hatch-egg" class="text-9xl animate-bounce cursor-pointer mb-8">🥚</div><div class="text-2xl font-bold animate-pulse text-amber-300">Hatching...</div></div>
+        <div id="modal-egg-store" class="modal"><div class="bg-white w-full max-w-lg rounded-2xl p-4 m-4 shadow-2xl border-4 border-amber-200 relative flex flex-col h-[80vh]">
+            <button onclick="window.closeModal('egg-store')" class="absolute top-2 right-2 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-amber-800 mb-2 border-b pb-2">🥚 Egg Store</h2>
+            <p class="text-xs text-gray-500 mb-2">Area: <span id="store-area-name" class="font-bold">--</span></p>
+            <div id="egg-list" class="flex-1 overflow-y-auto space-y-3 p-1"></div>
+        </div></div>
+
+        <div id="modal-inventory" class="modal"><div class="bg-white w-full max-w-3xl h-[85vh] rounded-2xl p-4 m-4 shadow-2xl border-4 border-amber-200 relative flex flex-col">
+            <button onclick="window.closeModal('inventory')" class="absolute top-2 right-2 text-2xl">&times;</button>
+            <div class="flex justify-between items-end border-b pb-2 mb-2">
+                <div><h2 class="text-2xl font-bold text-amber-800">🎒 Pets</h2><span class="text-xs text-gray-500">Equipped: <span id="equipped-count">0</span>/5</span></div>
+                <div class="flex gap-2">
+                    <button onclick="window.equipBest()" class="bg-blue-500 text-white px-3 py-1 rounded shadow text-xs font-bold">⚡ Best</button>
+                    <button id="multi-delete-btn" onclick="window.toggleMultiDelete()" class="bg-gray-200 px-3 py-1 rounded shadow text-xs font-bold">🗑️ Delete</button>
+                    <button id="confirm-delete-btn" onclick="window.askDelete()" class="hidden bg-red-500 text-white px-3 py-1 rounded shadow text-xs font-bold animate-pulse">Confirm</button>
+                </div>
+            </div>
+            <div id="inventory-grid" class="flex-1 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 p-1"></div>
+        </div></div>
+
+        <div id="modal-travel" class="modal"><div class="bg-white w-full max-w-md rounded-2xl p-4 m-4 shadow-2xl border-4 border-amber-200 relative h-[80vh] flex flex-col">
+            <button onclick="window.closeModal('travel')" class="absolute top-2 right-2 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b pb-2">🗺️ Travel</h2>
+            <div id="travel-list" class="flex-1 overflow-y-auto space-y-2 p-1"></div>
+        </div></div>
+
+        <div id="modal-cloud" class="modal"><div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border-4 border-amber-200 relative flex flex-col h-[70vh]">
+            <button onclick="window.closeModal('cloud')" class="absolute top-2 right-2 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-amber-800 mb-4 border-b pb-2">☁️ Cloud & Levels</h2>
+            
+            <div class="mb-4">
+                <label class="text-xs font-bold text-gray-500 block mb-1">Display Name</label>
+                <div class="flex gap-2">
+                    <input type="text" id="username-input" class="flex-1 p-2 border rounded" placeholder="Enter name" maxlength="15">
+                    <button onclick="window.saveName()" class="bg-amber-500 text-white font-bold px-4 rounded shadow">Set</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button onclick="window.syncSave()" class="bg-green-500 text-white font-bold py-3 rounded shadow">Save</button>
+                <button onclick="window.loadSave()" class="bg-blue-500 text-white font-bold py-3 rounded shadow">Load</button>
+            </div>
+            <h3 class="font-bold text-amber-700 mb-2">🏆 Level Leaderboard</h3>
+            <div id="leaderboard-list" class="flex-1 bg-amber-50 rounded border overflow-y-auto p-2 text-sm">Loading...</div>
+        </div></div>
+
+        <div id="modal-admin" class="modal z-[90]"><div class="bg-gray-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border-4 border-gray-700 relative text-white">
+            <button onclick="window.closeModal('admin')" class="absolute top-2 right-2 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-green-400 mb-4">💻 Admin Panel</h2>
+            <div id="admin-login">
+                <input type="password" id="admin-pass" placeholder="Password" class="w-full p-2 rounded bg-gray-800 border border-gray-600 mb-2">
+                <button onclick="window.checkAdmin()" class="w-full bg-green-600 py-2 rounded font-bold">Login</button>
+            </div>
+            <div id="admin-controls" class="hidden space-y-2">
+                <button onclick="window.adminAddMoney()" class="w-full bg-blue-600 py-2 rounded font-bold">+100Qi Pibbles</button>
+                <button onclick="window.adminUnlockAll()" class="w-full bg-purple-600 py-2 rounded font-bold">Unlock All Worlds</button>
+                <button onclick="window.adminGiveAll()" class="w-full bg-yellow-600 py-2 rounded font-bold">Give All Pets</button>
+                <button onclick="window.toggleAdminLuck()" id="btn-luck" class="w-full bg-pink-600 py-2 rounded font-bold">Luck: Normal</button>
+                <button onclick="window.adminLevelUp()" class="w-full bg-orange-600 py-2 rounded font-bold">+10 Levels</button>
+                <button onclick="window.adminForcePoop()" class="w-full bg-amber-800 py-2 rounded font-bold">💩 Force Poop</button>
+                <button onclick="window.askReset()" class="w-full bg-red-600 py-2 rounded font-bold">Wipe Save</button>
+            </div>
+        </div></div>
+
+        <div id="modal-setup" class="modal z-[100]"><div class="bg-white w-full max-w-2xl rounded-2xl p-6 border-4 border-red-500 relative flex flex-col">
+            <button onclick="window.closeModal('setup')" class="absolute top-4 right-4 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-red-600 mb-4">⚠️ Database Locked</h2>
+            <p class="mb-2">To fix Cloud Save, enable Test Mode in Firebase Console:</p>
+            <pre class="bg-gray-800 text-green-400 p-3 rounded text-xs font-mono mb-4">allow read, write: if true;</pre>
+            <button onclick="location.reload()" class="w-full bg-red-500 text-white font-bold py-3 rounded">Refresh</button>
+        </div></div>
+
+        <div id="hatch-overlay" class="fixed inset-0 bg-black/90 z-[70] hidden flex-col items-center justify-center text-white"><div id="hatch-egg" class="text-9xl animate-bounce cursor-pointer mb-8">🥚</div><div class="text-2xl font-bold animate-pulse text-amber-300">Hatching...</div></div>
+    
+    </div> <!-- End Game Container -->
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -514,6 +540,23 @@
             // Auto remove after 15s
             setTimeout(() => { if(p.parentNode) p.remove(); }, 15000);
         }
+        
+        // --- PANIC ---
+        document.addEventListener('keydown', (e) => {
+            if(e.key.toLowerCase() === 'p') {
+                const panic = document.getElementById('panic-screen');
+                const game = document.getElementById('game-container');
+                if(panic.style.display === 'block') {
+                    panic.style.display = 'none';
+                    game.style.display = 'flex';
+                    document.title = "Pibble Clicker: Multiverse";
+                } else {
+                    panic.style.display = 'block';
+                    game.style.display = 'none';
+                    document.title = "AP History Notes: Week 4";
+                }
+            }
+        });
 
         // --- ADMIN ---
         document.addEventListener('keydown',e=>{if(e.key==='-')document.getElementById('modal-admin').classList.add('active')});

@@ -75,7 +75,7 @@
         #boss-health-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 300px; height: 20px; background: #333; border: 2px solid #fff; border-radius: 10px; display: none; }
         #boss-health-bar { width: 100%; height: 100%; background: #D50000; border-radius: 8px; transition: width 0.1s; }
         #boss-name { position: absolute; top: -25px; width: 100%; text-align: center; color: #D50000; font-size: 1.2rem; text-shadow: 1px 1px 0 #fff; }
-        #conn-status { position: absolute; top: 10px; right: 10px; width: 12px; height: 12px; border-radius: 50%; background: red; border: 2px solid white; z-index: 20; }
+        #conn-status { position: absolute; top: 10px; right: 10px; width: 12px; height: 12px; border-radius: 50%; background: red; border: 2px solid white; z-index: 20; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
         #conn-status.online { background: #00E676; }
         #conn-status.loading { background: #FFEB3B; }
     </style>
@@ -84,7 +84,7 @@
     <canvas id="gameCanvas"></canvas>
 
     <!-- Connection Dot -->
-    <div id="conn-status" title="Connection Status"></div>
+    <div id="conn-status" title="Connection Status (Red=Offline, Green=Online)"></div>
 
     <div class="buff-container">
         <div id="clockDisplay" class="active-buff clock-buff"><i class="fas fa-sun"></i> <span id="timeOfDay">12:00 PM</span></div>
@@ -137,6 +137,9 @@
                     <option value="moose">Moose</option><option value="polar">Polar Bear</option>
                     <option value="croc">Crocodile</option><option value="wolf">Wolf</option>
                     <option value="owl">Owl</option>
+                    <option value="monkey">Monkey</option>
+                    <option value="tiger">Tiger</option>
+                    <option value="gorilla">Gorilla</option>
                 </select>
                 <button onclick="adminSpawn(1)" class="admin-btn">Spawn 1</button>
                 <button onclick="adminSpawn(5)" class="admin-btn">Spawn 5</button>
@@ -198,7 +201,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- 1. FIREBASE INIT (HYBRID) ---
+        // --- 1. FIREBASE CONFIGURATION (HYBRID FIX) ---
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
@@ -222,6 +225,7 @@
         // --- 2. DOM ELEMENTS ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+
         const els = {
             cash: document.getElementById('cashDisplay'),
             gem: document.getElementById('gemDisplay'),
@@ -254,7 +258,7 @@
             connStatus: document.getElementById('conn-status')
         };
 
-        // --- 3. GAME STATE ---
+        // --- 3. GAME STATE VARIABLES ---
         let userId = null; let initialLoadDone = false; let canSave = false;
         let cash = 0; let gems = 0;
         let prestigeLevel = 0; let prestigeMultiplier = 1;
@@ -306,6 +310,7 @@
             { id: 'forest', name: "Fluff Forest", price: 0, bgColors: ["#4FC3F7", "#E1F5FE"], groundColor: "#33691E", treeColor: "#2E7D32" },
             { id: 'tundra', name: "Frozen Tundra", price: 50000, bgColors: ["#B3E5FC", "#E1F5FE"], groundColor: "#ECEFF1", treeColor: "#90A4AE" },
             { id: 'swamp', name: "Fluff Swamp", price: 250000, bgColors: ["#558B2F", "#DCEDC8"], groundColor: "#33691E", treeColor: "#1B5E20" },
+            { id: 'jungle', name: "Wild Jungle", price: 1000000, bgColors: ["#2E7D32", "#A5D6A7"], groundColor: "#1B5E20", treeColor: "#4CAF50" },
             { id: 'brainrot', name: "Brainrot Forest", price: 99999999, bgColors: ["#000", "#000"], groundColor: "#000", treeColor: "#000", locked: true }
         ];
 
@@ -332,7 +337,11 @@
             polar: { name: "Polar Bear", hpBase: 1500, valBase: 5000, speed: 0.3, yOffset: -15, scale: 2.2, type: 'rifle', nocturnal: false, rare: true, biome: 'tundra' },
             frog: { name: "Frog", hpBase: 10, valBase: 40, speed: 2.0, yOffset: 45, scale: 0.3, type: 'small', nocturnal: false, biome: 'swamp' },
             croc: { name: "Crocodile", hpBase: 800, valBase: 2000, speed: 0.6, yOffset: 20, scale: 1.4, type: 'rifle', nocturnal: false, biome: 'swamp' },
-            heron: { name: "Heron", hpBase: 30, valBase: 100, speed: 1.5, yOffset: -150, scale: 0.8, type: 'small', nocturnal: false, biome: 'swamp' }
+            heron: { name: "Heron", hpBase: 30, valBase: 100, speed: 1.5, yOffset: -150, scale: 0.8, type: 'small', nocturnal: false, biome: 'swamp' },
+            monkey: { name: "Monkey", hpBase: 30, valBase: 120, speed: 2.2, yOffset: -80, scale: 0.6, type: 'small', nocturnal: false, biome: 'jungle' },
+            tiger: { name: "Tiger", hpBase: 500, valBase: 1500, speed: 1.2, yOffset: 0, scale: 1.4, type: 'rifle', nocturnal: false, biome: 'jungle' },
+            parrot: { name: "Parrot", hpBase: 15, valBase: 80, speed: 2.0, yOffset: -200, scale: 0.5, type: 'small', nocturnal: false, biome: 'jungle' },
+            gorilla: { name: "Gorilla", hpBase: 2000, valBase: 6000, speed: 0.5, yOffset: -20, scale: 1.9, type: 'rifle', nocturnal: false, rare: true, biome: 'jungle' }
         };
 
         const achievements = [
@@ -378,7 +387,7 @@
 
                 this.radius = 30 * this.scale;
                 this.x = -150;
-                let ySpread = (type==='bird'||type==='owl'||type==='heron')?100:150;
+                let ySpread = (type==='bird'||type==='owl'||type==='heron'||type==='parrot')?100:150;
                 this.y = (canvas.height-200) + Math.random()*ySpread + (stats.yOffset||0);
                 this.bobOffset = Math.random()*10;
                 this.hitTime = 0; this.marked = false;
@@ -386,7 +395,7 @@
             update() {
                 this.x += this.speedX;
                 if(this.type==='rabbit'||this.type==='penguin'||this.type==='frog') this.y+=Math.sin(Date.now()*0.01+this.bobOffset)*1.5;
-                else if(this.type==='bird'||this.type==='owl'||this.type==='heron') this.y+=Math.sin(Date.now()*0.005+this.bobOffset)*1.0;
+                else if(this.type==='bird'||this.type==='owl'||this.type==='heron'||this.type==='parrot'||this.type==='monkey') this.y+=Math.sin(Date.now()*0.005+this.bobOffset)*1.0;
                 else this.y+=Math.sin(Date.now()*0.002+this.bobOffset)*0.2;
                 
                 if(!this.isBoss && this.rarity.shake) this.x+=(Math.random()-0.5)*3;
@@ -434,6 +443,7 @@
                     ctx.shadowBlur = 30; ctx.shadowColor = "red";
                     if(currentWorldId==='tundra') this.drawPolar(col);
                     else if(currentWorldId==='swamp') this.drawCroc(col);
+                    else if(currentWorldId==='jungle') this.drawGorilla(col);
                     else this.drawBear(col);
                 } else {
                     if(this.type==='deer') this.drawDeer(col);
@@ -449,6 +459,10 @@
                     else if(this.type==='croc') this.drawCroc(col);
                     else if(this.type==='heron') this.drawBird(col);
                     else if(this.type==='moose') this.drawMoose(col);
+                    else if(this.type==='monkey') this.drawMonkey(col);
+                    else if(this.type==='tiger') this.drawTiger(col);
+                    else if(this.type==='parrot') this.drawParrot(col);
+                    else if(this.type==='gorilla') this.drawGorilla(col);
                 }
                 ctx.restore();
                 
@@ -471,6 +485,10 @@
             drawFox(c) { ctx.fillStyle="#ECEFF1"; if(c!==rarities[0].color) ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,25,12,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(20,-5,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.moveTo(-25,0); ctx.lineTo(-45,-5); ctx.lineTo(-45,5); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(24,-7,2,0,Math.PI*2); ctx.fill(); }
             drawCroc(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.rect(-40,-10,80,20); ctx.fill(); ctx.beginPath(); ctx.moveTo(40,-5); ctx.lineTo(70,0); ctx.lineTo(40,5); ctx.fill(); ctx.fillStyle="#1B5E20"; ctx.beginPath(); ctx.moveTo(-40,0); ctx.lineTo(-70,0); ctx.stroke(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(45,-8,2,0,Math.PI*2); ctx.fill(); }
             drawFrog(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(5,-5,4,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(5,-5,2,0,Math.PI*2); ctx.fill(); }
+            drawMonkey(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(0,-15,12,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#D7CCC8"; ctx.beginPath(); ctx.arc(0,-12,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(-4,-14,2,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(4,-14,2,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=c; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(-5,10); ctx.quadraticCurveTo(-20,10, -20,-10); ctx.stroke(); }
+            drawTiger(c) { ctx.fillStyle=c; ctx.fillRect(-30,-15,60,30); ctx.fillStyle="#000"; ctx.fillRect(-10,-15,5,30); ctx.fillRect(10,-15,5,30); ctx.fillStyle=c; ctx.beginPath(); ctx.arc(35,-5,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(40,-2,5,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(42,-4,2,0,Math.PI*2); ctx.fill(); }
+            drawParrot(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,15,10,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#FFEB3B"; ctx.beginPath(); ctx.moveTo(10,0); ctx.lineTo(20,0); ctx.lineTo(15,8); ctx.fill(); ctx.fillStyle="#4CAF50"; ctx.beginPath(); ctx.ellipse(0,-5,12,6,-0.5,0,Math.PI*2); ctx.fill(); }
+            drawGorilla(c) { ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(0,0,45,35,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(0,-30,20,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#BDBDBD"; ctx.beginPath(); ctx.arc(0,-35,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.fillRect(-40,10,15,40); ctx.fillRect(25,10,15,40); }
         }
 
         class TextParticle {
@@ -485,18 +503,27 @@
             draw() { ctx.globalAlpha=this.life; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,3,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
         }
 
-        // --- 6. FUNCTIONS ---
+        // --- 6. LOGIC FUNCTIONS ---
 
         function spawnEntity() {
             if(bossActive) return; 
             let roll = Math.random();
             let type = '';
+            
             if(currentWorldId === 'tundra') {
-                if(roll < 0.02) type = 'polar'; else type = Math.random() > 0.6 ? 'penguin' : 'fox';
+                if(roll < 0.02) type = 'polar';
+                else type = Math.random() > 0.6 ? 'penguin' : 'fox';
             } else if(currentWorldId === 'swamp') {
-                if(roll < 0.05) type = 'croc'; else type = Math.random() > 0.5 ? 'frog' : 'heron';
+                if(roll < 0.05) type = 'croc';
+                else type = Math.random() > 0.5 ? 'frog' : 'heron';
+            } else if(currentWorldId === 'jungle') {
+                if(roll < 0.02) type = 'gorilla';
+                else if(roll < 0.1) type = 'tiger';
+                else type = Math.random() > 0.5 ? 'monkey' : 'parrot';
             } else {
-                if(roll<0.02) type='bear'; else if(roll<0.04) type='moose';
+                // Forest
+                if(roll<0.02) type='bear';
+                else if(roll<0.04) type='moose';
                 else if(isNight) type=Math.random()>0.5?'wolf':'owl';
                 else type=Math.random()>0.6?'deer':(Math.random()>0.5?'rabbit':'bird');
             }
@@ -508,6 +535,7 @@
             let type = 'bear';
             if(currentWorldId === 'tundra') type = 'polar';
             if(currentWorldId === 'swamp') type = 'croc';
+            if(currentWorldId === 'jungle') type = 'gorilla';
             bossEntity = new Entity(type, true);
             bossEntity.x = -100; 
             entities.push(bossEntity);
@@ -534,8 +562,9 @@
             if(cash>=1000000) els.prestigeBtn.classList.remove('hidden');
             else els.prestigeBtn.classList.add('hidden');
             
-            // Status dot
+            // Update Status Dot
             els.connStatus.className = userId ? 'online' : (initialLoadDone ? '' : 'loading');
+            els.connStatus.title = userId ? "Online" : "Offline";
         }
 
         function createExplosion(x, y, color) {
@@ -642,9 +671,16 @@
         }
 
         function buyItem(item) {
-            if(cash<item.price) { notif("Not enough cash!"); return; }
-            if((item.type==='rifle'||item.type==='small') && item.owned) { currentWeapon=item; updateHUD(); renderShop(); return; }
+            // Check ownership first - This fixes the equip bug
+            if((item.type==='rifle'||item.type==='small') && item.owned) {
+                currentWeapon=item; updateHUD(); renderShop(); saveGame(true); notif("Equipped!"); return;
+            }
             if(item.desc && !item.type && gearOwned[item.id]) return;
+            if(item.type==='upgrade' && scopeUpgradeLevel>=1) return;
+
+            // Then check cash
+            if(cash<item.price) { notif("Not enough cash!"); return; }
+
             cash-=item.price;
             if(item.type==='rifle'||item.type==='small') { item.owned=true; currentWeapon=item; }
             else if(item.type==='consumable' && item.id==='bait') { baitActive=true; baitTimeLeft=60; els.baitBox.classList.remove('hidden'); }
@@ -720,7 +756,13 @@
                 animalStats, 
                 lastSave: Date.now() 
             };
-            try { await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'data', 'save1'), data); if(!silent) notif("Game Saved"); } catch(e){ console.error(e); if(!silent) notif("Save Failed"); }
+            try { await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'data', 'save1'), data); if(!silent) notif("Game Saved"); } catch(e){
+                // Check specific errors
+                console.error("Save Error:", e);
+                if(e.code === 'permission-denied') notif("Error: Permission Denied");
+                else if(e.message && e.message.includes("offline")) notif("Error: Offline");
+                else notif("Save Failed");
+            }
         }
 
         async function loadGame(retries=5) {

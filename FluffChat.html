@@ -242,20 +242,35 @@
     </footer>
 
     <script>
-        // Default config to ensure initialization doesn't crash if environment variables are missing
+        // Default config uses placeholder values but ensures projectId and apiKey fields exist.
         const DEFAULT_FIREBASE_CONFIG = {
-            apiKey: "dummy-api-key",
+            apiKey: "dummy-api-key", 
             authDomain: "dummy-project.firebaseapp.com",
-            projectId: "fluff-chat-default", // MANDATORY field to prevent the initialization crash
+            projectId: "fluff-chat-default", 
             storageBucket: "dummy-project.appspot.com",
         };
         
         // Global Constants and State
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // Use the environment variable if defined, otherwise use the safe default config
-        const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
-            ? JSON.parse(__firebase_config)
-            : DEFAULT_FIREBASE_CONFIG;
+
+        let environmentConfig = {};
+        try {
+            // Attempt to safely parse the environment config
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                environmentConfig = JSON.parse(__firebase_config);
+            }
+        } catch (e) {
+            console.warn("Could not parse __firebase_config, falling back to default/empty config.", e);
+        }
+        
+        // Merge the environment config with the default config, prioritizing environment values
+        // This ensures projectId and apiKey are present, and if the environment provides valid ones, they are used.
+        const firebaseConfig = {
+            ...DEFAULT_FIREBASE_CONFIG,
+            ...environmentConfig,
+            // Ensure apiKey is never null or undefined if we get a partial environment config
+            apiKey: environmentConfig.apiKey || DEFAULT_FIREBASE_CONFIG.apiKey 
+        };
             
         // Ensure initialAuthToken is null if not explicitly defined
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 

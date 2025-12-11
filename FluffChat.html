@@ -245,12 +245,13 @@
         // Global Constants and State
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // Ensure initialAuthToken is null if not explicitly defined
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
 
         let db, auth, currentUserId, chatCollectionRef;
         let currentUserProfile = null;
-        let dmRecipient = null; // Stores { userId, username, color } of the current DM recipient
-        let dmUnsubscribe = null; // Stores the Firestore unsubscribe function for DMs
+        let dmRecipient = null; 
+        let dmUnsubscribe = null; 
         
         const AVAILABLE_COLORS = ['#ff3333', '#33ff33', '#33ccff', '#ffaa00', '#f472b6', '#a78bfa', '#fb923c']; 
         
@@ -344,16 +345,30 @@
 
         // --- FIREBASE INITIALIZATION ---
         async function setupFirebaseAndChat() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const userInfo = document.getElementById('user-info');
+            userInfo.textContent = 'Initializing...';
+
             try {
                 const app = window.firebase.initializeApp(firebaseConfig);
                 db = window.firebase.getFirestore(app);
                 auth = window.firebase.getAuth(app);
 
-                if (initialAuthToken) {
-                    await window.firebase.signInWithCustomToken(auth, initialAuthToken);
-                } else {
+                // --- Robust Authentication Logic ---
+                try {
+                    if (initialAuthToken) {
+                        await window.firebase.signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        // Fallback to anonymous if token is missing or undefined
+                        await window.firebase.signInAnonymously(auth);
+                    }
+                } catch (authError) {
+                    // This catches if the provided token is invalid
+                    console.error("Custom token sign-in failed, falling back to anonymous:", authError);
                     await window.firebase.signInAnonymously(auth);
                 }
+                // --- End Authentication Logic ---
+
 
                 window.firebase.onAuthStateChanged(auth, async (user) => {
                     if (user) {
@@ -365,30 +380,37 @@
                         const chatPath = `artifacts/${appId}/public/data/fluff_chat_messages`;
                         chatCollectionRef = window.firebase.collection(db, chatPath);
 
+                        // Remove loading indicator from public chat view
+                        const existingIndicator = document.getElementById('loading-indicator');
+                        if (existingIndicator) existingIndicator.remove();
+
                         updateUserInfoUI();
-                        listenForMessages(); // Start public chat listener
-                        listenForUserProfiles(); // Start user list listener
+                        listenForMessages(); 
+                        listenForUserProfiles(); 
 
                         document.getElementById('message-form').addEventListener('submit', handleSendMessage);
                         
                         // Set up UI listeners
                         document.getElementById('tab-public').addEventListener('click', () => setChatView('public'));
                         document.getElementById('tab-dm').addEventListener('click', () => setChatView('dm'));
-                        document.getElementById('dm-messages').addEventListener('click', handleDmButtonClick);
-                        document.getElementById('dm-back-button').addEventListener('click', () => setChatView('dm')); // Go back to user list
+                        // Delegate click handling for DM buttons in chat messages
+                        document.getElementById('chat-messages').addEventListener('click', handleDmButtonClick); 
+                        document.getElementById('dm-back-button').addEventListener('click', () => setChatView('dm')); 
 
                         document.getElementById('message-input').disabled = false;
                         document.getElementById('send-button').disabled = false;
                         setChatView('public');
                         
                     } else {
-                        document.getElementById('user-info').textContent = 'Error: Could not authenticate.';
+                        userInfo.textContent = 'Error: Authentication failed.';
+                        if (loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500">❌ Authentication failed. Please refresh.</p>`;
                     }
                 });
 
             } catch (error) {
-                console.error("Firebase setup failed:", error);
-                document.getElementById('loading-indicator').innerHTML = `<p class="text-red-500">❌ Chat initialization failed. See console for details.</p>`;
+                console.error("Firebase overall setup failed:", error);
+                if (loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500">❌ Chat initialization failed. See console for details.</p>`;
+                userInfo.textContent = 'Error: Initialization failed.';
             }
         }
         
@@ -451,13 +473,12 @@
         
         // --- DM INTERACTION ---
         function handleDmButtonClick(event) {
+            // Use event delegation to catch clicks on dynamically created DM buttons
             const target = event.target.closest('.dm-button');
             if (target) {
                 const recipientId = target.dataset.userId;
                 const recipientUsername = target.dataset.username;
                 
-                // Find the recipient's color from the global user list (if available, otherwise assign deterministic)
-                // For simplicity, we assign the deterministic color here.
                 const recipientColor = assignUserColor(recipientId); 
 
                 setChatView('dm', { 
@@ -523,6 +544,9 @@
         // --- MESSAGE LISTENERS ---
         
         function renderMessages(messages, targetDiv) {
+            // Check if the targetDiv is the chatMessages (public) or dmMessages
+            const isPublicChat = targetDiv.id === 'chat-messages';
+            
             const isNearBottom = targetDiv.scrollHeight - targetDiv.scrollTop <= targetDiv.clientHeight + 50;
 
             const fragment = document.createDocumentFragment();
@@ -541,9 +565,9 @@
                 messageElement.className = `group flex flex-col p-3 rounded-xl max-w-[85%] shadow-lg transition duration-200 ${isCurrentUser ? 'self-end bg-slate-700/80 ml-auto border-r-4' : 'self-start bg-slate-700 mr-auto border-l-4'}`;
                 messageElement.style.borderColor = userColor;
 
-                // DM button only makes sense in public chat, so it's not rendered here for DMs
-                const dmButtonHtml = (targetDiv.id === 'chat-messages' && !isCurrentUser) 
-                    ? `<span class="dm-button text-xs text-slate-500 opacity-0 group-hover:opacity-100" data-user-id="${senderId}" data-username="${senderUsername}">[DM]</span>` 
+                // DM button only makes sense in public chat (targetDiv.id === 'chat-messages')
+                const dmButtonHtml = (isPublicChat && !isCurrentUser) 
+                    ? `<span class="dm-button text-xs text-slate-500 opacity-0 group-hover:opacity-100 cursor-pointer" data-user-id="${senderId}" data-username="${senderUsername}">[DM]</span>` 
                     : '';
 
                 messageElement.innerHTML = `
@@ -568,15 +592,14 @@
 
         function listenForMessages() {
             const chatMessagesDiv = document.getElementById('chat-messages');
-            const loadingIndicator = document.getElementById('loading-indicator');
-            if (loadingIndicator) loadingIndicator.remove();
             
+            // Re-use the existing chatCollectionRef from setup
             const q = window.firebase.query(chatCollectionRef, window.firebase.orderBy('timestamp', 'asc'));
 
             window.firebase.onSnapshot(q, (snapshot) => {
                 renderMessages(snapshot.docs.map(doc => doc.data()), chatMessagesDiv);
             }, (error) => {
-                console.error("Firestore real-time listener failed:", error);
+                console.error("Firestore public chat listener failed:", error);
                 chatMessagesDiv.innerHTML = `<p class="text-red-500 text-center p-10">❌ Error retrieving public messages.</p>`;
             });
         }
@@ -631,7 +654,7 @@
                     userItem.innerHTML = `
                         <span class="font-medium" style="color: ${profile.color};">${profile.username}</span>
                         <span class="text-xs text-slate-400">${profile.userId.slice(0, 8)}...</span>
-                        <button class="text-dm-blue hover:text-white text-sm font-bold ml-2 py-1 px-3 rounded-full border border-dm-blue">
+                        <button class="text-dm-blue hover:text-white text-sm font-bold ml-2 py-1 px-3 rounded-full border border-dm-blue pointer-events-none">
                             DM
                         </button>
                     `;

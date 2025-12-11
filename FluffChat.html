@@ -242,9 +242,21 @@
     </footer>
 
     <script>
+        // Default config to ensure initialization doesn't crash if environment variables are missing
+        const DEFAULT_FIREBASE_CONFIG = {
+            apiKey: "dummy-api-key",
+            authDomain: "dummy-project.firebaseapp.com",
+            projectId: "fluff-chat-default", // MANDATORY field to prevent the initialization crash
+            storageBucket: "dummy-project.appspot.com",
+        };
+        
         // Global Constants and State
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        // Use the environment variable if defined, otherwise use the safe default config
+        const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
+            ? JSON.parse(__firebase_config)
+            : DEFAULT_FIREBASE_CONFIG;
+            
         // Ensure initialAuthToken is null if not explicitly defined
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
 
@@ -350,6 +362,7 @@
             userInfo.textContent = 'Initializing...';
 
             try {
+                // This initialization now uses the robust config structure
                 const app = window.firebase.initializeApp(firebaseConfig);
                 db = window.firebase.getFirestore(app);
                 auth = window.firebase.getAuth(app);

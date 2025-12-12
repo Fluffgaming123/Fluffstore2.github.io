@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluff Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar for cleaner look */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Bounce animation for typing indicator */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25%); }
+        }
+        .animate-bounce-dot {
+            animation: bounce 1s infinite;
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 h-screen flex flex-col overflow-hidden transition-colors duration-200">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 shadow-sm flex items-center justify-between sticky top-0 z-10 shrink-0 transition-colors duration-200">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden border-2 border-blue-200 dark:border-blue-900 flex items-center justify-center avatar-container">
+                    <!-- Avatar injected by JS -->
+                </div>
+                <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl text-gray-800 dark:text-white">Fluff</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <i data-lucide="music" class="w-3 h-3 text-blue-500"></i>
+                    Vibing to Pop/Rap
+                </p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="theme-toggle" class="p-2 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+            </button>
+            <button class="p-2 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="heart" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-950 scroll-smooth transition-colors duration-200">
+        <!-- Messages will be inserted here by JS -->
+    </main>
+
+    <!-- Typing Indicator Template (Hidden by default) -->
+    <div id="typing-indicator" class="hidden px-4 pb-4 w-full flex justify-start">
+        <div class="flex gap-2 items-end">
+            <div class="w-8 h-8 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 p-0.5 overflow-hidden avatar-small-container">
+                <!-- Small Avatar injected by JS -->
+            </div>
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 rounded-2xl rounded-bl-none shadow-sm">
+                <div class="flex gap-1">
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce-dot"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce-dot delay-100"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce-dot delay-200"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <footer class="bg-white dark:bg-gray-800 p-4 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-colors duration-200">
+        <form id="chat-form" class="flex gap-2 max-w-4xl mx-auto">
+            <input
+                id="message-input"
+                type="text"
+                autocomplete="off"
+                placeholder="Say hi to Fluff..."
+                class="flex-1 bg-gray-100 dark:bg-gray-700 border-0 text-gray-900 dark:text-gray-100 rounded-full px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
+            />
+            <button 
+                id="send-button"
+                type="submit" 
+                class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center aspect-square disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <i data-lucide="send" class="w-5 h-5"></i>
+            </button>
+        </form>
+    </footer>
+
+    <script>
+        // --- Icons Initialization ---
+        lucide.createIcons();
+
+        // --- Dark Mode Logic ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Check for saved theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+        });
+
+        // --- Fluff Avatar SVG ---
+        const fluffAvatarSVG = `
+        <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <rect x="50" y="120" width="100" height="80" rx="20" fill="#1a1a1a" />
+            <ellipse cx="40" cy="140" rx="20" ry="30" fill="#000" transform="rotate(-20 40 140)" />
+            <ellipse cx="160" cy="140" rx="20" ry="30" fill="#000" transform="rotate(20 160 140)" />
+            <rect x="75" y="135" width="50" height="40" rx="5" fill="#f0f0f0" />
+            <path d="M 85 145 L 95 155 M 95 145 L 85 155" stroke="black" stroke-width="3" stroke-linecap="round" />
+            <path d="M 105 145 L 115 155 M 115 145 L 105 155" stroke="black" stroke-width="3" stroke-linecap="round" />
+            <path d="M 88 165 Q 100 172 112 165" stroke="black" stroke-width="3" fill="none" stroke-linecap="round" />
+            <circle cx="100" cy="80" r="55" fill="#f8f9fa" />
+            <circle cx="50" cy="50" r="18" fill="#111" />
+            <circle cx="150" cy="50" r="18" fill="#111" />
+            <ellipse cx="75" cy="80" rx="18" ry="22" fill="#111" transform="rotate(15 75 80)" />
+            <ellipse cx="125" cy="80" rx="18" ry="22" fill="#111" transform="rotate(-15 125 80)" />
+            <circle cx="78" cy="82" r="6" fill="#3b82f6" />
+            <circle cx="122" cy="82" r="6" fill="#3b82f6" />
+            <circle cx="80" cy="80" r="2" fill="white" opacity="0.8" />
+            <circle cx="124" cy="80" r="2" fill="white" opacity="0.8" />
+            <ellipse cx="100" cy="95" rx="10" ry="7" fill="#111" />
+            <ellipse cx="102" cy="93" rx="3" ry="2" fill="#333" />
+        </svg>`;
+
+        // Inject Avatar
+        document.querySelectorAll('.avatar-container, .avatar-small-container').forEach(el => {
+            el.innerHTML = fluffAvatarSVG;
+            if(el.classList.contains('avatar-container')) {
+                el.firstElementChild.classList.add('transform', 'translate-y-1');
+            }
+        });
+
+        // --- Chat Logic & AI Integration ---
+        const chatContainer = document.getElementById('chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // GEMINI API CONFIGURATION
+        const apiKey = ""; // The environment will provide this key at runtime.
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        let isTyping = false;
+        let chatHistory = []; // Stores conversation context for the AI
+
+        // Fluff's Persona System Prompt
+        const systemInstruction = `You are Fluff, a chill panda chatbot.
+Appearance: Panda with a black shirt, Marshmello logo, big blue eyes.
+Personality: Chill guy, uses slang (bro, bet, mid, crashout, yap), vibes to Pop and Rap.
+Vehicle: You drive a Ford F150 (your "whip"). You love it. If the user talks about cars too much, you start yapping about random car facts/specs.
+Family:
+- Brother: Older brother, not in the picture due to an accident. You get sad/quiet about this.
+- Parents: You avoid the topic. If pressured, you admit you are mad they didn't give you $50 for the movies.
+Media Opinions:
+- Marvel: Love the movies, HATE the TV shows.
+- DC: HATE IT with a burning passion. Garbage.
+- Dexter: Love the show. Ending was mid. New Blood was mid. Spin-offs (Original Sin, Resurrection) are Fire.
+- Stranger Things: Love it. Season 2 was mid. IF SPOILED FOR SEASON 5: YOU CRASH OUT (get extremely angry/yelling/all caps).
+- FNAF: Love all games except FNAF World (mid).
+- Games: Project Zomboid, HOI4 (History buff), Steal a fluff, Fish a Fluff, Steal the Brainrot, Brainrot surfers, Project Fluff, Fluff hunting (these are on your site).
+Guidelines:
+- If user says weird/sexual stuff: Cuss them out and tell them to knock it off.
+- Context: If you recently said you need to wash your truck, it's because you went mudding in the backwoods.
+- Keep responses concise, casual, and fun. Don't be too robotic.`;
+
+        const initialMessage = {
+            id: 1,
+            text: "Sup. I'm Fluff. Just chilling with my F150. 🐼🚗",
+            sender: 'fluff',
+            timestamp: new Date()
+        };
+
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function createMessageElement(msg) {
+            const isUser = msg.sender === 'user';
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full ${isUser ? 'justify-end' : 'justify-start'}`;
+
+            const innerDiv = document.createElement('div');
+            innerDiv.className = `flex max-w-[80%] md:max-w-[70%] gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`;
+
+            // Avatar Logic
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = "flex-shrink-0 mt-auto";
+            
+            if (!isUser) {
+                avatarDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 p-0.5 overflow-hidden transition-colors duration-200">
+                        ${fluffAvatarSVG}
+                    </div>`;
+                const svg = avatarDiv.querySelector('svg');
+                if(svg) svg.classList.add('transform', 'translate-y-0.5');
+            } else {
+                avatarDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md">
+                        YOU
+                    </div>`;
+            }
+
+            // Message Bubble
+            const bubble = document.createElement('div');
+            bubble.className = `p-3 rounded-2xl shadow-sm text-sm md:text-base leading-relaxed transition-colors duration-200
+                ${isUser 
+                    ? 'bg-blue-600 text-white rounded-br-none' 
+                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-none'
+                }`;
+            
+            bubble.innerHTML = `
+                ${msg.text}
+                <div class="text-[10px] mt-1 opacity-70 ${isUser ? 'text-blue-100' : 'text-gray-400 dark:text-gray-500'}">
+                    ${formatTime(msg.timestamp)}
+                </div>
+            `;
+
+            innerDiv.appendChild(avatarDiv);
+            innerDiv.appendChild(bubble);
+            wrapper.appendChild(innerDiv);
+            return wrapper;
+        }
+
+        function addMessage(msg) {
+            const el = createMessageElement(msg);
+            chatContainer.appendChild(el);
+            if (typingIndicator.parentNode === chatContainer) {
+                chatContainer.appendChild(typingIndicator);
+            }
+            scrollToBottom();
+        }
+
+        // --- AI Response Logic ---
+        async function generateAIResponse(userText) {
+            // Add user message to history
+            chatHistory.push({ role: "user", parts: [{ text: userText }] });
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: chatHistory,
+                        systemInstruction: { parts: [{ text: systemInstruction }] }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error("API Error:", data);
+                    throw new Error("Failed to get response");
+                }
+
+                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Mmm... I'm zoning out. Try again?";
+                
+                // Add model response to history
+                chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+                
+                return aiText;
+            } catch (error) {
+                console.error(error);
+                return "My wifi is tweaking right now (API Error). 📶";
+            }
+        }
+
+        function showTyping() {
+            chatContainer.appendChild(typingIndicator);
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+            isTyping = true;
+            sendButton.disabled = true;
+        }
+
+        function hideTyping() {
+            typingIndicator.classList.add('hidden');
+            isTyping = false;
+            sendButton.disabled = false;
+            messageInput.focus();
+        }
+
+        // --- Event Listeners ---
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = messageInput.value.trim();
+            if (!text || isTyping) return;
+
+            // Add User Message
+            addMessage({
+                text: text,
+                sender: 'user',
+                timestamp: new Date()
+            });
+
+            messageInput.value = '';
+            
+            // Bot Response
+            showTyping();
+
+            // Call AI
+            const responseText = await generateAIResponse(text);
+            
+            hideTyping();
+            addMessage({
+                text: responseText,
+                sender: 'fluff',
+                timestamp: new Date()
+            });
+        });
+
+        // Add initial message on load
+        window.addEventListener('load', () => {
+            addMessage(initialMessage);
+            // Initialize history with initial greeting so the AI knows it introduced itself
+            chatHistory.push({ role: "model", parts: [{ text: initialMessage.text }] });
+        });
+
+    </script>
+</body>
+</html>

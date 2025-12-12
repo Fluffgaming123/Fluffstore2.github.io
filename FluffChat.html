@@ -242,9 +242,9 @@
     </footer>
 
     <script>
-        // Default config uses placeholder values but ensures projectId and apiKey fields exist.
+        // Default config uses an EMPTY API KEY. Firebase/Canvas will inject the real one if it's an empty string.
         const DEFAULT_FIREBASE_CONFIG = {
-            apiKey: "dummy-api-key", 
+            apiKey: "", 
             authDomain: "dummy-project.firebaseapp.com",
             projectId: "fluff-chat-default", 
             storageBucket: "dummy-project.appspot.com",
@@ -264,11 +264,10 @@
         }
         
         // Merge the environment config with the default config, prioritizing environment values
-        // This ensures projectId and apiKey are present, and if the environment provides valid ones, they are used.
+        // If environmentConfig.apiKey is missing or falsy, it will use the empty string from DEFAULT_FIREBASE_CONFIG.
         const firebaseConfig = {
             ...DEFAULT_FIREBASE_CONFIG,
             ...environmentConfig,
-            // Ensure apiKey is never null or undefined if we get a partial environment config
             apiKey: environmentConfig.apiKey || DEFAULT_FIREBASE_CONFIG.apiKey 
         };
             

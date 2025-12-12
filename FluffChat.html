@@ -473,11 +473,23 @@
         async function checkOrCreateUserProfile(uid) {
             const profilesCollection = window.firebase.collection(db, `artifacts/${appId}/public/data/user_profiles`);
             const userDocRef = window.firebase.doc(profilesCollection, uid);
-            const userSnap = await window.firebase.getDoc(userDocRef);
+            
+            try {
+                const userSnap = await window.firebase.getDoc(userDocRef);
 
-            if (userSnap.exists()) {
-                currentUserProfile = userSnap.data();
-                return;
+                if (userSnap.exists()) {
+                    currentUserProfile = userSnap.data();
+                    return;
+                }
+            } catch (error) {
+                if (error.code === 'permission-denied') {
+                    console.error("Permission denied when reading user profile. PLEASE UPDATE FIRESTORE RULES.", error);
+                    alert("⚠️ Access Denied: Please update your Firestore Security Rules with the code provided in the chat. The app cannot read your profile.");
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (loadingIndicator) loadingIndicator.innerHTML = `<p class="text-red-500 font-bold">⚠️ Security Rules Update Required. See Chat.</p>`;
+                    return; // Stop execution
+                }
+                console.error("Error checking user profile:", error);
             }
 
             return new Promise((resolve) => {
@@ -511,7 +523,11 @@
 
                     } catch (e) {
                         console.error("Error setting username:", e);
-                        error.textContent = 'Error setting username. Try again.';
+                        if (e.code === 'permission-denied') {
+                             error.textContent = 'Permission Denied: Please update Firestore Security Rules.';
+                        } else {
+                             error.textContent = 'Error setting username. Try again.';
+                        }
                         error.classList.remove('hidden');
                     }
                 };
@@ -592,7 +608,11 @@
                 inputElement.value = '';
             } catch (error) {
                 console.error("Error sending message:", error);
-                alert("Error sending message. Check console."); 
+                if (error.code === 'permission-denied') {
+                    alert("Error: Permission denied. You may not be allowed to message this user or rules are outdated.");
+                } else {
+                    alert("Error sending message. Check console."); 
+                }
             }
         };
 
@@ -655,7 +675,7 @@
                 renderMessages(snapshot.docs.map(doc => doc.data()), chatMessagesDiv);
             }, (error) => {
                 console.error("Firestore public chat listener failed:", error);
-                chatMessagesDiv.innerHTML = `<p class="text-red-500 text-center p-10">❌ Error retrieving public messages.</p>`;
+                chatMessagesDiv.innerHTML = `<p class="text-red-500 text-center p-10">❌ Error retrieving public messages. (Permission Denied?)</p>`;
             });
         }
         

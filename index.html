@@ -133,36 +133,40 @@
                      onerror="this.onerror=null; this.src='https://placehold.co/256x256/8B0000/FFFFFF?text=Fluff+Santa'">
             </div>
             
-            <!-- LIVE CHRISTMAS COUNTDOWN TIMER -->
-            <div id="countdown-timer" class="mt-6 p-3 bg-red-800 text-white rounded-lg shadow-xl inline-block max-w-full">
+            <!-- LIVE CHRISTMAS COUNTDOWN TIMER (MOVED HERE: BEFORE BUTTONS) -->
+            <div id="countdown-timer" class="mt-6 mb-8 p-3 bg-red-800 text-white rounded-lg shadow-xl inline-block max-w-full">
                 <p class="text-lg font-bold">🎄 Christmas Countdown 🎄</p>
                 <p id="timer-display" class="text-3xl font-extrabold mt-1 text-yellow-300"></p>
             </div>
 
-            <!-- BUTTON CONTAINER: Uses flex-wrap and gap-4 for better mobile layout -->
-            <div class="mt-8 flex justify-center space-x-4 flex-wrap gap-4">
+            <!-- ROW 1: BIG BUTTONS (Fluff Chat, Fluffbot) -->
+            <div class="flex justify-center space-x-4 flex-wrap gap-4 mb-4">
                 
-                <!-- 1. NEW: Fluff Chat Button (BIG and PROMINENT) -->
-                <a href="FluffChat.html" class="inline-block bg-green-500 hover:bg-green-400 text-slate-900 font-extrabold py-4 px-10 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 text-xl">
+                <!-- 1. Fluff Chat (LARGE and PRIMARY) -->
+                <a href="fluffchat.html" class="inline-block bg-green-500 hover:bg-green-400 text-slate-900 font-extrabold py-4 px-10 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 text-xl">
                     💬 Fluff Chat
                 </a>
                 
-                <!-- 2. Fluff's Casino Button (Gold/Amber) -->
+                <!-- 2. NEW: Fluffbot (LARGE and PRIMARY) -->
+                <a href="FluffBot.html" class="inline-block bg-indigo-500 hover:bg-indigo-400 text-white font-extrabold py-4 px-10 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 text-xl">
+                    🤖 Fluffbot
+                </a>
+            </div>
+            
+            <!-- ROW 2: NORMAL BUTTONS (Casino, Credits, Snow Day Predicter) -->
+            <div class="flex justify-center space-x-4 flex-wrap gap-4">
+                
+                <!-- 3. Fluff's Casino Button (Standard Size) -->
                 <a href="FluffsCasino.html" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
                     🎰 Fluff's Casino
                 </a>
                 
-                <!-- 3. Existing View Games Button (Green) -->
-                <a href="#games" class="inline-block bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
-                    View Games
-                </a>
-                
-                <!-- 4. Credits Button (Icy Blue) -->
+                <!-- 4. Credits Button (Standard Size) -->
                 <a href="Credits.html" class="inline-block bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
                     📜 Credits
                 </a>
                 
-                <!-- 5. Snow Day Predicter Button (Frosty White/Blue) -->
+                <!-- 5. Snow Day Predicter Button (Standard Size) -->
                 <a href="SDP.html" class="inline-block bg-white hover:bg-gray-100 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 border-2 border-cyan-400">
                     ❄️ Snow Day Predicter
                 </a>

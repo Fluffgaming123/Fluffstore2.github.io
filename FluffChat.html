@@ -245,21 +245,31 @@
         // Global Constants and State
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        let firebaseConfig = {};
+        // Use the specific user-provided configuration for Fluff Chat
+        // This ensures a valid API key is present immediately, preventing the auth/invalid-api-key error.
+        let firebaseConfig = {
+            apiKey: "AIzaSyCUocBiHLpftoS-T8-UNbzT_8xp3KpZj_w",
+            authDomain: "fluff-chat.firebaseapp.com",
+            projectId: "fluff-chat",
+            storageBucket: "fluff-chat.firebasestorage.app",
+            messagingSenderId: "143929179536",
+            appId: "1:143929179536:web:fa13bb23d23e87472f0715",
+            measurementId: "G-DHX8DET4KR"
+        };
+
         try {
-            // Safely parse the environment config
+            // If the environment provides a config AND it has a valid API key, we might use it.
+            // But since the environment injection is currently failing, we prioritize the hardcoded config 
+            // if the environment one is missing the key.
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                firebaseConfig = JSON.parse(__firebase_config);
+                const envConfig = JSON.parse(__firebase_config);
+                if (envConfig.apiKey && envConfig.apiKey.length > 0) {
+                    firebaseConfig = envConfig;
+                }
             }
         } catch (e) {
-            console.error("Failed to parse __firebase_config:", e);
+            console.error("Failed to parse __firebase_config, using default Fluff Chat config:", e);
         }
-        
-        // Ensure projectId exists
-        if (!firebaseConfig.projectId) {
-            firebaseConfig.projectId = "fluff-chat-default";
-        }
-        // Removed forced empty apiKey. We trust the environment config now.
             
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
 

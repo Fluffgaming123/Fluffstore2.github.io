@@ -101,7 +101,6 @@
             <!-- Corruptor Removed -->
             <button id="santa-fuse-button" class="btn btn-red border border-white">🎅 Santa Fuse</button>
             <button id="fish-button" class="btn btn-cyan hidden">🎣 Fish (10s)</button>
-            <button id="open-admin-machine-button" class="btn btn-purple border border-purple-400">🤖 Admin Machine <span id="admin-countdown" class="text-xs text-yellow-300 ml-1"></span></button>
         </div>
         <main class="flex-grow flex flex-col gap-2 overflow-hidden">
             <div id="conveyor-belt" class="h-1/3 conveyor-belt-container rounded-lg relative overflow-hidden"></div>
@@ -124,7 +123,6 @@
     <div id="leaderboard-modal" class="modal-overlay hidden"><div class="modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">🏆 Global Leaderboard</h2><button id="close-leaderboard-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div class="flex gap-2 mb-4"><input id="leaderboard-name-input" type="text" placeholder="Enter Your Name" class="admin-input flex-grow" maxlength="15"><button id="set-name-button" class="btn btn-blue">Set Name</button></div><div class="flex gap-2 mb-2 border-b border-gray-600 pb-2"><button id="lb-tab-money" class="btn btn-blue flex-1">Richest</button><button id="lb-tab-rebirths" class="btn btn-gray flex-1">Most Rebirths</button></div><div id="leaderboard-content" class="flex-grow overflow-y-auto bg-gray-800 rounded-lg p-2 h-96"><p class="text-center text-gray-400 mt-4">Loading...</p></div></div></div>
     <div id="selection-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 id="selection-modal-title" class="text-2xl font-bold">Select Items</h2><button id="close-selection-modal-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><p id="selection-modal-prompt" class="mb-2"></p><div id="selection-modal-grid" class="base-grid gap-2 sm:gap-2 flex-grow p-2 rounded-md overflow-y-auto bg-gray-800" style="grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));"></div><div class="mt-4 flex gap-2"><button id="selection-modal-confirm" class="btn btn-green w-full" disabled>Confirm</button><button id="selection-modal-cancel" class="btn btn-gray w-full">Cancel</button></div></div></div>
     <div id="limited-item-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-red-500">🔥 Limited Offer</h2><button id="close-limited-item-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="limited-item-content" class="space-y-4"></div></div></div>
-    <div id="admin-machine-modal" class="modal-overlay hidden"><div class="modal-content small-modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-purple-400">🤖 Admin Machine</h2><button id="close-admin-machine-button" class="text-3xl font-bold leading-none px-2 rounded-full hover:bg-gray-600">&times;</button></div><div id="admin-machine-content" class="text-center space-y-4"><div class="text-4xl font-bold font-mono text-yellow-300 mb-4" id="admin-machine-timer">00:00</div><div class="bg-gray-700 p-4 rounded-lg"><h3 class="text-lg font-bold text-gray-300 mb-2">Upcoming Event:</h3><div id="admin-machine-forecast" class="space-y-2"></div></div><p class="text-xs text-gray-500">Activates automatically every 5 minutes globally.</p></div></div></div>
     <div id="global-tooltip" class="hidden fixed bg-black bg-opacity-80 text-white text-xs rounded-md p-2 pointer-events-none z-[9999]"></div>
     <div id="notification"></div>
     <input type="file" id="load-file-input" accept=".json" class="hidden">
@@ -206,7 +204,22 @@
             'Aquatic Lucky Block': { icon: '🌊', color: '#0ea5e9', weight: 0, lootTable: [{ name: 'Tralalero Tralala', chance: 53 }, { name: 'Los Tralaleritos', chance: 26 }, { name: 'Graipuss Medussi', chance: 18 }, { name: 'Tralaledon', chance: 2 }, { name: 'Los Primos', chance: 0.75 }, { name: 'Capitano Moby', chance: 0.25 }] },
             'Los Secret Lucky Block': { icon: '🤫', color: '#1e1b4b', weight: 0, lootTable: [{ name: 'Los Tortus', chance: 80 }, { name: 'Los Nooo My Hotspotsitos', chance: 15 }, { name: 'Los Esoks', chance: 8.5 }, { name: 'Los Spaghetties', chance: 3 }, { name: 'Los Secret Combinations', chance: 0.1 }] },
             'Piñata': { icon: '🪅', color: '#ff00ff', weight: 0, lootTable: [{ type: 'Money', range: [300000, 20000000], chance: 80 }, { name: 'Corn Corn Corn Sahur', chance: 25 }, { name: 'Mariachi Corazoni', chance: 1 }] },
-            'Santa Gift': { icon: '🎁', color: '#ef4444', weight: 0, lootTable: [{ name: 'Ballerina Peppermintina', chance: 25 }, { name: 'Reindeer Tralala', chance: 25 }, { name: 'Santteo', chance: 25 }, { name: 'List List List Sahur', chance: 25 }] }
+            'Santa Gift': { icon: '🎁', color: '#ef4444', weight: 0, lootTable: [{ name: 'Ballerina Peppermintina', chance: 25 }, { name: 'Reindeer Tralala', chance: 25 }, { name: 'Santteo', chance: 25 }, { name: 'List List List Sahur', chance: 25 }] },
+            'Festive Lucky Block': { 
+                icon: '🎄🎁', 
+                color: '#16a34a', 
+                weight: 0, 
+                lootTable: [
+                    { name: 'Chrismasmamat', chance: 45 },
+                    { name: 'Pandanini Frostini', chance: 35 },
+                    { name: 'Triplito Tralaleritos', chance: 10 },
+                    { name: 'Santa Hotspot', chance: 5 },
+                    { name: 'Chimnino', chance: 2.5 },
+                    { name: 'Los 25', chance: 1 },
+                    { name: 'La Ginger Sekolah', chance: 0.5 },
+                    { name: 'Reinito Sleighito', chance: 0.1 }
+                ] 
+            }
         };
 
         const brainrotManifest = {
@@ -221,7 +234,9 @@
                 { name: 'Corn Corn Corn Sahur', icon: '🌽👑', cost: 40e6, mps: 2e6, isExclusive: true },
                 { name: 'Pop Pop Sahara', icon: '🏜️🍿', cost: 50e6, mps: 2.5e6, isExclusive: true }, { name: 'TV TV TV Sahur', icon: '📺👑', cost: 55e6, mps: 2.7e6, isExclusive: true },
                 { name: 'Yeti Claus', icon: '❄️🎅', cost: 60e6, mps: 3e6, isExclusive: true }, { name: 'Ginger Globo', icon: '🍪🎈', cost: 65e6, mps: 3.2e6, isExclusive: true }, { name: 'Ginger Cisterna', icon: '🍪🚚', cost: 70e6, mps: 3.5e6, isExclusive: true },
-                { name: 'Ballerina Peppermintina', icon: '💃🍬', cost: 80e6, mps: 4e6, isExclusive: true }
+                { name: 'Ballerina Peppermintina', icon: '💃🍬', cost: 80e6, mps: 4e6, isExclusive: true },
+                { name: 'Chrismasmamat', icon: '📦🎄', cost: 80e6, mps: 4e6, isExclusive: true },
+                { name: 'Pandanini Frostini', icon: '🐼❄️', cost: 85e6, mps: 4.2e6, isExclusive: true }
             ],
             'Secret': [
                 { name: 'Bisonte Giuppitere', icon: '🐃', cost: 1e9, mps: 500e6 }, { name: 'La Vacca Saturno Saturnita', icon: '🐄', cost: 1.5e9, mps: 800e6 }, { name: 'Los Tralaleritos', icon: '👨‍🎤', cost: 2e9, mps: 1.2e9 }, { name: 'Las Tralaleritas', icon: '👩‍🎤', cost: 2.8e9, mps: 1.5e9 }, { name: 'Job Job Job Sahur', icon: '💼', cost: 3.5e9, mps: 2e9 }, { name: 'Graipuss Medussi', icon: '🍇', cost: 4.5e9, mps: 2.5e9 }, { name: 'Chicleteira Bicicleteira', icon: '🚲', cost: 6e9, mps: 3e9 }, { name: 'Garama and Madundung', icon: '🤷', cost: 8e9, mps: 3.5e9 }, { name: 'To To Sahur', icon: '🥁', cost: 9e9, mps: 4e9 }, { name: 'Nuclearo Dinossauro', icon: '☢️', cost: 10e9, mps: 4.5e9 }, { name: 'Money Money Puggy', icon: '🤑', cost: 11e9, mps: 5e9 }, { name: 'Ketupat Kepat', icon: ' K ', cost: 12e9, mps: 5.5e9 }, { name: 'Tictac Sahur', icon: '⏰', cost: 13e9, mps: 6e9 }, { name: 'Ketchuru and Musturu', icon: '🌭', cost: 14e9, mps: 6.5e9 }, { name: 'Burguro And Fryuro', icon: '🍔', cost: 15e9, mps: 7e9 }, { name: 'Dragon Cannelloni', icon: '🐉', cost: 16e9, mps: 8e9 }, { name: 'Mega Mega Mega Knight Sahur', icon: '🛡️', cost: 200e12, mps: 500e12 }, { name: 'Boss Boss Boss Boss Bandit', icon: '🤠👑', cost: 50e9, mps: 20e9 }, { name: 'Italiano Reset', icon: '🇮🇹🔄', cost: 200e9, mps: 100e9 },
@@ -229,7 +244,14 @@
                 { name: 'Nooooo my Batteria', icon: '🔋', cost: 6e9, mps: 12e9, isExclusive: true }, { name: 'Los sigmas', icon: '🗿👥', cost: 7e9, mps: 15e9, isExclusive: true }, { name: 'Pizza Pizza Pizzaaa Sahur', icon: '🍕🍕', cost: 8e9, mps: 18e9, isExclusive: true }, { name: 'Las Combinasionas', icon: '🔄', cost: 10e9, mps: 25e9, isExclusive: true }, { name: 'Pencili and Paperini', icon: '📝', cost: 12e9, mps: 30e9, isExclusive: true },
                 { name: 'La Vacca Prese Presente', icon: '🐄🎁', cost: 15e9, mps: 35e9, isExclusive: true }, { name: 'Ho Ho Ho Sahur', icon: '🎅🥁', cost: 18e9, mps: 40e9, isExclusive: true }, { name: 'Chicleteira Noelteira', icon: '🚲🎄', cost: 20e9, mps: 45e9, isExclusive: true },
                 { name: 'La Gingerbread Kepat', icon: '🍪 K ', cost: 22e9, mps: 50e9, isExclusive: true }, { name: 'Cooki and Milki', icon: '🍪🥛', cost: 25e9, mps: 55e9, isExclusive: true },
-                { name: 'Reindeer Tralala', icon: '🦌🎶', cost: 30e9, mps: 60e9, isExclusive: true }, { name: 'Santteo', icon: '🎅👨‍🦱', cost: 35e9, mps: 70e9, isExclusive: true }, { name: 'List List List Sahur', icon: '📜🥁', cost: 40e9, mps: 80e9, isExclusive: true }
+                { name: 'Reindeer Tralala', icon: '🦌🎶', cost: 30e9, mps: 60e9, isExclusive: true }, { name: 'Santteo', icon: '🎅👨‍🦱', cost: 35e9, mps: 70e9, isExclusive: true }, { name: 'List List List Sahur', icon: '📜🥁', cost: 40e9, mps: 80e9, isExclusive: true },
+                { name: 'Triplito Tralaleritos', icon: '🎶🎅', cost: 10e9, mps: 5e9, isExclusive: true },
+                { name: 'Santa Hotspot', icon: '🎅🔥', cost: 15e9, mps: 10e9, isExclusive: true },
+                { name: 'Chimnino', icon: '🏠🎅', cost: 50e9, mps: 50e9, isExclusive: true },
+                { name: 'Los 25', icon: '📅', cost: 100e9, mps: 100e9, isExclusive: true },
+                { name: 'La Ginger Sekolah', icon: '🍪🏫', cost: 500e9, mps: 500e9, isExclusive: true },
+                { name: 'Reinito Sleighito', icon: '🦌🛷', cost: 1e12, mps: 1e12, isExclusive: true },
+                { name: 'Los Candies', icon: '🍬👥', cost: 25e9, mps: 125e6, isExclusive: true }
             ],
             'OG': [{ name: 'Strawberry Elephant', icon: '🍓🐘', cost: 1e18, mps: 5e15, event: 'Strawberry' }, { name: 'Meowl', icon: '🐱', cost: 2e18, mps: 10e15, event: 'Meowl' }, { name: 'Tung Tung Sahur', icon: '🎶🥁', cost: 5e18, mps: 25e15, event: 'Tung Tung Attack' }, { name: 'Fluff', icon: '☁️', cost: 1e21, mps: 5e18 },
                 { name: 'Smurf Cat', icon: '🐱🍄', cost: 5e17, mps: 2e15 }, { name: 'John Pork', icon: '🐷📱', cost: 8e17, mps: 3.5e15 },
@@ -279,7 +301,7 @@
             'Santa': [
                 { inputRarity: 'Mythic', count: 4, output: ['Yeti Claus', 'Ginger Globo', 'Ginger Cisterna'] },
                 { inputRarity: 'Brainrot God', count: 4, output: ['La Vacca Prese Presente', 'Ho Ho Ho Sahur', 'Chicleteira Noelteira'] },
-                { inputRarity: 'Secret', count: 4, output: ['Chicleteira Noelteira', 'La Gingerbread Kepat', 'Cooki and Milki'] },
+                { inputRarity: 'Secret', count: 4, output: ['Chicleteira Noelteira', 'La Gingerbread Kepat', 'Cooki and Milki', 'Los Candies'] },
                 { inputRarity: 'OG', count: 4, output: ['La Vacca Prese Presente', 'Cooki and Milki', 'Santa Claus'] }
             ]
         };
@@ -312,7 +334,7 @@
         const totalBrainrotsCount = allBrainrotNames.size;
 
         // --- DOM Elements ---
-        let loadingSpinner, gameRoot, pauseButton, saveButton, loadButton, saveFileButton, loadFileButton, indexButton, indexCounter, openRebirthButton, moneyDisplay, mpsDisplay, timerDisplay, activeEventsList, rebirthDisplay, baseCountDisplay, openNormalFuseButton, openTacoFuseButton, openCraftMachineButton, openRitualButton, openTraderButton, openCorruptorButton, fishButton, conveyorBelt, baseContainer, sellButton, indexModal, closeIndexButton, indexGridContainer, rebirthModal, closeRebirthButton, rebirthInfo, confirmRebirthButton, jayceModal, closeJayceButton, jaycePasswordScreen, jaycePasswordInput, jayceLoginButton, jayceError, jayceCommandScreen, jayceLogoutButton, ritualModal, closeRitualButton, ritualList, craftMachineModal, closeCraftMachineButton, craftMachineList, fuseModal, fuseModalTitle, closeFuseModalButton, fuseModalList, traderModal, closeTraderButton, traderList, corruptorModal, closeCorruptorButton, corruptorList, globalTooltip, notification, loadFileInput, selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt, selectionModalGrid, selectionModalConfirm, selectionModalCancel, craftTimerDisplay, traderTimerDisplay, leaderboardModal, closeLeaderboardButton, leaderboardContent, leaderboardNameInput, setNameButton, openLeaderboardButton, toggleSoundButton, santaFuseButton, openLimitedButton, limitedItemModal, closeLimitedItemButton, limitedItemContent, adminLimitedStockDisplay, jayceLimitedStockInput, jayceSetLimitedStock, jayceRemoveLimitedStock, jayceLimitedSelect, openAdminMachineButton, adminMachineModal, closeAdminMachineButton, adminMachineContent, adminMachineTimer, adminMachineForecast, jayceSpawnSantaGift, adminCountdown;
+        let loadingSpinner, gameRoot, pauseButton, saveButton, loadButton, saveFileButton, loadFileButton, indexButton, indexCounter, openRebirthButton, moneyDisplay, mpsDisplay, timerDisplay, activeEventsList, rebirthDisplay, baseCountDisplay, openNormalFuseButton, openTacoFuseButton, openCraftMachineButton, openRitualButton, openTraderButton, openCorruptorButton, fishButton, conveyorBelt, baseContainer, sellButton, indexModal, closeIndexButton, indexGridContainer, rebirthModal, closeRebirthButton, rebirthInfo, confirmRebirthButton, jayceModal, closeJayceButton, jaycePasswordScreen, jaycePasswordInput, jayceLoginButton, jayceError, jayceCommandScreen, jayceLogoutButton, ritualModal, closeRitualButton, ritualList, craftMachineModal, closeCraftMachineButton, craftMachineList, fuseModal, fuseModalTitle, closeFuseModalButton, fuseModalList, traderModal, closeTraderButton, traderList, corruptorModal, closeCorruptorButton, corruptorList, globalTooltip, notification, loadFileInput, selectionModal, selectionModalTitle, closeSelectionModalButton, selectionModalPrompt, selectionModalGrid, selectionModalConfirm, selectionModalCancel, craftTimerDisplay, traderTimerDisplay, leaderboardModal, closeLeaderboardButton, leaderboardContent, leaderboardNameInput, setNameButton, openLeaderboardButton, toggleSoundButton, santaFuseButton, openLimitedButton, limitedItemModal, closeLimitedItemButton, limitedItemContent, adminLimitedStockDisplay, jayceLimitedStockInput, jayceSetLimitedStock, jayceRemoveLimitedStock, jayceLimitedSelect, jayceSpawnSantaGift;
 
         // --- Firebase Globals ---
         let app, auth, db, userId, userSaveDocPath, globalEventsDocPath, traderStateDocPath, craftStateDocPath, leaderboardCollectionPath, limitedStockDocPath, globalEventListener = null, traderListener = null, craftListener = null, limitedStockListener = null, isAdmin = false;
@@ -321,10 +343,6 @@
         let money = 100, baseSlots = [], beltItems = [], discoveredBrainrots = new Set(), rebirths = 0, luck = 0, timeUntilLegendary = 60, timeUntilMythic = 300, timeUntilBrainrotGod = 1800, gameInterval, timerInterval, isPaused = false, isSellMode = false, maxBaseSlots = 10, moneyMultiplier = 1, activeEvents = {}, tacoEventInterval = null, lastFishTime = 0, displayName = "Brainrotter";
         let currentTraderOffers = [], currentTraderNextRefresh = 0, currentCraftRecipes = [], currentCraftNextRefresh = 0, currentSelectionCallback = null, selectedIndices = [];
         let limitedStocks = {};
-        
-        // Admin Machine State
-        let adminMachineInterval = null;
-        let lastAdminMachineBlock = -1;
 
         const HARDCODED_FIREBASE_CONFIG = { apiKey: "AIzaSyB_8Eao4PirrTF6DBjjbUmhL6MyXnt6vzY", authDomain: "steal-the-brainrot-admin-panel.firebaseapp.com", projectId: "steal-the-brainrot-admin-panel", storageBucket: "steal-the-brainrot-admin-panel.firebasestorage.app", messagingSenderId: "559691711111", appId: "1:559691711111:web:27dff3446aea0ef624ee22", measurementId: "G-3FPEYCR4JM" };
 
@@ -400,41 +418,10 @@
             updateTimerDisplay(); 
             updateActiveEvents(); 
             updateGlobalTimers(); 
-            updateAdminMachine();
-            updateAdminRemovalCountdown();
         }
         function updateGlobalTimers() {
             if (currentTraderNextRefresh > 0) { const diff = currentTraderNextRefresh - Date.now(); if (diff > 0) { const m = Math.floor(diff / 60000); const s = Math.floor((diff % 60000) / 1000); traderTimerDisplay.textContent = `Refresh: ${m}:${s.toString().padStart(2, '0')}`; } else { traderTimerDisplay.textContent = "Refreshing..."; checkAndRefreshGlobalState('trader'); } }
             if (currentCraftNextRefresh > 0) { const diff = currentCraftNextRefresh - Date.now(); if (diff > 0) { const m = Math.floor(diff / 60000); const s = Math.floor((diff % 60000) / 1000); craftTimerDisplay.textContent = `Refresh: ${m}:${s.toString().padStart(2, '0')}`; } else { craftTimerDisplay.textContent = "Refreshing..."; checkAndRefreshGlobalState('craft'); } }
-        }
-        
-        function updateAdminRemovalCountdown() {
-            const now = new Date();
-            let nextFriday = new Date();
-            nextFriday.setDate(now.getDate() + (5 + 7 - now.getDay()) % 7); // Calculate next Friday
-            nextFriday.setHours(15, 0, 0, 0); // Set to 3:00 PM
-            
-            if (now > nextFriday) { // If it's already past 3 PM on Friday, target next week
-                 nextFriday.setDate(nextFriday.getDate() + 7);
-            }
-            
-            const diff = nextFriday - now;
-            
-            if (diff <= 0) {
-                 openAdminMachineButton.classList.add('hidden');
-                 adminMachineModal.classList.add('hidden');
-                 if(adminCountdown) adminCountdown.textContent = "";
-            } else {
-                 // Format time remaining
-                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                 
-                 if(adminCountdown) {
-                     if (days > 0) adminCountdown.textContent = `(${days}d ${hours}h)`;
-                     else adminCountdown.textContent = `(${hours}h ${minutes}m)`;
-                 }
-            }
         }
 
         // --- Core Logic ---
@@ -468,7 +455,7 @@
                 for (const prizeData of itemsFound) { const emptySlotIndex = baseSlots.findIndex(s => s === null); if (emptySlotIndex !== -1) { const brainrot = { ...prizeData, mutation: getRandomMutation(), trait: null }; baseSlots[emptySlotIndex] = brainrot; discoveredBrainrots.add(prizeData.name); if (brainrot.event) startWeatherEvent(brainrot.event); itemsPlaced++; } else { break; } } 
                 showNotification(`You found ${itemsPlaced} items!`, rarities['Secret'].color); SoundManager.playSpawn('Secret'); renderBase(); updateAllUI(); 
             } else { 
-                // Weighted random for normal/Piñata blocks
+                // Weighted random for normal/Piñata/Festive blocks
                 const totalChance = lootTable.reduce((s, l) => s + l.chance, 0); 
                 let random = Math.random() * totalChance; 
                 let selectedLoot = null;
@@ -554,9 +541,7 @@
 
         function initGameLogic() {
             loadingSpinner = document.getElementById('loading-spinner'); gameRoot = document.getElementById('game-root'); pauseButton = document.getElementById('pause-button'); saveButton = document.getElementById('save-button'); loadButton = document.getElementById('load-button'); saveFileButton = document.getElementById('save-file-button'); loadFileButton = document.getElementById('load-file-button'); indexButton = document.getElementById('index-button'); indexCounter = document.getElementById('index-counter'); openRebirthButton = document.getElementById('open-rebirth-button'); moneyDisplay = document.getElementById('money'); mpsDisplay = document.getElementById('mps'); timerDisplay = document.getElementById('timer-display'); activeEventsList = document.getElementById('active-events-list'); rebirthDisplay = document.getElementById('rebirth-display'); baseCountDisplay = document.getElementById('base-count'); openNormalFuseButton = document.getElementById('open-normal-fuse-button'); openTacoFuseButton = document.getElementById('open-taco-fuse-button'); openCraftMachineButton = document.getElementById('open-craft-machine-button'); openRitualButton = document.getElementById('open-ritual-button'); openTraderButton = document.getElementById('open-trader-button'); openCorruptorButton = document.getElementById('open-corruptor-button'); fishButton = document.getElementById('fish-button'); conveyorBelt = document.getElementById('conveyor-belt'); baseContainer = document.getElementById('base'); sellButton = document.getElementById('sell-button'); indexModal = document.getElementById('index-modal'); closeIndexButton = document.getElementById('close-index-button'); indexGridContainer = document.getElementById('index-grid-container'); rebirthModal = document.getElementById('rebirth-modal'); closeRebirthButton = document.getElementById('close-rebirth-button'); rebirthInfo = document.getElementById('rebirth-info'); confirmRebirthButton = document.getElementById('confirm-rebirth-button'); jayceModal = document.getElementById('jayce-modal'); closeJayceButton = document.getElementById('close-jayce-button'); jaycePasswordScreen = document.getElementById('jayce-password-screen'); jaycePasswordInput = document.getElementById('jayce-password-input'); jayceLoginButton = document.getElementById('jayce-login-button'); jayceError = document.getElementById('jayce-error'); jayceCommandScreen = document.getElementById('jayce-command-screen'); jayceLogoutButton = document.getElementById('jayce-logout-button'); ritualModal = document.getElementById('ritual-modal'); closeRitualButton = document.getElementById('close-ritual-button'); ritualList = document.getElementById('ritual-list'); craftMachineModal = document.getElementById('craft-machine-modal'); closeCraftMachineButton = document.getElementById('close-craft-machine-button'); craftMachineList = document.getElementById('craft-machine-list'); fuseModal = document.getElementById('fuse-modal'); fuseModalTitle = document.getElementById('fuse-modal-title'); closeFuseModalButton = document.getElementById('close-fuse-modal-button'); fuseModalList = document.getElementById('fuse-modal-list'); traderModal = document.getElementById('trader-modal'); closeTraderButton = document.getElementById('close-trader-button'); traderList = document.getElementById('trader-list'); corruptorModal = document.getElementById('corruptor-modal'); closeCorruptorButton = document.getElementById('close-corruptor-button'); corruptorList = document.getElementById('corruptor-list'); globalTooltip = document.getElementById('global-tooltip'); notification = document.getElementById('notification'); loadFileInput = document.getElementById('load-file-input'); selectionModal = document.getElementById('selection-modal'); selectionModalTitle = document.getElementById('selection-modal-title'); closeSelectionModalButton = document.getElementById('close-selection-modal-button'); selectionModalPrompt = document.getElementById('selection-modal-prompt'); selectionModalGrid = document.getElementById('selection-modal-grid'); selectionModalConfirm = document.getElementById('selection-modal-confirm'); selectionModalCancel = document.getElementById('selection-modal-cancel'); craftTimerDisplay = document.getElementById('craft-timer'); traderTimerDisplay = document.getElementById('trader-timer'); leaderboardModal = document.getElementById('leaderboard-modal'); closeLeaderboardButton = document.getElementById('close-leaderboard-button'); leaderboardContent = document.getElementById('leaderboard-content'); leaderboardNameInput = document.getElementById('leaderboard-name-input'); setNameButton = document.getElementById('set-name-button'); openLeaderboardButton = document.getElementById('open-leaderboard-button'); toggleSoundButton = document.getElementById('toggle-sound-button'); santaFuseButton = document.getElementById('santa-fuse-button'); openLimitedButton = document.getElementById('open-limited-button'); limitedItemModal = document.getElementById('limited-item-modal'); closeLimitedItemButton = document.getElementById('close-limited-item-button'); limitedItemContent = document.getElementById('limited-item-content'); adminLimitedStockDisplay = document.getElementById('admin-limited-stock-display'); jayceLimitedStockInput = document.getElementById('jayce-limited-stock-input'); jayceSetLimitedStock = document.getElementById('jayce-set-limited-stock'); jayceRemoveLimitedStock = document.getElementById('jayce-remove-limited-stock'); jayceLimitedSelect = document.getElementById('jayce-limited-select');
-            openAdminMachineButton = document.getElementById('open-admin-machine-button'); adminMachineModal = document.getElementById('admin-machine-modal'); closeAdminMachineButton = document.getElementById('close-admin-machine-button'); adminMachineContent = document.getElementById('admin-machine-content'); adminMachineTimer = document.getElementById('admin-machine-timer'); adminMachineForecast = document.getElementById('admin-machine-forecast');
             jayceSpawnSantaGift = document.getElementById('jayce-spawn-santa-gift');
-            adminCountdown = document.getElementById('admin-countdown');
 
             pauseButton.addEventListener('click', togglePause);
             saveButton.addEventListener('click', () => { saveGame(); saveToLeaderboard(); }); 
@@ -616,11 +601,7 @@
             closeLimitedItemButton.addEventListener('click', () => limitedItemModal.classList.add('hidden'));
             
             // Admin Machine Events
-            openAdminMachineButton.addEventListener('click', () => {
-                adminMachineModal.classList.remove('hidden');
-                updateAdminMachine();
-            });
-            closeAdminMachineButton.addEventListener('click', () => adminMachineModal.classList.add('hidden'));
+            // Removed as requested
 
             setupAdminPanel();
             updateDerivedState();

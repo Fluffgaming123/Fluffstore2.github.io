@@ -96,8 +96,8 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                <button class="p-2 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                <button onclick="clearKey()" class="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Reset API Key">
+                    <i data-lucide="key" class="w-5 h-5"></i>
                 </button>
             </div>
         </header>
@@ -256,7 +256,21 @@
         let currentPersonaId = null;
         let chatHistory = [];
         let isTyping = false;
-        const apiKey = ""; // Runtime Key
+        
+        // --- API KEY LOGIC ---
+        const envKey = "AIzaSyAEnpC69JI5VeujjznoIb7yZA2HEPYPShk"; // Runtime Key if available
+        
+        function getEffectiveKey() {
+            if (envKey && envKey !== "") return envKey;
+            return localStorage.getItem('gemini_api_key') || "";
+        }
+
+        function clearKey() {
+            if(confirm("Remove saved API Key?")) {
+                localStorage.removeItem('gemini_api_key');
+                alert("Key removed. Refresh page to reset.");
+            }
+        }
 
         // --- DOM Elements ---
         const menuView = document.getElementById('menu-view');
@@ -384,10 +398,24 @@
         }
 
         async function generateAIResponse(userText) {
+            // 1. Get Key
+            let key = getEffectiveKey();
+            
+            // 2. Prompt if missing
+            if (!key) {
+                const input = prompt("Please enter your Google Gemini API Key to chat with Fluff (saved locally):");
+                if (input && input.trim()) {
+                    key = input.trim();
+                    localStorage.setItem('gemini_api_key', key);
+                } else {
+                    return "I need an API key to think! 🧠 (Reload to try again)";
+                }
+            }
+
             const persona = personas.find(x => x.id === currentPersonaId);
             chatHistory.push({ role: "user", parts: [{ text: userText }] });
             
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`;
             let attempt = 0;
 
             while (attempt <= 3) {
@@ -401,7 +429,15 @@
                         })
                     });
 
-                    if (!response.ok) throw new Error("API Status: " + response.status);
+                    if (!response.ok) {
+                        // If 400/403, key is probably bad
+                        if (response.status === 400 || response.status === 403) {
+                            localStorage.removeItem('gemini_api_key');
+                            throw new Error("Invalid API Key");
+                        }
+                        throw new Error("API Status: " + response.status);
+                    }
+                    
                     const data = await response.json();
                     const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (!aiText) return "My brain is buffering...";
@@ -411,8 +447,11 @@
                     return aiText;
 
                 } catch (error) {
+                    if (error.message === "Invalid API Key") {
+                        return "That API key didn't work. I cleared it. Try sending your message again!";
+                    }
                     attempt++;
-                    if (attempt > 3) return "Connection lost. (API Error)";
+                    if (attempt > 3) return `Connection lost. (${error.message})`;
                     await new Promise(r => setTimeout(r, 1000 * attempt));
                 }
             }

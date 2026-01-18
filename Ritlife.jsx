@@ -1,0 +1,1067 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Heart, Smile, Brain, Zap, DollarSign, Briefcase, Home, Activity, User, Plus, GraduationCap, Car, Stethoscope, Users, Camera, Tv, Youtube, Trophy, Sword, Moon, Sun, BookOpen, AlertTriangle, Dice5, Crown, Edit3, GitFork, UserPlus, Star, ShieldAlert, Bandage, TrendingUp, Tent, Mountain, Waves, Anchor, Clapperboard, Save, Upload, FileJson } from 'lucide-react';
+
+// --- DATA & CONSTANTS ---
+
+const FIRST_NAMES_M = ["Liam", "Noah", "Oliver", "James", "Elijah", "William", "Henry", "Lucas", "Benjamin", "Theodore", "Jack", "Levi", "Alexander", "Daniel", "Michael", "Mason"];
+const FIRST_NAMES_F = ["Olivia", "Emma", "Charlotte", "Amelia", "Ava", "Sophia", "Isabella", "Mia", "Evelyn", "Harper", "Luna", "Camila", "Gianna", "Elizabeth", "Ella", "Abigail"];
+const LAST_NAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson"];
+const COUNTRIES = ["USA", "UK", "Canada", "Australia", "Japan", "France", "Germany", "Brazil", "South Korea", "Italy", "Spain", "Sweden"];
+
+const SPORTS_DATA = {
+  Football: { teams: ["Kansas City", "San Francisco", "Baltimore", "Detroit", "Buffalo", "Dallas", "Philadelphia", "Green Bay"], baseSalary: 5000000 },
+  Basketball: { teams: ["Lakers", "Celtics", "Warriors", "Bulls", "Heat", "Knicks", "Nets", "Suns"], baseSalary: 7000000 },
+  Baseball: { teams: ["Yankees", "Dodgers", "Red Sox", "Cubs", "Cardinals", "Giants", "Braves", "Astros"], baseSalary: 4000000 },
+  Soccer: { teams: ["Real Madrid", "Barcelona", "Man City", "Liverpool", "Bayern", "PSG", "Juventus", "Chelsea"], baseSalary: 8000000 },
+  Hockey: { teams: ["Maple Leafs", "Canadiens", "Bruins", "Rangers", "Blackhawks", "Red Wings", "Penguins", "Oilers"], baseSalary: 3000000 }
+};
+
+const JOBS = [
+  { title: "Dishwasher", salary: 15000, reqSmarts: 0, reqEd: "None" },
+  { title: "Cashier", salary: 20000, reqSmarts: 10, reqEd: "None" },
+  { title: "Apprentice Plumber", salary: 35000, reqSmarts: 20, reqEd: "High School" },
+  { title: "Jr. Web Developer", salary: 55000, reqSmarts: 60, reqEd: "University" },
+  { title: "Accountant", salary: 60000, reqSmarts: 70, reqEd: "University" },
+  { title: "Nurse", salary: 65000, reqSmarts: 65, reqEd: "University" },
+  { title: "Lawyer", salary: 90000, reqSmarts: 85, reqEd: "Law School" },
+  { title: "Brain Surgeon", salary: 180000, reqSmarts: 95, reqEd: "Medical School" },
+];
+
+const HOUSES = [
+  { name: "Trailer", price: 25000, upkeep: 500 },
+  { name: "Tiny Home", price: 60000, upkeep: 1000 },
+  { name: "Studio Apt", price: 120000, upkeep: 2000 },
+  { name: "Suburban House", price: 350000, upkeep: 5000 },
+  { name: "Mansion", price: 2500000, upkeep: 25000 },
+  { name: "Private Island", price: 50000000, upkeep: 500000 },
+];
+
+const CARS = [
+  { name: "Rusty Sedan", price: 2000, upkeep: 500 },
+  { name: "Used Hatchback", price: 8000, upkeep: 1000 },
+  { name: "New Sedan", price: 25000, upkeep: 2000 },
+  { name: "Sports Car", price: 65000, upkeep: 5000 },
+  { name: "Supercar", price: 250000, upkeep: 15000 },
+];
+
+const STOCKS = [
+    { id: 'ritcoin', name: 'RitCoin (Crypto)', volatility: 0.8 },
+    { id: 'tech', name: 'Tech Giant', volatility: 0.2 },
+    { id: 'gold', name: 'Gold', volatility: 0.05 }
+];
+
+const ACTING_GIGS = [
+    { type: 'Commercial', title: 'Local Car Dealership Ad', pay: 2000, fame: 1, reqLooks: 30 },
+    { type: 'Commercial', title: 'National Soda Commercial', pay: 25000, fame: 5, reqLooks: 60 },
+    { type: 'TV', title: 'Extra in Soap Opera', pay: 40000, fame: 10, reqLooks: 50, years: 1 },
+    { type: 'TV', title: 'Lead in Sitcom', pay: 500000, fame: 40, reqLooks: 80, years: 5 },
+    { type: 'Movie', title: 'Indie Horror Film', pay: 10000, fame: 15, reqLooks: 60 },
+    { type: 'Movie', title: 'Blockbuster Action Hero', pay: 5000000, fame: 80, reqLooks: 95 },
+];
+
+const RANDOM_EVENTS = [
+  { text: "You found $20 on the street!", effect: (s) => ({ ...s, money: s.money + 20, happiness: Math.min(100, s.happiness + 5) }) },
+  { text: "You stepped in gum. Gross.", effect: (s) => ({ ...s, happiness: Math.max(0, s.happiness - 5) }) },
+  { text: "You read a fascinating book.", effect: (s) => ({ ...s, smarts: Math.min(100, s.smarts + 3) }) },
+  { text: "You ate some bad sushi.", effect: (s) => ({ ...s, health: Math.max(0, s.health - 10) }) },
+  { text: "Someone complimented your hair.", effect: (s) => ({ ...s, happiness: Math.min(100, s.happiness + 5) }) },
+  { text: "You got a bad haircut.", effect: (s) => ({ ...s, looks: Math.max(0, s.looks - 10) }) },
+  { text: "You went for a long run.", effect: (s) => ({ ...s, health: Math.min(100, s.health + 5), looks: Math.min(100, s.looks + 2) }) },
+  { text: "A stray cat followed you home.", effect: (s) => ({ ...s, happiness: Math.min(100, s.happiness + 10) }) },
+  { text: "You got into a heated argument on the internet.", effect: (s) => ({ ...s, happiness: Math.max(0, s.happiness - 5), smarts: Math.max(0, s.smarts - 2) }) },
+  { text: "You witnessed a robbery!", effect: (s) => ({ ...s, happiness: Math.max(0, s.happiness - 15) }) },
+  { text: "You found a wallet and returned it.", effect: (s) => ({ ...s, happiness: Math.min(100, s.happiness + 10) }) },
+  { text: "You slipped on ice.", effect: (s) => ({ ...s, health: Math.max(0, s.health - 5) }) },
+  { text: "Your favorite show was cancelled.", effect: (s) => ({ ...s, happiness: Math.max(0, s.happiness - 10) }) },
+  { text: "You learned a new language.", effect: (s) => ({ ...s, smarts: Math.min(100, s.smarts + 5) }) },
+  { text: "You got food poisoning.", effect: (s) => ({ ...s, health: Math.max(0, s.health - 15) }) },
+  { text: "You won a small raffle!", effect: (s) => ({ ...s, money: s.money + 100, happiness: Math.min(100, s.happiness + 10) }) },
+  { text: "Your neighbor is playing loud music.", effect: (s) => ({ ...s, happiness: Math.max(0, s.happiness - 5) }) },
+];
+
+// --- COMPONENTS ---
+
+const StatBar = ({ icon: Icon, value, color, label }) => (
+  <div className="flex items-center gap-2 w-1/4 flex-col sm:flex-row sm:justify-center">
+    <div className={`p-1 rounded-full ${color} text-white`}>
+      <Icon size={16} />
+    </div>
+    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 max-w-[80px]">
+      <div className={`h-2.5 rounded-full ${color.replace('bg-', 'bg-')}`} style={{ width: `${value}%`, backgroundColor: 'currentColor' }}></div>
+    </div>
+    <span className="text-xs font-bold text-gray-600 dark:text-gray-300 hidden sm:block">{label}</span>
+    <span className="text-xs font-bold text-gray-600 dark:text-gray-300">{value}%</span>
+  </div>
+);
+
+export default function Ritlife() {
+  // Game State
+  const [gameState, setGameState] = useState("menu"); // menu, playing, dead, prison
+  const [age, setAge] = useState(0);
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState("");
+  const [country, setCountry] = useState("");
+  const [money, setMoney] = useState(0);
+  const [stats, setStats] = useState({ happiness: 100, health: 100, smarts: 50, looks: 50, fame: 0, athletics: 20 });
+  const [logs, setLogs] = useState([]);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [generation, setGeneration] = useState(1);
+  const [ancestors, setAncestors] = useState([]);
+  
+  // Custom Start State
+  const [customName, setCustomName] = useState("");
+  const [customGender, setCustomGender] = useState("Male");
+  const [customCountry, setCustomCountry] = useState(COUNTRIES[0]);
+  const [sandboxMode, setSandboxMode] = useState(false); 
+  
+  // Career & Education
+  const [education, setEducation] = useState("None"); 
+  const [job, setJob] = useState(null);
+  const [salary, setSalary] = useState(0);
+  const [currentSchool, setCurrentSchool] = useState(null); 
+  const [studyYearsLeft, setStudyYearsLeft] = useState(0);
+
+  // Sports Career
+  const [sportCareer, setSportCareer] = useState(null); // 'HS', 'College', 'Pro'
+  const [sportType, setSportType] = useState(null); 
+  const [sportTeam, setSportTeam] = useState(null);
+  const [scholarship, setScholarship] = useState(false);
+  const [canEnterDraft, setCanEnterDraft] = useState(false);
+  const [contract, setContract] = useState(null); // { years: 3, amount: 5000000 }
+  const [injury, setInjury] = useState(null); // { name: "Torn ACL", severity: 50 }
+
+  // Acting Career
+  const [actingGig, setActingGig] = useState(null); // { title: "Movie", type: "Movie", yearsLeft: 0 }
+
+  // Prison System
+  const [prisonYears, setPrisonYears] = useState(0);
+
+  // Investments
+  const [portfolio, setPortfolio] = useState({ ritcoin: 0, tech: 0, gold: 0 });
+  const [stockPrices, setStockPrices] = useState({ ritcoin: 100, tech: 200, gold: 1500 });
+
+  // Social Media & Fame
+  const [socials, setSocials] = useState({ youtube: 0, onlyfans: 0, babyJaycetube: 0 });
+
+  // Relationships
+  const [relationships, setRelationships] = useState([]);
+
+  // Activity Limits (Spam prevention)
+  const [yearlyActions, setYearlyActions] = useState({});
+
+  // Assets
+  const [assets, setAssets] = useState({ houses: [], cars: [] });
+
+  // UI State
+  const [activeTab, setActiveTab] = useState("main"); 
+  const [modal, setModal] = useState(null); 
+  const scrollRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  // --- INITIALIZATION ---
+
+  const initGame = (isCustom = false, inheritData = null) => {
+    let fName, lName, gen, ctry;
+
+    if (inheritData) {
+        const parts = inheritData.name.split(' ');
+        fName = parts[0];
+        lName = parts.slice(1).join(' ');
+        gen = inheritData.gender;
+        ctry = country; 
+        setMoney(inheritData.money);
+        setAssets(inheritData.assets);
+        setGeneration(g => g + 1);
+        setAncestors(prev => [...prev, { name: name, age: age, netWorth: money, job: job?.title || "Unemployed" }]);
+    } else if (isCustom) {
+      const parts = customName.split(' ');
+      fName = parts[0] || "Custom";
+      lName = parts.length > 1 ? parts.slice(1).join(' ') : "Player";
+      gen = customGender;
+      ctry = customCountry;
+      setMoney(sandboxMode ? 1000000000 : 0);
+      setAssets({ houses: [], cars: [] });
+      setGeneration(1);
+      setAncestors([]);
+    } else {
+      const isMale = Math.random() > 0.5;
+      gen = isMale ? "Male" : "Female";
+      fName = isMale ? FIRST_NAMES_M[Math.floor(Math.random() * FIRST_NAMES_M.length)] : FIRST_NAMES_F[Math.floor(Math.random() * FIRST_NAMES_F.length)];
+      lName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+      ctry = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+      setMoney(sandboxMode ? 1000000000 : 0);
+      setAssets({ houses: [], cars: [] });
+      setGeneration(1);
+      setAncestors([]);
+    }
+
+    setName(`${fName} ${lName}`);
+    setGender(gen);
+    setCountry(ctry);
+    setAge(inheritData ? inheritData.age : 0);
+    
+    // Stats
+    setStats({
+      happiness: sandboxMode ? 100 : 80 + Math.floor(Math.random() * 20),
+      health: sandboxMode ? 100 : 80 + Math.floor(Math.random() * 20),
+      smarts: sandboxMode ? 100 : 20 + Math.floor(Math.random() * 60),
+      looks: sandboxMode ? 100 : 20 + Math.floor(Math.random() * 60),
+      fame: 0,
+      athletics: sandboxMode ? 100 : 10 + Math.floor(Math.random() * 40),
+    });
+
+    // Reset Career/Ed
+    setEducation(inheritData ? (inheritData.age >= 6 ? "Elementary" : "None") : "None");
+    setJob(null);
+    setSalary(0);
+    setCurrentSchool(null);
+    setStudyYearsLeft(0);
+    
+    // Reset Others
+    setSocials({ youtube: 0, onlyfans: 0, babyJaycetube: 0 });
+    setYearlyActions({});
+    setSportCareer(null);
+    setSportTeam(null);
+    setSportType(null);
+    setScholarship(false);
+    setCanEnterDraft(false);
+    setContract(null);
+    setInjury(null);
+    setActingGig(null);
+    setPrisonYears(0);
+    setPortfolio({ ritcoin: 0, tech: 0, gold: 0 });
+    setStockPrices({ ritcoin: 100, tech: 200, gold: 1500 });
+    
+    // Generate Relationships
+    let newRels = [];
+    if (inheritData) {
+        newRels.push({ 
+            id: Date.now(), 
+            name: name, 
+            relation: gender === 'Male' ? 'Father' : 'Mother', 
+            gender: gender,
+            age: age, 
+            bar: 100 
+        });
+    } else {
+        const momName = FIRST_NAMES_F[Math.floor(Math.random() * FIRST_NAMES_F.length)] + " " + lName;
+        const dadName = FIRST_NAMES_M[Math.floor(Math.random() * FIRST_NAMES_M.length)] + " " + lName;
+        newRels = [
+            { id: 1, name: momName, relation: "Mother", gender: "Female", age: 20 + Math.floor(Math.random()*15), bar: 90 },
+            { id: 2, name: dadName, relation: "Father", gender: "Male", age: 20 + Math.floor(Math.random()*15), bar: 90 },
+        ];
+    }
+    setRelationships(newRels);
+
+    setLogs([{ age: inheritData ? inheritData.age : 0, text: `👶 ${inheritData ? 'You continued as your child' : 'You were born'} ${fName} ${lName} in ${ctry}. ${sandboxMode ? '✨ SANDBOX MODE' : ''}` }]);
+    setGameState("playing");
+    setActiveTab("main");
+    setModal(null);
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [logs, activeTab]);
+
+  // --- HELPERS ---
+
+  const addLog = (text, ageOverride = null) => {
+    setLogs(prev => [...prev, { age: ageOverride !== null ? ageOverride : age, text }]);
+  };
+
+  const updateStat = (key, val) => {
+    setStats(prev => ({
+      ...prev,
+      [key]: Math.max(0, Math.min(100, prev[key] + val))
+    }));
+  };
+
+  const updateRel = (id, val) => {
+      setRelationships(prev => prev.map(r => r.id === id ? { ...r, bar: Math.max(0, Math.min(100, r.bar + val)) } : r));
+  };
+
+  const checkLimit = (actionName, limit = 1) => {
+      const count = yearlyActions[actionName] || 0;
+      if (count >= limit) {
+          addLog(`⏳ You've already done that enough this year.`);
+          return false;
+      }
+      setYearlyActions(prev => ({ ...prev, [actionName]: count + 1 }));
+      return true;
+  };
+
+  // --- SAVE / LOAD SYSTEM ---
+
+  const handleSave = () => {
+      const saveData = {
+          gameState, age, name, gender, country, money, stats, logs, generation, ancestors,
+          education, job, salary, currentSchool, studyYearsLeft,
+          sportCareer, sportType, sportTeam, scholarship, canEnterDraft, contract, injury,
+          actingGig, prisonYears, portfolio, stockPrices, socials, relationships, yearlyActions, assets
+      };
+      const blob = new Blob([JSON.stringify(saveData)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Ritlife_${name.replace(" ", "_")}_Save.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      addLog("💾 Game Saved successfully!");
+  };
+
+  const handleLoad = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+          try {
+              const data = JSON.parse(event.target.result);
+              setGameState(data.gameState); setAge(data.age); setName(data.name); setGender(data.gender);
+              setCountry(data.country); setMoney(data.money); setStats(data.stats); setLogs(data.logs);
+              setGeneration(data.generation || 1); setAncestors(data.ancestors || []);
+              setEducation(data.education); setJob(data.job); setSalary(data.salary);
+              setCurrentSchool(data.currentSchool); setStudyYearsLeft(data.studyYearsLeft);
+              setSportCareer(data.sportCareer); setSportType(data.sportType); setSportTeam(data.sportTeam);
+              setScholarship(data.scholarship); setCanEnterDraft(data.canEnterDraft); setContract(data.contract);
+              setInjury(data.injury); setActingGig(data.actingGig); setPrisonYears(data.prisonYears);
+              setPortfolio(data.portfolio); setStockPrices(data.stockPrices); setSocials(data.socials);
+              setRelationships(data.relationships); setYearlyActions(data.yearlyActions); setAssets(data.assets);
+              setModal(null);
+              // Reset file input
+              if (fileInputRef.current) fileInputRef.current.value = "";
+          } catch (err) {
+              alert("Invalid Save File");
+          }
+      };
+      reader.readAsText(file);
+  };
+
+  // --- CORE LOOP ---
+
+  const handleAgeUp = () => {
+    if (gameState === "dead") return;
+
+    const nextAge = age + 1;
+    let newLogs = [];
+    
+    // Reset yearly actions
+    setYearlyActions({});
+
+    // -- PRISON LOGIC --
+    if (gameState === "prison") {
+        setPrisonYears(prev => prev - 1);
+        if (prisonYears - 1 <= 0) {
+            newLogs.push("🔓 You have served your sentence and are released from prison!");
+            setGameState("playing");
+            setPrisonYears(0);
+        } else {
+            newLogs.push(`⛓️ You spent another year in prison. ${prisonYears - 1} years remaining.`);
+            updateStat('happiness', -5);
+        }
+        setAge(nextAge);
+        newLogs.forEach(l => addLog(l, nextAge));
+        return;
+    }
+
+    // 1. Education Progress
+    if (currentSchool && studyYearsLeft > 0) {
+      const remaining = studyYearsLeft - 1;
+      setStudyYearsLeft(remaining);
+      if (remaining === 0) {
+        newLogs.push(`🎓 You graduated from ${currentSchool}!`);
+        if (currentSchool === "University") { 
+            setEducation("University Graduate"); 
+            updateStat('smarts', 10);
+            if (sportCareer === 'College' && sportType) {
+                if (stats.athletics > 75) {
+                    setCanEnterDraft(true);
+                    newLogs.push("🌟 You are eligible for the Pro Draft!");
+                } else {
+                    newLogs.push("🏈 You were not drafted. Your sports career ends here.");
+                    setSportCareer(null);
+                    setSportTeam(null);
+                    setSportType(null);
+                }
+            }
+        } 
+        else if (currentSchool === "Medical School") { setEducation("Medical School Graduate"); updateStat('smarts', 15); }
+        else if (currentSchool === "Law School") { setEducation("Law School Graduate"); updateStat('smarts', 10); }
+        setCurrentSchool(null);
+        updateStat('happiness', 15);
+      } else {
+        newLogs.push(`📚 You completed a year of ${currentSchool}. (${remaining} years left)`);
+        updateStat('smarts', 2);
+        updateStat('happiness', -2);
+      }
+    }
+
+    // 2. Financials (Income & Contracts)
+    let yearlyIncome = 0;
+    
+    // Contract Logic (Pro Sports)
+    if (sportCareer === 'Pro' && contract) {
+        yearlyIncome += contract.salary;
+        if (contract.years <= 1) {
+            if (stats.athletics > 40) {
+                const teams = SPORTS_DATA[sportType].teams;
+                const newTeam = teams[Math.floor(Math.random() * teams.length)];
+                const newYears = Math.floor(Math.random() * 4) + 2;
+                const base = SPORTS_DATA[sportType].baseSalary;
+                const newSalary = Math.floor(base * (stats.athletics/50) * (1 + (stats.fame/100)) * (Math.random() + 0.5));
+                setContract({ years: newYears, salary: newSalary });
+                newLogs.push(`📝 CONTRACT EXPIRED: Signed new deal with ${newTeam}! ${newYears}yrs, $${newSalary.toLocaleString()}/yr.`);
+                setSportTeam(newTeam);
+            } else {
+                newLogs.push("📉 You were cut. Retired.");
+                setSportCareer('Retired'); setJob(null); setContract(null);
+            }
+        } else {
+            setContract(prev => ({ ...prev, years: prev.years - 1 }));
+        }
+    }
+    // Acting Logic
+    else if (actingGig) {
+        if (actingGig.type === 'TV') {
+            yearlyIncome += actingGig.pay;
+            if (actingGig.yearsLeft <= 1) {
+                newLogs.push(`📺 Your TV show "${actingGig.title}" has ended.`);
+                setActingGig(null);
+                setJob(null);
+                setSalary(0);
+            } else {
+                setActingGig(prev => ({ ...prev, yearsLeft: prev.yearsLeft - 1 }));
+                // Chance to get famous
+                if (Math.random() > 0.8) {
+                    updateStat('fame', 5);
+                    newLogs.push("🌟 You gained popularity from your TV show!");
+                }
+            }
+        }
+    } 
+    else if (job) {
+        if (Math.random() > 0.85) {
+            const raise = Math.floor(salary * 0.05);
+            setSalary(s => s + raise);
+            newLogs.push(`💰 Raise! New salary: $${(salary + raise).toLocaleString()}.`);
+            updateStat('happiness', 10);
+        }
+        yearlyIncome += salary;
+    }
+    
+    // Social Media Income
+    let socialIncome = 0;
+    if (socials.youtube > 10000) socialIncome += Math.floor(socials.youtube * 0.001); 
+    if (socials.onlyfans > 500) socialIncome += Math.floor(socials.onlyfans * 0.2); 
+    if (socials.babyJaycetube > 5000) socialIncome += Math.floor(socials.babyJaycetube * 0.005); 
+    
+    if (socialIncome > 0) {
+        newLogs.push(`📱 Social Media Income: $${socialIncome.toLocaleString()}`);
+        yearlyIncome += socialIncome;
+    }
+
+    // Stocks Fluctuation
+    const newStockPrices = { ...stockPrices };
+    Object.keys(newStockPrices).forEach(k => {
+        const stock = STOCKS.find(s => s.id === k);
+        const change = 1 + (Math.random() * stock.volatility * 2 - stock.volatility); 
+        newStockPrices[k] = Math.max(1, Math.floor(newStockPrices[k] * change));
+    });
+    setStockPrices(newStockPrices);
+
+    // 3. Expenses & Net
+    let expenses = 0;
+    assets.houses.forEach(h => expenses += h.upkeep);
+    assets.cars.forEach(c => expenses += c.upkeep);
+    const kids = relationships.filter(r => r.relation === "Child" && r.age < 18).length;
+    if (kids > 0) expenses += kids * 5000;
+
+    const net = yearlyIncome - expenses;
+    setMoney(m => m + net);
+    if (yearlyIncome > 0 || expenses > 0) newLogs.push(`💸 Net: ${net >= 0 ? '+' : '-'}$${Math.abs(net).toLocaleString()} (Inc: $${yearlyIncome.toLocaleString()} | Exp: $${expenses.toLocaleString()})`);
+
+    // 4. Milestones
+    if (nextAge === 6) { newLogs.push("🏫 Started Elementary School."); setEducation("Elementary"); } 
+    else if (nextAge === 14) { newLogs.push("🏫 Started High School."); setEducation("High School"); } 
+    else if (nextAge === 18) { 
+        newLogs.push("🎓 Graduated High School."); 
+        setEducation("High School Grad"); 
+        if (sportCareer === 'HS' && stats.athletics > 80) {
+            setCanEnterDraft(true);
+            newLogs.push("🌟 Eligible for Pro Draft!");
+        }
+    } else if (nextAge === 19) {
+        if (sportCareer === 'HS') {
+             setSportCareer(null); setSportTeam(null); setSportType(null); setCanEnterDraft(false);
+             newLogs.push("📉 High school sports career ended.");
+        }
+    }
+
+    // 5. Events
+    if (stats.fame > 0) updateStat('fame', -10); 
+    if (injury && Math.random() > 0.7) { 
+        updateStat('health', 5);
+        newLogs.push("🩹 Injury healing slowly.");
+    }
+
+    if (Math.random() > 0.5) {
+      const event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+      newLogs.push(`🎲 ${event.text}`);
+      if (event.text.includes("found $20")) setMoney(m => m + 20);
+      if (event.text.includes("gum") || event.text.includes("robbery")) updateStat('happiness', -5);
+      if (event.text.includes("book") || event.text.includes("language")) updateStat('smarts', 3);
+      if (event.text.includes("sushi") || event.text.includes("poisoning")) updateStat('health', -10);
+      if (event.text.includes("hair") || event.text.includes("cat")) updateStat('happiness', 5);
+      if (event.text.includes("bad haircut")) updateStat('looks', -10);
+      if (event.text.includes("run")) { updateStat('health', 5); updateStat('looks', 2); updateStat('athletics', 1); }
+      if (event.text.includes("raffle")) setMoney(m => m + 100);
+    }
+    
+    // 6. Relationships & Death
+    setRelationships(prev => prev.map(r => {
+        if (r.dead) return r;
+        if (r.age > 80 && Math.random() > 0.8) {
+             newLogs.push(`⚰️ ${r.name} passed away.`);
+             updateStat('happiness', -30);
+             return { ...r, dead: true };
+        }
+        return { ...r, age: r.age + 1, bar: Math.max(0, r.bar - Math.floor(Math.random() * 5)) }; 
+    }));
+
+    const deathChance = nextAge > 85 ? (nextAge - 80) * 2 : (stats.health < 5 ? 20 : 0);
+    if (Math.random() * 100 < deathChance) {
+      setGameState("dead");
+      newLogs.push(`💀 You died at age ${nextAge}. R.I.P.`);
+    }
+
+    setAge(nextAge);
+    newLogs.forEach(l => addLog(l, nextAge));
+  };
+
+  // --- ACTIONS ---
+
+  const handleJobApply = (j) => {
+    if (age < 18) { addLog("❌ Too young."); return; }
+    let qualified = true;
+    if (j.reqEd === "High School" && education === "None") qualified = false;
+    if (j.reqEd === "University" && !education.includes("Graduate")) qualified = false;
+    if (j.reqEd === "Medical School" && !education.includes("Medical School")) qualified = false;
+    if (j.reqEd === "Law School" && !education.includes("Law School")) qualified = false;
+    if (stats.smarts < j.reqSmarts) { addLog("❌ Rejected. Not smart enough."); return; }
+    if (qualified) {
+      setJob(j);
+      setSalary(j.salary);
+      addLog(`💼 Hired as ${j.title}! $${j.salary.toLocaleString()}/yr.`);
+      setModal(null);
+    } else { addLog("❌ Requirements not met."); }
+  };
+
+  const handleStudy = () => { if (age < 6) return; if (!checkLimit('study', 2)) return; addLog("📚 Studied."); updateStat('smarts', 4); };
+  const handleGym = () => { if (age < 13) return; if (!checkLimit('gym', 1)) return; addLog("🏋️ Workout."); updateStat('health', 4); updateStat('looks', 3); updateStat('athletics', 2); };
+  const handleMeditate = () => { if (age < 6) return; if (!checkLimit('meditate', 2)) return; addLog("🧘 Meditated."); updateStat('happiness', 4); };
+  const handleDoctor = () => { 
+      if (money < 200) { addLog("❌ Cost $200."); return; } 
+      setMoney(m=>m-200); addLog("👨‍⚕️ Visited doctor."); updateStat('health', 20); 
+  };
+  
+  const handlePostSocial = (platform) => {
+      if (age < 13) return;
+      if (!checkLimit(`post_${platform}`, 10)) return; 
+      let growth = 0, viralChance = 0.01 + (stats.fame * 0.005);
+      if (platform === 'youtube') {
+          growth = 5 + Math.floor(Math.random() * 20);
+          if (Math.random() < viralChance) { growth *= 5; addLog("🚀 Viral Video!"); updateStat('fame', 2); }
+          setSocials(s => ({...s, youtube: s.youtube + growth}));
+      } else if (platform === 'onlyfans') {
+          if (age < 18) return;
+          growth = 2 + Math.floor(Math.random() * 10);
+          if (Math.random() < viralChance) { growth *= 5; addLog("🔥 Trending!"); updateStat('fame', 1); }
+          setSocials(s => ({...s, onlyfans: s.onlyfans + growth}));
+      } else if (platform === 'babyJaycetube') {
+          growth = 20 + Math.floor(Math.random() * 50);
+          if (Math.random() < viralChance * 2) { growth *= 5; addLog("👶 Algorithm love!"); updateStat('fame', 5); }
+          setSocials(s => ({...s, babyJaycetube: s.babyJaycetube + growth}));
+      }
+  };
+
+  const handleInteract = (relId, action) => {
+      if (!checkLimit(`interact_${relId}`, 2)) return;
+      const person = relationships.find(r => r.id === relId);
+      if (person.dead) return;
+      if (action === 'spend_time') { addLog(`Spent time with ${person.name}.`); updateRel(relId, 15); updateStat('happiness', 5); }
+      else if (action === 'ask_money') { 
+          if (person.bar > 50) { const amt = 50+Math.floor(Math.random()*500); setMoney(m=>m+amt); addLog(`Received $${amt}.`); updateRel(relId, -5); }
+          else { addLog("Refused money."); updateRel(relId, -10); }
+      }
+      else if (action === 'propose') {
+          if (money < 1000) return;
+          if (person.bar > 80) { addLog("💍 Engaged!"); updateRel(relId, 100); setMoney(m=>m-1000); setRelationships(p=>p.map(r=>r.id===relId?{...r,relation:"Spouse"}:r)); }
+          else { addLog("Rejected."); updateRel(relId, -30); }
+      }
+      else if (action === 'make_love') {
+          addLog("Made love."); updateRel(relId, 10);
+          if (age < 50 && person.age < 50 && Math.random() > 0.7) {
+              const isBoy = Math.random() > 0.5;
+              const babyName = isBoy ? FIRST_NAMES_M[Math.floor(Math.random()*FIRST_NAMES_M.length)] : FIRST_NAMES_F[Math.floor(Math.random()*FIRST_NAMES_F.length)];
+              setRelationships(p => [...p, { id: Date.now(), name: `${babyName} ${LAST_NAMES[0]}`, relation: "Child", gender: isBoy?"Male":"Female", age: 0, bar: 100 }]);
+              addLog(`👶 Baby ${babyName} born!`);
+          }
+      }
+  };
+
+  const handleAdoption = () => {
+      if (age < 21) { addLog("❌ Too young to adopt (21+)."); return; }
+      if (money < 20000) { addLog("❌ Adoption costs $20,000."); return; }
+      setMoney(m => m - 20000);
+      const isBoy = Math.random() > 0.5;
+      const babyName = isBoy ? FIRST_NAMES_M[Math.floor(Math.random()*FIRST_NAMES_M.length)] : FIRST_NAMES_F[Math.floor(Math.random()*FIRST_NAMES_F.length)];
+      setRelationships(p => [...p, { id: Date.now(), name: `${babyName} ${LAST_NAMES[0]}`, relation: "Child", gender: isBoy?"Male":"Female", age: Math.floor(Math.random()*5), bar: 100 }]);
+      addLog(`👶 Adopted a child named ${babyName}!`);
+  };
+
+  const handleUniversity = () => {
+    if(age<18)return; if(currentSchool)return; const cost=20000;
+    if(education.includes("High School")){
+        if(scholarship || money>=cost || stats.smarts>80) {
+            if(!scholarship && stats.smarts<=80) setMoney(m=>m-cost);
+            setCurrentSchool("University"); setStudyYearsLeft(4); addLog("🏫 Started University.");
+            if(sportCareer==='HS') { setSportCareer('College'); addLog(`🏅 Made University ${sportType} team!`); }
+        } else addLog("❌ Can't afford.");
+    } else addLog("❌ Need HS Diploma.");
+  };
+  const handleMedicalSchool = () => {
+      if(!education.includes("Graduate"))return; if(currentSchool)return;
+      const cost=50000; if(money<cost && stats.smarts<90)return;
+      if(stats.smarts<90) setMoney(m=>m-cost);
+      setCurrentSchool("Medical School"); setStudyYearsLeft(8); addLog("🏥 Started Med School.");
+  };
+  const buyAsset = (type, item) => {
+      if((type==='car'&&age<16)||(type==='house'&&age<18))return;
+      if(money>=item.price){ setMoney(m=>m-item.price); type==='house'?setAssets(p=>({...p, houses:[...p.houses, item]})):setAssets(p=>({...p, cars:[...p.cars, item]})); addLog(`Bought ${item.name}.`); updateStat('happiness', 15); }
+  };
+
+  const handleInvest = (stockId, amount) => {
+      const stock = STOCKS.find(s => s.id === stockId);
+      const cost = stockPrices[stockId] * amount;
+      if (amount > 0) { // Buy
+          if (money >= cost) {
+              setMoney(m => m - cost);
+              setPortfolio(p => ({ ...p, [stockId]: p[stockId] + amount }));
+              addLog(`📈 Bought ${amount} ${stock.name} for $${cost.toLocaleString()}.`);
+          } else addLog("❌ Can't afford.");
+      } else { // Sell
+          const sellAmount = Math.abs(amount);
+          if (portfolio[stockId] >= sellAmount) {
+              const value = stockPrices[stockId] * sellAmount;
+              setMoney(m => m + value);
+              setPortfolio(p => ({ ...p, [stockId]: p[stockId] - sellAmount }));
+              addLog(`📉 Sold ${sellAmount} ${stock.name} for $${value.toLocaleString()}.`);
+          } else addLog("❌ Don't have enough shares.");
+      }
+  };
+
+  // --- ACTING CAREER ---
+  const handleAudition = () => {
+      if (!checkLimit('audition', 2)) return;
+      const gig = ACTING_GIGS[Math.floor(Math.random() * ACTING_GIGS.length)];
+      if (stats.looks >= gig.reqLooks && stats.fame >= (gig.fame - 5)) {
+          addLog(`🎬 AUDITION SUCCESS! You were hired for "${gig.title}".`);
+          setJob({ title: "Actor" });
+          if (gig.type === 'Movie' || gig.type === 'Commercial') {
+              setMoney(m => m + gig.pay);
+              addLog(`💰 You were paid $${gig.pay.toLocaleString()} for the role.`);
+              updateStat('fame', gig.fame);
+          } else if (gig.type === 'TV') {
+              setActingGig({ ...gig, yearsLeft: gig.years });
+              setSalary(gig.pay);
+              addLog(`📝 Signed ${gig.years} year contract for $${gig.pay.toLocaleString()}/yr.`);
+              updateStat('fame', gig.fame);
+          }
+      } else {
+          addLog(`❌ AUDITION FAILED: Rejection for "${gig.title}". Need better looks or fame.`);
+          updateStat('happiness', -5);
+      }
+  };
+
+  // --- SPORTS & CONTRACTS & INJURY ---
+  
+  const handleTreatment = (type) => {
+      if (!injury) return;
+      if (type === 'surgery') {
+          const cost = 10000;
+          if (sportCareer === 'Pro') addLog("🏥 Team paid for surgery.");
+          else if (money < cost) { addLog("❌ Can't afford surgery."); return; }
+          else setMoney(m => m - cost);
+          
+          if (Math.random() > 0.3) {
+              addLog("✅ Surgery successful!"); setInjury(null);
+          } else {
+              addLog("⚠️ Surgery botched! Lost athletics."); updateStat('athletics', -20); updateStat('health', -10);
+          }
+      } else if (type === 'therapy') {
+          addLog("🧘 Therapy complete."); updateStat('health', 5);
+          if (Math.random() > 0.6) { addLog("✅ Recovered."); setInjury(null); }
+      }
+  };
+
+  const handleEnterDraft = () => {
+      if (!canEnterDraft || !sportType) return;
+      const teams = SPORTS_DATA[sportType].teams;
+      const team = teams[Math.floor(Math.random() * teams.length)];
+      const years = Math.floor(Math.random() * 4) + 2; 
+      const base = SPORTS_DATA[sportType].baseSalary;
+      const salary = Math.floor(base * (stats.athletics/40) * (Math.random() + 0.5));
+      addLog(`🏈 DRAFTED by ${team}! ${years}yr contract, $${salary.toLocaleString()}/yr.`);
+      setSportCareer('Pro'); setSportTeam(team); setContract({ years, salary }); setJob({ title: `Pro ${sportType} Player` }); updateStat('fame', 20); setCanEnterDraft(false);
+  };
+
+  const handleSportsAction = (action) => {
+      if (injury) { addLog("❌ Injured!"); return; }
+      if (action.startsWith('join_hs_')) {
+          const type = action.split('_')[2];
+          if (stats.athletics < 30) { addLog("❌ Coach says too weak."); return; }
+          setSportCareer('HS'); setSportType(type); setSportTeam(`HS ${type}`); addLog(`🏅 Joined HS ${type}.`); setModal(null);
+      } 
+      else if (action === 'practice') {
+          if (!checkLimit('practice', 5)) return; 
+          addLog("🏋️ Practiced."); updateStat('athletics', 2);
+          if (Math.random() > 0.95) { setInjury({ name: "Sprained Ankle", severity: 20 }); addLog("🤕 Injured!"); }
+      } 
+      else if (action === 'play_game') {
+          if (!checkLimit('play_game', 3)) return; 
+          const win = Math.random() > 0.4;
+          addLog(win ? `🏆 WON!` : `💀 LOST.`);
+          updateStat('happiness', win ? 5 : -2);
+          if (sportCareer === 'Pro') updateStat('fame', win ? 2 : 0);
+          if (Math.random() > 0.92) { const i = ["Torn ACL", "Concussion"]; const n = i[Math.floor(Math.random()*i.length)]; setInjury({ name: n, severity: 50 }); addLog(`🚑 ${n}!`); }
+      }
+  };
+
+  // --- OUTDOOR DLC ---
+  const handleOutdoor = (type) => {
+      if (age < 18) { addLog("❌ Must be 18+ for outdoor danger."); return; }
+      if (!checkLimit('outdoor', 1)) return;
+      if (type === 'mudding') { addLog("🚙 Mudding!"); updateStat('happiness', 8); updateStat('health', -1); }
+      else if (type === 'cave') {
+          if (Math.random() > 0.85) { setGameState("dead"); addLog("💀 Lost in cave."); } else { addLog("🔦 Cave diving!"); updateStat('happiness', 15); updateStat('athletics', 2); }
+      } else if (type === 'ocean') {
+          if (Math.random() > 0.9) { addLog("🦈 Shark!"); updateStat('health', -50); updateStat('happiness', -20); } else { addLog("🌊 Ocean explore."); updateStat('smarts', 2); updateStat('happiness', 10); }
+      } else if (type === 'hiking') { addLog("⛰️ Hiking."); updateStat('health', 3); updateStat('happiness', 5); }
+  };
+
+  // --- OTHERS ---
+  const handleFameAction = (action) => {
+      if (!checkLimit('fame_action', 1)) return;
+      if(action==='commercial'){ const p=5000+(stats.fame*1000); setMoney(m=>m+p); addLog(`🎬 Commercial: +$${p.toLocaleString()}`); updateStat('fame', 2); }
+      else if(action==='photo'){ const p=2000+(stats.fame*500); setMoney(m=>m+p); addLog(`📸 Shoot: +$${p.toLocaleString()}`); updateStat('fame', 5); }
+      else if(action==='book'){ const r=Math.floor(stats.fame*1000*Math.random())*2; setMoney(m=>m+r); addLog(`📖 Book: +$${r.toLocaleString()}`); updateStat('fame', 5); }
+      else if(action==='talk'){ addLog("📺 Talk Show!"); updateStat('fame', 10); }
+  };
+  const handleCrime = () => {
+      if (!checkLimit('crime', 1)) return;
+      if(Math.random()>0.7){ const t=100+Math.floor(Math.random()*5000); setMoney(m=>m+t); addLog(`😈 Stole $${t.toLocaleString()}!`); updateStat('fame', -5); }
+      else { addLog("👮 Arrested!"); setGameState("prison"); setPrisonYears(3+Math.floor(Math.random()*5)); updateStat('happiness', -50); updateStat('fame', 10); }
+  };
+  const handlePrisonAction = (action) => {
+      if (!checkLimit('prison_action', 1)) return;
+      if (action === 'riot') {
+          if (Math.random() > 0.5) { addLog("🔥 Riot Escape!"); setGameState("playing"); setPrisonYears(0); updateStat('fame', 20); }
+          else { addLog("👮 Failed Riot."); setPrisonYears(p => p + 2); updateStat('health', -20); }
+      } else if (action === 'escape') {
+          if (stats.athletics > 70 && stats.smarts > 60 && Math.random() > 0.6) { addLog("🏃 Escaped!"); setGameState("playing"); setPrisonYears(0); }
+          else { addLog("👮 Caught."); setPrisonYears(p => p + 3); }
+      }
+  };
+
+  const handleDate = () => { if(!checkLimit('date', 1))return; const p={ id:Date.now(), name:`Random Partner`, relation:"Partner", gender:Math.random()>0.5?"F":"M", age:age, bar:50 }; setRelationships(prev=>[...prev,p]); addLog("💘 Found a date."); };
+  const handleBlackjack = () => {
+      if(money<100)return; setMoney(m=>m-100);
+      const p=Math.floor(Math.random()*10)+Math.floor(Math.random()*11)+2; const d=Math.floor(Math.random()*10)+Math.floor(Math.random()*11)+2;
+      if(p>21) addLog(`♠️ You: ${p} (BUST). Lost $100.`); else if(d>21||p>d){ setMoney(m=>m+200); addLog(`♠️ You: ${p} vs D: ${d}. WON $200!`); } else addLog(`♠️ You: ${p} vs D: ${d}. Lost.`);
+  };
+  const switchLife = (c) => { initGame(false, { money, assets, name:c.name, gender:c.gender, age:c.age }); };
+
+  // --- RENDER HELPERS ---
+  const themeClasses = isDarkMode ? "bg-slate-900 text-white" : "bg-white text-gray-800";
+  const bgClasses = isDarkMode ? "bg-slate-950" : "bg-gray-200";
+  const cardClasses = isDarkMode ? "bg-slate-800 border-slate-700 text-gray-200" : "bg-white border-gray-200";
+
+  // ... (Menu and Dead views)
+  if (gameState === "menu") {
+      return (
+        <div className={`h-screen w-full ${bgClasses} flex items-center justify-center font-sans p-4`}>
+             <div className={`${cardClasses} w-full max-w-md rounded-2xl shadow-2xl p-8 flex flex-col gap-6`}>
+                 <div className="flex justify-between items-center"><h1 className="text-4xl font-black text-yellow-500">RITLIFE</h1><button onClick={()=>setIsDarkMode(!isDarkMode)}>{isDarkMode?<Sun/>:<Moon/>}</button></div>
+                 <div className="space-y-4">
+                     <h2 className="font-bold border-b pb-2">New Life</h2>
+                     <input type="text" placeholder="Name" value={customName} onChange={(e)=>setCustomName(e.target.value)} className="w-full border p-2 rounded text-black"/>
+                     <div className="flex gap-2"><select className="border p-2 rounded text-black w-1/2" onChange={(e)=>setCustomGender(e.target.value)}><option>Male</option><option>Female</option></select><select className="border p-2 rounded text-black w-1/2" onChange={(e)=>setCustomCountry(e.target.value)}>{COUNTRIES.map(c=><option key={c}>{c}</option>)}</select></div>
+                     <div className="flex items-center gap-2 p-2 bg-yellow-50 text-black rounded"><input type="checkbox" checked={sandboxMode} onChange={(e)=>setSandboxMode(e.target.checked)}/> <span>Sandbox Mode</span></div>
+                     <button onClick={()=>initGame(true)} className="w-full bg-blue-600 text-white p-3 rounded font-bold shadow-lg">Custom Start</button>
+                     <button onClick={()=>initGame(false)} className="w-full bg-green-600 text-white p-3 rounded font-bold shadow-lg">Random Start</button>
+                     <div className="pt-4 border-t">
+                         <label className="flex items-center gap-2 w-full bg-gray-600 text-white p-3 rounded font-bold justify-center cursor-pointer hover:bg-gray-700">
+                             <Upload size={18}/> Load Save Game
+                             <input type="file" accept=".json" onChange={handleLoad} className="hidden" ref={fileInputRef} />
+                         </label>
+                     </div>
+                 </div>
+             </div>
+        </div>
+      );
+  }
+  if (gameState === "dead") return <div className={`h-screen w-full ${bgClasses} flex items-center justify-center`}><div className={`${cardClasses} p-8 rounded-2xl shadow-xl text-center`}><h2 className="text-3xl font-black">Game Over</h2><p>{name} • Age {age}</p><button onClick={()=>setGameState("menu")} className="bg-blue-600 text-white px-8 py-2 rounded mt-4">Menu</button></div></div>;
+
+  return (
+    <div className={`h-screen w-full ${bgClasses} flex items-center justify-center font-sans`}>
+      <div className={`w-full h-full sm:max-w-md sm:h-[90vh] ${themeClasses} sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden relative`}>
+        {/* Header */}
+        <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-slate-900'} text-white p-3 shadow-md z-10`}>
+          <div className="flex justify-between items-center mb-3">
+             <div><h1 className="text-xl font-black text-yellow-400">RITLIFE</h1><div className="text-xs opacity-70">{name} • {age}yo {gameState==='prison' && '(PRISON)'}</div></div>
+             <div className="flex gap-1">
+                 <button onClick={handleSave} className="p-1.5 bg-blue-600 rounded hover:bg-blue-500 text-white" title="Save Game"><Save size={14}/></button>
+                 <button onClick={()=>setModal('tree')} className="p-1.5 bg-gray-600 rounded hover:bg-gray-500 text-white" title="Family Tree"><GitFork size={14}/></button>
+                 {sandboxMode && <button onClick={()=>setModal('editor')} className="p-1.5 bg-yellow-600 rounded hover:bg-yellow-500 text-white" title="Sandbox Editor"><Edit3 size={14}/></button>}
+             </div>
+             <div className="text-right"><div className="text-xl font-bold text-green-400">${money.toLocaleString()}</div><div className="text-xs opacity-70">Gen {generation}</div></div>
+          </div>
+          <div className="flex justify-between gap-1 w-full">
+             <StatBar icon={Heart} value={stats.health} color="bg-red-500" label="Hlth" />
+             <StatBar icon={Smile} value={stats.happiness} color="bg-green-500" label="Hpy" />
+             <StatBar icon={Brain} value={stats.smarts} color="bg-blue-500" label="Smt" />
+             <StatBar icon={Activity} value={stats.athletics} color="bg-orange-500" label="Ath" />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className={`flex-1 overflow-hidden flex flex-col relative ${isDarkMode ? 'bg-slate-900' : 'bg-gray-50'}`}>
+           {activeTab === 'main' && (
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 pb-24">
+                  {gameState === 'prison' && (
+                      <div className="bg-stripes-gray p-4 border-4 border-black rounded mb-4 text-center font-bold bg-gray-200 text-black">
+                          🔒 YOU ARE IN PRISON <br/> {prisonYears} Years Remaining
+                      </div>
+                  )}
+                  {logs.map((log, i) => (
+                    <div key={i} className={`p-3 rounded border-l-4 ${log.text.includes("died")?"bg-black text-white":isDarkMode?"bg-slate-800 border-slate-600":"bg-white border-gray-300"}`}>
+                        <span className="font-bold mr-2 opacity-50">{log.age}</span><span>{log.text}</span>
+                    </div>
+                  ))}
+              </div>
+           )}
+
+           {gameState === 'prison' ? (
+               <div className="p-4 flex flex-col gap-4 justify-center h-full">
+                   <h2 className="text-2xl font-black text-center">PRISON LIFE</h2>
+                   <button onClick={()=>handlePrisonAction('riot')} className="p-4 bg-red-600 text-white font-bold rounded shadow-lg">🔥 START RIOT</button>
+                   <button onClick={()=>handlePrisonAction('escape')} className="p-4 bg-orange-600 text-white font-bold rounded shadow-lg">🏃 ATTEMPT ESCAPE</button>
+                   <div className="text-center opacity-50">You cannot work or buy assets here.</div>
+               </div>
+           ) : (
+            <>
+           {activeTab === 'occupation' && (
+            <div className="p-4 space-y-4 overflow-y-auto h-full pb-20">
+                <h2 className="text-xl font-bold border-b pb-2">Occupation</h2>
+                {/* Careers Card */}
+                {(sportCareer || actingGig || job) && (
+                    <div className={`${cardClasses} p-4 rounded shadow mb-2`}>
+                        <h3 className="font-bold flex items-center gap-2 mb-2"><Briefcase size={16}/> Career Status</h3>
+                        {sportCareer && <div><p className="text-sm font-bold text-blue-500">{sportTeam} ({sportType})</p><p className="text-xs">Contract: ${contract?.salary.toLocaleString()}/yr</p></div>}
+                        {actingGig && <div><p className="text-sm font-bold text-purple-500">Star of "{actingGig.title}"</p><p className="text-xs">Pay: ${actingGig.pay.toLocaleString()}/yr ({actingGig.yearsLeft}y left)</p></div>}
+                        {job && !sportCareer && !actingGig && <div><p className="text-sm font-bold text-green-600">{job.title}</p><p className="text-xs">${salary.toLocaleString()}/yr</p></div>}
+                        {injury && <div className="mt-2 bg-red-100 text-red-800 p-2 rounded text-xs"><Bandage size={12} className="inline mr-1"/> Injured: {injury.name}</div>}
+                    </div>
+                )}
+                
+                {/* Actions */}
+                <div className="space-y-2">
+                    <h3 className="text-sm font-bold opacity-70 uppercase">Options</h3>
+                    {injury && (
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={()=>handleTreatment('surgery')} className="p-3 bg-red-100 text-red-900 rounded font-bold border border-red-300">Surgery ($10k)</button>
+                            <button onClick={()=>handleTreatment('therapy')} className="p-3 bg-blue-100 text-blue-900 rounded font-bold border border-blue-300">Therapy (Free)</button>
+                        </div>
+                    )}
+                    {canEnterDraft && <button onClick={handleEnterDraft} className="w-full p-3 bg-yellow-100 text-yellow-900 rounded font-bold animate-pulse border border-yellow-400">🌟 Enter Pro Draft</button>}
+                    
+                    {!sportCareer && !actingGig && age>=14 && age<=18 && <button onClick={()=>setModal('sport_select')} className="w-full p-3 bg-orange-100 text-orange-900 rounded font-bold shadow border border-orange-200">Join School Team</button>}
+                    
+                    {/* Acting Audition Button */}
+                    {!sportCareer && !actingGig && !job && (
+                        <button onClick={handleAudition} className="w-full p-3 bg-purple-100 text-purple-900 rounded font-bold shadow border border-purple-200 flex items-center justify-center gap-2">
+                            <Clapperboard size={16}/> Go to Audition
+                        </button>
+                    )}
+
+                    {sportCareer && !injury && (
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={()=>handleSportsAction('practice')} className="p-3 bg-gray-100 text-black rounded font-bold border">Practice</button>
+                            <button onClick={()=>handleSportsAction('play_game')} className="p-3 bg-green-100 text-green-900 rounded font-bold border border-green-200">Play Game</button>
+                        </div>
+                    )}
+                    
+                    {!job && !sportCareer && !actingGig && <button onClick={()=>setModal('jobs')} className="w-full p-3 bg-blue-100 text-blue-900 rounded font-bold shadow border border-blue-200">Browse Full-time Jobs</button>}
+                    
+                    {(job || sportCareer || actingGig) && <button onClick={()=>{addLog("Quit job."); setJob(null); setContract(null); setSportCareer(null); setActingGig(null);}} className="w-full p-3 bg-red-50 text-red-900 rounded font-bold border border-red-200">Quit Current Job</button>}
+                    
+                    {!currentSchool && !education.includes("University") && <button onClick={handleUniversity} className="w-full p-3 bg-indigo-50 text-indigo-900 rounded font-bold border border-indigo-200">Apply to University</button>}
+                </div>
+            </div>
+           )}
+
+           {activeTab === 'activities' && (
+            <div className="p-4 space-y-4 overflow-y-auto h-full pb-20">
+                <h2 className="text-xl font-bold border-b pb-2">Activities</h2>
+                {/* Outdoor Section */}
+                <div className="space-y-2">
+                    <h3 className="text-sm font-bold opacity-70 uppercase">Outdoor (18+)</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button onClick={()=>handleOutdoor('mudding')} className="p-3 bg-amber-700 text-white rounded font-bold flex flex-col items-center"><Tent className="mb-1"/> Mudding</button>
+                        <button onClick={()=>handleOutdoor('cave')} className="p-3 bg-slate-700 text-white rounded font-bold flex flex-col items-center"><Mountain className="mb-1"/> Cave Diving</button>
+                        <button onClick={()=>handleOutdoor('ocean')} className="p-3 bg-cyan-600 text-white rounded font-bold flex flex-col items-center"><Anchor className="mb-1"/> Ocean Expl.</button>
+                        <button onClick={()=>handleOutdoor('hiking')} className="p-3 bg-emerald-600 text-white rounded font-bold flex flex-col items-center"><Activity className="mb-1"/> Hiking</button>
+                    </div>
+                </div>
+
+                {stats.fame > 30 && (
+                    <div className="grid grid-cols-2 gap-2">
+                        {['photo_shoot','commercial','book','talk_show'].map(a=><button key={a} onClick={()=>handleFameAction(a)} className="p-2 bg-pink-100 text-pink-900 rounded font-bold capitalize border border-pink-200">{a.replace('_',' ')}</button>)}
+                    </div>
+                )}
+                
+                <h3 className="text-sm font-bold opacity-70 uppercase">Social & Fun</h3>
+                <div className={`${cardClasses} p-3 rounded space-y-2 shadow-sm`}>
+                    <button onClick={()=>handlePostSocial('youtube')} className="w-full flex justify-between p-2 bg-red-50 text-red-900 rounded border border-red-100"><span>YouTube</span><span>{socials.youtube.toLocaleString()}</span></button>
+                    <button onClick={()=>handlePostSocial('onlyfans')} className="w-full flex justify-between p-2 bg-sky-50 text-sky-900 rounded border border-sky-100"><span>OnlyFans</span><span>{socials.onlyfans.toLocaleString()}</span></button>
+                    <button onClick={()=>handlePostSocial('babyJaycetube')} className="w-full flex justify-between p-2 bg-purple-50 text-purple-900 rounded border border-purple-100"><span>BabyJayce</span><span>{socials.babyJaycetube.toLocaleString()}</span></button>
+                </div>
+                
+                <h3 className="text-sm font-bold opacity-70 uppercase">Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                    <button onClick={handleDoctor} className="p-4 bg-white text-red-600 border border-red-200 rounded shadow font-bold flex flex-col items-center"><Heart className="mb-1"/> Doctor ($200)</button>
+                    <button onClick={handleGym} className="p-4 bg-white text-orange-600 border border-orange-200 rounded shadow font-bold flex flex-col items-center"><Activity className="mb-1"/> Gym</button>
+                    <button onClick={handleStudy} className="p-4 bg-white text-blue-600 border border-blue-200 rounded shadow font-bold flex flex-col items-center"><Brain className="mb-1"/> Study</button>
+                    <button onClick={handleMeditate} className="p-4 bg-white text-yellow-600 border border-yellow-200 rounded shadow font-bold flex flex-col items-center"><Smile className="mb-1"/> Meditate</button>
+                    <button onClick={handleCrime} className="p-4 bg-gray-900 text-white border border-gray-700 rounded shadow font-bold flex flex-col items-center"><ShieldAlert className="mb-1"/> Crime</button>
+                    <button onClick={handleBlackjack} className="p-4 bg-green-700 text-white border border-green-800 rounded shadow font-bold flex flex-col items-center"><Dice5 className="mb-1"/> Blackjack</button>
+                </div>
+            </div>
+           )}
+
+           {activeTab === 'assets' && (
+             <div className="p-4 space-y-4 overflow-y-auto h-full pb-20">
+                <h2 className="text-xl font-bold border-b pb-2">Assets</h2>
+                
+                {/* Investment Portfolio */}
+                <div className={`${cardClasses} p-3 rounded shadow-sm border border-gray-200 dark:border-gray-700`}>
+                    <h3 className="font-bold flex items-center gap-2 mb-2 text-green-600"><TrendingUp/> Crypto & Stocks</h3>
+                    <div className="space-y-2">
+                        {STOCKS.map(stock => (
+                            <div key={stock.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                                <div>
+                                    <div className="font-bold text-sm">{stock.name}</div>
+                                    <div className="text-xs opacity-60">${stockPrices[stock.id]}/share</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xs font-bold mb-1">Owned: {portfolio[stock.id]}</div>
+                                    <div className="flex gap-1">
+                                        <button onClick={()=>handleInvest(stock.id, 10)} className="px-2 py-1 bg-green-100 text-green-900 rounded text-xs border border-green-200">Buy 10</button>
+                                        <button onClick={()=>handleInvest(stock.id, -10)} className="px-2 py-1 bg-red-100 text-red-900 rounded text-xs border border-red-200">Sell 10</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* My Real Estate */}
+                <div>
+                    <h3 className="text-sm font-bold opacity-70 uppercase mb-1">My Real Estate</h3>
+                    {assets.houses.length === 0 ? <p className="text-xs opacity-50 italic">No properties owned.</p> : assets.houses.map((h,i)=><div key={i} className="p-2 border rounded bg-white dark:bg-gray-800 mb-1 flex items-center gap-2"><Home size={14}/> {h.name}</div>)}
+                </div>
+
+                {/* My Vehicles */}
+                <div>
+                    <h3 className="text-sm font-bold opacity-70 uppercase mb-1">My Vehicles</h3>
+                    {assets.cars.length === 0 ? <p className="text-xs opacity-50 italic">No vehicles owned.</p> : assets.cars.map((c,i)=><div key={i} className="p-2 border rounded bg-white dark:bg-gray-800 mb-1 flex items-center gap-2"><Car size={14}/> {c.name}</div>)}
+                </div>
+                
+                {/* Marketplace - Real Estate */}
+                <div>
+                    <h3 className="text-sm font-bold opacity-70 mt-4 uppercase bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 p-1 rounded">Real Estate Brokers</h3>
+                    <div className="grid grid-cols-1 gap-2 mt-1">
+                        {HOUSES.map((h,i)=><button key={i} onClick={()=>buyAsset('house',h)} className="p-2 border rounded flex justify-between bg-white dark:bg-gray-700 hover:bg-green-50 text-sm items-center"><span>{h.name}</span><span className="font-bold text-green-600">${h.price.toLocaleString()}</span></button>)}
+                    </div>
+                </div>
+
+                {/* Marketplace - Cars */}
+                <div>
+                    <h3 className="text-sm font-bold opacity-70 mt-4 uppercase bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 p-1 rounded">Car Dealerships</h3>
+                    <div className="grid grid-cols-1 gap-2 mt-1">
+                        {CARS.map((c,i)=><button key={i} onClick={()=>buyAsset('car',c)} className="p-2 border rounded flex justify-between bg-white dark:bg-gray-700 hover:bg-blue-50 text-sm items-center"><span>{c.name}</span><span className="font-bold text-blue-600">${c.price.toLocaleString()}</span></button>)}
+                    </div>
+                </div>
+             </div>
+           )}
+
+           {activeTab === 'relationships' && (
+             <div className="p-4 space-y-4 overflow-y-auto h-full pb-20">
+                <h2 className="text-xl font-bold border-b pb-2">Relationships</h2>
+                <div className="flex gap-2">
+                    <button onClick={handleDate} className="flex-1 p-2 bg-pink-100 text-pink-700 rounded font-bold shadow-sm border border-pink-200">Find Love</button>
+                    <button onClick={handleAdoption} className="flex-1 p-2 bg-blue-100 text-blue-700 rounded font-bold shadow-sm border border-blue-200">Adopt Child</button>
+                </div>
+                {relationships.map(r => (
+                   <div key={r.id} className={`${cardClasses} p-3 rounded mb-2 opacity-${r.dead?50:100}`}>
+                       <div className="flex justify-between">
+                           <span>{r.name} ({r.relation})</span>
+                           {r.relation==='Child' && age>r.age && !r.dead && <button onClick={()=>switchLife(r)} className="text-xs bg-purple-200 text-purple-900 px-2 rounded font-bold">Switch Life</button>}
+                       </div>
+                       {!r.dead && (
+                           <div className="flex gap-1 mt-2">
+                               <button onClick={()=>handleInteract(r.id,'spend_time')} className="flex-1 bg-blue-100 text-blue-800 rounded text-xs py-1">Time</button>
+                               <button onClick={()=>handleInteract(r.id,'ask_money')} className="flex-1 bg-green-100 text-green-800 rounded text-xs py-1">Money</button>
+                               {(r.relation==='Partner'||r.relation==='Spouse') && <button onClick={()=>handleInteract(r.id,'make_love')} className="flex-1 bg-pink-100 text-pink-800 rounded text-xs py-1">Love</button>}
+                               {r.relation==='Partner' && <button onClick={()=>handleInteract(r.id,'propose')} className="flex-1 bg-yellow-100 text-yellow-800 rounded text-xs py-1">Propose</button>}
+                           </div>
+                       )}
+                   </div>
+                ))}
+             </div>
+           )}
+           </>
+           )}
+
+           {/* Age Up Button */}
+           {activeTab === 'main' && (
+             <div className="absolute bottom-4 left-0 right-0 flex justify-center px-4 pointer-events-none z-20">
+                <button 
+                  onClick={handleAgeUp}
+                  className="pointer-events-auto bg-gradient-to-b from-yellow-400 to-orange-500 text-white shadow-xl transform active:scale-95 transition-all w-full py-4 rounded-xl font-black text-2xl border-b-4 border-orange-700 flex items-center justify-center gap-2"
+                >
+                  <Plus strokeWidth={4} /> AGE {age}
+                </button>
+             </div>
+           )}
+
+        </div>
+
+        {/* Bottom Nav */}
+        <div className={`border-t p-1 flex justify-around text-xs ${isDarkMode?'bg-slate-800 text-gray-400':'bg-white text-gray-600'}`}>
+           {['main','occupation','activities','assets','relationships'].map(t=><button key={t} onClick={()=>setActiveTab(t)} className={`flex-1 p-2 rounded capitalize ${activeTab===t?'text-blue-600 bg-blue-50 font-bold':''}`}>{t}</button>)}
+        </div>
+
+        {/* Modals */}
+        {modal==='jobs' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4"><div className={`${cardClasses} w-full max-h-[80vh] rounded overflow-y-auto`}><div className="p-4"><h3 className="font-bold mb-4">Jobs</h3>{JOBS.map((j,i)=><button key={i} onClick={()=>handleJobApply(j)} className="w-full text-left p-3 border-b hover:opacity-50"><div>{j.title}</div><div className="text-green-500">${j.salary.toLocaleString()}</div></button>)}<button onClick={()=>setModal(null)} className="w-full p-3 text-center text-gray-500 mt-2">Close</button></div></div></div>}
+        
+        {modal==='sport_select' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4"><div className={`${cardClasses} w-full max-w-sm rounded p-4`}><h3 className="font-bold mb-4 text-center">Select Sport</h3><div className="grid gap-2">{Object.keys(SPORTS_DATA).map(s=><button key={s} onClick={()=>handleSportsAction(`join_hs_${s}`)} className="p-3 bg-gray-100 text-black rounded font-bold shadow">{s}</button>)}</div><button onClick={()=>setModal(null)} className="w-full mt-4 text-gray-500">Cancel</button></div></div>}
+
+        {modal==='editor' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4"><div className={`${cardClasses} w-full max-h-[80vh] rounded p-4 overflow-y-auto`}><h3 className="font-bold mb-4 text-yellow-500">Sandbox</h3><div className="space-y-4"><div>Name<input value={name} onChange={e=>setName(e.target.value)} className="w-full border p-1 rounded text-black"/></div><div>Money<input type="number" value={money} onChange={e=>setMoney(Number(e.target.value))} className="w-full border p-1 rounded text-black"/></div>{Object.keys(stats).map(k=><div key={k} className="flex justify-between"><span>{k}</span><input type="range" value={stats[k]} onChange={e=>updateStat(k,Number(e.target.value)-stats[k])}/></div>)}</div><button onClick={()=>setModal(null)} className="w-full mt-4 p-2 bg-gray-200 text-black rounded">Close</button></div></div>}
+
+        {modal==='tree' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4"><div className={`${cardClasses} w-full max-h-[80vh] rounded p-4 overflow-y-auto`}><h3 className="font-bold mb-4">Ancestors</h3>{ancestors.map((a,i)=><div key={i} className="p-2 border rounded mb-2"><div className="font-bold">{a.name}</div><div className="text-xs">{a.job} • Net Worth: ${a.netWorth?.toLocaleString()}</div></div>)}<button onClick={()=>setModal(null)} className="w-full mt-4 p-2 bg-gray-200 text-black rounded">Close</button></div></div>}
+      </div>
+    </div>
+  );
+}

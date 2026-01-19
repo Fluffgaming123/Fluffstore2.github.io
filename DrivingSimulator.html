@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fluff Driving Simulator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+            background-color: #87CEEB;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hud-panel {
+            position: absolute;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #money-display {
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        #speed-display {
+            bottom: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #333;
+            font-weight: 800;
+            font-style: italic;
+        }
+
+        #garage-btn {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 40px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1e40af;
+            transition: all 0.1s;
+            pointer-events: auto;
+            position: absolute;
+            z-index: 20;
+        }
+
+        #garage-btn:active {
+            transform: translateX(-50%) translateY(4px);
+            box-shadow: 0 0 0 #1e40af;
+        }
+
+        #camera-btn {
+            top: 20px;
+            left: 20px;
+            background: #fff;
+            color: #333;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #ccc;
+            pointer-events: auto;
+            font-weight: bold;
+        }
+        #camera-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #garage-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+            z-index: 30;
+        }
+
+        .garage-content {
+            background: white;
+            width: 90%;
+            max-width: 900px;
+            height: 85%;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .garage-header {
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .garage-header h1 {
+            color: #333;
+            margin: 0;
+            font-size: 32px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .upgrade-section {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .upgrade-card {
+            flex: 1;
+            max-width: 200px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .upgrade-btn {
+            background: #fbbf24;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #78350f;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .upgrade-btn:disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: default;
+        }
+
+        .car-list {
+            flex: 1;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .car-card {
+            background: #f3f4f6;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .car-card.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .car-card.locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .car-preview {
+            width: 100%;
+            height: 80px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+        }
+
+        .car-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .car-stats {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .buy-btn, .select-btn {
+            border: none;
+            padding: 8px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 12px;
+        }
+        
+        .buy-btn { background: #22c55e; color: white; }
+        .select-btn { background: #3b82f6; color: white; }
+
+        .close-garage {
+            margin-top: 10px;
+            align-self: center;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Map Modal */
+        #map-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            flex-direction: column;
+            color: white;
+        }
+        
+        canvas#minimap {
+            background: #111;
+            border: 2px solid #555;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .map-legend {
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .legend-item span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        #mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 150px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .touch-zone {
+            pointer-events: auto;
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            backdrop-filter: blur(4px);
+            touch-action: none;
+        }
+        
+        .touch-zone:active { background: rgba(255, 255, 255, 0.4); }
+
+        #btn-left { bottom: 10px; left: 10px; }
+        #btn-right { bottom: 10px; left: 100px; }
+        #btn-gas { bottom: 20px; right: 20px; width: 80px; height: 80px; background: rgba(34, 197, 94, 0.3); border-color: rgba(34, 197, 94, 0.5); }
+        #btn-brake { bottom: 20px; right: 120px; width: 60px; height: 60px; background: rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.5); }
+
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        #start-screen h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        #start-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 24px;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #15803d;
+            transition: transform 0.1s;
+        }
+
+        #start-btn:active { transform: translateY(6px); box-shadow: none; }
+
+        .tutorial { margin-top: 20px; font-size: 18px; opacity: 0.9; }
+        
+        .notification {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="game-container"></div>
+
+    <div id="ui-layer">
+        <button id="garage-btn" onclick="openGarage()">Dealership 🏢</button>
+        <button id="camera-btn" onclick="toggleCamera()">📷 View</button>
+
+        <div id="money-display" class="hud-panel">
+            <span>💵</span> <span id="money-count">0</span>
+        </div>
+        <div id="speed-display" class="hud-panel">
+            <span id="speed-val">0</span> MPH
+        </div>
+        
+        <div class="notification" id="notification">Notification</div>
+
+        <div id="mobile-controls">
+            <div id="btn-left" class="touch-zone">⬅️</div>
+            <div id="btn-right" class="touch-zone">➡️</div>
+            <div id="btn-brake" class="touch-zone">🛑</div>
+            <div id="btn-gas" class="touch-zone">💨</div>
+        </div>
+    </div>
+    
+    <!-- Map Overlay -->
+    <div id="map-modal">
+        <h2>City Map (Press M to Close)</h2>
+        <canvas id="minimap" width="500" height="500"></canvas>
+        <div class="map-legend">
+            <div class="legend-item"><span style="background:red"></span> You</div>
+            <div class="legend-item"><span style="background:#555"></span> Roads</div>
+            <div class="legend-item"><span style="background:yellow"></span> Drag Strip</div>
+        </div>
+    </div>
+
+    <div id="garage-modal">
+        <div class="garage-content">
+            <div class="garage-header">
+                <h1>Car Dealership</h1>
+                <div class="upgrade-section">
+                    <div class="upgrade-card">
+                        <h3>⚡ Engine</h3>
+                        <p>Lvl <span id="eng-lvl">1</span>/5</p>
+                        <button id="btn-upg-eng" class="upgrade-btn" onclick="buyUpgrade('engine')">Upgrade ($500)</button>
+                    </div>
+                    <div class="upgrade-card">
+                        <h3>🛞 Tires</h3>
+                        <p>Lvl <span id="tire-lvl">1</span>/5</p>
+                        <button id="btn-upg-tire" class="upgrade-btn" onclick="buyUpgrade('tires')">Upgrade ($500)</button>
+                    </div>
+                </div>
+            </div>
+            <div class="car-list" id="car-list">
+                <!-- Cars generated by JS -->
+            </div>
+            <button class="close-garage" onclick="closeGarage()">Back to City</button>
+        </div>
+    </div>
+
+    <div id="start-screen">
+        <h1>City Drive Simulator</h1>
+        <p>City Grid | Highway Ring | Drag Strip</p>
+        <br>
+        <button id="start-btn" onclick="startGame()">START ENGINE</button>
+        <div class="tutorial">
+            Desktop: Arrow Keys / WASD | 'C' Camera | 'M' Map<br>
+            Mobile: On-screen buttons
+        </div>
+    </div>
+
+    <script>
+        // --- GAME CONFIG & STATE ---
+        const GAME_STATE = {
+            money: 0,
+            currentCarId: 'civic',
+            ownedCars: ['civic'],
+            upgrades: { engine: 0, tires: 0 },
+            isPlaying: false,
+            isMapOpen: false
+        };
+
+        const MAX_UPGRADE = 5;
+        const UPGRADE_BASE_COST = 500;
+
+        const CARS = {
+            'beetle': { id: 'beetle', name: 'VW Beetle', price: 0, color: 0xfde047, speed: 0.6, handling: 0.05, width: 1.8, length: 3.3, shape: 'beetle' },
+            'civic': { id: 'civic', name: 'Honda Civic', price: 500, color: 0xef4444, speed: 0.7, handling: 0.04, width: 1.8, length: 3.5, shape: 'hatchback' },
+            'taxi': { id: 'taxi', name: 'Taxi Cab', price: 1500, color: 0xfacc15, speed: 0.75, handling: 0.04, width: 1.9, length: 3.8, shape: 'sedan' },
+            'police': { id: 'police', name: 'Police Cruiser', price: 3000, color: 0x1e293b, speed: 1.1, handling: 0.05, width: 2.0, length: 4.0, shape: 'police' },
+            'bus': { id: 'bus', name: 'City Bus', price: 2500, color: 0x0ea5e9, speed: 0.5, handling: 0.02, width: 2.8, length: 8, shape: 'bus' },
+            'limo': { id: 'limo', name: 'Limousine', price: 4000, color: 0xffffff, speed: 0.6, handling: 0.01, width: 2.2, length: 7.0, shape: 'sedan' },
+            'm3': { id: 'm3', name: 'BMW M3', price: 5000, color: 0x3b82f6, speed: 1.0, handling: 0.05, width: 2, length: 4, shape: 'sedan' },
+            'monster': { id: 'monster', name: 'Monster Truck', price: 8000, color: 0x16a34a, speed: 0.8, handling: 0.03, width: 3.5, length: 5.0, shape: 'monster' },
+            'viper': { id: 'viper', name: 'Dodge Viper', price: 12000, color: 0x1e1b4b, speed: 1.4, handling: 0.045, width: 2.2, length: 4.2, shape: 'sport_long' },
+            '911': { id: '911', name: 'Porsche 911', price: 18000, color: 0xf59e0b, speed: 1.3, handling: 0.07, width: 2.1, length: 3.8, shape: 'sport' },
+            'lambo': { id: 'lambo', name: 'Aventador', price: 35000, color: 0x10b981, speed: 1.8, handling: 0.06, width: 2.4, length: 4.5, shape: 'super' },
+            'cybertruck': { id: 'cybertruck', name: 'Cybertruck', price: 50000, color: 0x9ca3af, speed: 1.5, handling: 0.03, width: 2.6, length: 5.5, shape: 'truck' },
+            'tank': { id: 'tank', name: 'Battle Tank', price: 75000, color: 0x3f6212, speed: 0.6, handling: 0.02, width: 3.2, length: 6.0, shape: 'tank' },
+            'f1': { id: 'f1', name: 'F1 Racer', price: 100000, color: 0xdc2626, speed: 2.2, handling: 0.09, width: 2.2, length: 5.0, shape: 'f1' }
+        };
+
+        // --- THREE.JS VARIABLES ---
+        let scene, camera, renderer;
+        let playerCar, carMesh;
+        let cityGroup;
+        let buildingColliders = [];
+        let trafficCars = [];
+        let particles = [];
+        const WORLD_SIZE = 4000; 
+        const CITY_SIZE = 800;
+        
+        // Map Context
+        let mapCtx;
+        
+        // Physics variables
+        let speed = 0;
+        let steering = 0;
+        let cameraMode = 0; 
+        
+        // Cheat Code Buffer
+        let cheatBuffer = "";
+
+        const keys = {
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+            w: false, s: false, a: false, d: false, W: false, S: false, A: false, D: false
+        };
+
+        let audioCtx, engineOsc, engineGain;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.Fog(0x87CEEB, 20, 500);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('game-container').appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(100, 300, 100);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 4096;
+            dirLight.shadow.mapSize.height = 4096;
+            dirLight.shadow.camera.left = -1000;
+            dirLight.shadow.camera.right = 1000;
+            dirLight.shadow.camera.top = 1000;
+            dirLight.shadow.camera.bottom = -1000;
+            scene.add(dirLight);
+
+            const groundGeo = new THREE.PlaneGeometry(WORLD_SIZE * 2, WORLD_SIZE * 2);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.1;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            createPlayerCar();
+            createCity();
+            spawnTraffic();
+            
+            // Map Setup
+            const mapCanvas = document.getElementById('minimap');
+            mapCtx = mapCanvas.getContext('2d');
+
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', (e) => {
+                keys[e.key] = true;
+                if(e.key.toLowerCase() === 'c') toggleCamera();
+                if(e.key.toLowerCase() === 'm') toggleMap();
+
+                // Cheat Code: Type "money"
+                cheatBuffer += e.key.toLowerCase();
+                if (cheatBuffer.length > 5) cheatBuffer = cheatBuffer.slice(-5);
+                if (cheatBuffer === "money") {
+                    GAME_STATE.money += 100000;
+                    updateHUD();
+                    saveGame();
+                    showNotification("CHEAT ACTIVATED: +$100k");
+                    cheatBuffer = ""; 
+                }
+            });
+            document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+            loadGame();
+            updateGarageUI();
+            animate();
+        }
+
+        function initAudio() {
+            if (audioCtx) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                engineOsc = audioCtx.createOscillator();
+                engineGain = audioCtx.createGain();
+                engineOsc.type = 'sawtooth';
+                engineOsc.frequency.value = 50;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+                engineOsc.connect(filter);
+                filter.connect(engineGain);
+                engineGain.connect(audioCtx.destination);
+                engineGain.gain.value = 0;
+                engineOsc.start();
+            } catch(e) { console.log("Audio err"); }
+        }
+        function updateAudio(currentSpeed) {
+            if (!audioCtx) return;
+            const speedRatio = Math.abs(currentSpeed);
+            engineOsc.frequency.setTargetAtTime(60 + (speedRatio * 250), audioCtx.currentTime, 0.1);
+            engineGain.gain.setTargetAtTime(Math.min(0.05 + (speedRatio * 0.1), 0.2), audioCtx.currentTime, 0.1);
+        }
+
+        function createPlayerCar() {
+            if (carMesh) scene.remove(carMesh);
+            const carData = CARS[GAME_STATE.currentCarId];
+            playerCar = new THREE.Group();
+            
+            const colorMat = new THREE.MeshStandardMaterial({ color: carData.color, metalness: 0.6, roughness: 0.2 });
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 });
+
+            let bodyGeo, cabinGeo;
+            let wheelPositions = [
+                [-carData.width/2, 0.4, carData.length/3], [carData.width/2, 0.4, carData.length/3],
+                [-carData.width/2, 0.4, -carData.length/3], [carData.width/2, 0.4, -carData.length/3]
+            ];
+            let wheelScale = 1;
+
+            if (carData.shape === 'monster') {
+                bodyGeo = new THREE.BoxGeometry(carData.width, 1.5, carData.length);
+                const body = new THREE.Mesh(bodyGeo, colorMat);
+                body.position.y = 1.8;
+                playerCar.add(body);
+                wheelScale = 2.5;
+                wheelPositions = [[-1.5,0.8,1.5], [1.5,0.8,1.5], [-1.5,0.8,-1.5], [1.5,0.8,-1.5]];
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 2), glassMat);
+                cabin.position.set(0, 3, -0.5);
+                playerCar.add(cabin);
+            } else if (carData.shape === 'tank') {
+                bodyGeo = new THREE.BoxGeometry(carData.width, 1.2, carData.length);
+                const body = new THREE.Mesh(bodyGeo, colorMat);
+                body.position.y = 1.0;
+                playerCar.add(body);
+                const turret = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 2.5), colorMat);
+                turret.position.set(0, 2.0, 0);
+                playerCar.add(turret);
+                const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 3), new THREE.MeshStandardMaterial({color:0x222222}));
+                barrel.rotation.x = Math.PI/2;
+                barrel.position.set(0, 2.0, 2.5);
+                playerCar.add(barrel);
+            } else if (carData.shape === 'police') {
+                bodyGeo = new THREE.BoxGeometry(carData.width, 0.8, carData.length);
+                const body = new THREE.Mesh(bodyGeo, colorMat);
+                body.position.y = 0.75;
+                playerCar.add(body);
+                const cabin = new THREE.Mesh(new THREE.BoxGeometry(carData.width * 0.85, 0.7, carData.length * 0.6), glassMat);
+                cabin.position.set(0, 1.5, -0.3);
+                playerCar.add(cabin);
+                // Sirens
+                const sirenGeo = new THREE.BoxGeometry(1, 0.15, 0.3);
+                const sirenMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Simple red/blue bar
+                const siren = new THREE.Mesh(sirenGeo, sirenMat);
+                siren.position.set(0, 1.9, -0.3);
+                playerCar.add(siren);
+            } else if (carData.shape === 'bus') {
+                bodyGeo = new THREE.BoxGeometry(carData.width, 2.5, carData.length);
+                const body = new THREE.Mesh(bodyGeo, colorMat);
+                body.position.y = 1.5;
+                playerCar.add(body);
+                wheelPositions = [[-1.3, 0.5, 3], [1.3, 0.5, 3], [-1.3, 0.5, -3], [1.3, 0.5, -3]];
+            } else if (carData.shape === 'f1') {
+                bodyGeo = new THREE.BoxGeometry(1.0, 0.5, 4.5);
+                const body = new THREE.Mesh(bodyGeo, colorMat);
+                body.position.y = 0.5;
+                playerCar.add(body);
+                const wingGeo = new THREE.BoxGeometry(2.2, 0.1, 0.5);
+                const wing = new THREE.Mesh(wingGeo, colorMat);
+                wing.position.set(0, 0.4, -2.2);
+                playerCar.add(wing);
+                wheelPositions = [[-1.2,0.4,1.5], [1.2,0.4,1.5], [-1.2,0.4,-1.8], [1.2,0.4,-1.8]];
+            } else if (carData.shape === 'sport_long') {
+                 bodyGeo = new THREE.BoxGeometry(carData.width, 0.7, carData.length);
+                 cabinGeo = new THREE.BoxGeometry(carData.width * 0.8, 0.5, carData.length * 0.3);
+                 const body = new THREE.Mesh(bodyGeo, colorMat);
+                 body.position.y = 0.6;
+                 playerCar.add(body);
+                 const cabin = new THREE.Mesh(cabinGeo, glassMat);
+                 cabin.position.set(0, 1.2, -0.5);
+                 playerCar.add(cabin);
+            } else if (carData.shape === 'beetle') {
+                 bodyGeo = new THREE.SphereGeometry(1.1, 16, 16);
+                 const body = new THREE.Mesh(bodyGeo, colorMat);
+                 body.scale.set(1, 0.8, 1.5);
+                 body.position.y = 0.8;
+                 playerCar.add(body);
+            } else {
+                if (carData.shape === 'hatchback') {
+                    bodyGeo = new THREE.BoxGeometry(carData.width, 1, carData.length);
+                    cabinGeo = new THREE.BoxGeometry(carData.width * 0.85, 0.8, carData.length * 0.6);
+                } else if (carData.shape === 'sedan') {
+                    bodyGeo = new THREE.BoxGeometry(carData.width, 0.8, carData.length);
+                    cabinGeo = new THREE.BoxGeometry(carData.width * 0.85, 0.7, carData.length * 0.6);
+                } else if (carData.shape === 'sport') {
+                    bodyGeo = new THREE.BoxGeometry(carData.width, 0.7, carData.length);
+                    cabinGeo = new THREE.BoxGeometry(carData.width * 0.8, 0.55, carData.length * 0.45);
+                } else if (carData.shape === 'super') {
+                    bodyGeo = new THREE.BoxGeometry(carData.width, 0.6, carData.length);
+                    cabinGeo = new THREE.BoxGeometry(carData.width * 0.85, 0.5, carData.length * 0.4);
+                } else if (carData.shape === 'truck') {
+                    bodyGeo = new THREE.BoxGeometry(carData.width, 1.2, carData.length);
+                    cabinGeo = new THREE.BoxGeometry(carData.width * 0.9, 0.8, carData.length * 0.4);
+                }
+                const body = new THREE.Mesh(bodyGeo, colorMat);
+                body.position.y = 0.75;
+                playerCar.add(body);
+                const cabin = new THREE.Mesh(cabinGeo, glassMat);
+                cabin.position.set(0, 1.5, (carData.shape==='truck')?-0.5:-0.3);
+                playerCar.add(cabin);
+            }
+            
+            const lightGeo = new THREE.BoxGeometry(0.4, 0.2, 0.1);
+            const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const leftLight = new THREE.Mesh(lightGeo, lightMat);
+            leftLight.position.set(-carData.width/3, 0.8, carData.length/2);
+            playerCar.add(leftLight);
+            const rightLight = new THREE.Mesh(lightGeo, lightMat);
+            rightLight.position.set(carData.width/3, 0.8, carData.length/2);
+            playerCar.add(rightLight);
+
+            const wheelRadius = (carData.shape === 'bus' || carData.shape === 'truck') ? 0.6 : 0.4;
+            const wheelGeo = new THREE.CylinderGeometry(wheelRadius * wheelScale, wheelRadius * wheelScale, 0.3 * wheelScale, 16);
+            wheelGeo.rotateZ(Math.PI / 2);
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+                wheel.position.set(...pos);
+                wheel.castShadow = true;
+                playerCar.add(wheel);
+            });
+
+            playerCar.castShadow = true;
+            carMesh = playerCar;
+            scene.add(carMesh);
+            carMesh.position.y = 0;
+        }
+
+        function createCity() {
+            if (cityGroup) scene.remove(cityGroup);
+            cityGroup = new THREE.Group();
+            buildingColliders = [];
+            
+            const blockSize = 60;
+            const roadWidth = 15;
+            const gridSize = 10;
+            const pitch = blockSize + roadWidth;
+
+            const buildingMats = [
+                new THREE.MeshStandardMaterial({ color: 0xaaaaaa }),
+                new THREE.MeshStandardMaterial({ color: 0x8899aa }),
+                new THREE.MeshStandardMaterial({ color: 0xccccdd }),
+                new THREE.MeshStandardMaterial({ color: 0x777777 })
+            ];
+            const sidewalkMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
+
+            for(let x = -gridSize/2; x < gridSize/2; x++) {
+                for(let z = -gridSize/2; z < gridSize/2; z++) {
+                    if(x === 0 && z === 0) continue; 
+
+                    const centerX = x * pitch;
+                    const centerZ = z * pitch;
+
+                    const swGeo = new THREE.BoxGeometry(blockSize, 0.5, blockSize);
+                    const sw = new THREE.Mesh(swGeo, sidewalkMat);
+                    sw.position.set(centerX, 0.25, centerZ);
+                    sw.receiveShadow = true;
+                    cityGroup.add(sw);
+
+                    const buildingCount = Math.floor(Math.random() * 3) + 1;
+                    for(let b=0; b<buildingCount; b++) {
+                        const height = 15 + Math.random() * 50;
+                        const width = 15 + Math.random() * 15;
+                        const depth = 15 + Math.random() * 15;
+                        
+                        const mat = buildingMats[Math.floor(Math.random() * buildingMats.length)];
+                        const geo = new THREE.BoxGeometry(width, height, depth);
+                        const building = new THREE.Mesh(geo, mat);
+                        
+                        const bx = centerX + (Math.random() - 0.5) * (blockSize - width);
+                        const bz = centerZ + (Math.random() - 0.5) * (blockSize - depth);
+                        
+                        building.position.set(bx, height/2, bz);
+                        building.castShadow = true;
+                        building.receiveShadow = true;
+                        cityGroup.add(building);
+
+                        const box = new THREE.Box3();
+                        box.min.set(bx - width/2, 0, bz - depth/2);
+                        box.max.set(bx + width/2, height, bz + depth/2);
+                        buildingColliders.push(box);
+                    }
+                }
+            }
+
+            // Highway Ring (Moved Further Out)
+            const ringRadius = 900;
+            const roadRingGeo = new THREE.RingGeometry(ringRadius - 25, ringRadius + 25, 64);
+            const roadRingMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            const ringMesh = new THREE.Mesh(roadRingGeo, roadRingMat);
+            ringMesh.rotation.x = -Math.PI / 2;
+            ringMesh.position.y = 0.05;
+            cityGroup.add(ringMesh);
+
+            // Drag Strip
+            const stripX = 1200;
+            const stripLen = 2000;
+            const stripGeo = new THREE.PlaneGeometry(50, stripLen);
+            const stripMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            const stripMesh = new THREE.Mesh(stripGeo, stripMat);
+            stripMesh.rotation.x = -Math.PI / 2;
+            stripMesh.position.set(stripX, 0.05, 0);
+            cityGroup.add(stripMesh);
+
+            const lineGeo = new THREE.PlaneGeometry(48, 5);
+            const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const startLine = new THREE.Mesh(lineGeo, lineMat);
+            startLine.rotation.x = -Math.PI/2;
+            startLine.position.set(stripX, 0.06, -stripLen/2 + 50);
+            cityGroup.add(startLine);
+            const finishLine = new THREE.Mesh(lineGeo, lineMat);
+            finishLine.rotation.x = -Math.PI/2;
+            finishLine.position.set(stripX, 0.06, -stripLen/2 + 450); 
+            cityGroup.add(finishLine);
+
+            scene.add(cityGroup);
+        }
+
+        function spawnTraffic() {
+            trafficCars.forEach(c => scene.remove(c.mesh));
+            trafficCars = [];
+            const taxiGeo = new THREE.BoxGeometry(1.8, 1, 3.5);
+            const taxiMat = new THREE.MeshStandardMaterial({ color: 0xfacc15 });
+
+            const gridSize = 10;
+            const pitch = 75;
+
+            // City Cars
+            for(let i=0; i<30; i++) {
+                const axis = Math.random() > 0.5 ? 'x' : 'z';
+                const roadIdx = Math.floor((Math.random() * gridSize) - (gridSize/2)); 
+                const roadCoord = (roadIdx * pitch) + (pitch/2);
+                const dir = Math.random() > 0.5 ? 1 : -1;
+                const laneOffset = -dir * 4.5; 
+
+                const mesh = new THREE.Mesh(taxiGeo, taxiMat);
+                let x, z;
+                if (axis === 'z') { 
+                    x = roadCoord + laneOffset;
+                    z = (Math.random() - 0.5) * CITY_SIZE;
+                    mesh.rotation.y = dir === 1 ? 0 : Math.PI; 
+                } else { 
+                    z = roadCoord - laneOffset;
+                    x = (Math.random() - 0.5) * CITY_SIZE;
+                    mesh.rotation.y = dir === 1 ? Math.PI/2 : -Math.PI/2;
+                }
+                mesh.position.set(x, 0.5, z);
+                scene.add(mesh);
+                trafficCars.push({ mesh, speed: 0.3 + Math.random()*0.2, dir: new THREE.Vector3(axis==='x'?dir:0, 0, axis==='z'?dir:0) });
+            }
+
+            // Highway Cars (Slowed down to match city)
+            for(let i=0; i<20; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const r = 900; 
+                const mesh = new THREE.Mesh(taxiGeo, taxiMat);
+                mesh.position.set(Math.cos(angle)*r, 0.5, Math.sin(angle)*r);
+                mesh.rotation.y = -angle; 
+                scene.add(mesh);
+                trafficCars.push({ mesh, speed: 0.15, type: 'ring', angle: angle, r: r }); // Speed reduced to 0.15
+            }
+        }
+
+        function updateTraffic() {
+            trafficCars.forEach(car => {
+                if (car.type === 'ring') {
+                    // Update angle speed logic
+                    car.angle += (car.speed * 0.1) / (car.r / 100); 
+                    car.mesh.position.x = Math.cos(car.angle) * car.r;
+                    car.mesh.position.z = Math.sin(car.angle) * car.r;
+                    car.mesh.rotation.y = -car.angle;
+                } else {
+                    car.mesh.position.addScaledVector(car.dir, car.speed);
+                    const LIMIT = CITY_SIZE / 2;
+                    if(Math.abs(car.mesh.position.x) > LIMIT) car.mesh.position.x *= -0.95;
+                    if(Math.abs(car.mesh.position.z) > LIMIT) car.mesh.position.z *= -0.95;
+                }
+
+                // Crash logic - NO PENALTY
+                if(car.mesh.position.distanceTo(carMesh.position) < 4) {
+                    showNotification("Beep Beep!");
+                }
+            });
+        }
+
+        // --- MAP SYSTEM ---
+        function drawMap() {
+            if(!GAME_STATE.isMapOpen) return;
+            
+            // Clear
+            mapCtx.fillStyle = '#111';
+            mapCtx.fillRect(0, 0, 500, 500);
+            
+            // Coordinate System: World (-2000 to 2000) -> Map (0 to 500)
+            // Scale: 500 / 4000 = 0.125
+            const scale = 0.125;
+            const offsetX = 250;
+            const offsetY = 250;
+            
+            // Draw City Grid Area
+            mapCtx.strokeStyle = '#333';
+            mapCtx.lineWidth = 2;
+            mapCtx.strokeRect(offsetX - (CITY_SIZE/2)*scale, offsetY - (CITY_SIZE/2)*scale, CITY_SIZE*scale, CITY_SIZE*scale);
+            
+            // Draw Highway Ring
+            mapCtx.beginPath();
+            mapCtx.strokeStyle = '#555';
+            mapCtx.arc(offsetX, offsetY, 900*scale, 0, Math.PI*2);
+            mapCtx.stroke();
+            
+            // Draw Drag Strip
+            mapCtx.fillStyle = '#FFD700'; // Gold
+            mapCtx.fillRect(offsetX + 1200*scale, offsetY - 1000*scale, 10, 2000*scale);
+            
+            // Draw Player
+            mapCtx.beginPath();
+            mapCtx.fillStyle = 'red';
+            mapCtx.arc(offsetX + carMesh.position.x*scale, offsetY + carMesh.position.z*scale, 5, 0, Math.PI*2);
+            mapCtx.fill();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!GAME_STATE.isPlaying) return;
+
+            // Draw map if open
+            if(GAME_STATE.isMapOpen) drawMap();
+
+            const carData = CARS[GAME_STATE.currentCarId];
+            const engLvl = Math.min(GAME_STATE.upgrades.engine, MAX_UPGRADE);
+            const tireLvl = Math.min(GAME_STATE.upgrades.tires, MAX_UPGRADE);
+            
+            const maxSpeed = carData.speed * (1 + engLvl * 0.15);
+            const handling = carData.handling * (1 + tireLvl * 0.15);
+
+            let moving = false;
+            if (keys.ArrowUp || keys.w || keys.W) { speed += 0.02; moving = true; } 
+            if (keys.ArrowDown || keys.s || keys.S) { speed -= 0.02; moving = true; }
+
+            if (!moving) {
+                if (speed > 0) speed -= 0.01;
+                if (speed < 0) speed += 0.01;
+            }
+            if (speed > maxSpeed) speed = maxSpeed;
+            if (speed < -maxSpeed/2) speed = -maxSpeed/2;
+
+            if (Math.abs(speed) > 0.01) {
+                const turn = handling * (speed > 0 ? 1 : -1);
+                if (keys.ArrowLeft || keys.a || keys.A) carMesh.rotation.y += turn;
+                if (keys.ArrowRight || keys.d || keys.D) carMesh.rotation.y -= turn;
+            }
+
+            const nextX = carMesh.position.x + Math.sin(carMesh.rotation.y) * speed;
+            const nextZ = carMesh.position.z + Math.cos(carMesh.rotation.y) * speed;
+            
+            // Force Y to 0 (No Gravity/Hills)
+            carMesh.position.y = 0;
+
+            // Building Collision
+            let collision = false;
+            for (const box of buildingColliders) {
+                if (nextX >= box.min.x - 1.2 && nextX <= box.max.x + 1.2 &&
+                    nextZ >= box.min.z - 1.2 && nextZ <= box.max.z + 1.2) {
+                    collision = true; break;
+                }
+            }
+            if (collision) { speed = -speed * 0.5; } 
+            else { 
+                carMesh.position.x = nextX; 
+                carMesh.position.z = nextZ; 
+            }
+
+            if (Math.abs(speed) > 0.1) {
+                GAME_STATE.money += Math.abs(speed) * 0.5;
+                updateHUD();
+            }
+
+            const LIMIT = WORLD_SIZE / 2;
+            if (Math.abs(carMesh.position.x) > LIMIT) carMesh.position.x = -carMesh.position.x;
+            if (Math.abs(carMesh.position.z) > LIMIT) carMesh.position.z = -carMesh.position.z;
+
+            updateTraffic();
+            updateAudio(speed);
+
+            let targetPos, lookAtPos;
+            if (cameraMode === 0) { 
+                const offset = new THREE.Vector3(0, 8, -15).applyAxisAngle(new THREE.Vector3(0,1,0), carMesh.rotation.y);
+                targetPos = carMesh.position.clone().add(offset);
+                targetPos.y += 2; 
+                lookAtPos = carMesh.position.clone();
+            } else if (cameraMode === 1) { 
+                const offset = new THREE.Vector3(0.4, 1.35, 0.5).applyAxisAngle(new THREE.Vector3(0,1,0), carMesh.rotation.y);
+                targetPos = carMesh.position.clone().add(offset);
+                const lookOffset = new THREE.Vector3(0, 1.3, 10).applyAxisAngle(new THREE.Vector3(0,1,0), carMesh.rotation.y);
+                lookAtPos = carMesh.position.clone().add(lookOffset);
+            } else { 
+                targetPos = carMesh.position.clone().add(new THREE.Vector3(0, 60, 0));
+                lookAtPos = carMesh.position.clone();
+            }
+            camera.position.lerp(targetPos, 0.1);
+            camera.lookAt(lookAtPos);
+
+            document.getElementById('speed-val').innerText = Math.floor(Math.abs(speed) * 120);
+            renderer.render(scene, camera);
+        }
+
+        function buyUpgrade(type) {
+            if (GAME_STATE.upgrades[type] >= MAX_UPGRADE) return;
+            const cost = UPGRADE_BASE_COST * (GAME_STATE.upgrades[type] + 1);
+            if (GAME_STATE.money >= cost) {
+                GAME_STATE.money -= cost;
+                GAME_STATE.upgrades[type]++;
+                saveGame();
+                updateGarageUI();
+                updateHUD();
+            } else {
+                showNotification("Need $" + cost);
+            }
+        }
+
+        function updateGarageUI() {
+            const eLvl = GAME_STATE.upgrades.engine;
+            const tLvl = GAME_STATE.upgrades.tires;
+            document.getElementById('eng-lvl').innerText = eLvl;
+            document.getElementById('tire-lvl').innerText = tLvl;
+            
+            const btnEng = document.getElementById('btn-upg-eng');
+            const btnTire = document.getElementById('btn-upg-tire');
+            
+            if(eLvl >= MAX_UPGRADE) { btnEng.innerText = "MAXED"; btnEng.disabled = true; }
+            else { btnEng.innerText = `Upgrade ($${UPGRADE_BASE_COST * (eLvl+1)})`; btnEng.disabled = false; }
+            
+            if(tLvl >= MAX_UPGRADE) { btnTire.innerText = "MAXED"; btnTire.disabled = true; }
+            else { btnTire.innerText = `Upgrade ($${UPGRADE_BASE_COST * (tLvl+1)})`; btnTire.disabled = false; }
+
+            const list = document.getElementById('car-list');
+            list.innerHTML = '';
+            Object.values(CARS).forEach(car => {
+                const isOwned = GAME_STATE.ownedCars.includes(car.id);
+                const isSelected = GAME_STATE.currentCarId === car.id;
+                const card = document.createElement('div');
+                card.className = `car-card ${isSelected ? 'selected' : ''} ${!isOwned ? 'locked' : ''}`;
+                const colorHex = '#' + car.color.toString(16).padStart(6, '0');
+                
+                let btn = '';
+                if(isSelected) btn = `<button class="select-btn" disabled>Selected</button>`;
+                else if(isOwned) btn = `<button class="select-btn" onclick="selectCar('${car.id}')">Select</button>`;
+                else btn = `<button class="buy-btn" onclick="buyCar('${car.id}')" ${GAME_STATE.money < car.price ? 'disabled style="background:#9ca3af"' : ''}>$${car.price.toLocaleString()}</button>`;
+
+                card.innerHTML = `
+                    <div class="car-preview" style="background-color: ${colorHex}20"><span style="color:${colorHex}">🚗</span></div>
+                    <div class="car-name">${car.name}</div>
+                    <div class="car-stats">MPH: ${(car.speed * 120).toFixed(0)} | Grip: ${(car.handling * 1000).toFixed(0)}</div>
+                    ${btn}
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function buyCar(id) {
+            if(GAME_STATE.money >= CARS[id].price) {
+                GAME_STATE.money -= CARS[id].price;
+                GAME_STATE.ownedCars.push(id);
+                GAME_STATE.currentCarId = id;
+                saveGame(); updateGarageUI(); updateHUD();
+                showNotification("Purchased!");
+            }
+        }
+        function selectCar(id) {
+            if(GAME_STATE.ownedCars.includes(id)) {
+                GAME_STATE.currentCarId = id;
+                saveGame(); updateGarageUI();
+            }
+        }
+        function toggleCamera() { 
+            cameraMode = (cameraMode + 1) % 3; 
+            const names = ["Chase", "Driver", "Top"];
+            showNotification(names[cameraMode] + " View");
+        }
+        function toggleMap() {
+            GAME_STATE.isMapOpen = !GAME_STATE.isMapOpen;
+            document.getElementById('map-modal').style.display = GAME_STATE.isMapOpen ? 'flex' : 'none';
+        }
+        function updateHUD() { document.getElementById('money-count').innerText = Math.floor(GAME_STATE.money).toLocaleString(); }
+        function showNotification(t) { 
+            const el = document.getElementById('notification'); el.innerText = t; el.style.opacity = 1; 
+            setTimeout(() => el.style.opacity = 0, 1000); 
+        }
+
+        function openGarage() { GAME_STATE.isPlaying = false; document.getElementById('garage-modal').style.display = 'flex'; updateGarageUI(); }
+        function closeGarage() { document.getElementById('garage-modal').style.display = 'none'; GAME_STATE.isPlaying = true; createPlayerCar(); }
+        function startGame() { 
+            document.getElementById('start-screen').style.display = 'none'; 
+            GAME_STATE.isPlaying = true; 
+            initAudio();
+            if('ontouchstart' in window) document.getElementById('mobile-controls').style.display = 'block';
+        }
+        function saveGame() { localStorage.setItem('fluffDrivingV3', JSON.stringify({money:GAME_STATE.money, ownedCars:GAME_STATE.ownedCars, currentCarId:GAME_STATE.currentCarId, upgrades:GAME_STATE.upgrades})); }
+        function loadGame() {
+            const d = JSON.parse(localStorage.getItem('fluffDrivingV3'));
+            if(d) { GAME_STATE.money = d.money; GAME_STATE.ownedCars = d.ownedCars; GAME_STATE.currentCarId = d.currentCarId; GAME_STATE.upgrades = d.upgrades || {engine:0, tires:0}; }
+        }
+        function onWindowResize() { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+
+        init();
+    </script>
+</body>
+</html>

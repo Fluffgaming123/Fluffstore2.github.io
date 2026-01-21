@@ -18,12 +18,15 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .slide-up { animation: slideUp 0.2s ease-out; }
+        .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-in { animation: fadeIn 0.2s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        /* BitLife-style striped background */
-        .bg-bitlife-menu { background-color: #f3f4f6; }
-        .bitlife-row:active { background-color: #e5e7eb; transform: scale(0.99); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* BitLife-style theming */
+        .bitlife-btn:active { transform: scale(0.98); background-color: #f3f4f6; }
         .bg-stripes-gray { background-image: repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 10px, #f3f4f6 10px, #f3f4f6 20px); }
+        .bg-stripes-royal { background-image: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fffbeb 10px, #fffbeb 20px); }
     </style>
 </head>
 <body class="bg-gray-900 h-screen w-full flex justify-center items-center overflow-hidden">
@@ -33,83 +36,131 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // --- ICON COMPONENTS ---
-        const Icon = ({ char, color }) => <span className={`text-xl mr-3 ${color || 'text-gray-600'}`}>{char}</span>;
-
         // --- GAME DATA ---
         const COUNTRIES = ["USA", "UK", "Canada", "Australia", "Japan", "France", "Germany", "Brazil", "South Korea", "Spain", "Italy", "Sweden"];
-        const FIRST_NAMES_M = ["Liam", "Noah", "Oliver", "Elijah", "James", "William", "Benjamin", "Lucas", "Henry", "Theodore"];
-        const FIRST_NAMES_F = ["Olivia", "Emma", "Charlotte", "Amelia", "Ava", "Sophia", "Isabella", "Mia", "Evelyn", "Harper"];
-        const LAST_NAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
-
-        const SPORTS_DATA = {
-            Football: { teams: ["KC Chiefs", "SF 49ers", "Ravens", "Lions", "Bills", "Cowboys", "Eagles"], baseSalary: 5000000 },
-            Basketball: { teams: ["Lakers", "Celtics", "Warriors", "Bulls", "Heat", "Knicks"], baseSalary: 7000000 },
-            Baseball: { teams: ["Yankees", "Dodgers", "Red Sox", "Cubs", "Cardinals"], baseSalary: 4000000 },
-            Soccer: { teams: ["Real Madrid", "Barcelona", "Man City", "Liverpool", "Bayern"], baseSalary: 8000000 },
-            Hockey: { teams: ["Maple Leafs", "Canadiens", "Bruins", "Rangers"], baseSalary: 3000000 }
+        const ROYAL_COUNTRIES = ["UK", "Japan", "Spain", "Sweden"];
+        
+        // JOB HIERARCHIES
+        const CAREER_PATHS = {
+            Restaurant: [
+                { title: "Dishwasher", salary: 20000, req: "None" },
+                { title: "Busser", salary: 22000, req: "None" },
+                { title: "Host/Hostess", salary: 25000, req: "None" },
+                { title: "Server", salary: 35000, req: "None" }, // Tips implied
+                { title: "Line Cook", salary: 38000, req: "None" },
+                { title: "Sous Chef", salary: 55000, req: "None" }, 
+                { title: "Head Chef", salary: 75000, req: "None" },
+                { title: "Executive Chef", salary: 100000, req: "None" },
+                { title: "Restaurateur", salary: 200000, req: "None" }
+            ],
+            Police: [
+                { title: "Police Cadet", salary: 35000, req: "High School" },
+                { title: "Patrol Officer", salary: 55000, req: "High School" },
+                { title: "Police Sergeant", salary: 70000, req: "High School" },
+                { title: "Detective", salary: 85000, req: "High School" },
+                { title: "Police Lieutenant", salary: 95000, req: "High School" },
+                { title: "Police Captain", salary: 110000, req: "High School" },
+                { title: "Assistant Chief", salary: 130000, req: "High School" },
+                { title: "Chief of Police", salary: 160000, req: "High School" }
+            ],
+            Firefighter: [
+                { title: "Probationary Firefighter", salary: 38000, req: "High School" },
+                { title: "Firefighter", salary: 52000, req: "High School" },
+                { title: "Fire Equipment Operator", salary: 60000, req: "High School" },
+                { title: "Fire Lieutenant", salary: 72000, req: "High School" },
+                { title: "Fire Captain", salary: 85000, req: "High School" },
+                { title: "Battalion Chief", salary: 105000, req: "High School" },
+                { title: "Fire Chief", salary: 140000, req: "High School" }
+            ],
+            Education: [
+                { title: "Substitute Teacher", salary: 25000, req: "High School" },
+                { title: "Elementary Teacher", salary: 45000, req: "University" },
+                { title: "High School Teacher", salary: 55000, req: "University" },
+                { title: "Assistant Principal", salary: 70000, req: "University" },
+                { title: "Principal", salary: 95000, req: "University" },
+                { title: "School Superintendent", salary: 120000, req: "University" }
+            ],
+            Medical: [
+                { title: "Medical Scribe", salary: 30000, req: "High School" },
+                { title: "Medical Resident", salary: 55000, req: "Medical School" },
+                { title: "Family Physician", salary: 180000, req: "Medical School" },
+                { title: "Cardiologist", salary: 350000, req: "Medical School" },
+                { title: "Brain Surgeon", salary: 500000, req: "Medical School" },
+                { title: "Chief of Medicine", salary: 800000, req: "Medical School" }
+            ],
+            Legal: [
+                { title: "Paralegal", salary: 50000, req: "University" },
+                { title: "Jr. Associate", salary: 90000, req: "Law School" },
+                { title: "Sr. Associate", salary: 150000, req: "Law School" },
+                { title: "Partner", salary: 300000, req: "Law School" },
+                { title: "Managing Partner", salary: 600000, req: "Law School" },
+                { title: "Judge", salary: 200000, req: "Law School" }
+            ],
+            Pilot: [
+                { title: "Pilot Trainee", salary: 30000, req: "Pilot School" },
+                { title: "Co-Pilot (Regional)", salary: 70000, req: "Pilot School" },
+                { title: "Captain (Regional)", salary: 100000, req: "Pilot School" },
+                { title: "Co-Pilot (Airline)", salary: 120000, req: "Pilot School" },
+                { title: "Captain (Airline)", salary: 250000, req: "Pilot School" }
+            ],
+            Vet: [
+                { title: "Vet Tech", salary: 35000, req: "None" },
+                { title: "Associate Veterinarian", salary: 90000, req: "Vet School" },
+                { title: "Sr. Veterinarian", salary: 140000, req: "Vet School" },
+                { title: "Vet Clinic Owner", salary: 250000, req: "Vet School" }
+            ],
+            Model: [
+                { title: "Foot Model", salary: 15000, req: "Modeling School" },
+                { title: "Catalog Model", salary: 60000, req: "Modeling School" },
+                { title: "Runway Model", salary: 200000, req: "Modeling School" },
+                { title: "Supermodel", salary: 2000000, req: "Modeling School" }
+            ]
         };
 
-        const JOBS = [
-            { title: "Dishwasher", salary: 15000, reqSmarts: 0, reqEd: "None" },
-            { title: "Cashier", salary: 20000, reqSmarts: 10, reqEd: "None" },
-            { title: "Plumber Apprentice", salary: 35000, reqSmarts: 20, reqEd: "High School" },
-            { title: "Jr. Developer", salary: 55000, reqSmarts: 60, reqEd: "University" },
-            { title: "Accountant", salary: 60000, reqSmarts: 70, reqEd: "University" },
-            { title: "Nurse", salary: 65000, reqSmarts: 65, reqEd: "University" },
-            { title: "Lawyer", salary: 90000, reqSmarts: 85, reqEd: "Law School" },
-            { title: "Brain Surgeon", salary: 180000, reqSmarts: 95, reqEd: "Medical School" },
-        ];
-
+        const MILITARY_BRANCHES = ["Army", "Navy", "Air Force", "Marines"];
+        const HEIRLOOMS = ["Holy Grail", "Anakin's Lightsaber", "Titanic Violin", "Roswell Debris", "Charizard Card", "Antique Rolex"];
+        const PET_TYPES = ["Dog", "Cat", "Tiger", "Monkey", "Parrot", "Hamster"];
         const HOUSES = [
-            { name: "Trailer", price: 25000, upkeep: 500 },
-            { name: "Tiny Home", price: 60000, upkeep: 1000 },
-            { name: "Studio Apt", price: 120000, upkeep: 2000 },
-            { name: "Suburban House", price: 350000, upkeep: 5000 },
-            { name: "Mansion", price: 2500000, upkeep: 25000 },
-            { name: "Private Island", price: 50000000, upkeep: 500000 },
-        ];
-
-        const CARS = [
-            { name: "Rusty Sedan", price: 2000, upkeep: 500 },
-            { name: "Used Hatchback", price: 8000, upkeep: 1000 },
-            { name: "New Sedan", price: 25000, upkeep: 2000 },
-            { name: "Sports Car", price: 65000, upkeep: 5000 },
-            { name: "Supercar", price: 250000, upkeep: 15000 },
+            { name: "Trailer", price: 25000, upkeep: 500, maxRent: 800 },
+            { name: "Tiny Home", price: 60000, upkeep: 1000, maxRent: 1500 },
+            { name: "Studio Apt", price: 120000, upkeep: 2000, maxRent: 2500 },
+            { name: "Suburban House", price: 350000, upkeep: 5000, maxRent: 4500 },
+            { name: "Mansion", price: 2500000, upkeep: 25000, maxRent: 15000 },
+            { name: "Private Island", price: 50000000, upkeep: 500000, maxRent: 100000 },
         ];
 
         // --- SUB-COMPONENTS ---
 
         const StatBar = ({ label, value, color }) => (
             <div className="flex-1 flex flex-col items-center">
-                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter mb-0.5">{label}</div>
-                <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300 relative">
-                    <div className={`h-full ${color}`} style={{ width: `${value}%` }}></div>
-                    <div className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-black/50">{value}%</div>
+                <div className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mb-0.5">{label}</div>
+                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-300 relative">
+                    <div className={`h-full ${color} transition-all duration-500`} style={{ width: `${value}%` }}></div>
                 </div>
+                <div className="text-[9px] font-bold text-gray-500 mt-0.5">{value}%</div>
             </div>
         );
 
-        const MenuRow = ({ icon, title, subtitle, onClick, rightText, color }) => (
-            <button onClick={onClick} className="w-full flex items-center justify-between p-4 bg-white border-b border-gray-100 bitlife-row text-left">
+        const MenuRow = ({ icon, title, subtitle, onClick, rightText, color, disabled }) => (
+            <button disabled={disabled} onClick={onClick} className={`w-full flex items-center justify-between p-3.5 bg-white border-b border-gray-100 text-left bitlife-btn ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}>
                 <div className="flex items-center">
-                    <div className={`w-8 h-8 rounded flex items-center justify-center text-xl mr-3 ${color || 'bg-gray-100'}`}>{icon}</div>
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-xl mr-3 shadow-sm ${color || 'bg-gray-100 text-gray-600'}`}>{icon}</div>
                     <div>
-                        <div className="font-semibold text-gray-800 text-sm">{title}</div>
-                        {subtitle && <div className="text-xs text-gray-500">{subtitle}</div>}
+                        <div className="font-bold text-gray-800 text-sm leading-tight">{title}</div>
+                        {subtitle && <div className="text-xs text-gray-500 font-medium">{subtitle}</div>}
                     </div>
                 </div>
-                {rightText && <div className="text-sm font-bold text-gray-400">{rightText} ›</div>}
+                {rightText && <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">{rightText} ›</div>}
                 {!rightText && <div className="text-gray-300">›</div>}
             </button>
         );
 
         const Modal = ({ title, children, onClose }) => (
-            <div className="absolute inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center animate-in fade-in duration-200">
-                <div className="bg-gray-100 w-full sm:w-[90%] sm:rounded-xl h-[85%] sm:h-auto sm:max-h-[80%] flex flex-col shadow-2xl slide-up overflow-hidden">
-                    <div className="bg-white p-4 border-b flex justify-between items-center sticky top-0 z-10">
-                        <h2 className="text-lg font-black text-gray-800 uppercase tracking-wide">{title}</h2>
-                        <button onClick={onClose} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg text-sm font-bold">Close</button>
+            <div className="absolute inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center fade-in">
+                <div className="bg-gray-100 w-full sm:w-[95%] sm:rounded-2xl h-[85%] sm:h-auto sm:max-h-[90%] flex flex-col shadow-2xl slide-up overflow-hidden">
+                    <div className="bg-white px-4 py-3 border-b flex justify-between items-center sticky top-0 z-10">
+                        <h2 className="text-lg font-black text-gray-800 uppercase tracking-tight">{title}</h2>
+                        <button onClick={onClose} className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition">Close</button>
                     </div>
                     <div className="overflow-y-auto p-4 space-y-2 flex-1">
                         {children}
@@ -118,578 +169,512 @@
             </div>
         );
 
-        // --- MAIN GAME COMPONENT ---
+        const Popup = ({ event, onOption }) => (
+            <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center p-6 fade-in backdrop-blur-sm">
+                <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in">
+                    <div className="bg-blue-600 p-4 text-center">
+                        <div className="text-4xl mb-2">{event.icon || '💡'}</div>
+                        <h3 className="text-white font-black text-xl uppercase tracking-wide">{event.title}</h3>
+                    </div>
+                    <div className="p-6 text-center">
+                        <p className="text-gray-700 font-medium text-lg leading-snug mb-6">{event.description}</p>
+                        <div className="space-y-3">
+                            {event.options.map((opt, i) => (
+                                <button key={i} onClick={() => onOption(opt)} className="w-full py-3.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-xl border-b-4 border-gray-300 active:border-b-0 active:translate-y-1 transition-all text-sm">
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- MAIN COMPONENT ---
 
         function Ritlife() {
-            // State
             const [gameState, setGameState] = useState("menu");
             const [age, setAge] = useState(0);
             const [name, setName] = useState("");
-            const [gender, setGender] = useState("");
-            const [country, setCountry] = useState("");
             const [money, setMoney] = useState(0);
-            const [stats, setStats] = useState({ happiness: 100, health: 100, smarts: 50, looks: 50, fame: 0, athletics: 20 });
+            const [stats, setStats] = useState({ happiness: 100, health: 100, smarts: 50, looks: 50, fame: 0, athletics: 20, respect: 0 });
             const [logs, setLogs] = useState([]);
-            const [relationships, setRelationships] = useState([]);
-            const [assets, setAssets] = useState({ houses: [], cars: [] });
             
-            // Career
+            // Player Data
+            const [gender, setGender] = useState("Male");
+            const [country, setCountry] = useState("USA");
+            const [job, setJob] = useState(null); // { title, salary, category, tier }
             const [education, setEducation] = useState("None");
-            const [job, setJob] = useState(null);
-            const [salary, setSalary] = useState(0);
-            const [currentSchool, setCurrentSchool] = useState(null);
-            const [studyYearsLeft, setStudyYearsLeft] = useState(0);
-            const [sportCareer, setSportCareer] = useState(null); 
-            const [sportTeam, setSportTeam] = useState(null);
-            const [contract, setContract] = useState(null);
-            const [injury, setInjury] = useState(null);
-            const [canEnterDraft, setCanEnterDraft] = useState(false);
-            const [sportType, setSportType] = useState(null);
-            const [actingGig, setActingGig] = useState(null);
-
-            // Other
+            
+            // Lists & Systems
+            const [assets, setAssets] = useState({ houses: [], cars: [] }); 
+            const [relationships, setRelationships] = useState([]);
+            const [pets, setPets] = useState([]);
+            const [heirlooms, setHeirlooms] = useState([]);
             const [yearlyActions, setYearlyActions] = useState({});
-            const [socials, setSocials] = useState({ youtube: 0, onlyfans: 0, babyJaycetube: 0 });
-            const [prisonYears, setPrisonYears] = useState(0);
-            const [generation, setGeneration] = useState(1);
-            const [ancestors, setAncestors] = useState([]);
             
             // UI
             const [tab, setTab] = useState("life");
             const [modal, setModal] = useState(null);
-            const [minigameState, setMinigameState] = useState(null); // For burglary
+            const [currentEvent, setCurrentEvent] = useState(null);
             const logsEndRef = useRef(null);
             
-            // Sandbox Settings
+            // Specific Logic States
+            const [militaryBranch, setMilitaryBranch] = useState(null);
+            const [militaryRank, setMilitaryRank] = useState(0);
+            const [prisonYears, setPrisonYears] = useState(0);
+            const [minigame, setMinigame] = useState(null);
+            const [isRoyal, setIsRoyal] = useState(false);
+            const [currentSchool, setCurrentSchool] = useState(null);
+            const [studyYearsLeft, setStudyYearsLeft] = useState(0);
+
+            // Sandbox
+            const [sandboxMode, setSandboxMode] = useState(false);
             const [customName, setCustomName] = useState("");
             const [customGender, setCustomGender] = useState("Male");
-            const [customCountry, setCustomCountry] = useState(COUNTRIES[0]);
-            const [sandboxMode, setSandboxMode] = useState(false);
+            const [customCountry, setCustomCountry] = useState("USA");
 
-            // --- ENGINE ---
-
+            // --- INIT ---
             const initGame = (isCustom) => {
-                // Determine Identity
                 const g = isCustom ? customGender : (Math.random() > 0.5 ? "Male" : "Female");
                 const c = isCustom ? customCountry : COUNTRIES[Math.floor(Math.random()*COUNTRIES.length)];
                 
-                let f, l;
-                if (isCustom && customName.trim() !== "") {
-                    // Use Custom Name
-                    const parts = customName.split(' ');
-                    f = parts[0];
-                    l = parts.slice(1).join(' ') || LAST_NAMES[Math.floor(Math.random()*LAST_NAMES.length)];
-                } else {
-                    // Random Name
-                    f = g === "Male" ? FIRST_NAMES_M[Math.floor(Math.random()*FIRST_NAMES_M.length)] : FIRST_NAMES_F[Math.floor(Math.random()*FIRST_NAMES_F.length)];
-                    l = LAST_NAMES[Math.floor(Math.random()*LAST_NAMES.length)];
+                let fName = "Alex";
+                let lName = "Smith";
+                if (isCustom && customName) { 
+                    const parts = customName.split(' '); 
+                    fName = parts[0]; 
+                    lName = parts[1] || ""; 
                 }
-                
-                setName(`${f} ${l}`);
+
+                // Royalty Chance
+                let royalStart = false;
+                if (!isCustom && ROYAL_COUNTRIES.includes(c) && Math.random() > 0.95) royalStart = true;
+
+                setName(`${fName} ${lName}`);
                 setGender(g);
                 setCountry(c);
                 setAge(0);
-                setMoney(sandboxMode ? 1000000000 : 0);
+                setMoney(sandboxMode ? 1000000000 : (royalStart ? 5000000 : 0));
                 setStats({
-                    happiness: sandboxMode ? 100 : 90,
-                    health: sandboxMode ? 100 : 90,
-                    smarts: sandboxMode ? 100 : Math.floor(Math.random()*60)+20,
-                    looks: sandboxMode ? 100 : Math.floor(Math.random()*60)+20,
-                    fame: 0,
-                    athletics: sandboxMode ? 100 : Math.floor(Math.random()*40)+10
+                    happiness: 90, health: 90, smarts: 50, looks: 50, fame: 0, athletics: 20, 
+                    respect: royalStart ? 50 : 0 
                 });
-                setEducation("None"); setJob(null); setSalary(0); setCurrentSchool(null); setStudyYearsLeft(0);
-                setSportCareer(null); setContract(null); setInjury(null); setActingGig(null);
-                setPrisonYears(0); setAssets({houses:[], cars:[]}); setRelationships([]);
                 
-                // Create Parents
-                const mom = { id: 1, name: `${FIRST_NAMES_F[0]} ${l}`, relation: "Mother", age: 24, bar: 90 };
-                const dad = { id: 2, name: `${FIRST_NAMES_M[0]} ${l}`, relation: "Father", age: 26, bar: 90 };
-                setRelationships([mom, dad]);
+                setIsRoyal(royalStart);
+                setJob(royalStart ? { title: g==="Male"?"Prince":"Princess", salary: 500000, category: "Royalty" } : null);
+                setSalary(royalStart ? 500000 : 0);
                 
-                setLogs([{age: 0, text: `👶 Life began in ${c}. ${sandboxMode ? '(Sandbox)' : ''}`}]);
+                setEducation("None"); setCurrentSchool(null); setStudyYearsLeft(0);
+                setMilitaryBranch(null); setMilitaryRank(0);
+                setRelationships([{id:1, name:"Mother", age:25, relation:"Mother", bar:90}, {id:2, name:"Father", age:28, relation:"Father", bar:90}]);
+                setPets([]); setHeirlooms([]); setAssets({houses:[], cars:[]});
+                setPrisonYears(0);
+                setLogs([{age:0, text: `👶 Born in ${c}. ${royalStart ? 'You are Royalty! 👑' : ''}`}]);
+                
                 setGameState("playing");
             };
 
             const addLog = (text) => setLogs(p => [...p, {age, text}]);
-            
             const updateStat = (k, v) => setStats(p => ({...p, [k]: Math.max(0, Math.min(100, p[k]+v))}));
-            
             const checkLimit = (key, max) => {
-                if ((yearlyActions[key] || 0) >= max) {
-                    addLog("⏳ You've done that enough this year.");
-                    return false;
-                }
-                setYearlyActions(p => ({...p, [key]: (p[key]||0)+1}));
-                return true;
+                if ((yearlyActions[key] || 0) >= max) { addLog("⏳ Done enough this year."); return false; }
+                setYearlyActions(p => ({...p, [key]: (p[key]||0)+1})); return true;
             };
 
+            // --- AGE UP LOGIC ---
             const handleAgeUp = () => {
+                if (currentEvent) return; 
                 if (gameState === 'dead') return;
+                
                 const nextAge = age + 1;
                 setAge(nextAge);
                 setYearlyActions({});
                 let newLogs = [];
 
-                // Prison Logic
                 if (gameState === 'prison') {
-                    if (prisonYears > 1) {
-                        setPrisonYears(p => p - 1);
-                        newLogs.push(`🔒 ${prisonYears-1} years left in prison.`);
-                        updateStat('happiness', -10);
-                    } else {
-                        setGameState('playing');
-                        setPrisonYears(0);
-                        newLogs.push("🔓 You were released from prison!");
-                    }
-                    newLogs.forEach(l => setLogs(p => [...p, {age: nextAge, text: l}]));
+                    setPrisonYears(p => p - 1);
+                    if (prisonYears - 1 <= 0) {
+                        setGameState('playing'); newLogs.push("🔓 Released from prison!");
+                    } else newLogs.push(`⛓️ ${prisonYears-1} years left.`);
+                    newLogs.forEach(l => addLog(l));
                     return;
                 }
 
-                // Aging Logic (Education, Career, Money, Events same as before)
-                // ... (Condensed for brevity, assumed same logic as previous request)
-                if (currentSchool && studyYearsLeft > 0) {
+                if (currentSchool) {
                     setStudyYearsLeft(p => p - 1);
-                    if (studyYearsLeft - 1 === 0) {
+                    if (studyYearsLeft - 1 <= 0) {
                         newLogs.push(`🎓 Graduated from ${currentSchool}!`);
-                        setEducation("Degree"); setCurrentSchool(null);
+                        setEducation(currentSchool); 
+                        setCurrentSchool(null);
                     }
-                } else if (nextAge===18) { newLogs.push("🎓 Graduated High School."); setEducation("HS Grad"); }
+                } else if (nextAge===18) newLogs.push("🎓 Graduated High School.");
 
                 let income = job ? salary : 0;
                 setMoney(m => m + income);
-                if (income > 0) newLogs.push(`💸 Earned $${income.toLocaleString()}`);
+                if (income > 0) newLogs.push(`💸 Job Income: $${income.toLocaleString()}`);
 
                 // Random Events
-                if (Math.random() > 0.8) newLogs.push("🎲 Nothing interesting happened.");
+                if (Math.random() > 0.85) newLogs.push("🎲 Uneventful year.");
 
-                // Relationships Age
-                setRelationships(prev => prev.map(r => ({...r, age: r.age+1})));
+                setPets(prev => prev.map(p => {
+                    const newAge = p.age + 1;
+                    if (newAge > 15 && Math.random() > 0.7) {
+                        newLogs.push(`⚰️ Pet ${p.name} died.`);
+                        updateStat('happiness', -20);
+                        return null; 
+                    }
+                    return {...p, age: newAge};
+                }).filter(Boolean));
 
-                if (stats.health <= 0 || (nextAge > 100 && Math.random() > 0.8)) {
-                    setGameState('dead');
-                    newLogs.push("💀 You have died.");
-                }
-
+                if (stats.health <= 0 || nextAge > 100) { setGameState('dead'); newLogs.push("💀 Died."); }
                 newLogs.forEach(l => setLogs(p => [...p, {age: nextAge, text: l}]));
             };
 
+            // --- CAREER ---
+            const applyJob = (cat, index) => {
+                if (age < 18) { addLog("❌ Must be 18 to work full-time."); return; } // AGE CHECK
+                const j = CAREER_PATHS[cat][index];
+                let qualified = true;
+                if (j.req === "University" && !education.includes("University")) qualified = false;
+                if (j.req === "Medical School" && !education.includes("Medical")) qualified = false;
+                if (j.req === "Law School" && !education.includes("Law")) qualified = false;
+                if (j.req === "Pilot School" && !education.includes("Pilot")) qualified = false;
+                if (j.req === "Vet School" && !education.includes("Vet")) qualified = false;
+                if (j.req === "Modeling School" && !education.includes("Model")) qualified = false;
+
+                if (qualified) {
+                    setJob({...j, category: cat, tier: index});
+                    setSalary(j.salary);
+                    addLog(`💼 Hired as ${j.title}!`);
+                    setModal(null);
+                } else {
+                    addLog(`❌ Rejected. Need ${j.req}.`);
+                }
+            };
+
+            const workHard = () => {
+                if (!job) return;
+                addLog("💪 Worked hard.");
+                updateStat('happiness', -2);
+                
+                if (job.category && CAREER_PATHS[job.category]) {
+                    const ladder = CAREER_PATHS[job.category];
+                    if (job.tier < ladder.length - 1 && Math.random() > 0.6) {
+                        const nextJob = ladder[job.tier + 1];
+                        setJob({...nextJob, category: job.category, tier: job.tier + 1});
+                        setSalary(nextJob.salary);
+                        addLog(`🌟 Promoted to ${nextJob.title}!`);
+                        updateStat('happiness', 20);
+                    }
+                }
+                if (militaryBranch && Math.random() > 0.5 && militaryRank < 5) {
+                    setMilitaryRank(r => r + 1);
+                    const ranks = ["Private", "Corporal", "Sergeant", "Lieutenant", "Captain", "General"];
+                    const newRank = ranks[militaryRank + 1];
+                    setJob({title: `${militaryBranch} ${newRank}`, salary: salary + 10000});
+                    setSalary(s => s + 10000);
+                    addLog(`🎖️ Promoted to ${newRank}!`);
+                }
+            };
+
+            const handleSchool = (type) => {
+                if (age < 18) { addLog("❌ Must be 18 to attend higher ed."); return; } // AGE CHECK
+                if (money < 10000 && type !== 'University') { addLog("❌ Cost $10k."); return; }
+                if (type !== 'University') setMoney(m => m - 10000);
+                setCurrentSchool(type);
+                setStudyYearsLeft(type === 'University' ? 4 : 2);
+                addLog(`🏫 Enrolled in ${type}.`);
+                setModal(null);
+            };
+
+            const handleMilitaryEnlist = (branch) => {
+                if (age < 18) { addLog("❌ Must be 18 to enlist."); return; } // AGE CHECK
+                setMilitaryBranch(branch);
+                setMilitaryRank(0);
+                setJob({title: `${branch} Private`, salary: 25000});
+                setSalary(25000);
+                addLog(`Enlisted in the ${branch}.`);
+                setModal(null);
+            };
+
+            // --- PETS ---
+            const adoptPet = (type) => {
+                if (age < 18) { addLog("❌ Must be 18 to adopt."); return; } // AGE CHECK
+                if (money < 500) { addLog("❌ Cost $500."); return; }
+                setMoney(m => m - 500);
+                const pName = ["Bella", "Max", "Luna", "Charlie"][Math.floor(Math.random()*4)];
+                setPets(p => [...p, { name: pName, type, age: 1 }]);
+                addLog(`🐾 Adopted ${type} ${pName}.`);
+                setModal(null);
+            };
+
+            // --- MINIGAME ---
+            const startMinesweeper = () => {
+                const grid = Array(25).fill(0).map(() => Math.random() < 0.2 ? 'bomb' : 'safe');
+                setMinigame({ type: 'minesweeper', grid, revealed: Array(25).fill(false), safeCount: 0 });
+                setModal('minigame');
+            };
+
+            const handleMineClick = (idx) => {
+                if (!minigame || minigame.revealed[idx]) return;
+                const newRev = [...minigame.revealed];
+                newRev[idx] = true;
+                
+                if (minigame.grid[idx] === 'bomb') {
+                    addLog("💥 BOOM! Injured in deployment.");
+                    updateStat('health', -50);
+                    setMinigame(null); setModal(null);
+                    setJob(null); setMilitaryBranch(null);
+                    addLog("📉 Discharged due to injury.");
+                } else {
+                    const newSafe = minigame.safeCount + 1;
+                    if (newSafe >= 5) {
+                        addLog("🎖️ Deployment Success! Medal earned.");
+                        updateStat('happiness', 10);
+                        setMinigame(null); setModal(null);
+                    } else {
+                        setMinigame({...minigame, revealed: newRev, safeCount: newSafe});
+                    }
+                }
+            };
+
+            // --- OTHER ACTIONS ---
+            const handleDoctor = () => { if (money < 200) { addLog("❌ Cost $200"); return; } setMoney(m=>m-200); updateStat('health',20); addLog("Doctor visit."); };
+            const handleCrime = () => {
+                if (!checkLimit('crime', 1)) return;
+                if (Math.random() > 0.7) { setMoney(m => m + 1000); addLog("😈 Stole $1,000!"); }
+                else { addLog("👮 Arrested!"); setGameState('prison'); setPrisonYears(3); }
+            };
+            const handleCasino = () => {
+                if (age < 21) { addLog("❌ Must be 21 to gamble."); return; } // AGE CHECK
+                if (money < 100) return;
+                setMoney(m=>m-100);
+                if (Math.random() > 0.5) { setMoney(m=>m+200); addLog("🎰 Won $200!"); }
+                else addLog("🎰 Lost $100.");
+            };
+            const handleRealEstate = (house) => {
+                if (age < 18) { addLog("❌ Must be 18 to buy property."); return; } // AGE CHECK
+                if (money >= house.price) {
+                    setMoney(m => m - house.price);
+                    setAssets(p => ({...p, houses: [...p.houses, {...house}]}));
+                    addLog("🏠 Bought house.");
+                    setModal(null);
+                } else addLog("❌ Can't afford.");
+            };
+            const handleBuyCar = (car) => {
+                if (age < 16) { addLog("❌ Must be 16 to buy car."); return; } // AGE CHECK
+                if (money >= car.price) {
+                    setMoney(m => m - car.price);
+                    setAssets(p => ({...p, cars: [...p.cars, {...car}]}));
+                    addLog("🚗 Bought car.");
+                    setModal(null);
+                } else addLog("❌ Can't afford.");
+            };
+
+            // --- RENDER HELPERS ---
             useEffect(() => {
                 if (logsEndRef.current) logsEndRef.current.scrollIntoView({ behavior: "smooth" });
             }, [logs, tab]);
 
-            // --- ACTIONS ---
-
-            const doAction = (type, payload) => {
-                if (type === 'emigrate') {
-                    if (money < 5000) { addLog("❌ Emigration costs $5,000."); return; }
-                    setMoney(m => m - 5000);
-                    setCountry(payload);
-                    addLog(`✈️ Emigrated to ${payload}.`);
-                    setModal(null);
-                }
-                // ... Other actions (Job, Uni, etc.)
-            };
-
-            // --- BURGLARY MINIGAME ---
-            
-            const startBurglary = () => {
-                // Initialize Grid: 4x4. 
-                // 0: Empty, 1: Player, 2: Loot, 3: Dog, 4: Exit
-                const newGrid = Array(16).fill(0);
-                const playerPos = 0; 
-                const exitPos = 15;
-                // Random Loot
-                let lootPos = [];
-                while(lootPos.length < 3) {
-                    let r = Math.floor(Math.random() * 14) + 1;
-                    if (!lootPos.includes(r)) lootPos.push(r);
-                }
-                // Dog
-                let dogPos = Math.floor(Math.random() * 10) + 4; 
-                
-                setMinigameState({
-                    grid: newGrid,
-                    player: playerPos,
-                    dog: dogPos,
-                    exit: exitPos,
-                    loot: lootPos,
-                    collected: 0,
-                    status: 'playing' // playing, won, lost
-                });
-                setModal('burglary');
-            };
-
-            const movePlayer = (dir) => {
-                if (!minigameState || minigameState.status !== 'playing') return;
-                let next = minigameState.player;
-                if (dir === 'up') next -= 4;
-                if (dir === 'down') next += 4;
-                if (dir === 'left' && next % 4 !== 0) next -= 1;
-                if (dir === 'right' && (next + 1) % 4 !== 0) next += 1;
-
-                if (next < 0 || next > 15) return;
-
-                // Check collision
-                if (next === minigameState.dog) {
-                    setMinigameState(p => ({...p, status: 'lost'}));
-                    return;
-                }
-
-                let newLoot = [...minigameState.loot];
-                let newCollected = minigameState.collected;
-                if (newLoot.includes(next)) {
-                    newLoot = newLoot.filter(l => l !== next);
-                    newCollected++;
-                }
-
-                // Check Win
-                if (next === minigameState.exit) {
-                    if (newCollected > 0) { // Must collect at least 1 loot
-                        setMinigameState(p => ({...p, player: next, loot: newLoot, collected: newCollected, status: 'won'}));
-                        return;
-                    }
-                }
-
-                // Move Dog Randomly
-                let dogNext = minigameState.dog;
-                const dogMove = Math.random();
-                if (dogMove < 0.25 && dogNext > 3) dogNext -= 4;
-                else if (dogMove < 0.5 && dogNext < 12) dogNext += 4;
-                else if (dogMove < 0.75 && dogNext % 4 !== 0) dogNext -= 1;
-                else if ((dogNext + 1) % 4 !== 0) dogNext += 1;
-
-                if (dogNext === next) {
-                    setMinigameState(p => ({...p, player: next, loot: newLoot, collected: newCollected, dog: dogNext, status: 'lost'}));
-                    return;
-                }
-
-                setMinigameState(p => ({...p, player: next, loot: newLoot, collected: newCollected, dog: dogNext}));
-            };
-
-            const endBurglary = () => {
-                if (minigameState.status === 'won') {
-                    const take = minigameState.collected * 5000;
-                    setMoney(m => m + take);
-                    addLog(`💰 Burglary successful! Stole $${take.toLocaleString()}.`);
-                    updateStat('fame', -5);
-                } else {
-                    addLog("🐕 Caught by the dog! Arrested.");
-                    setGameState('prison');
-                    setPrisonYears(3);
-                    updateStat('happiness', -50);
-                }
-                setModal(null);
-                setMinigameState(null);
-            };
-
-            // --- RENDER HELPERS ---
-
-            if (gameState === 'menu') {
-                return (
-                    <div className="h-full w-full bg-slate-900 flex flex-col items-center justify-center p-6 text-white space-y-6">
-                        <h1 className="text-6xl font-black text-yellow-400 tracking-tighter drop-shadow-lg">RITLIFE</h1>
-                        
-                        <div className="w-full max-w-xs space-y-3 bg-slate-800 p-6 rounded-2xl shadow-xl">
-                            <h2 className="text-xl font-bold text-center border-b border-gray-600 pb-2 mb-4">New Game</h2>
-                            
-                            {/* CUSTOM OPTIONS */}
-                            <div>
-                                <label className="text-xs font-bold text-gray-400 uppercase">Name</label>
-                                <input type="text" placeholder="Random Name" className="w-full p-2 rounded bg-slate-700 border border-slate-600 focus:border-yellow-400 outline-none text-sm" value={customName} onChange={e=>setCustomName(e.target.value)} />
-                            </div>
-                            
-                            <div className="flex gap-2">
-                                <div className="flex-1">
-                                    <label className="text-xs font-bold text-gray-400 uppercase">Gender</label>
-                                    <select value={customGender} onChange={e=>setCustomGender(e.target.value)} className="w-full p-2 rounded bg-slate-700 border border-slate-600 text-sm">
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                </div>
-                                <div className="flex-1">
-                                    <label className="text-xs font-bold text-gray-400 uppercase">Country</label>
-                                    <select value={customCountry} onChange={e=>setCustomCountry(e.target.value)} className="w-full p-2 rounded bg-slate-700 border border-slate-600 text-sm">
-                                        {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <label className="flex items-center gap-2 p-2 rounded bg-slate-700/50 cursor-pointer hover:bg-slate-700 transition">
-                                <input type="checkbox" checked={sandboxMode} onChange={e=>setSandboxMode(e.target.checked)} className="accent-yellow-400"/>
-                                <span className="text-sm font-bold text-yellow-400">Sandbox Mode (God Mode)</span>
-                            </label>
-
-                            <div className="flex flex-col gap-2 pt-2">
-                                <button onClick={() => initGame(true)} className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold text-white shadow transition-transform active:scale-95">Start Custom Life</button>
-                                <div className="text-center text-xs text-gray-500 font-bold">- OR -</div>
-                                <button onClick={() => initGame(false)} className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-lg font-bold text-white shadow transition-transform active:scale-95">Start Random Life</button>
-                            </div>
+            if (gameState === 'menu') return (
+                <div className="h-full w-full bg-slate-900 flex flex-col items-center justify-center p-6 text-white space-y-6">
+                    <h1 className="text-6xl font-black text-yellow-400 tracking-tighter">RITLIFE</h1>
+                    <div className="w-full max-w-xs space-y-3 bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                        <input type="text" placeholder="Name" className="w-full p-3 rounded bg-slate-700 text-white outline-none" value={customName} onChange={e=>setCustomName(e.target.value)} />
+                        <div className="flex gap-2">
+                            <select className="flex-1 p-3 rounded bg-slate-700 text-white" onChange={e=>setCustomGender(e.target.value)}><option>Male</option><option>Female</option></select>
+                            <select className="flex-1 p-3 rounded bg-slate-700 text-white" onChange={e=>setCustomCountry(e.target.value)}>{COUNTRIES.map(c=><option key={c}>{c}</option>)}</select>
+                        </div>
+                        <label className="flex items-center gap-3 p-2 bg-slate-700/50 rounded cursor-pointer"><input type="checkbox" className="w-5 h-5 accent-yellow-400" checked={sandboxMode} onChange={e=>setSandboxMode(e.target.checked)}/> Sandbox Mode</label>
+                        <div className="pt-2 flex flex-col gap-2">
+                            <button onClick={()=>initGame(true)} className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold">Custom Life</button>
+                            <button onClick={()=>initGame(false)} className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-xl font-bold">Random Life</button>
                         </div>
                     </div>
-                );
-            }
+                </div>
+            );
 
-            if (gameState === 'dead') {
-                return (
-                    <div className="h-full w-full bg-slate-900 flex flex-col items-center justify-center p-6 text-white text-center">
-                        <div className="text-6xl mb-4">🪦</div>
-                        <h2 className="text-4xl font-bold mb-2">R.I.P.</h2>
-                        <p className="text-xl text-gray-400 mb-6">{name} died at age {age}.</p>
-                        <div className="bg-slate-800 p-4 rounded-lg w-full max-w-xs mb-6">
-                            <p>Net Worth: <span className="text-green-400">${money.toLocaleString()}</span></p>
-                            <p>Career: {job ? job.title : "Unemployed"}</p>
-                        </div>
-                        <button onClick={() => setGameState('menu')} className="bg-blue-600 px-8 py-3 rounded-full font-bold">Main Menu</button>
-                    </div>
-                );
-            }
+            if (gameState === 'dead') return (
+                <div className="h-full w-full bg-black flex flex-col items-center justify-center p-6 text-white text-center">
+                    <div className="text-6xl mb-4">🪦</div>
+                    <h2 className="text-4xl font-black mb-2">R.I.P.</h2>
+                    <p className="text-gray-400 mb-8">{name} died at age {age}.</p>
+                    <button onClick={()=>setGameState('menu')} className="bg-white text-black px-8 py-3 rounded-full font-bold">Main Menu</button>
+                </div>
+            );
 
-            // GAMEPLAY UI
             return (
-                <div className="h-full flex flex-col bg-gray-100">
-                    {/* STATUS BAR */}
-                    <div className="bg-white p-3 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
-                        <div className="flex items-center gap-2">
-                            {/* Restored Header Buttons */}
-                            <button onClick={() => setModal('tree')} className="text-xl text-gray-500 p-1 hover:bg-gray-100 rounded">🌳</button>
-                            {sandboxMode && <button onClick={() => setModal('editor')} className="text-xl text-yellow-500 p-1 hover:bg-yellow-50 rounded">✏️</button>}
-                            
-                            <div className="flex flex-col ml-2">
-                                <span className="font-black text-lg text-gray-800 leading-none">{name}</span>
-                                <span className="text-xs text-gray-500">{job ? job.title : "Unemployed"} • {age}yo • {country}</span>
+                <div className="h-full flex flex-col bg-gray-100 font-sans">
+                    {/* POPUP */}
+                    {currentEvent && <Popup event={currentEvent} onOption={handleEventOption} />}
+
+                    {/* TOP BAR */}
+                    <div className="bg-white px-4 py-3 flex justify-between items-center shadow-sm z-20 border-b border-gray-200">
+                        <div className="flex items-center gap-3">
+                            <button className="text-2xl hover:bg-gray-100 p-1 rounded">≡</button>
+                            <div className="flex flex-col">
+                                <span className="font-black text-gray-800 text-lg leading-none">{name} {isRoyal && '👑'}</span>
+                                <span className="text-xs text-gray-500 font-medium">{job ? job.title : "Unemployed"} • {age} years</span>
                             </div>
                         </div>
                         <div className="text-green-600 font-black text-lg">${money.toLocaleString()}</div>
                     </div>
 
-                    {/* STATS BARS */}
-                    <div className="bg-white px-4 pb-3 pt-1 flex gap-2 border-b border-gray-200 shadow-sm z-10">
+                    {/* STATS */}
+                    <div className="bg-white px-4 py-2 flex gap-2 border-b border-gray-200 shadow-sm z-10">
                         <StatBar label="Happiness" value={stats.happiness} color="bg-green-500" />
                         <StatBar label="Health" value={stats.health} color="bg-rose-500" />
                         <StatBar label="Smarts" value={stats.smarts} color="bg-blue-500" />
                         <StatBar label="Looks" value={stats.looks} color="bg-orange-500" />
                     </div>
 
-                    {/* MAIN CONTENT AREA */}
-                    <div className="flex-1 overflow-hidden relative bg-white">
-                        
-                        {/* TAB: LIFE (LOGS) */}
+                    {/* MAIN CONTENT */}
+                    <div className="flex-1 overflow-y-auto bg-gray-50 relative">
                         {tab === 'life' && (
-                            <div className="h-full overflow-y-auto p-4 pb-32">
-                                {gameState === 'prison' && (
-                                    <div className="bg-stripes-gray p-6 mb-4 border-2 border-black text-center">
-                                        <div className="text-4xl mb-2">🔒</div>
-                                        <div className="font-black text-xl">PRISON</div>
-                                        <div className="font-mono text-sm">{prisonYears} YEARS REMAINING</div>
+                            <div className="p-4 pb-32 space-y-2">
+                                {gameState === 'prison' && <div className="bg-stripes-gray p-4 border-2 border-black font-mono text-center font-bold mb-4">PRISON: {prisonYears} YEARS LEFT</div>}
+                                {logs.map((l, i) => (
+                                    <div key={i} className="flex gap-3 text-sm text-gray-800 border-b border-gray-200 pb-2 last:border-0">
+                                        <div className="font-bold text-gray-400 min-w-[24px] text-right">{l.age}</div>
+                                        <div className="flex-1 leading-snug">{l.text}</div>
                                     </div>
-                                )}
-                                <div className="space-y-3">
-                                    {logs.map((l, i) => (
-                                        <div key={i} className="flex gap-3 text-sm text-gray-800 border-b border-gray-100 pb-2 last:border-0">
-                                            <div className="font-bold text-gray-400 min-w-[24px] text-right">{l.age}</div>
-                                            <div className="flex-1">{l.text}</div>
-                                        </div>
-                                    ))}
-                                    <div ref={logsEndRef} />
-                                </div>
+                                ))}
+                                <div ref={logsEndRef} />
                             </div>
                         )}
 
-                        {/* TAB: OCCUPATION (Same as before) */}
                         {tab === 'occupation' && (
-                            <div className="h-full overflow-y-auto bg-gray-50 pb-24">
-                                <div className="p-4 uppercase text-xs font-bold text-gray-400 ml-2">Education & Career</div>
+                            <div className="pb-32">
+                                <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Current</div>
                                 {job ? (
-                                    <MenuRow icon="💼" title={job.title} subtitle={`Salary: $${salary.toLocaleString()}`} color="bg-green-100 text-green-600" onClick={() => {addLog("Quit job."); setJob(null);}} rightText="Quit" />
+                                    <>
+                                        <MenuRow icon="💼" title={job.title} subtitle={`Salary: $${salary.toLocaleString()}`} color="bg-blue-100 text-blue-600" />
+                                        <MenuRow icon="💪" title="Work Harder" subtitle="Performance Boost" onClick={workHard} color="bg-orange-100 text-orange-600" />
+                                        {job.title.includes("Private") && <MenuRow icon="💣" title="Deploy" subtitle="Minesweeper" onClick={startMinesweeper} color="bg-red-100 text-red-600" />}
+                                    </>
                                 ) : (
-                                    <MenuRow icon="👔" title="Jobs" subtitle="Full-time employment" onClick={() => setModal('jobs')} color="bg-green-100 text-green-600" />
+                                    <div className="px-4 py-8 text-center text-gray-400 italic bg-white border-y border-gray-100">Unemployed</div>
                                 )}
+
+                                <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Careers & Education</div>
+                                {!currentSchool && (
+                                    <>
+                                        <MenuRow icon="🎓" title="University" onClick={()=>handleSchool('University')} />
+                                        <MenuRow icon="🏥" title="Medical School" onClick={()=>handleSchool('Medical School')} />
+                                        <MenuRow icon="⚖️" title="Law School" onClick={()=>handleSchool('Law School')} />
+                                        <MenuRow icon="✈️" title="Pilot Academy" onClick={()=>handleSchool('Pilot School')} />
+                                        <MenuRow icon="🐾" title="Vet School" onClick={()=>handleSchool('Vet School')} />
+                                        <MenuRow icon="💄" title="Modeling School" onClick={()=>handleSchool('Modeling School')} />
+                                    </>
+                                )}
+                                <MenuRow icon="👔" title="Full-time Jobs" subtitle="Browse Listings" onClick={()=>setModal('careers')} color="bg-green-100 text-green-600" />
+                                <MenuRow icon="🎖️" title="Military" subtitle="Enlist" onClick={()=>setModal('military')} color="bg-gray-800 text-white" />
                             </div>
                         )}
 
-                        {/* TAB: ACTIVITIES */}
-                        {tab === 'activities' && (
-                            <div className="h-full overflow-y-auto bg-gray-50 pb-24">
-                                <div className="p-4 uppercase text-xs font-bold text-gray-400 ml-2">Mind & Body</div>
-                                <MenuRow icon="🩺" title="Doctor" subtitle="Consult a physician ($200)" onClick={() => {if(money<200)return; setMoney(m=>m-200); updateStat('health',20); addLog("Doctor visit.");}} color="bg-red-100 text-red-600" />
-                                <MenuRow icon="🧘" title="Mind & Body" subtitle="Meditate, Gym, Walk" onClick={() => setModal('mindbody')} color="bg-blue-100 text-blue-600" />
-                                
-                                <div className="p-4 uppercase text-xs font-bold text-gray-400 ml-2 mt-2">Entertainment</div>
-                                <MenuRow icon="⛰️" title="Outdoor" subtitle="Hiking, Mudding, Exploring (18+)" onClick={() => setModal('outdoor')} color="bg-green-100 text-green-600" />
-                                <MenuRow icon="✈️" title="Emigrate" subtitle="Move to another country" onClick={() => setModal('emigrate')} color="bg-cyan-100 text-cyan-600" />
-                                
-                                <div className="p-4 uppercase text-xs font-bold text-gray-400 ml-2 mt-2">Crime</div>
-                                <MenuRow icon="🔪" title="Crime" subtitle="Commit crimes" onClick={() => setModal('crime_menu')} color="bg-gray-800 text-white" />
-                            </div>
-                        )}
-
-                        {/* TAB: ASSETS */}
                         {tab === 'assets' && (
-                            <div className="h-full overflow-y-auto bg-gray-50 pb-24">
-                                <div className="p-4 uppercase text-xs font-bold text-gray-400 ml-2">Shopping</div>
-                                <MenuRow icon="🏠" title="Real Estate" subtitle="Buy houses" onClick={() => setModal('realestate')} color="bg-orange-100 text-orange-600" />
-                                <MenuRow icon="🚗" title="Vehicles" subtitle="Buy cars" onClick={() => setModal('cars')} color="bg-blue-100 text-blue-600" />
-                                <div className="p-4 uppercase text-xs font-bold text-gray-400 ml-2 mt-2">Your Assets</div>
-                                {assets.houses.length === 0 && assets.cars.length === 0 && <div className="p-4 text-center text-gray-400 italic">You own nothing.</div>}
-                                {assets.houses.map((h, i) => <MenuRow key={i} icon="🏠" title={h.name} subtitle="Property" />)}
-                                {assets.cars.map((c, i) => <MenuRow key={i} icon="🚗" title={c.name} subtitle="Vehicle" />)}
+                            <div className="pb-32">
+                                <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Real Estate</div>
+                                {assets.houses.map((h, i) => (
+                                    <MenuRow key={i} icon="🏠" title={h.name} subtitle="Owned" />
+                                ))}
+                                <MenuRow icon="➕" title="Go Shopping" subtitle="Real Estate Brokers" onClick={()=>setModal('realestate')} color="bg-green-100 text-green-600" />
+                                
+                                <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Vehicles</div>
+                                {assets.cars.map((c, i) => (
+                                    <MenuRow key={i} icon="🚗" title={c.name} subtitle="Owned" />
+                                ))}
+                                <MenuRow icon="➕" title="Buy Car" subtitle="Dealership" onClick={()=>setModal('cars')} color="bg-blue-100 text-blue-600" />
                             </div>
                         )}
 
+                        {tab === 'activities' && (
+                            <div className="pb-32">
+                                <MenuRow icon="🩺" title="Doctor" subtitle="$200" onClick={handleDoctor} color="bg-red-100 text-red-600" />
+                                <MenuRow icon="🎰" title="Casino" subtitle="Gamble (21+)" onClick={handleCasino} color="bg-yellow-100 text-yellow-600" />
+                                <MenuRow icon="🔪" title="Crime" subtitle="Robbery" onClick={handleCrime} color="bg-gray-800 text-white" />
+                                <MenuRow icon="🐾" title="Pets" subtitle="Adopt (18+)" onClick={()=>setModal('pets')} color="bg-orange-100 text-orange-600" />
+                            </div>
+                        )}
                     </div>
 
                     {/* BIG AGE BUTTON */}
-                    <div className="absolute bottom-20 left-0 right-0 flex justify-center pointer-events-none">
-                        <button 
-                            onClick={handleAgeUp}
-                            className="bg-green-500 pointer-events-auto text-white w-20 h-20 rounded-full shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition-transform"
-                        >
-                            <span className="font-black text-xl">+</span>
-                            <span className="font-bold text-xs absolute bottom-4">AGE</span>
+                    <div className="absolute bottom-20 left-0 right-0 flex justify-center pointer-events-none z-20">
+                        <button onClick={handleAgeUp} className="bg-green-500 pointer-events-auto text-white w-20 h-20 rounded-full shadow-2xl flex items-center justify-center border-4 border-white active:scale-95 transition-transform hover:scale-105 hover:bg-green-400">
+                            <span className="font-black text-2xl drop-shadow-md">+</span>
                         </button>
                     </div>
 
-                    {/* BOTTOM NAVIGATION */}
+                    {/* TABS */}
                     <div className="bg-white border-t border-gray-200 h-16 flex justify-around items-center z-20 pb-safe">
-                        <button onClick={() => setTab('life')} className={`flex flex-col items-center p-2 ${tab==='life'?'text-green-600':'text-gray-400'}`}>
-                            <span className="text-xl">⚡</span>
-                            <span className="text-[10px] font-bold uppercase mt-1">Age</span>
-                        </button>
-                        <button onClick={() => setTab('occupation')} className={`flex flex-col items-center p-2 ${tab==='occupation'?'text-green-600':'text-gray-400'}`}>
-                            <span className="text-xl">💼</span>
-                            <span className="text-[10px] font-bold uppercase mt-1">Job</span>
-                        </button>
-                        <div className="w-16"></div> 
-                        <button onClick={() => setTab('activities')} className={`flex flex-col items-center p-2 ${tab==='activities'?'text-green-600':'text-gray-400'}`}>
-                            <span className="text-xl">🧸</span>
-                            <span className="text-[10px] font-bold uppercase mt-1">Acts</span>
-                        </button>
-                        <button onClick={() => setTab('assets')} className={`flex flex-col items-center p-2 ${tab==='assets'?'text-green-600':'text-gray-400'}`}>
-                            <span className="text-xl">💎</span>
-                            <span className="text-[10px] font-bold uppercase mt-1">Assets</span>
-                        </button>
+                        {['life','occupation','assets','relationships','activities'].map(t => (
+                            <button key={t} onClick={()=>setTab(t)} className={`flex-1 flex flex-col items-center justify-center h-full ${tab===t ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}>
+                                <span className="text-xl mb-0.5 capitalize">{t==='life'?'⚡':t==='occupation'?'💼':t==='assets'?'💎':t==='relationships'?'❤️':'🧸'}</span>
+                                <span className="text-[9px] font-bold uppercase tracking-wide">{t.substring(0,4)}</span>
+                            </button>
+                        ))}
                     </div>
 
-                    {/* --- MODALS --- */}
-
-                    {/* CRIME MENU */}
-                    {modal === 'crime_menu' && (
-                        <Modal title="Commit A Crime" onClose={() => setModal(null)}>
-                            <MenuRow icon="🍫" title="Shoplift" subtitle="Risk: Low" onClick={() => {if(Math.random()>0.2){setMoney(m=>m+50);addLog("Stole candy.");}else{addLog("Caught shoplifting!");setModal(null);}}} />
-                            <MenuRow icon="🏚️" title="Rob House" subtitle="Play Minigame" onClick={startBurglary} />
-                            <MenuRow icon="🚙" title="Grand Theft Auto" subtitle="Risk: High" onClick={() => {if(Math.random()>0.5){setMoney(m=>m+5000);addLog("Stole a car!");}else{addLog("Caught stealing car! Prison!");setGameState('prison');setPrisonYears(5);setModal(null);}}} />
-                            <MenuRow icon="🏦" title="Bank Robbery" subtitle="Risk: Extreme" onClick={() => {if(Math.random()>0.8){setMoney(m=>m+100000);addLog("Robbed bank! $100k!");}else{addLog("Caught by police! 10 years.");setGameState('prison');setPrisonYears(10);setModal(null);}}} />
-                        </Modal>
-                    )}
-
-                    {/* BURGLARY MINIGAME */}
-                    {modal === 'burglary' && minigameState && (
-                        <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-                            <div className="bg-gray-800 p-4 rounded-xl w-full max-w-sm text-center">
-                                <h3 className="text-white font-bold text-xl mb-4">HOUSE BURGLARY</h3>
-                                <div className="grid grid-cols-4 gap-1 bg-gray-900 p-1 rounded mb-4 aspect-square">
-                                    {minigameState.grid.map((_, i) => {
-                                        let content = '';
-                                        if (i === minigameState.player) content = '🥷';
-                                        else if (i === minigameState.dog) content = '🐕';
-                                        else if (i === minigameState.exit) content = '🚪';
-                                        else if (minigameState.loot.includes(i)) content = '💰';
-                                        
-                                        return (
-                                            <div key={i} className="bg-gray-700 rounded flex items-center justify-center text-2xl">
-                                                {content}
-                                            </div>
-                                        );
-                                    })}
+                    {/* MODALS */}
+                    {modal === 'careers' && (
+                        <Modal title="Job Listings" onClose={()=>setModal(null)}>
+                            {Object.keys(CAREER_PATHS).map(cat => (
+                                <div key={cat} className="mb-4">
+                                    <div className="font-bold text-gray-500 text-xs uppercase mb-1">{cat}</div>
+                                    {CAREER_PATHS[cat].map((j, i) => (
+                                        <MenuRow key={i} icon="👔" title={j.title} subtitle={`$${j.salary.toLocaleString()}`} rightText="Apply" onClick={()=>applyJob(cat, i)} />
+                                    ))}
                                 </div>
-                                {minigameState.status === 'playing' ? (
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <div></div>
-                                        <button onClick={() => movePlayer('up')} className="bg-gray-600 p-3 rounded text-white font-bold">⬆️</button>
-                                        <div></div>
-                                        <button onClick={() => movePlayer('left')} className="bg-gray-600 p-3 rounded text-white font-bold">⬅️</button>
-                                        <button onClick={() => movePlayer('down')} className="bg-gray-600 p-3 rounded text-white font-bold">⬇️</button>
-                                        <button onClick={() => movePlayer('right')} className="bg-gray-600 p-3 rounded text-white font-bold">➡️</button>
-                                    </div>
-                                ) : (
-                                    <div>
-                                        <div className={`text-2xl font-black mb-4 ${minigameState.status === 'won' ? 'text-green-400' : 'text-red-500'}`}>
-                                            {minigameState.status === 'won' ? 'ESCAPED!' : 'CAUGHT!'}
-                                        </div>
-                                        <button onClick={endBurglary} className="bg-white text-black px-6 py-2 rounded font-bold">Continue</button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* EMIGRATE */}
-                    {modal === 'emigrate' && (
-                        <Modal title="Emigrate" onClose={() => setModal(null)}>
-                            {COUNTRIES.map(c => (
-                                c !== country && <MenuRow key={c} icon="✈️" title={c} subtitle="Cost: $5,000" onClick={() => doAction('emigrate', c)} />
                             ))}
                         </Modal>
                     )}
 
-                    {/* FAMILY TREE */}
-                    {modal === 'tree' && (
-                        <Modal title="Family Tree" onClose={() => setModal(null)}>
-                            <div className="text-center p-4 bg-gray-200 rounded mb-4">
-                                <div className="text-4xl">👶</div>
-                                <div className="font-bold text-lg">{name}</div>
-                                <div className="text-xs text-gray-500">Age {age}</div>
-                            </div>
-                            <div className="space-y-2">
-                                {relationships.map((r, i) => (
-                                    <div key={i} className="flex justify-between p-3 bg-white border rounded">
-                                        <div>
-                                            <div className="font-bold">{r.name}</div>
-                                            <div className="text-xs text-gray-500">{r.relation} • Age {r.age}</div>
-                                        </div>
-                                        <div className={`text-sm font-bold ${r.bar > 50 ? 'text-green-500' : 'text-red-500'}`}>{r.bar}%</div>
-                                    </div>
-                                ))}
-                            </div>
+                    {modal === 'pets' && (
+                        <Modal title="Animal Shelter" onClose={()=>setModal(null)}>
+                            {PET_TYPES.map(p => <MenuRow key={p} icon="🐾" title={p} subtitle="$500 Adoption Fee" rightText="Adopt" onClick={()=>adoptPet(p)} />)}
                         </Modal>
                     )}
 
-                    {/* SANDBOX EDITOR */}
-                    {modal === 'editor' && (
-                        <Modal title="Sandbox Editor" onClose={() => setModal(null)}>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold uppercase text-gray-500">Bank Balance</label>
-                                    <input type="number" value={money} onChange={e=>setMoney(Number(e.target.value))} className="w-full p-2 border rounded"/>
+                    {modal === 'military' && (
+                        <Modal title="Recruiter" onClose={()=>setModal(null)}>
+                            {MILITARY_BRANCHES.map(b => (
+                                <MenuRow key={b} icon="🎖️" title={b} subtitle="Enlist (18+)" onClick={()=>handleMilitaryEnlist(b)} />
+                            ))}
+                        </Modal>
+                    )}
+
+                    {modal === 'realestate' && (
+                        <Modal title="Real Estate" onClose={()=>setModal(null)}>
+                            {HOUSES.map((h, i) => <MenuRow key={i} icon="🏠" title={h.name} subtitle={`$${h.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleRealEstate(h)} />)}
+                        </Modal>
+                    )}
+                    
+                    {modal === 'cars' && (
+                        <Modal title="Car Dealership" onClose={()=>setModal(null)}>
+                            {CARS.map((c, i) => <MenuRow key={i} icon="🚗" title={c.name} subtitle={`$${c.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleBuyCar(c)} />)}
+                        </Modal>
+                    )}
+
+                    {modal === 'minigame' && minigame && (
+                        <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-4 fade-in">
+                            <div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+                                <h3 className="font-black text-2xl mb-2 text-gray-800">DEPLOYMENT</h3>
+                                <p className="text-gray-500 text-sm mb-6">Clear 5 safe zones. Don't hit a mine!</p>
+                                <div className="grid grid-cols-5 gap-2 mb-4">
+                                    {minigame.grid.map((cell, i) => (
+                                        <button key={i} 
+                                            disabled={minigame.revealed[i]}
+                                            onClick={()=>handleMineClick(i)}
+                                            className={`aspect-square rounded-lg font-bold text-xl flex items-center justify-center transition-all ${minigame.revealed[i] ? (cell==='bomb'?'bg-red-500 text-white':'bg-green-100 text-green-600') : 'bg-gray-200 hover:bg-gray-300'}`}
+                                        >
+                                            {minigame.revealed[i] && (cell==='bomb'?'💥':'✅')}
+                                        </button>
+                                    ))}
                                 </div>
-                                {Object.keys(stats).map(k => (
-                                    <div key={k}>
-                                        <div className="flex justify-between text-xs font-bold uppercase text-gray-500"><span>{k}</span><span>{stats[k]}%</span></div>
-                                        <input type="range" className="w-full" value={stats[k]} onChange={e=>updateStat(k, Number(e.target.value)-stats[k])}/>
-                                    </div>
-                                ))}
+                                <button onClick={()=>setModal(null)} className="text-gray-400 text-sm hover:text-gray-600 underline">Retreat (Dishonorable Discharge)</button>
                             </div>
-                        </Modal>
-                    )}
-
-                    {/* OTHER MODALS (Jobs, etc. same as before, simplified for this snippet) */}
-                    {modal === 'jobs' && (
-                        <Modal title="Jobs" onClose={() => setModal(null)}>
-                            {JOBS.map((j,i) => <MenuRow key={i} icon="👔" title={j.title} subtitle={`$${j.salary}`} onClick={() => {setJob(j);setSalary(j.salary);setModal(null);addLog(`Hired as ${j.title}`);}} />)}
-                        </Modal>
-                    )}
-                    {modal === 'mindbody' && (
-                        <Modal title="Mind & Body" onClose={() => setModal(null)}>
-                            <MenuRow icon="🏋️" title="Gym" subtitle="Workout" onClick={()=>{updateStat('health',5);addLog("Gym.");setModal(null);}} />
-                            <MenuRow icon="🧘" title="Meditate" onClick={()=>{updateStat('happiness',5);addLog("Zen.");setModal(null);}} />
-                        </Modal>
-                    )}
-                    {modal === 'outdoor' && (
-                        <Modal title="Outdoor Activities" onClose={() => setModal(null)}>
-                            <MenuRow icon="🚙" title="Mudding" onClick={()=>{if(age<18){addLog("Too young");return;} addLog("Went mudding."); setModal(null);}} />
-                            <MenuRow icon="⛰️" title="Hiking" onClick={()=>{addLog("Went hiking."); setModal(null);}} />
-                        </Modal>
+                        </div>
                     )}
 
                 </div>

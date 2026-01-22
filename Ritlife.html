@@ -19,11 +19,12 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .bounce-in { animation: bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .fade-in { animation: fadeIn 0.2s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes bounceIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* BitLife-style theming */
         .bitlife-btn:active { transform: scale(0.98); background-color: #f3f4f6; }
         .bg-stripes-gray { background-image: repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 10px, #f3f4f6 10px, #f3f4f6 20px); }
         .bg-stripes-royal { background-image: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 10px, #fffbeb 10px, #fffbeb 20px); }
@@ -40,13 +41,11 @@
         const COUNTRIES = ["USA", "UK", "Canada", "Australia", "Japan", "France", "Germany", "Brazil", "South Korea", "Spain", "Italy", "Sweden"];
         const ROYAL_COUNTRIES = ["UK", "Japan", "Spain", "Sweden"];
         
-        // JOB HIERARCHIES
         const CAREER_PATHS = {
             Restaurant: [
                 { title: "Dishwasher", salary: 20000, req: "None" },
                 { title: "Busser", salary: 22000, req: "None" },
-                { title: "Host/Hostess", salary: 25000, req: "None" },
-                { title: "Server", salary: 35000, req: "None" }, // Tips implied
+                { title: "Server", salary: 35000, req: "None" },
                 { title: "Line Cook", salary: 38000, req: "None" },
                 { title: "Sous Chef", salary: 55000, req: "None" }, 
                 { title: "Head Chef", salary: 75000, req: "None" },
@@ -56,17 +55,15 @@
             Police: [
                 { title: "Police Cadet", salary: 35000, req: "High School" },
                 { title: "Patrol Officer", salary: 55000, req: "High School" },
-                { title: "Police Sergeant", salary: 70000, req: "High School" },
+                { title: "Sergeant", salary: 70000, req: "High School" },
                 { title: "Detective", salary: 85000, req: "High School" },
-                { title: "Police Lieutenant", salary: 95000, req: "High School" },
-                { title: "Police Captain", salary: 110000, req: "High School" },
-                { title: "Assistant Chief", salary: 130000, req: "High School" },
+                { title: "Lieutenant", salary: 95000, req: "High School" },
+                { title: "Captain", salary: 110000, req: "High School" },
                 { title: "Chief of Police", salary: 160000, req: "High School" }
             ],
             Firefighter: [
                 { title: "Probationary Firefighter", salary: 38000, req: "High School" },
                 { title: "Firefighter", salary: 52000, req: "High School" },
-                { title: "Fire Equipment Operator", salary: 60000, req: "High School" },
                 { title: "Fire Lieutenant", salary: 72000, req: "High School" },
                 { title: "Fire Captain", salary: 85000, req: "High School" },
                 { title: "Battalion Chief", salary: 105000, req: "High School" },
@@ -76,43 +73,33 @@
                 { title: "Substitute Teacher", salary: 25000, req: "High School" },
                 { title: "Elementary Teacher", salary: 45000, req: "University" },
                 { title: "High School Teacher", salary: 55000, req: "University" },
-                { title: "Assistant Principal", salary: 70000, req: "University" },
-                { title: "Principal", salary: 95000, req: "University" },
-                { title: "School Superintendent", salary: 120000, req: "University" }
+                { title: "Principal", salary: 95000, req: "University" }
             ],
             Medical: [
                 { title: "Medical Scribe", salary: 30000, req: "High School" },
-                { title: "Medical Resident", salary: 55000, req: "Medical School" },
-                { title: "Family Physician", salary: 180000, req: "Medical School" },
-                { title: "Cardiologist", salary: 350000, req: "Medical School" },
+                { title: "Resident", salary: 55000, req: "Medical School" },
+                { title: "Physician", salary: 180000, req: "Medical School" },
                 { title: "Brain Surgeon", salary: 500000, req: "Medical School" },
                 { title: "Chief of Medicine", salary: 800000, req: "Medical School" }
             ],
             Legal: [
                 { title: "Paralegal", salary: 50000, req: "University" },
-                { title: "Jr. Associate", salary: 90000, req: "Law School" },
-                { title: "Sr. Associate", salary: 150000, req: "Law School" },
+                { title: "Associate", salary: 90000, req: "Law School" },
                 { title: "Partner", salary: 300000, req: "Law School" },
-                { title: "Managing Partner", salary: 600000, req: "Law School" },
                 { title: "Judge", salary: 200000, req: "Law School" }
             ],
             Pilot: [
                 { title: "Pilot Trainee", salary: 30000, req: "Pilot School" },
-                { title: "Co-Pilot (Regional)", salary: 70000, req: "Pilot School" },
-                { title: "Captain (Regional)", salary: 100000, req: "Pilot School" },
-                { title: "Co-Pilot (Airline)", salary: 120000, req: "Pilot School" },
-                { title: "Captain (Airline)", salary: 250000, req: "Pilot School" }
+                { title: "Co-Pilot", salary: 70000, req: "Pilot School" },
+                { title: "Airline Captain", salary: 250000, req: "Pilot School" }
             ],
             Vet: [
                 { title: "Vet Tech", salary: 35000, req: "None" },
-                { title: "Associate Veterinarian", salary: 90000, req: "Vet School" },
-                { title: "Sr. Veterinarian", salary: 140000, req: "Vet School" },
-                { title: "Vet Clinic Owner", salary: 250000, req: "Vet School" }
+                { title: "Veterinarian", salary: 140000, req: "Vet School" }
             ],
             Model: [
                 { title: "Foot Model", salary: 15000, req: "Modeling School" },
                 { title: "Catalog Model", salary: 60000, req: "Modeling School" },
-                { title: "Runway Model", salary: 200000, req: "Modeling School" },
                 { title: "Supermodel", salary: 2000000, req: "Modeling School" }
             ]
         };
@@ -128,6 +115,26 @@
             { name: "Mansion", price: 2500000, upkeep: 25000, maxRent: 15000 },
             { name: "Private Island", price: 50000000, upkeep: 500000, maxRent: 100000 },
         ];
+        const CARS = [
+            { name: "Rusty Sedan", price: 2000, upkeep: 500 },
+            { name: "Used Hatchback", price: 8000, upkeep: 1000 },
+            { name: "New Sedan", price: 25000, upkeep: 2000 },
+            { name: "Sports Car", price: 65000, upkeep: 5000 },
+            { name: "Supercar", price: 250000, upkeep: 15000 },
+        ];
+        const STOCKS = [
+            { id: 'ritcoin', name: 'RitCoin', volatility: 0.8 },
+            { id: 'tech', name: 'Tech Giant', volatility: 0.2 },
+            { id: 'gold', name: 'Gold', volatility: 0.05 }
+        ];
+        const ACTING_GIGS = [
+            { type: 'Commercial', title: 'Local Ad', pay: 2000, fame: 1, reqLooks: 30 },
+            { type: 'TV', title: 'Soap Opera', pay: 40000, fame: 10, reqLooks: 50, years: 1 },
+            { type: 'Movie', title: 'Action Hero', pay: 5000000, fame: 80, reqLooks: 95 },
+        ];
+        const FIRST_NAMES_M = ["Liam", "Noah", "Oliver", "Elijah", "James", "William", "Benjamin", "Lucas", "Henry", "Theodore"];
+        const FIRST_NAMES_F = ["Olivia", "Emma", "Charlotte", "Amelia", "Ava", "Sophia", "Isabella", "Mia", "Evelyn", "Harper"];
+        const LAST_NAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
 
         // --- SUB-COMPONENTS ---
 
@@ -171,7 +178,7 @@
 
         const Popup = ({ event, onOption }) => (
             <div className="absolute inset-0 z-50 bg-black/70 flex items-center justify-center p-6 fade-in backdrop-blur-sm">
-                <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in">
+                <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden bounce-in">
                     <div className="bg-blue-600 p-4 text-center">
                         <div className="text-4xl mb-2">{event.icon || '💡'}</div>
                         <h3 className="text-white font-black text-xl uppercase tracking-wide">{event.title}</h3>
@@ -197,16 +204,26 @@
             const [age, setAge] = useState(0);
             const [name, setName] = useState("");
             const [money, setMoney] = useState(0);
-            const [stats, setStats] = useState({ happiness: 100, health: 100, smarts: 50, looks: 50, fame: 0, athletics: 20, respect: 0 });
+            const [stats, setStats] = useState({ happiness: 90, health: 90, smarts: 50, looks: 50, fame: 0, athletics: 20, respect: 0 });
             const [logs, setLogs] = useState([]);
             
             // Player Data
             const [gender, setGender] = useState("Male");
             const [country, setCountry] = useState("USA");
-            const [job, setJob] = useState(null); // { title, salary, category, tier }
+            const [job, setJob] = useState(null); 
+            const [salary, setSalary] = useState(0); 
             const [education, setEducation] = useState("None");
             
-            // Lists & Systems
+            // Logic States
+            const [militaryBranch, setMilitaryBranch] = useState(null);
+            const [militaryRank, setMilitaryRank] = useState(0);
+            const [prisonYears, setPrisonYears] = useState(0);
+            const [minigame, setMinigame] = useState(null);
+            const [isRoyal, setIsRoyal] = useState(false);
+            const [currentSchool, setCurrentSchool] = useState(null);
+            const [studyYearsLeft, setStudyYearsLeft] = useState(0);
+            
+            // Lists
             const [assets, setAssets] = useState({ houses: [], cars: [] }); 
             const [relationships, setRelationships] = useState([]);
             const [pets, setPets] = useState([]);
@@ -219,15 +236,6 @@
             const [currentEvent, setCurrentEvent] = useState(null);
             const logsEndRef = useRef(null);
             
-            // Specific Logic States
-            const [militaryBranch, setMilitaryBranch] = useState(null);
-            const [militaryRank, setMilitaryRank] = useState(0);
-            const [prisonYears, setPrisonYears] = useState(0);
-            const [minigame, setMinigame] = useState(null);
-            const [isRoyal, setIsRoyal] = useState(false);
-            const [currentSchool, setCurrentSchool] = useState(null);
-            const [studyYearsLeft, setStudyYearsLeft] = useState(0);
-
             // Sandbox
             const [sandboxMode, setSandboxMode] = useState(false);
             const [customName, setCustomName] = useState("");
@@ -245,21 +253,18 @@
                     const parts = customName.split(' '); 
                     fName = parts[0]; 
                     lName = parts[1] || ""; 
+                } else {
+                    fName = g==="Male" ? FIRST_NAMES_M[Math.floor(Math.random()*FIRST_NAMES_M.length)] : FIRST_NAMES_F[Math.floor(Math.random()*FIRST_NAMES_F.length)];
+                    lName = LAST_NAMES[Math.floor(Math.random()*LAST_NAMES.length)];
                 }
 
                 // Royalty Chance
                 let royalStart = false;
                 if (!isCustom && ROYAL_COUNTRIES.includes(c) && Math.random() > 0.95) royalStart = true;
 
-                setName(`${fName} ${lName}`);
-                setGender(g);
-                setCountry(c);
-                setAge(0);
+                setName(`${fName} ${lName}`); setGender(g); setCountry(c); setAge(0);
                 setMoney(sandboxMode ? 1000000000 : (royalStart ? 5000000 : 0));
-                setStats({
-                    happiness: 90, health: 90, smarts: 50, looks: 50, fame: 0, athletics: 20, 
-                    respect: royalStart ? 50 : 0 
-                });
+                setStats({ happiness: 90, health: 90, smarts: 50, looks: 50, fame: 0, athletics: 20, respect: royalStart ? 50 : 0 });
                 
                 setIsRoyal(royalStart);
                 setJob(royalStart ? { title: g==="Male"?"Prince":"Princess", salary: 500000, category: "Royalty" } : null);
@@ -271,7 +276,6 @@
                 setPets([]); setHeirlooms([]); setAssets({houses:[], cars:[]});
                 setPrisonYears(0);
                 setLogs([{age:0, text: `👶 Born in ${c}. ${royalStart ? 'You are Royalty! 👑' : ''}`}]);
-                
                 setGameState("playing");
             };
 
@@ -282,11 +286,47 @@
                 setYearlyActions(p => ({...p, [key]: (p[key]||0)+1})); return true;
             };
 
-            // --- AGE UP LOGIC ---
+            // --- INTERACTIVE EVENTS GEN ---
+            const getRandomEvent = () => {
+                const events = [];
+                // Child
+                if(age<18) {
+                    events.push({title:"Bully", icon:"👊", description:"A bully wants your lunch money.", options:[
+                        {label:"Give it", action:()=>{updateStat('happiness',-10); addLog("Gave lunch money.");}},
+                        {label:"Attack", action:()=>{
+                            if(stats.athletics>40){updateStat('happiness',10); addLog("Beat up the bully!");}
+                            else{updateStat('health',-10); addLog("Got beaten up.");}
+                        }}
+                    ]});
+                }
+                // Adult
+                if(age>=18) {
+                    events.push({title:"Beggar", icon:"🤲", description:"A homeless person asks for $10.", options:[
+                        {label:"Give $10", action:()=>{if(money>=10){setMoney(m=>m-10); updateStat('happiness',5); addLog("Gave money.");}}},
+                        {label:"Ignore", action:()=>{addLog("Ignored beggar.");}}
+                    ]});
+                    events.push({title:"Found Wallet", icon:"👛", description:`Found a wallet with $${age*10}.`, options:[
+                        {label:"Keep", action:()=>{setMoney(m=>m+(age*10)); updateStat('respect',-5); addLog(`Kept $${age*10}.`);}},
+                        {label:"Return", action:()=>{updateStat('respect',10); addLog("Returned wallet.");}}
+                    ]});
+                }
+                // Job
+                if(job) {
+                    events.push({title:"Overtime", icon:"💼", description:"Boss wants you to work weekend.", options:[
+                        {label:"Yes", action:()=>{updateStat('happiness',-5); addLog("Worked weekend.");}},
+                        {label:"No", action:()=>{updateStat('happiness',5); addLog("Refused overtime.");}}
+                    ]});
+                }
+                return events[Math.floor(Math.random()*events.length)];
+            };
+
+            const triggerEvent = (evt) => setCurrentEvent(evt);
+            const handleEventOption = (opt) => { if(opt.action) opt.action(); setCurrentEvent(null); };
+
+            // --- AGE UP ---
             const handleAgeUp = () => {
                 if (currentEvent) return; 
                 if (gameState === 'dead') return;
-                
                 const nextAge = age + 1;
                 setAge(nextAge);
                 setYearlyActions({});
@@ -294,36 +334,45 @@
 
                 if (gameState === 'prison') {
                     setPrisonYears(p => p - 1);
-                    if (prisonYears - 1 <= 0) {
-                        setGameState('playing'); newLogs.push("🔓 Released from prison!");
-                    } else newLogs.push(`⛓️ ${prisonYears-1} years left.`);
+                    if (prisonYears - 1 <= 0) { setGameState('playing'); newLogs.push("🔓 Released from prison!"); } 
+                    else newLogs.push(`⛓️ ${prisonYears-1} years left.`);
                     newLogs.forEach(l => addLog(l));
                     return;
                 }
 
                 if (currentSchool) {
                     setStudyYearsLeft(p => p - 1);
-                    if (studyYearsLeft - 1 <= 0) {
-                        newLogs.push(`🎓 Graduated from ${currentSchool}!`);
-                        setEducation(currentSchool); 
-                        setCurrentSchool(null);
-                    }
+                    if (studyYearsLeft - 1 <= 0) { newLogs.push(`🎓 Graduated from ${currentSchool}!`); setEducation(currentSchool); setCurrentSchool(null); }
                 } else if (nextAge===18) newLogs.push("🎓 Graduated High School.");
 
                 let income = job ? salary : 0;
+                // Landlord Income
+                assets.houses.forEach((h, i) => {
+                    if (h.tenant) {
+                        income += h.maxRent * 12;
+                        if(Math.random()>0.9) triggerEvent({title:"Tenant Issue", icon:"🏠", description:`Tenant in ${h.name} refused to pay rent!`, options:[
+                            {label:"Evict", action:()=>{
+                                const newH = [...assets.houses]; newH[i].tenant = false; setAssets({...assets, houses:newH});
+                                addLog(`Evicted tenant from ${h.name}.`);
+                            }},
+                            {label:"Forgive", action:()=>{addLog("Forgave tenant.");}}
+                        ]});
+                    }
+                });
+
                 setMoney(m => m + income);
-                if (income > 0) newLogs.push(`💸 Job Income: $${income.toLocaleString()}`);
+                if (income > 0) newLogs.push(`💸 Income: $${income.toLocaleString()}`);
 
-                // Random Events
-                if (Math.random() > 0.85) newLogs.push("🎲 Uneventful year.");
+                // Interactive Event Chance
+                if (Math.random() > 0.6) {
+                    const evt = getRandomEvent();
+                    if(evt) triggerEvent(evt);
+                } else if (Math.random() > 0.8) newLogs.push("🎲 Uneventful year.");
 
+                // Pets
                 setPets(prev => prev.map(p => {
                     const newAge = p.age + 1;
-                    if (newAge > 15 && Math.random() > 0.7) {
-                        newLogs.push(`⚰️ Pet ${p.name} died.`);
-                        updateStat('happiness', -20);
-                        return null; 
-                    }
+                    if (newAge > 15 && Math.random() > 0.7) { newLogs.push(`⚰️ Pet ${p.name} died.`); updateStat('happiness', -20); return null; }
                     return {...p, age: newAge};
                 }).filter(Boolean));
 
@@ -331,9 +380,9 @@
                 newLogs.forEach(l => setLogs(p => [...p, {age: nextAge, text: l}]));
             };
 
-            // --- CAREER ---
+            // --- ACTIONS ---
             const applyJob = (cat, index) => {
-                if (age < 18) { addLog("❌ Must be 18 to work full-time."); return; } // AGE CHECK
+                if (age < 18) { addLog("❌ Must be 18."); return; }
                 const j = CAREER_PATHS[cat][index];
                 let qualified = true;
                 if (j.req === "University" && !education.includes("University")) qualified = false;
@@ -348,16 +397,12 @@
                     setSalary(j.salary);
                     addLog(`💼 Hired as ${j.title}!`);
                     setModal(null);
-                } else {
-                    addLog(`❌ Rejected. Need ${j.req}.`);
-                }
+                } else addLog(`❌ Rejected. Need ${j.req}.`);
             };
 
             const workHard = () => {
                 if (!job) return;
-                addLog("💪 Worked hard.");
-                updateStat('happiness', -2);
-                
+                addLog("💪 Worked hard."); updateStat('happiness', -2);
                 if (job.category && CAREER_PATHS[job.category]) {
                     const ladder = CAREER_PATHS[job.category];
                     if (job.tier < ladder.length - 1 && Math.random() > 0.6) {
@@ -368,18 +413,10 @@
                         updateStat('happiness', 20);
                     }
                 }
-                if (militaryBranch && Math.random() > 0.5 && militaryRank < 5) {
-                    setMilitaryRank(r => r + 1);
-                    const ranks = ["Private", "Corporal", "Sergeant", "Lieutenant", "Captain", "General"];
-                    const newRank = ranks[militaryRank + 1];
-                    setJob({title: `${militaryBranch} ${newRank}`, salary: salary + 10000});
-                    setSalary(s => s + 10000);
-                    addLog(`🎖️ Promoted to ${newRank}!`);
-                }
             };
 
             const handleSchool = (type) => {
-                if (age < 18) { addLog("❌ Must be 18 to attend higher ed."); return; } // AGE CHECK
+                if (age < 18) { addLog("❌ Must be 18."); return; }
                 if (money < 10000 && type !== 'University') { addLog("❌ Cost $10k."); return; }
                 if (type !== 'University') setMoney(m => m - 10000);
                 setCurrentSchool(type);
@@ -388,28 +425,44 @@
                 setModal(null);
             };
 
-            const handleMilitaryEnlist = (branch) => {
-                if (age < 18) { addLog("❌ Must be 18 to enlist."); return; } // AGE CHECK
-                setMilitaryBranch(branch);
-                setMilitaryRank(0);
-                setJob({title: `${branch} Private`, salary: 25000});
-                setSalary(25000);
-                addLog(`Enlisted in the ${branch}.`);
-                setModal(null);
+            const handleLandlord = (index, action) => {
+                const h = assets.houses[index];
+                if (action === 'rent') {
+                    if (h.tenant) return;
+                    triggerEvent({title:"Tenant Found", icon:"📝", description:`Rent ${h.name} for $${h.maxRent}/mo?`, options:[
+                        {label:"Rent", action:()=>{
+                            const newH = [...assets.houses]; newH[index].tenant = true; setAssets({...assets, houses:newH});
+                            addLog(`🏠 Rented out ${h.name}.`);
+                        }},
+                        {label:"No", action:()=>{}}
+                    ]});
+                } else if (action === 'evict') {
+                    const newH = [...assets.houses]; newH[index].tenant = false; setAssets({...assets, houses:newH});
+                    addLog(`🚪 Evicted tenant from ${h.name}.`);
+                } else if (action === 'sell') {
+                    const val = Math.floor(h.price * (0.8 + Math.random()*0.4));
+                    setMoney(m=>m+val);
+                    const newH = assets.houses.filter((_, i) => i !== index);
+                    setAssets({...assets, houses:newH});
+                    addLog(`💰 Sold ${h.name} for $${val.toLocaleString()}.`);
+                }
             };
 
-            // --- PETS ---
+            const handleMilitaryEnlist = (branch) => {
+                if (age < 18) { addLog("❌ Must be 18."); return; }
+                setMilitaryBranch(branch); setMilitaryRank(0); setJob({title: `${branch} Private`, salary: 25000}); setSalary(25000);
+                addLog(`Enlisted in ${branch}.`); setModal(null);
+            };
+
             const adoptPet = (type) => {
-                if (age < 18) { addLog("❌ Must be 18 to adopt."); return; } // AGE CHECK
+                if (age < 18) { addLog("❌ Must be 18."); return; }
                 if (money < 500) { addLog("❌ Cost $500."); return; }
                 setMoney(m => m - 500);
                 const pName = ["Bella", "Max", "Luna", "Charlie"][Math.floor(Math.random()*4)];
                 setPets(p => [...p, { name: pName, type, age: 1 }]);
-                addLog(`🐾 Adopted ${type} ${pName}.`);
-                setModal(null);
+                addLog(`🐾 Adopted ${type} ${pName}.`); setModal(null);
             };
 
-            // --- MINIGAME ---
             const startMinesweeper = () => {
                 const grid = Array(25).fill(0).map(() => Math.random() < 0.2 ? 'bomb' : 'safe');
                 setMinigame({ type: 'minesweeper', grid, revealed: Array(25).fill(false), safeCount: 0 });
@@ -420,62 +473,32 @@
                 if (!minigame || minigame.revealed[idx]) return;
                 const newRev = [...minigame.revealed];
                 newRev[idx] = true;
-                
                 if (minigame.grid[idx] === 'bomb') {
-                    addLog("💥 BOOM! Injured in deployment.");
-                    updateStat('health', -50);
-                    setMinigame(null); setModal(null);
-                    setJob(null); setMilitaryBranch(null);
-                    addLog("📉 Discharged due to injury.");
+                    addLog("💥 BOOM! Injured."); updateStat('health', -50);
+                    setMinigame(null); setModal(null); setJob(null); setMilitaryBranch(null); addLog("📉 Discharged.");
                 } else {
                     const newSafe = minigame.safeCount + 1;
                     if (newSafe >= 5) {
-                        addLog("🎖️ Deployment Success! Medal earned.");
-                        updateStat('happiness', 10);
-                        setMinigame(null); setModal(null);
-                    } else {
-                        setMinigame({...minigame, revealed: newRev, safeCount: newSafe});
-                    }
+                        addLog("🎖️ Mission Success! Medal earned."); updateStat('happiness', 10); setMinigame(null); setModal(null);
+                    } else setMinigame({...minigame, revealed: newRev, safeCount: newSafe});
                 }
             };
 
-            // --- OTHER ACTIONS ---
-            const handleDoctor = () => { if (money < 200) { addLog("❌ Cost $200"); return; } setMoney(m=>m-200); updateStat('health',20); addLog("Doctor visit."); };
             const handleCrime = () => {
+                if (age < 10) { addLog("❌ Too young."); return; }
                 if (!checkLimit('crime', 1)) return;
                 if (Math.random() > 0.7) { setMoney(m => m + 1000); addLog("😈 Stole $1,000!"); }
                 else { addLog("👮 Arrested!"); setGameState('prison'); setPrisonYears(3); }
             };
-            const handleCasino = () => {
-                if (age < 21) { addLog("❌ Must be 21 to gamble."); return; } // AGE CHECK
-                if (money < 100) return;
-                setMoney(m=>m-100);
-                if (Math.random() > 0.5) { setMoney(m=>m+200); addLog("🎰 Won $200!"); }
-                else addLog("🎰 Lost $100.");
-            };
-            const handleRealEstate = (house) => {
-                if (age < 18) { addLog("❌ Must be 18 to buy property."); return; } // AGE CHECK
-                if (money >= house.price) {
-                    setMoney(m => m - house.price);
-                    setAssets(p => ({...p, houses: [...p.houses, {...house}]}));
-                    addLog("🏠 Bought house.");
-                    setModal(null);
-                } else addLog("❌ Can't afford.");
-            };
-            const handleBuyCar = (car) => {
-                if (age < 16) { addLog("❌ Must be 16 to buy car."); return; } // AGE CHECK
-                if (money >= car.price) {
-                    setMoney(m => m - car.price);
-                    setAssets(p => ({...p, cars: [...p.cars, {...car}]}));
-                    addLog("🚗 Bought car.");
-                    setModal(null);
-                } else addLog("❌ Can't afford.");
+
+            const handleBuyHouse = (h) => {
+                if (age < 18) { addLog("❌ Must be 18."); return; }
+                if (money >= h.price) { setMoney(m=>m-h.price); setAssets(p=>({...p, houses:[...p.houses, {...h, tenant: false}]})); addLog("Bought house."); setModal(null); }
+                else addLog("❌ Can't afford.");
             };
 
-            // --- RENDER HELPERS ---
-            useEffect(() => {
-                if (logsEndRef.current) logsEndRef.current.scrollIntoView({ behavior: "smooth" });
-            }, [logs, tab]);
+            // --- RENDER ---
+            useEffect(() => { if (logsEndRef.current) logsEndRef.current.scrollIntoView({ behavior: "smooth" }); }, [logs, tab]);
 
             if (gameState === 'menu') return (
                 <div className="h-full w-full bg-slate-900 flex flex-col items-center justify-center p-6 text-white space-y-6">
@@ -483,33 +506,24 @@
                     <div className="w-full max-w-xs space-y-3 bg-slate-800 p-6 rounded-2xl border border-slate-700">
                         <input type="text" placeholder="Name" className="w-full p-3 rounded bg-slate-700 text-white outline-none" value={customName} onChange={e=>setCustomName(e.target.value)} />
                         <div className="flex gap-2">
-                            <select className="flex-1 p-3 rounded bg-slate-700 text-white" onChange={e=>setCustomGender(e.target.value)}><option>Male</option><option>Female</option></select>
-                            <select className="flex-1 p-3 rounded bg-slate-700 text-white" onChange={e=>setCustomCountry(e.target.value)}>{COUNTRIES.map(c=><option key={c}>{c}</option>)}</select>
+                            <select className="flex-1 p-3 rounded bg-slate-700 text-white" onChange={e=>setGender(e.target.value)}><option>Male</option><option>Female</option></select>
+                            <select className="flex-1 p-3 rounded bg-slate-700 text-white" onChange={e=>setCountry(e.target.value)}>{COUNTRIES.map(c=><option key={c}>{c}</option>)}</select>
                         </div>
                         <label className="flex items-center gap-3 p-2 bg-slate-700/50 rounded cursor-pointer"><input type="checkbox" className="w-5 h-5 accent-yellow-400" checked={sandboxMode} onChange={e=>setSandboxMode(e.target.checked)}/> Sandbox Mode</label>
                         <div className="pt-2 flex flex-col gap-2">
-                            <button onClick={()=>initGame(true)} className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold">Custom Life</button>
-                            <button onClick={()=>initGame(false)} className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-xl font-bold">Random Life</button>
+                            <button onClick={()=>initGame(true)} className="w-full py-3 bg-blue-600 rounded-xl font-bold">Custom Life</button>
+                            <button onClick={()=>initGame(false)} className="w-full py-3 bg-green-600 rounded-xl font-bold">Random Life</button>
                         </div>
                     </div>
                 </div>
             );
 
-            if (gameState === 'dead') return (
-                <div className="h-full w-full bg-black flex flex-col items-center justify-center p-6 text-white text-center">
-                    <div className="text-6xl mb-4">🪦</div>
-                    <h2 className="text-4xl font-black mb-2">R.I.P.</h2>
-                    <p className="text-gray-400 mb-8">{name} died at age {age}.</p>
-                    <button onClick={()=>setGameState('menu')} className="bg-white text-black px-8 py-3 rounded-full font-bold">Main Menu</button>
-                </div>
-            );
+            if (gameState === 'dead') return <div className="h-full w-full bg-black flex flex-col items-center justify-center p-6 text-white text-center"><h1 className="text-6xl mb-4">🪦</h1><h2 className="text-4xl font-black mb-2">R.I.P.</h2><p className="text-gray-400 mb-8">{name} died at age {age}.</p><button onClick={()=>setGameState('menu')} className="bg-white text-black px-8 py-3 rounded-full font-bold">Main Menu</button></div>;
 
             return (
                 <div className="h-full flex flex-col bg-gray-100 font-sans">
-                    {/* POPUP */}
                     {currentEvent && <Popup event={currentEvent} onOption={handleEventOption} />}
 
-                    {/* TOP BAR */}
                     <div className="bg-white px-4 py-3 flex justify-between items-center shadow-sm z-20 border-b border-gray-200">
                         <div className="flex items-center gap-3">
                             <button className="text-2xl hover:bg-gray-100 p-1 rounded">≡</button>
@@ -521,7 +535,6 @@
                         <div className="text-green-600 font-black text-lg">${money.toLocaleString()}</div>
                     </div>
 
-                    {/* STATS */}
                     <div className="bg-white px-4 py-2 flex gap-2 border-b border-gray-200 shadow-sm z-10">
                         <StatBar label="Happiness" value={stats.happiness} color="bg-green-500" />
                         <StatBar label="Health" value={stats.health} color="bg-rose-500" />
@@ -529,7 +542,6 @@
                         <StatBar label="Looks" value={stats.looks} color="bg-orange-500" />
                     </div>
 
-                    {/* MAIN CONTENT */}
                     <div className="flex-1 overflow-y-auto bg-gray-50 relative">
                         {tab === 'life' && (
                             <div className="p-4 pb-32 space-y-2">
@@ -577,36 +589,38 @@
                             <div className="pb-32">
                                 <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Real Estate</div>
                                 {assets.houses.map((h, i) => (
-                                    <MenuRow key={i} icon="🏠" title={h.name} subtitle="Owned" />
+                                    <div key={i}>
+                                        <MenuRow icon="🏠" title={h.name} subtitle={h.tenant ? "Rented" : "Vacant"} onClick={()=>{}} />
+                                        <div className="flex bg-gray-100 border-b">
+                                            {!h.tenant && <button className="flex-1 p-2 text-xs text-green-600 font-bold border-r" onClick={()=>handleLandlord(i, 'rent')}>RENT</button>}
+                                            {h.tenant && <button className="flex-1 p-2 text-xs text-red-600 font-bold border-r" onClick={()=>handleLandlord(i, 'evict')}>EVICT</button>}
+                                            <button className="flex-1 p-2 text-xs text-blue-600 font-bold" onClick={()=>handleLandlord(i, 'sell')}>SELL</button>
+                                        </div>
+                                    </div>
                                 ))}
                                 <MenuRow icon="➕" title="Go Shopping" subtitle="Real Estate Brokers" onClick={()=>setModal('realestate')} color="bg-green-100 text-green-600" />
                                 
-                                <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Vehicles</div>
-                                {assets.cars.map((c, i) => (
-                                    <MenuRow key={i} icon="🚗" title={c.name} subtitle="Owned" />
-                                ))}
-                                <MenuRow icon="➕" title="Buy Car" subtitle="Dealership" onClick={()=>setModal('cars')} color="bg-blue-100 text-blue-600" />
+                                <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Heirlooms</div>
+                                {heirlooms.length===0 ? <div className="px-4 text-gray-400 text-sm italic">None</div> : heirlooms.map((h,i)=><MenuRow key={i} icon="🏺" title={h} />)}
                             </div>
                         )}
 
                         {tab === 'activities' && (
                             <div className="pb-32">
-                                <MenuRow icon="🩺" title="Doctor" subtitle="$200" onClick={handleDoctor} color="bg-red-100 text-red-600" />
-                                <MenuRow icon="🎰" title="Casino" subtitle="Gamble (21+)" onClick={handleCasino} color="bg-yellow-100 text-yellow-600" />
+                                <MenuRow icon="🩺" title="Doctor" subtitle="$200" onClick={()=>{if(money>=200){setMoney(m=>m-200);updateStat('health',20);addLog("Saw doctor.");}else addLog("Too poor.");}} color="bg-red-100 text-red-600" />
+                                <MenuRow icon="🎰" title="Casino" subtitle="Gamble (21+)" onClick={()=>{if(age<21){addLog("Too young");return;} if(money<100)return; setMoney(m=>m-100); if(Math.random()>0.5){setMoney(m=>m+200);addLog("Won $200");}else addLog("Lost $100");}} color="bg-yellow-100 text-yellow-600" />
                                 <MenuRow icon="🔪" title="Crime" subtitle="Robbery" onClick={handleCrime} color="bg-gray-800 text-white" />
                                 <MenuRow icon="🐾" title="Pets" subtitle="Adopt (18+)" onClick={()=>setModal('pets')} color="bg-orange-100 text-orange-600" />
                             </div>
                         )}
                     </div>
 
-                    {/* BIG AGE BUTTON */}
                     <div className="absolute bottom-20 left-0 right-0 flex justify-center pointer-events-none z-20">
                         <button onClick={handleAgeUp} className="bg-green-500 pointer-events-auto text-white w-20 h-20 rounded-full shadow-2xl flex items-center justify-center border-4 border-white active:scale-95 transition-transform hover:scale-105 hover:bg-green-400">
                             <span className="font-black text-2xl drop-shadow-md">+</span>
                         </button>
                     </div>
 
-                    {/* TABS */}
                     <div className="bg-white border-t border-gray-200 h-16 flex justify-around items-center z-20 pb-safe">
                         {['life','occupation','assets','relationships','activities'].map(t => (
                             <button key={t} onClick={()=>setTab(t)} className={`flex-1 flex flex-col items-center justify-center h-full ${tab===t ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}>
@@ -616,7 +630,6 @@
                         ))}
                     </div>
 
-                    {/* MODALS */}
                     {modal === 'careers' && (
                         <Modal title="Job Listings" onClose={()=>setModal(null)}>
                             {Object.keys(CAREER_PATHS).map(cat => (
@@ -646,13 +659,7 @@
 
                     {modal === 'realestate' && (
                         <Modal title="Real Estate" onClose={()=>setModal(null)}>
-                            {HOUSES.map((h, i) => <MenuRow key={i} icon="🏠" title={h.name} subtitle={`$${h.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleRealEstate(h)} />)}
-                        </Modal>
-                    )}
-                    
-                    {modal === 'cars' && (
-                        <Modal title="Car Dealership" onClose={()=>setModal(null)}>
-                            {CARS.map((c, i) => <MenuRow key={i} icon="🚗" title={c.name} subtitle={`$${c.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleBuyCar(c)} />)}
+                            {HOUSES.map((h, i) => <MenuRow key={i} icon="🏠" title={h.name} subtitle={`$${h.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleBuyHouse(h)} />)}
                         </Modal>
                     )}
 

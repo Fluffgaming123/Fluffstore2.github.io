@@ -369,7 +369,7 @@
     <header class="bg-white shadow-sm p-4 z-20">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
-                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v2.8.1 (Fixes)</span>
+                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v2.9.4 (Fixes)</span>
             </h1>
             
             <div class="flex gap-6 text-sm md:text-base font-semibold items-center">
@@ -672,8 +672,9 @@
             measurementId: "G-0QK2F6C330"
         };
 
-        // Check for environment config or use user provided
-        const config = (typeof __firebase_config !== 'undefined') ? JSON.parse(__firebase_config) : firebaseConfig;
+        // Determine which config to use
+        const isUserConfig = firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith("AIza");
+        const config = isUserConfig ? firebaseConfig : ((typeof __firebase_config !== 'undefined') ? JSON.parse(__firebase_config) : firebaseConfig);
         
         let db = null;
         let auth = null;
@@ -785,7 +786,7 @@
             { name: "The Rock", icon: "🤨", baseIncome: 150000, rarity: RARITY.GODLY, weight: 0.0001 },
 
             // EXCLUSIVE (Admin Block Only)
-            { name: "Fluff", icon: "", customImage: "https://via.placeholder.com/150", baseIncome: 100000, rarity: RARITY.EXCLUSIVE, weight: 0 },
+            { name: "Fluff", icon: "", customImage: "https://www.dropbox.com/scl/fi/l77wdsy17gpbwjflw5fn0/Fluff.jpg?rlkey=7rb10mh1in2x9vxf7me9fdz64&st=84i67vmy&raw=1", baseIncome: 100000, rarity: RARITY.EXCLUSIVE, weight: 0 },
 
             // SECRET (No Index, No Weight)
             { name: "Sole Survivor of Walmart '88", icon: "🏚️", baseIncome: 666666, rarity: RARITY.SECRET, weight: 0.00001 }
@@ -839,7 +840,9 @@
                 auth = getAuth(app);
 
                 // IMPORTANT: Authenticate based on environment tokens first
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                if (isUserConfig) {
+                    await signInAnonymously(auth);
+                } else if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
                     await signInAnonymously(auth);
@@ -850,6 +853,8 @@
                 listenToGlobalEvents();
             } catch (e) {
                 console.error("Firebase Init Failed", e);
+                document.getElementById('firebase-status').textContent = "Connection Error";
+                document.getElementById('firebase-status').classList.add('error');
             }
         }
 
@@ -870,6 +875,10 @@
                 });
             }, (error) => {
                 console.error("Firestore Listen Error:", error);
+                if(error.code === 'permission-denied') {
+                     document.getElementById('firebase-status').textContent = "Perms Denied (Check Rules)";
+                     document.getElementById('firebase-status').classList.add('error');
+                }
             });
         }
 
@@ -910,17 +919,12 @@
             
             overlay.classList.add('active');
             
-            // Wait for user to click cube to open
             cube.onclick = () => {
-                cube.onclick = null; // Prevent double click
+                cube.onclick = null;
                 cube.style.animation = 'spin 0.5s infinite linear';
                 cube.textContent = "🎲";
                 
                 setTimeout(() => {
-                    // Decide Loot
-                    // Admin Block Table: 
-                    // Mall Santa 50%, Burger King Foot Lettuce 20%, Vault Tec 10%, Tired Santa 3%, Fluff 1%
-                    // We need to normalize to 100% or use ranges
                     const roll = Math.random() * 100;
                     let winnerName = "Mall Santa";
                     
@@ -939,7 +943,7 @@
                         markDiscovered(winningChar.name);
                         saveGame();
                         renderInventory();
-                        showConfirm("LUCKY BLOCK REWARD!", `<div class="text-center"><div class="text-6xl mb-2">${winningChar.icon || '📦'}</div><div class="font-bold text-xl">${winningChar.name}</div><div class="text-sm ${winningChar.rarity.color}">${winningChar.rarity.label}</div></div>`, () => {});
+                        showConfirm("LUCKY BLOCK REWARD!", `<div class="text-center"><div class="text-6xl mb-2">${winningChar.customImage ? `<img src='${winningChar.customImage}' class='w-24 h-24 mx-auto object-contain'>` : (winningChar.icon || '📦')}</div><div class="font-bold text-xl">${winningChar.name}</div><div class="text-sm ${winningChar.rarity.color}">${winningChar.rarity.label}</div></div>`, () => {});
                     }
                 }, 2000);
             };
@@ -1000,7 +1004,6 @@
                 state.inventory.forEach(char => { if (typeof char.level === 'undefined') char.level = 1; });
                 if(!state.autoSell) state.autoSell = {};
                 if(!state.discovered) state.discovered = [];
-                // Defaults for new props
                 if(!state.adminName) state.adminName = "SERVER";
                 if(!state.personalLuckMult) state.personalLuckMult = 1.0;
                 if(!state.globalLuckMult) state.globalLuckMult = 1.0;
@@ -1457,10 +1460,14 @@
             if(luck) {
                 if(db) {
                     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
-                        type: 'update_luck', mult: luck, timestamp: Date.now()
-                    });
-                    showToast(`Broadcasting Global Luck: ${luck}x`);
+                    try {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
+                            type: 'update_luck', mult: luck, timestamp: Date.now()
+                        });
+                        showToast(`Broadcasting Global Luck: ${luck}x`);
+                    } catch(e) {
+                        showToast("Firebase Error: " + e.message);
+                    }
                 } else {
                     state.globalLuckMult = luck; renderStats(); showToast(`Local Global Luck: ${luck}x`);
                 }
@@ -1470,10 +1477,14 @@
         async function spawnAdminBlock() {
             if(db) {
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
-                    type: 'lucky_block', blockType: 'admin', timestamp: Date.now()
-                });
-                showToast("Admin Blocks Deployed!");
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
+                        type: 'lucky_block', blockType: 'admin', timestamp: Date.now()
+                    });
+                    showToast("Admin Blocks Deployed!");
+                } catch(e) {
+                    showToast("Firebase Error: " + e.message);
+                }
             } else {
                 triggerLuckyBlockEvent('admin');
             }
@@ -1484,10 +1495,14 @@
             if(msg) {
                 if (db) {
                     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
-                        type: 'broadcast', sender: state.adminName, msg: msg, timestamp: Date.now()
-                    });
-                    showToast("Sent Global Broadcast");
+                    try {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
+                            type: 'broadcast', sender: state.adminName, msg: msg, timestamp: Date.now()
+                        });
+                        showToast("Sent Global Broadcast");
+                    } catch (e) {
+                        showToast("Firebase Error: " + e.message);
+                    }
                 } else {
                     handleGlobalEvent({ type: 'broadcast', sender: state.adminName, msg: msg });
                 }
@@ -1519,10 +1534,14 @@
             const char = CHARACTERS[charIndex];
             if (db) {
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
-                    type: 'spawn_worker', charName: char.name, timestamp: Date.now()
-                });
-                showToast(`Global Gift Sent: ${char.name}`);
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), {
+                        type: 'spawn_worker', charName: char.name, timestamp: Date.now()
+                    });
+                    showToast(`Global Gift Sent: ${char.name}`);
+                } catch(e) {
+                    showToast("Firebase Error: " + e.message);
+                }
             } else {
                 state.inventory.push({ ...char, level: 1, id: Date.now() + Math.random() });
                 markDiscovered(char.name);
@@ -1539,7 +1558,8 @@
                 location.reload();
             });
         }
-
+        
+        // --- Index Logic ---
         function openIndex() {
             const list = document.getElementById('index-list');
             const countDisplay = document.getElementById('index-count');
@@ -1553,13 +1573,27 @@
                 const div = document.createElement('div');
                 div.className = `index-item p-2 rounded border flex flex-col items-center justify-center ${discovered ? 'discovered' : ''} bg-white shadow-sm`;
                 if(discovered) {
-                    const isMythic = char.rarity.id === 'mythic'; const isGodly = char.rarity.id === 'godly';
-                    if(isGodly) { div.style.borderColor = '#ec4899'; div.classList.add('rare-godly'); }
-                    else if(isMythic) { div.style.borderColor = '#ef4444'; div.classList.add('rare-mythic'); }
-                    else if(char.rarity.id === 'legendary') div.style.borderColor = '#eab308';
-                    else div.style.borderColor = '#e2e8f0';
+                    const isMythic = char.rarity.id === 'mythic'; const isGodly = char.rarity.id === 'godly'; const isExclusive = char.rarity.id === 'exclusive';
+                    let borderColor = '#e2e8f0';
+                    if(isExclusive) { borderColor = '#06b6d4'; div.classList.add('rare-exclusive'); }
+                    else if(isGodly) { borderColor = '#ec4899'; div.classList.add('rare-godly'); }
+                    else if(isMythic) { borderColor = '#ef4444'; div.classList.add('rare-mythic'); }
+                    else if(char.rarity.id === 'legendary') borderColor = '#eab308';
+                    
+                    div.style.borderColor = borderColor;
                 }
-                div.innerHTML = `<div class="text-2xl">${discovered ? char.icon : '❓'}</div><div class="text-[10px] font-bold text-center leading-none mt-1 truncate w-full">${discovered ? char.name : '???'}</div><div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">${char.rarity.label}</div>`;
+                
+                // Fix image display in index
+                let iconContent = char.icon || '📦';
+                if(discovered && char.customImage) {
+                    iconContent = `<img src="${char.customImage}" class="w-8 h-8 object-contain">`;
+                } else if (discovered) {
+                    iconContent = char.icon;
+                } else {
+                    iconContent = '❓';
+                }
+
+                div.innerHTML = `<div class="text-2xl flex justify-center">${iconContent}</div><div class="text-[10px] font-bold text-center leading-none mt-1 truncate w-full">${discovered ? char.name : '???'}</div><div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">${char.rarity.label}</div>`;
                 list.appendChild(div);
             });
             countDisplay.textContent = `${foundCount}/${totalCount} Discovered`;

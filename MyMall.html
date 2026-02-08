@@ -16,30 +16,15 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         .belt-container {
             position: relative;
             overflow: hidden;
-            background: repeating-linear-gradient(
-                45deg,
-                #334155,
-                #334155 10px,
-                #1e293b 10px,
-                #1e293b 20px
-            );
+            background: repeating-linear-gradient(45deg, #334155, #334155 10px, #1e293b 10px, #1e293b 20px);
             border-radius: 0.5rem;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
@@ -66,50 +51,33 @@
             border: 4px solid transparent;
         }
 
-        /* Rarity Styles */
         .rare-common { border-color: #94a3b8; }
         .text-common { color: #64748b; }
-        .bg-common { background-color: #f8fafc; }
-
         .rare-uncommon { border-color: #22c55e; }
         .text-uncommon { color: #16a34a; }
-        .bg-uncommon { background-color: #f0fdf4; }
-
         .rare-rare { border-color: #3b82f6; }
         .text-rare { color: #2563eb; }
-        .bg-rare { background-color: #eff6ff; }
-
         .rare-epic { border-color: #a855f7; }
         .text-epic { color: #9333ea; }
-        .bg-epic { background-color: #faf5ff; }
-
         .rare-legendary { border-color: #eab308; }
         .text-legendary { color: #ca8a04; }
-        .bg-legendary { background-color: #fefce8; }
 
-        /* Mythic Styles - Pulsing Red */
         .rare-mythic { 
             border-color: #ef4444; 
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
             animation: pulse-border 2s infinite;
         }
         .text-mythic { color: #dc2626; }
-        .bg-mythic { background-color: #fef2f2; }
 
-        /* Godly Styles - Pulsing Pink/Purple/Gold */
         .rare-godly {
             border-color: #ec4899;
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
             animation: pulse-godly 1.5s infinite;
             background: linear-gradient(135deg, #fff1f2 0%, #fdf2f8 100%);
         }
-        .text-godly { 
-            color: #db2777; 
-            text-shadow: 0 0 2px rgba(219, 39, 119, 0.2);
-        }
+        .text-godly { color: #db2777; text-shadow: 0 0 2px rgba(219, 39, 119, 0.2); }
         .bg-godly { background-color: #fdf2f8; }
 
-        /* Secret Styles - Glitchy/Dark */
         .rare-secret {
             border-color: #000000;
             background-color: #1a1a1a;
@@ -120,9 +88,8 @@
         .text-secret { color: #ff0000; font-family: monospace; }
         .bg-secret { background-color: #000000; color: white; }
 
-        /* Exclusive Styles (Fluff) */
         .rare-exclusive {
-            border-color: #06b6d4; /* Cyan */
+            border-color: #06b6d4;
             background: linear-gradient(to bottom right, #cffafe, #67e8f9);
             box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
             animation: pulse-border 3s infinite;
@@ -168,10 +135,7 @@
             transition: transform 0.2s;
         }
         
-        .character-card:hover {
-            transform: translateY(-2px);
-            z-index: 10;
-        }
+        .character-card:hover { transform: translateY(-2px); z-index: 10; }
 
         .coin-pop {
             position: absolute;
@@ -192,7 +156,6 @@
             100% { transform: translateY(-30px); opacity: 0; }
         }
 
-        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -207,10 +170,7 @@
             transition: opacity 0.2s;
         }
         
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .modal-content {
             background: white;
@@ -225,11 +185,8 @@
             overflow-y: auto;
         }
 
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
 
-        /* Admin Panel */
         #admin-panel {
             position: fixed;
             top: 50%;
@@ -248,38 +205,22 @@
             overflow: hidden;
         }
 
-        /* Worker Button Grid in Admin/Index */
-        .worker-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-        }
-        
-        .index-item {
-            opacity: 0.4;
-            filter: grayscale(100%);
-            transition: all 0.3s;
-        }
-        .index-item.discovered {
-            opacity: 1;
-            filter: grayscale(0%);
-        }
-        .index-item:hover {
-            transform: scale(1.05);
+        .worker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+        .index-item { opacity: 0.4; filter: grayscale(100%); transition: all 0.3s; }
+        .index-item.discovered { opacity: 1; filter: grayscale(0%); }
+        .index-item:hover { transform: scale(1.05); }
+
+        .auto-active {
+            animation: pulse-green 1.5s infinite;
+            background-color: #16a34a !important;
         }
 
-        /* Auto Button Pulse */
         @keyframes pulse-green {
             0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
             70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
             100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
-        .auto-active {
-            animation: pulse-green 1.5s infinite;
-            background-color: #16a34a !important; /* Green 600 */
-        }
-        
-        /* Global Message Toast */
+
         #global-toast {
             position: fixed;
             top: 10%;
@@ -298,26 +239,12 @@
             text-align: center;
             border: 2px solid white;
         }
-        #global-toast.active {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
+        #global-toast.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         
-        #firebase-status {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: #334155;
-            color: #94a3b8;
-            display: inline-block;
-            margin-top: 4px;
-        }
-        #firebase-status.connected {
-            background: #064e3b;
-            color: #34d399;
-        }
+        #firebase-status { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #334155; color: #94a3b8; display: inline-block; margin-top: 4px; }
+        #firebase-status.connected { background: #064e3b; color: #34d399; }
+        #firebase-status.error { background: #450a0a; color: #f87171; }
 
-        /* Lucky Block Animation Styles */
         .lucky-block-overlay {
             position: fixed;
             inset: 0;
@@ -349,14 +276,24 @@
             50% { transform: translateY(-20px) rotate(5deg); }
             100% { transform: translateY(0px) rotate(0deg); }
         }
+        
+        #save-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #10b981;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        #save-indicator.saving { opacity: 1; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 overflow-hidden">
 
-    <!-- Global Toast -->
     <div id="global-toast">SERVER: Welcome to My Mall!</div>
 
-    <!-- Lucky Block Overlay -->
     <div id="lucky-block-modal" class="lucky-block-overlay">
         <div class="flex flex-col items-center gap-8">
             <h2 class="text-3xl font-bold text-white tracking-wider animate-pulse">LUCKY BLOCK EVENT</h2>
@@ -366,10 +303,10 @@
     </div>
 
     <!-- Header Stats -->
-    <header class="bg-white shadow-sm p-4 z-20">
+    <header class="bg-white shadow-sm p-4 z-20 relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
-                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v2.9.4 (Fixes)</span>
+                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v2.9.5 (Save Fix)</span>
             </h1>
             
             <div class="flex gap-6 text-sm md:text-base font-semibold items-center">
@@ -398,6 +335,7 @@
                 </div>
             </div>
         </div>
+        <div id="save-indicator" onclick="window.game.saveGame(true)" title="Click to Force Save">💾</div>
     </header>
 
     <!-- Main Game Area -->
@@ -839,7 +777,6 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // IMPORTANT: Authenticate based on environment tokens first
                 if (isUserConfig) {
                     await signInAnonymously(auth);
                 } else if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -991,32 +928,41 @@
         }
 
         // --- Game Logic Functions ---
-        function saveGame() {
+        function saveGame(manual = false) {
             state.lastLogin = Date.now();
-            localStorage.setItem('myMallSave_v8', JSON.stringify(state));
+            localStorage.setItem('myMallSave_v9', JSON.stringify(state)); // v9 Save Key
+            if(manual) {
+                const ind = document.getElementById('save-indicator');
+                ind.classList.add('saving');
+                setTimeout(() => ind.classList.remove('saving'), 1000);
+                showToast("Game Saved!");
+            } else {
+                const ind = document.getElementById('save-indicator');
+                ind.classList.add('saving');
+                setTimeout(() => ind.classList.remove('saving'), 500);
+            }
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('myMallSave_v8');
+            // New migration logic: Check v9, then v8, then v7
+            const saved = localStorage.getItem('myMallSave_v9') || localStorage.getItem('myMallSave_v8') || localStorage.getItem('myMallSave_v7');
+            
             if (saved) {
-                const parsed = JSON.parse(saved);
-                state = { ...state, ...parsed };
-                state.inventory.forEach(char => { if (typeof char.level === 'undefined') char.level = 1; });
-                if(!state.autoSell) state.autoSell = {};
-                if(!state.discovered) state.discovered = [];
-                if(!state.adminName) state.adminName = "SERVER";
-                if(!state.personalLuckMult) state.personalLuckMult = 1.0;
-                if(!state.globalLuckMult) state.globalLuckMult = 1.0;
-            } else {
-                const oldSave = localStorage.getItem('myMallSave_v7');
-                if (oldSave) {
-                    const parsed = JSON.parse(oldSave);
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Sanitization: Ensure critical values are not NaN/null
                     state = { ...state, ...parsed };
+                    if(isNaN(state.money) || state.money === null) state.money = 100;
+                    if(isNaN(state.rebirthCount)) state.rebirthCount = 0;
+                    if(!Array.isArray(state.inventory)) state.inventory = [];
+                    
+                    state.inventory.forEach(char => { if (typeof char.level === 'undefined') char.level = 1; });
                     if(!state.autoSell) state.autoSell = {};
                     if(!state.discovered) state.discovered = [];
-                    state.adminName = "SERVER";
-                    state.personalLuckMult = 1.0;
-                    state.globalLuckMult = 1.0;
+                    if(!state.adminName) state.adminName = "SERVER";
+                } catch(e) {
+                    console.error("Save Corrupt, resetting");
+                    // Optionally reset or keep default state
                 }
             }
         }
@@ -1554,7 +1500,7 @@
 
         function adminReset() {
             showConfirm("Reset Save?", "Are you sure?", () => {
-                localStorage.removeItem('myMallSave_v8');
+                localStorage.removeItem('myMallSave_v9');
                 location.reload();
             });
         }
@@ -1573,27 +1519,13 @@
                 const div = document.createElement('div');
                 div.className = `index-item p-2 rounded border flex flex-col items-center justify-center ${discovered ? 'discovered' : ''} bg-white shadow-sm`;
                 if(discovered) {
-                    const isMythic = char.rarity.id === 'mythic'; const isGodly = char.rarity.id === 'godly'; const isExclusive = char.rarity.id === 'exclusive';
-                    let borderColor = '#e2e8f0';
-                    if(isExclusive) { borderColor = '#06b6d4'; div.classList.add('rare-exclusive'); }
-                    else if(isGodly) { borderColor = '#ec4899'; div.classList.add('rare-godly'); }
-                    else if(isMythic) { borderColor = '#ef4444'; div.classList.add('rare-mythic'); }
-                    else if(char.rarity.id === 'legendary') borderColor = '#eab308';
-                    
-                    div.style.borderColor = borderColor;
+                    const isMythic = char.rarity.id === 'mythic'; const isGodly = char.rarity.id === 'godly';
+                    if(isGodly) { div.style.borderColor = '#ec4899'; div.classList.add('rare-godly'); }
+                    else if(isMythic) { div.style.borderColor = '#ef4444'; div.classList.add('rare-mythic'); }
+                    else if(char.rarity.id === 'legendary') div.style.borderColor = '#eab308';
+                    else div.style.borderColor = '#e2e8f0';
                 }
-                
-                // Fix image display in index
-                let iconContent = char.icon || '📦';
-                if(discovered && char.customImage) {
-                    iconContent = `<img src="${char.customImage}" class="w-8 h-8 object-contain">`;
-                } else if (discovered) {
-                    iconContent = char.icon;
-                } else {
-                    iconContent = '❓';
-                }
-
-                div.innerHTML = `<div class="text-2xl flex justify-center">${iconContent}</div><div class="text-[10px] font-bold text-center leading-none mt-1 truncate w-full">${discovered ? char.name : '???'}</div><div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">${char.rarity.label}</div>`;
+                div.innerHTML = `<div class="text-2xl">${discovered ? char.icon : '❓'}</div><div class="text-[10px] font-bold text-center leading-none mt-1 truncate w-full">${discovered ? char.name : '???'}</div><div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">${char.rarity.label}</div>`;
                 list.appendChild(div);
             });
             countDisplay.textContent = `${foundCount}/${totalCount} Discovered`;
@@ -1688,7 +1620,8 @@
             setAdminName: setAdminName,
             setPersonalLuck: setPersonalLuck,
             setGlobalLuck: setGlobalLuck,
-            spawnAdminBlock: spawnAdminBlock
+            spawnAdminBlock: spawnAdminBlock,
+            saveGame: saveGame
         };
 
         // Start

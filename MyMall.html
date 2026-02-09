@@ -306,7 +306,7 @@
     <header class="bg-white shadow-sm p-4 z-20 relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
-                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v2.9.5 (Save Fix)</span>
+                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v3.0</span>
             </h1>
             
             <div class="flex gap-6 text-sm md:text-base font-semibold items-center">
@@ -710,6 +710,7 @@
             { name: "Florida Man", icon: "🐊", baseIncome: 5800, rarity: RARITY.MYTHIC, weight: 0.15 },
             { name: "Area 51 Guard", icon: "👽", baseIncome: 7200, rarity: RARITY.MYTHIC, weight: 0.1 },
             { name: "Shrek", icon: "👹", baseIncome: 11000, rarity: RARITY.MYTHIC, weight: 0.02 },
+            { name: "Sole Survivor of Walmart '88", icon: "🏚️", baseIncome: 666666, rarity: RARITY.MYTHIC, weight: 0.05 },
 
             // GODLY
             { name: "William Afton", icon: "🟣", baseIncome: 25000, rarity: RARITY.GODLY, weight: 0.005 },
@@ -727,7 +728,7 @@
             { name: "Fluff", icon: "", customImage: "https://www.dropbox.com/scl/fi/l77wdsy17gpbwjflw5fn0/Fluff.jpg?rlkey=7rb10mh1in2x9vxf7me9fdz64&st=84i67vmy&raw=1", baseIncome: 100000, rarity: RARITY.EXCLUSIVE, weight: 0 },
 
             // SECRET (No Index, No Weight)
-            { name: "Sole Survivor of Walmart '88", icon: "🏚️", baseIncome: 666666, rarity: RARITY.SECRET, weight: 0.00001 }
+            { name: "Baby Jayce", icon: "👶👑", baseIncome: 1000000, rarity: RARITY.SECRET, weight: 0.00001 }
         ];
 
         // --- Game State ---
@@ -777,6 +778,7 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
 
+                // IMPORTANT: Authenticate based on environment tokens first
                 if (isUserConfig) {
                     await signInAnonymously(auth);
                 } else if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -1374,7 +1376,8 @@
         
         function submitAdminCode() {
             const code = document.getElementById('admin-code-input').value;
-            if (code === "BabyJayce") {
+            // Updated Admin Password
+            if (code === "JaycedaBaby123") {
                 document.getElementById('admin-login-modal').classList.remove('active');
                 document.getElementById('admin-panel').style.display = 'block';
                 showToast("Admin Panel Unlocked");

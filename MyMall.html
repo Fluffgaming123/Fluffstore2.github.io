@@ -306,7 +306,7 @@
     <header class="bg-white shadow-sm p-4 z-20 relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
-                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v3.0</span>
+                🛍️ My Mall <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">v3.1</span>
             </h1>
             
             <div class="flex gap-6 text-sm md:text-base font-semibold items-center">
@@ -645,6 +645,9 @@
             { name: "Lost Dad", icon: "🤷‍♂️", baseIncome: 5, rarity: RARITY.COMMON, weight: 35 },
             { name: "Bench Warmer", icon: "🪑", baseIncome: 4, rarity: RARITY.COMMON, weight: 35 },
             { name: "Parking Attendant", icon: "🚗", baseIncome: 5, rarity: RARITY.COMMON, weight: 35 },
+            { name: "Bag Boy", icon: "🛍️", baseIncome: 5, rarity: RARITY.COMMON, weight: 35 },
+            { name: "Sample Lady", icon: "🧁", baseIncome: 6, rarity: RARITY.COMMON, weight: 35 },
+            { name: "Coupon Clipper", icon: "✂️", baseIncome: 4, rarity: RARITY.COMMON, weight: 35 },
             
             // Uncommons
             { name: "Janitor", icon: "🧹", baseIncome: 8, rarity: RARITY.UNCOMMON, weight: 30 },
@@ -656,6 +659,9 @@
             { name: "Face Painter", icon: "🎨", baseIncome: 25, rarity: RARITY.UNCOMMON, weight: 18 },
             { name: "Hot Dog Vendor", icon: "🌭", baseIncome: 28, rarity: RARITY.UNCOMMON, weight: 18 },
             { name: "Balloon Popper", icon: "📌", baseIncome: 20, rarity: RARITY.UNCOMMON, weight: 18 },
+            { name: "Flower Arranger", icon: "💐", baseIncome: 22, rarity: RARITY.UNCOMMON, weight: 18 },
+            { name: "Ice Cream Scooper", icon: "🍦", baseIncome: 25, rarity: RARITY.UNCOMMON, weight: 18 },
+            { name: "Burger Flipper", icon: "🍔", baseIncome: 26, rarity: RARITY.UNCOMMON, weight: 18 },
             
             // Rares
             { name: "Security", icon: "👮", baseIncome: 25, rarity: RARITY.RARE, weight: 15 },
@@ -666,6 +672,9 @@
             { name: "Massage Chair Guy", icon: "💆", baseIncome: 70, rarity: RARITY.RARE, weight: 9 },
             { name: "Yoga Instructor", icon: "🧘", baseIncome: 75, rarity: RARITY.RARE, weight: 9 },
             { name: "DJ", icon: "🎧", baseIncome: 80, rarity: RARITY.RARE, weight: 8 },
+            { name: "Piano Player", icon: "🎹", baseIncome: 85, rarity: RARITY.RARE, weight: 8 },
+            { name: "Sommelier", icon: "🍷", baseIncome: 90, rarity: RARITY.RARE, weight: 8 },
+            { name: "Magician", icon: "🎩", baseIncome: 95, rarity: RARITY.RARE, weight: 7 },
             
             // Epics
             { name: "Mascot", icon: "🦊", baseIncome: 150, rarity: RARITY.EPIC, weight: 8 },
@@ -676,6 +685,9 @@
             { name: "Lego Master", icon: "🧱", baseIncome: 220, rarity: RARITY.EPIC, weight: 5 },
             { name: "VR Arcade Operator", icon: "🥽", baseIncome: 250, rarity: RARITY.EPIC, weight: 5 },
             { name: "Luxury Watch Seller", icon: "⌚", baseIncome: 280, rarity: RARITY.EPIC, weight: 4 },
+            { name: "Car Salesman", icon: "🚘", baseIncome: 300, rarity: RARITY.EPIC, weight: 4 },
+            { name: "Stock Broker", icon: "📉", baseIncome: 320, rarity: RARITY.EPIC, weight: 3 },
+            { name: "Pro Gamer", icon: "🎮", baseIncome: 350, rarity: RARITY.EPIC, weight: 3 },
 
             // Legendaries
             { name: "Celebrity", icon: "🌟", baseIncome: 400, rarity: RARITY.LEGENDARY, weight: 3 },
@@ -686,6 +698,9 @@
             { name: "Ex-President", icon: "🕴️", baseIncome: 800, rarity: RARITY.LEGENDARY, weight: 1.5 },
             { name: "Famous Streamer", icon: "📹", baseIncome: 900, rarity: RARITY.LEGENDARY, weight: 1.5 },
             { name: "Oil Baron", icon: "🛢️", baseIncome: 1000, rarity: RARITY.LEGENDARY, weight: 1 },
+            { name: "Oil Prince", icon: "👳", baseIncome: 1200, rarity: RARITY.LEGENDARY, weight: 1 },
+            { name: "Tech Mogul", icon: "💻", baseIncome: 1300, rarity: RARITY.LEGENDARY, weight: 1 },
+            { name: "Astronaut", icon: "👨‍🚀", baseIncome: 1400, rarity: RARITY.LEGENDARY, weight: 1 },
             
             // Mythics
             { name: "Gordon Ramsay", icon: "🤬", baseIncome: 1500, rarity: RARITY.MYTHIC, weight: 0.5 },
@@ -711,6 +726,14 @@
             { name: "Area 51 Guard", icon: "👽", baseIncome: 7200, rarity: RARITY.MYTHIC, weight: 0.1 },
             { name: "Shrek", icon: "👹", baseIncome: 11000, rarity: RARITY.MYTHIC, weight: 0.02 },
             { name: "Sole Survivor of Walmart '88", icon: "🏚️", baseIncome: 666666, rarity: RARITY.MYTHIC, weight: 0.05 },
+            { name: "Vampire", icon: "🧛", baseIncome: 4500, rarity: RARITY.MYTHIC, weight: 0.1 },
+            { name: "Werewolf", icon: "🐺", baseIncome: 4800, rarity: RARITY.MYTHIC, weight: 0.1 },
+            { name: "Cthulhu", icon: "🐙", baseIncome: 10000, rarity: RARITY.MYTHIC, weight: 0.02 },
+            { name: "Loch Ness Monster", icon: "🦕", baseIncome: 8500, rarity: RARITY.MYTHIC, weight: 0.03 },
+            { name: "Slenderman", icon: "🌲", baseIncome: 9000, rarity: RARITY.MYTHIC, weight: 0.03 },
+            { name: "Bigfoot", icon: "👣", baseIncome: 7800, rarity: RARITY.MYTHIC, weight: 0.05 },
+            { name: "Time Traveler", icon: "⏳", baseIncome: 8200, rarity: RARITY.MYTHIC, weight: 0.05 },
+            { name: "Ninja", icon: "🥷", baseIncome: 6500, rarity: RARITY.MYTHIC, weight: 0.1 },
 
             // GODLY
             { name: "William Afton", icon: "🟣", baseIncome: 25000, rarity: RARITY.GODLY, weight: 0.005 },
@@ -723,12 +746,20 @@
             { name: "Shaggy (1% Power)", icon: "✨", baseIncome: 99999, rarity: RARITY.GODLY, weight: 0.0005 },
             { name: "Golden Freddy", icon: "🐻", baseIncome: 120000, rarity: RARITY.GODLY, weight: 0.0005 },
             { name: "The Rock", icon: "🤨", baseIncome: 150000, rarity: RARITY.GODLY, weight: 0.0001 },
+            { name: "Zeus", icon: "⚡", baseIncome: 35000, rarity: RARITY.GODLY, weight: 0.002 },
+            { name: "Santa Prime", icon: "🎄", baseIncome: 45000, rarity: RARITY.GODLY, weight: 0.002 },
+            { name: "Giga Chad", icon: "🗿", baseIncome: 65000, rarity: RARITY.GODLY, weight: 0.001 },
+            { name: "Hades", icon: "🔥", baseIncome: 38000, rarity: RARITY.GODLY, weight: 0.002 },
+            { name: "Poseidon", icon: "🔱", baseIncome: 39000, rarity: RARITY.GODLY, weight: 0.002 },
+            { name: "Anubis", icon: "💀", baseIncome: 42000, rarity: RARITY.GODLY, weight: 0.001 },
+            { name: "Thanos", icon: "🫰", baseIncome: 95000, rarity: RARITY.GODLY, weight: 0.0005 },
 
             // EXCLUSIVE (Admin Block Only)
             { name: "Fluff", icon: "", customImage: "https://www.dropbox.com/scl/fi/l77wdsy17gpbwjflw5fn0/Fluff.jpg?rlkey=7rb10mh1in2x9vxf7me9fdz64&st=84i67vmy&raw=1", baseIncome: 100000, rarity: RARITY.EXCLUSIVE, weight: 0 },
 
             // SECRET (No Index, No Weight)
-            { name: "Baby Jayce", icon: "👶👑", baseIncome: 1000000, rarity: RARITY.SECRET, weight: 0.00001 }
+            { name: "Baby Jayce", icon: "👶👑", baseIncome: 1000000, rarity: RARITY.SECRET, weight: 0.00001 },
+            { name: "Ramen and Ribs Store CEO", icon: "🍜🍖", baseIncome: 2000000, rarity: RARITY.SECRET, weight: 0.000005 }
         ];
 
         // --- Game State ---

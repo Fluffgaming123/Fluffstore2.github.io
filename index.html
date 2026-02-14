@@ -3,250 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluff Store 2!!</title>
+    <title>Fluff Store 2!! | Baby Jayce Studios</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configure Tailwind for Inter Font -->
+    <!-- Configure Tailwind for Inter Font and Premium Colors -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Poppins:wght@700;800&display=swap');
         
-        .header-shadow {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        :root {
+            --brand-primary: #10b981; /* Emerald 500 */
+            --glass-bg: rgba(30, 41, 59, 0.7);
         }
 
-        .custom-card-shadow:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #020617);
+            background-attachment: fixed;
         }
+
+        .font-heading { font-family: 'Poppins', sans-serif; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-premium {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-premium::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-premium:hover::after {
+            left: 100%;
+        }
+
+        /* Subtle scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
-    <!-- Custom Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'primary': '#1e293b', // slate-800
-                        'secondary': '#059669', // emerald-600
+                        'brand': '#10b981',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body class="text-slate-200 min-h-screen selection:bg-brand selection:text-white">
 
-    <!-- Header / Hero Section -->
-    <header class="bg-slate-800 header-shadow py-12 md:py-20 border-b border-slate-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-4">
-                Fluff's <span class="text-emerald-400">Games</span>
-            </h1>
-            <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto">
-                This is the 2nd part of Fluff Store. Check out <a href="https://spew14.github.io/games/" class="text-emerald-400 hover:text-emerald-300 underline transition duration-150">spew14.github.io/games/</a>
-            </p>
-            
-            <!-- PRIMARY NAVIGATION BUTTONS -->
-            <div class="mt-12">
-                <!-- ROW 1: BIG BUTTONS -->
-                <div class="flex justify-center space-x-4 flex-wrap gap-4 mb-6">
-                    <a href="FluffChat.html" class="inline-block bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-extrabold py-4 px-10 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 text-xl">
-                        💬 Fluff Chat
-                    </a>
-                    
-                    <a href="FluffBot.html" class="inline-block bg-indigo-500 hover:bg-indigo-400 text-white font-extrabold py-4 px-10 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 text-xl">
-                        🤖 Fluffbot
-                    </a>
-                </div>
+    <!-- NAVIGATION OVERLAY -->
+    <nav class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 mb-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center font-bold text-slate-950">F2</div>
+                <span class="font-heading text-xl tracking-tight text-white hidden sm:inline">FLUFF STORE <span class="text-brand">2</span></span>
+            </div>
+            <div class="flex gap-4">
+                <a href="Credits.html" class="text-sm font-medium hover:text-brand transition-colors">Credits</a>
+                <a href="SDP.html" class="text-sm font-medium hover:text-brand transition-colors">Snow Predictor</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8 pb-16">
+        <!-- Updated Title to Baby Jayce Studios -->
+        <h1 class="text-6xl md:text-8xl font-extrabold text-white tracking-tighter mb-6 font-heading">
+            Baby Jayce <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand to-cyan-400">Studios</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12">
+            The next generation of the Fluff gaming universe. Handcrafted experiences, zero filler. 
+            Try <a href="https://spew14.github.io/games/" class="text-brand hover:underline">spew14.github.io</a> for more.
+        </p>
+        
+        <!-- PRIMARY BUTTONS -->
+        <div class="flex flex-col items-center gap-8">
+            <div class="flex justify-center space-x-4 flex-wrap gap-y-4">
+                <a href="FluffChat.html" class="btn-premium flex items-center gap-3 bg-brand text-slate-950 font-extrabold py-4 px-10 rounded-2xl shadow-xl shadow-brand/20 hover:scale-105 text-xl">
+                    <span class="text-2xl">💬</span> Fluff Chat
+                </a>
                 
-                <!-- ROW 2: SERIES & UTILITY BUTTONS -->
-                <div class="flex justify-center space-x-4 flex-wrap gap-4">
-                    <a href="FNAFhub.html" class="inline-block bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 border border-slate-500">
-                        🐻 FNAF Series
-                    </a>
-
-                    <a href="FluffsCasino.html" class="inline-block bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
-                        🎰 Fluff's Casino
-                    </a>
-                    
-                    <a href="Credits.html" class="inline-block bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
-                        📜 Credits
-                    </a>
-                    
-                    <a href="SDP.html" class="inline-block bg-slate-100 hover:bg-white text-slate-900 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 border border-slate-300">
-                        ❄️ Snow Day Predicter
-                    </a>
-                </div>
+                <a href="FluffBot.html" class="btn-premium flex items-center gap-3 bg-indigo-600 text-white font-extrabold py-4 px-10 rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-105 text-xl">
+                    <span class="text-2xl">🤖</span> Fluffbot
+                </a>
+            </div>
+            
+            <div class="flex justify-center flex-wrap gap-4">
+                <a href="FNAFhub.html" class="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl border border-white/10 transition-all">
+                    🐻 FNAF Series
+                </a>
+                <a href="FluffsCasino.html" class="flex items-center gap-2 bg-amber-500/90 hover:bg-amber-400 text-slate-950 font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-500/10">
+                    🎰 Casino
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Games Portfolio Section -->
-    <main class="py-12 md:py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold text-center mb-10 text-emerald-400">Featured Games</h2>
+    <!-- MAIN GAMES SECTION -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        
+        <!-- TOP TIER / NEW GAMES -->
+        <div class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-3xl font-bold text-white font-heading">Featured Hits</h2>
+                <div class="h-px bg-white/10 flex-grow"></div>
+            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-                <!-- Game Card 1: Ritlife -->
-                <a href="Ritlife.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-blue-500">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Ritlife</h3>
-                        <p class="text-slate-400 mb-4">Live a life you will idk. Realistic life simulation.</p>
-                        <span class="inline-block text-sm font-medium text-blue-400 border border-blue-400 rounded-full px-3 py-1">Realistic</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">NEW!</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Ritlife -->
+                <a href="Ritlife.html" class="game-card glass-panel p-6 rounded-3xl block group border-b-4 border-blue-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-blue-500/20 rounded-2xl text-blue-400">🌟</div>
+                        <span class="px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full uppercase tracking-wider">Realistic</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">Ritlife</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Experience a fully simulated life with deep choices and realistic outcomes.</p>
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
+                        <span class="px-2 py-1 bg-slate-900 rounded">v2.0</span>
+                        <span class="px-2 py-1 bg-slate-900 rounded text-blue-400">ACTIVE</span>
                     </div>
                 </a>
 
-                <!-- Game Card 2: Driving Simulator -->
-                <a href="DrivingSimulator.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-orange-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Driving Simulator</h3>
-                        <p class="text-slate-400 mb-4">Drive like you can't tomorrow. High speed action.</p>
-                        <span class="inline-block text-sm font-medium text-orange-400 border border-orange-400 rounded-full px-3 py-1">Driving</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">NEW!</span>
+                <!-- Driving Simulator -->
+                <a href="DrivingSimulator.html" class="game-card glass-panel p-6 rounded-3xl block group border-b-4 border-orange-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-orange-500/20 rounded-2xl text-orange-400">🏎️</div>
+                        <span class="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full uppercase tracking-wider">Racing</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white group-hover:text-orange-400 transition-colors">Driving Simulator</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Master the asphalt in high-performance vehicles across a sprawling city.</p>
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
+                        <span class="px-2 py-1 bg-slate-900 rounded text-orange-400">NEW!</span>
                     </div>
                 </a>
 
-                <!-- Game Card 3: My Mall -->
-                <a href="MyMall.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-violet-500">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">My Mall</h3>
-                        <p class="text-slate-400 mb-4">Run your own mall and get the best workers and earn the most money!</p>
-                        <span class="inline-block text-sm font-medium text-violet-400 border border-violet-400 rounded-full px-3 py-1">RNG</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">NEW!</span>
+                <!-- Retro Diamond -->
+                <a href="RD.html" class="game-card glass-panel p-6 rounded-3xl block group border-b-4 border-emerald-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400">⚾</div>
+                        <span class="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full uppercase tracking-wider">Baseball</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white group-hover:text-emerald-400 transition-colors">Retro Diamond</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Step up to the plate in this nostalgic arcade baseball experience!</p>
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
+                        <span class="px-2 py-1 bg-slate-900 rounded text-emerald-400">BETA</span>
                     </div>
                 </a>
-
-                <!-- Game Card 4: My Pooping Fluff -->
-                <a href="MyPoopingFluff.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-purple-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">My Pooping Fluff</h3>
-                        <p class="text-slate-400 mb-4">Buy Fluffs and have them poop for money.</p>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1">Idle</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 5: Mystery Placeholder -->
-                <a href="#" onclick="return false;" class="block group cursor-not-allowed opacity-50">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-xl border-b-4 border-gray-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white/80">?????</h3>
-                        <p class="text-slate-500 mb-4">A secret project related to the Fluff universe...</p>
-                        <span class="inline-block text-sm font-medium text-gray-500 border border-gray-500 rounded-full px-3 py-1">???</span>
-                        <span class="inline-block text-sm font-medium text-slate-400 bg-slate-700 rounded-full px-3 py-1 ml-2">Coming Soon</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 6: Fluff Hunting -->
-                <a href="FluffHunting.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-rose-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Fluff Hunting</h3>
-                        <p class="text-slate-400 mb-4">Hunt for all kinds of animals.</p>
-                        <span class="inline-block text-sm font-medium text-rose-400 border border-rose-400 rounded-full px-3 py-1">Hunting</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 7: Banana Clicker (Beta) -->
-                <a href="BananaClicker.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-yellow-500">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Banana Clicker (Beta)</h3>
-                        <p class="text-slate-400 mb-4">A simple game about clicking bananas with a secret crypto market.</p>
-                        <span class="inline-block text-sm font-medium text-yellow-400 border border-yellow-400 rounded-full px-3 py-1">Casual</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 8: Brainrot Surfers -->
-                <a href="BrainrotSurfers.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-indigo-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Brainrot Surfers</h3>
-                        <p class="text-slate-400 mb-4">Surf with familiar brainrots.</p>
-                        <span class="inline-block text-sm font-medium text-indigo-400 border border-indigo-400 rounded-full px-3 py-1">Brainrotted</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 9: Project Fluff -->
-                <a href="ProjectFluff.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-red-700">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Project Fluff</h3>
-                        <p class="text-slate-400 mb-4">Survive in the city of Rosewood but it isn't so easy.</p>
-                        <span class="inline-block text-sm font-medium text-red-400 border border-red-400 rounded-full px-3 py-1">Survival</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">Active Dev</span>
-                    </div>
-                </a>
-                
-                <!-- Game Card 10: Not Pib Clic -->
-                <a href="AmplifyStudy.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-amber-500">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Not Pib Clic</h3>
-                        <p class="text-slate-400 mb-4">Click Pibble and get every rare pibble pet. At school use Offline Version.</p>
-                        <span class="inline-block text-sm font-medium text-amber-400 border border-amber-400 rounded-full px-3 py-1">Idle</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">Beta</span>
-                    </div>
-                </a>
-                
-                <!-- Game Card 11: Offline Pibble Clicker -->
-                <a href="OfflinePibClicker.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-cyan-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Offline Pibble Clicker</h3>
-                        <p class="text-slate-300 mb-4">Pib Clicker but offline so it might work?</p>
-                        <span class="inline-block text-sm font-medium text-cyan-400 border border-cyan-400 rounded-full px-3 py-1">Idle</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">Offline Mode</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 12: Mystery Placeholder -->
-                <a href="RD.html" onclick="return false;" class="block group cursor-not-allowed opacity-50">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-xl border-b-4 border-gray-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white/80">Retro Diamond</h3>
-                        <p class="text-slate-500 mb-4">Give me feed back on this baseball game!</p>
-                        <span class="inline-block text-sm font-medium text-gray-500 border border-gray-500 rounded-full px-3 py-1">NEW</span>
-                        <span class="inline-block text-sm font-medium text-slate-400 bg-slate-700 rounded-full px-3 py-1 ml-2">BETA</span>
-                    </div>
-                </a>
-
-                <!-- THE ORIGINAL 3 (AT THE BOTTOM) -->
-
-                <!-- Game Card 13: Steal The Brainrot -->
-                <a href="StealTheBrainrot.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-emerald-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Steal The Brainrot </h3>
-                        <p class="text-slate-400 mb-4">Watch the brainrots cross the belt and collect them for money, just like the roblox game. </p>
-                        <span class="inline-block text-sm font-medium text-emerald-400 border border-emerald-400 rounded-full px-3 py-1">Fun</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">Discontinued</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 14: Fish a Fluff -->
-                <a href="FishAFluff.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-sky-600">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Fish a Fluff </h3>
-                        <p class="text-slate-400 mb-4">Fish up some fish with your good boy Fluff.</p>
-                        <span class="inline-block text-sm font-medium text-sky-400 border border-sky-400 rounded-full px-3 py-1">Fishing</span>
-                        <span class="inline-block text-sm font-medium text-slate-300 bg-slate-700 rounded-full px-3 py-1 ml-2">Discontinued</span>
-                    </div>
-                </a>
-
-                <!-- Game Card 15: Steal a Fluff -->
-                <a href="StealAFluff.html" class="block group">
-                    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl transition duration-300 transform group-hover:-translate-y-1 border-b-4 border-amber-500">
-                        <h3 class="text-2xl font-semibold mb-2 text-white">Steal a Fluff </h3>
-                        <p class="text-slate-400 mb-4">Just like steal the brainrots. Password is sigmaboyjayce67 and the security question is idk.</p>
-                        <span class="inline-block text-sm font-medium text-amber-400 border border-amber-400 rounded-full px-3 py-1">Discontinued</span>
-                    </div>
-                </a>
-
             </div>
         </div>
+
+        <!-- COLLECTION GRID -->
+        <div class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-3xl font-bold text-white font-heading">The Collection</h2>
+                <div class="h-px bg-white/10 flex-grow"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- My Mall -->
+                <a href="MyMall.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-violet-500">
+                    <div class="p-3 bg-violet-500/20 rounded-2xl text-violet-400 w-fit mb-4">🏢</div>
+                    <h3 class="text-xl font-bold mb-1 text-white">My Mall</h3>
+                    <p class="text-slate-400 text-sm mb-4">Build and manage the ultimate shopping empire.</p>
+                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-violet-400 uppercase">Tycoon</span>
+                </a>
+
+                <!-- My Pooping Fluff -->
+                <a href="MyPoopingFluff.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-purple-500">
+                    <div class="p-3 bg-purple-500/20 rounded-2xl text-purple-400 w-fit mb-4">💩</div>
+                    <h3 class="text-xl font-bold mb-1 text-white">My Pooping Fluff</h3>
+                    <p class="text-slate-400 text-sm mb-4">A hilariously idle pet simulator for Fluff lovers.</p>
+                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-purple-400 uppercase">Idle</span>
+                </a>
+
+                <!-- Mystery Slot -->
+                <div class="game-card glass-panel p-6 rounded-3xl opacity-60 border-b-4 border-slate-700 animate-pulse">
+                    <div class="p-3 bg-slate-700/50 rounded-2xl text-slate-500 w-fit mb-4">❓</div>
+                    <h3 class="text-xl font-bold mb-1 text-slate-500">?????</h3>
+                    <p class="text-slate-600 text-sm mb-4">Classified project in development...</p>
+                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-slate-600 uppercase">SECRET</span>
+                </div>
+
+                <!-- Fluff Hunting -->
+                <a href="FluffHunting.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-rose-500">
+                    <div class="p-3 bg-rose-500/20 rounded-2xl text-rose-400 w-fit mb-4">🏹</div>
+                    <h3 class="text-xl font-bold mb-1 text-white">Fluff Hunting</h3>
+                    <p class="text-slate-400 text-sm mb-4">Explore the wild and collect rare animals.</p>
+                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-rose-400 uppercase">Hunting</span>
+                </a>
+
+                <!-- Banana Clicker -->
+                <a href="BananaClicker.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-yellow-500">
+                    <div class="p-3 bg-yellow-500/20 rounded-2xl text-yellow-400 w-fit mb-4">🍌</div>
+                    <h3 class="text-xl font-bold mb-1 text-white">Banana Clicker</h3>
+                    <p class="text-slate-400 text-sm mb-4">The classic beta clicker with a crypto twist.</p>
+                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-yellow-400 uppercase">Beta</span>
+                </a>
+
+                <!-- Brainrot Surfers -->
+                <a href="BrainrotSurfers.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-indigo-500">
+                    <div class="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400 w-fit mb-4"> skateboard</div>
+                    <h3 class="text-xl font-bold mb-1 text-white">Brainrot Surfers</h3>
+                    <p class="text-slate-400 text-sm mb-4">Fast-paced surfing with meme icons.</p>
+                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-indigo-400 uppercase">Arcade</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- UTILITY SECTION -->
+        <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+             <a href="ProjectFluff.html" class="game-card glass-panel p-6 rounded-3xl border-l-4 border-red-500 flex items-center gap-4">
+                <span class="text-3xl">☣️</span>
+                <div>
+                    <h3 class="font-bold text-white">Project Fluff</h3>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">Active Development</p>
+                </div>
+            </a>
+            <a href="AmplifyStudy.html" class="game-card glass-panel p-6 rounded-3xl border-l-4 border-amber-500 flex items-center gap-4">
+                <span class="text-3xl">🐶</span>
+                <div>
+                    <h3 class="font-bold text-white">Not Pib Clic</h3>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">Pibble Pets Beta</p>
+                </div>
+            </a>
+            <a href="OfflinePibClicker.html" class="game-card glass-panel p-6 rounded-3xl border-l-4 border-cyan-500 flex items-center gap-4">
+                <span class="text-3xl">🔌</span>
+                <div>
+                    <h3 class="font-bold text-white">Offline Pib Clicker</h3>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">School Friendly</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- LEGACY ARCHIVE -->
+        <section class="mt-20">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-2xl font-bold text-slate-500 font-heading">Legacy Archive</h2>
+                <div class="h-px bg-white/5 flex-grow"></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Discontinued 1 -->
+                <a href="StealTheBrainrot.html" class="glass-panel p-4 rounded-xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all flex items-center justify-between group">
+                    <span class="font-bold text-slate-400 group-hover:text-white">Steal The Brainrot</span>
+                    <span class="text-[10px] border border-slate-600 px-2 py-0.5 rounded text-slate-600">OFFLINE</span>
+                </a>
+                <!-- Discontinued 2 -->
+                <a href="FishAFluff.html" class="glass-panel p-4 rounded-xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all flex items-center justify-between group">
+                    <span class="font-bold text-slate-400 group-hover:text-white">Fish a Fluff</span>
+                    <span class="text-[10px] border border-slate-600 px-2 py-0.5 rounded text-slate-600">OFFLINE</span>
+                </a>
+                <!-- Discontinued 3 -->
+                <a href="StealAFluff.html" class="glass-panel p-4 rounded-xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all flex items-center justify-between group">
+                    <span class="font-bold text-slate-400 group-hover:text-white">Steal a Fluff</span>
+                    <span class="text-[10px] border border-slate-600 px-2 py-0.5 rounded text-slate-600">OFFLINE</span>
+                </a>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 mt-12 py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
-            <p>&copy; 2025 [fluffgaming123]. Built by Fluff and his team of 60 coders, also don't forget Fluff's Legal team</p>
-            <div class="mt-2 space-x-4">
-                <a href="https://github.com/[fluffgaming123]" class="hover:text-emerald-400 transition duration-150">GitHub Profile</a>
-                <a href="mailto:stephaniepilat06@gmail.com" class="hover:text-emerald-400 transition duration-150">Contact</a>
+    <footer class="glass-panel border-t border-white/5 mt-12 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-slate-500 text-sm mb-4">
+                &copy; 2025 <span class="text-slate-300">[fluffgaming123]</span>. Powered by Baby Jayce Studios.
+            </p>
+            <div class="flex justify-center space-x-6">
+                <a href="https://github.com/[fluffgaming123]" class="text-slate-400 hover:text-brand transition-colors">GitHub</a>
+                <a href="mailto:stephaniepilat06@gmail.com" class="text-slate-400 hover:text-brand transition-colors">Contact Support</a>
             </div>
         </div>
     </footer>

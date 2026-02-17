@@ -104,6 +104,21 @@
             ]
         };
 
+        const PART_TIME_JOBS = [
+            { title: "Newspaper Delivery", salary: 5000, req: "None" },
+            { title: "Babysitter", salary: 7000, req: "None" },
+            { title: "Fast Food Crew", salary: 9000, req: "None" },
+            { title: "Tutor", salary: 12000, req: "Smarts" }
+        ];
+
+        const CLIQUES = [
+            { name: "Nerds", stat: "smarts", min: 70, icon: "🤓" },
+            { name: "Jocks", stat: "athletics", min: 70, icon: "🏈" },
+            { name: "Populars", stat: "looks", min: 70, icon: "😎" },
+            { name: "Goths", stat: "happiness", max: 40, icon: "🖤" },
+            { name: "Normals", stat: "none", min: 0, icon: "🙂" }
+        ];
+
         const MILITARY_BRANCHES = ["Army", "Navy", "Air Force", "Marines"];
         const HEIRLOOMS = ["Holy Grail", "Anakin's Lightsaber", "Titanic Violin", "Roswell Debris", "Charizard Card", "Antique Rolex"];
         const PET_TYPES = ["Dog", "Cat", "Tiger", "Monkey", "Parrot", "Hamster"];
@@ -214,6 +229,10 @@
             const [salary, setSalary] = useState(0); 
             const [education, setEducation] = useState("None");
             
+            // Youth & School States
+            const [schoolGrades, setSchoolGrades] = useState(0);
+            const [schoolClique, setSchoolClique] = useState(null);
+            
             // Logic States
             const [militaryBranch, setMilitaryBranch] = useState(null);
             const [militaryRank, setMilitaryRank] = useState(0);
@@ -275,6 +294,7 @@
                 setRelationships([{id:1, name:"Mother", age:25, relation:"Mother", bar:90}, {id:2, name:"Father", age:28, relation:"Father", bar:90}]);
                 setPets([]); setHeirlooms([]); setAssets({houses:[], cars:[]});
                 setPrisonYears(0);
+                setSchoolGrades(50); setSchoolClique(null);
                 setLogs([{age:0, text: `👶 Born in ${c}. ${royalStart ? 'You are Royalty! 👑' : ''}`}]);
                 setGameState("playing");
             };
@@ -289,6 +309,17 @@
             // --- INTERACTIVE EVENTS GEN ---
             const getRandomEvent = () => {
                 const events = [];
+                if(age>=6 && age<=17) {
+                    events.push({title:"Pop Quiz", icon:"📝", description:"Teacher asks a question.", options:[
+                        {label:"Answer", action:()=>{
+                            if(stats.smarts>40){updateStat('smarts',2); setSchoolGrades(g=>Math.min(100,g+5)); addLog("Got it right!");}
+                            else{setSchoolGrades(g=>Math.max(0,g-5)); addLog("Wrong answer.");}
+                        }},
+                        {label:"Guess", action:()=>{
+                            if(Math.random()>0.5){addLog("Lucky guess!");}else{addLog("Wrong.");}
+                        }}
+                    ]});
+                }
                 // Child
                 if(age<18) {
                     events.push({title:"Bully", icon:"👊", description:"A bully wants your lunch money.", options:[
@@ -338,6 +369,11 @@
                     else newLogs.push(`⛓️ ${prisonYears-1} years left.`);
                     newLogs.forEach(l => addLog(l));
                     return;
+                }
+
+                if (nextAge >= 6 && nextAge <= 18) {
+                    const gradeChange = Math.floor((stats.smarts - 50) / 10) + (Math.random() * 10 - 5);
+                    setSchoolGrades(g => Math.max(0, Math.min(100, g + gradeChange)));
                 }
 
                 if (currentSchool) {
@@ -400,6 +436,45 @@
                 } else addLog(`❌ Rejected. Need ${j.req}.`);
             };
 
+            const applyPartTime = (j) => {
+                if (j.req === "Smarts" && stats.smarts < 60) { addLog("❌ Not smart enough."); return; }
+                setJob({...j, category: "PartTime"});
+                setSalary(j.salary);
+                addLog(`📰 Hired as ${j.title}.`);
+                setModal(null);
+            };
+
+            const schoolStudy = () => {
+                if (!checkLimit('study', 2)) return;
+                addLog("📚 Studied hard.");
+                updateStat('smarts', 3);
+                setSchoolGrades(g => Math.min(100, g + 10));
+            };
+
+            const schoolSkip = () => {
+                if (!checkLimit('skip', 1)) return;
+                addLog("🏃 Skipped class.");
+                updateStat('happiness', 5);
+                updateStat('smarts', -2);
+                setSchoolGrades(g => Math.max(0, g - 10));
+            };
+
+            const joinClique = (clique) => {
+                let allowed = false;
+                if (clique.stat === 'none') allowed = true;
+                else if (clique.max) { if(stats[clique.stat] <= clique.max) allowed = true; }
+                else if (stats[clique.stat] >= clique.min) allowed = true;
+
+                if (allowed) {
+                    setSchoolClique(clique.name);
+                    addLog(`😎 Joined the ${clique.name}.`);
+                    setModal(null);
+                } else {
+                    addLog(`❌ The ${clique.name} rejected you.`);
+                    updateStat('happiness', -5);
+                }
+            };
+
             const workHard = () => {
                 if (!job) return;
                 addLog("💪 Worked hard."); updateStat('happiness', -2);
@@ -423,29 +498,6 @@
                 setStudyYearsLeft(type === 'University' ? 4 : 2);
                 addLog(`🏫 Enrolled in ${type}.`);
                 setModal(null);
-            };
-
-            const handleLandlord = (index, action) => {
-                const h = assets.houses[index];
-                if (action === 'rent') {
-                    if (h.tenant) return;
-                    triggerEvent({title:"Tenant Found", icon:"📝", description:`Rent ${h.name} for $${h.maxRent}/mo?`, options:[
-                        {label:"Rent", action:()=>{
-                            const newH = [...assets.houses]; newH[index].tenant = true; setAssets({...assets, houses:newH});
-                            addLog(`🏠 Rented out ${h.name}.`);
-                        }},
-                        {label:"No", action:()=>{}}
-                    ]});
-                } else if (action === 'evict') {
-                    const newH = [...assets.houses]; newH[index].tenant = false; setAssets({...assets, houses:newH});
-                    addLog(`🚪 Evicted tenant from ${h.name}.`);
-                } else if (action === 'sell') {
-                    const val = Math.floor(h.price * (0.8 + Math.random()*0.4));
-                    setMoney(m=>m+val);
-                    const newH = assets.houses.filter((_, i) => i !== index);
-                    setAssets({...assets, houses:newH});
-                    addLog(`💰 Sold ${h.name} for $${val.toLocaleString()}.`);
-                }
             };
 
             const handleMilitaryEnlist = (branch) => {
@@ -497,12 +549,45 @@
                 else addLog("❌ Can't afford.");
             };
 
+            const handleLandlord = (index, action) => {
+                const h = assets.houses[index];
+                if (action === 'rent') {
+                    if (h.tenant) return;
+                    triggerEvent({title:"Tenant Found", icon:"📝", description:`Rent ${h.name} for $${h.maxRent}/mo?`, options:[
+                        {label:"Rent", action:()=>{
+                            const newH = [...assets.houses]; newH[index].tenant = true; setAssets({...assets, houses:newH});
+                            addLog(`🏠 Rented out ${h.name}.`);
+                        }},
+                        {label:"No", action:()=>{}}
+                    ]});
+                } else if (action === 'evict') {
+                    const newH = [...assets.houses]; newH[index].tenant = false; setAssets({...assets, houses:newH});
+                    addLog(`🚪 Evicted tenant from ${h.name}.`);
+                } else if (action === 'sell') {
+                    const val = Math.floor(h.price * (0.8 + Math.random()*0.4));
+                    setMoney(m=>m+val);
+                    const newH = assets.houses.filter((_, i) => i !== index);
+                    setAssets({...assets, houses:newH});
+                    addLog(`💰 Sold ${h.name} for $${val.toLocaleString()}.`);
+                }
+            };
+
+            const handleDoctor = () => { if (money < 200) { addLog("❌ Cost $200"); return; } setMoney(m=>m-200); updateStat('health',20); addLog("Doctor visit."); };
+            const handleCasino = () => {
+                if (age < 21) { addLog("❌ Must be 21 to gamble."); return; }
+                if (money < 100) return;
+                setMoney(m=>m-100);
+                if (Math.random() > 0.5) { setMoney(m=>m+200); addLog("🎰 Won $200!"); }
+                else addLog("🎰 Lost $100.");
+            };
+
             // --- RENDER ---
             useEffect(() => { if (logsEndRef.current) logsEndRef.current.scrollIntoView({ behavior: "smooth" }); }, [logs, tab]);
 
             if (gameState === 'menu') return (
                 <div className="h-full w-full bg-slate-900 flex flex-col items-center justify-center p-6 text-white space-y-6">
                     <h1 className="text-6xl font-black text-yellow-400 tracking-tighter">RITLIFE</h1>
+                    <h2 className="text-xl font-bold text-blue-400 -mt-4 mb-2">The School & Youth Update</h2>
                     <div className="w-full max-w-xs space-y-3 bg-slate-800 p-6 rounded-2xl border border-slate-700">
                         <input type="text" placeholder="Name" className="w-full p-3 rounded bg-slate-700 text-white outline-none" value={customName} onChange={e=>setCustomName(e.target.value)} />
                         <div className="flex gap-2">
@@ -559,6 +644,21 @@
                         {tab === 'occupation' && (
                             <div className="pb-32">
                                 <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Current</div>
+                                {age >= 6 && age <= 17 && (
+                                    <div className="bg-white border-b border-gray-100 p-4 mb-2">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="font-bold text-gray-800">School</span>
+                                            <span className={`text-sm font-bold ${schoolGrades>=50?'text-green-500':'text-red-500'}`}>Grade: {Math.floor(schoolGrades)}%</span>
+                                        </div>
+                                        <div className="text-xs text-gray-500 mb-3">Clique: {schoolClique || "None"}</div>
+                                        <div className="flex gap-2">
+                                            <button onClick={schoolStudy} className="flex-1 bg-blue-100 text-blue-700 py-2 rounded text-xs font-bold">Study Hard</button>
+                                            <button onClick={schoolSkip} className="flex-1 bg-red-100 text-red-700 py-2 rounded text-xs font-bold">Skip Class</button>
+                                            <button onClick={()=>setModal('cliques')} className="flex-1 bg-purple-100 text-purple-700 py-2 rounded text-xs font-bold">Cliques</button>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {job ? (
                                     <>
                                         <MenuRow icon="💼" title={job.title} subtitle={`Salary: $${salary.toLocaleString()}`} color="bg-blue-100 text-blue-600" />
@@ -572,6 +672,7 @@
                                 <div className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Careers & Education</div>
                                 {!currentSchool && (
                                     <>
+                                        {age >= 14 && age <= 17 && <MenuRow icon="🚴" title="Part-Time Jobs" subtitle="Earn pocket money" onClick={()=>setModal('parttime')} color="bg-teal-100 text-teal-600" />}
                                         <MenuRow icon="🎓" title="University" onClick={()=>handleSchool('University')} />
                                         <MenuRow icon="🏥" title="Medical School" onClick={()=>handleSchool('Medical School')} />
                                         <MenuRow icon="⚖️" title="Law School" onClick={()=>handleSchool('Law School')} />
@@ -607,8 +708,8 @@
 
                         {tab === 'activities' && (
                             <div className="pb-32">
-                                <MenuRow icon="🩺" title="Doctor" subtitle="$200" onClick={()=>{if(money>=200){setMoney(m=>m-200);updateStat('health',20);addLog("Saw doctor.");}else addLog("Too poor.");}} color="bg-red-100 text-red-600" />
-                                <MenuRow icon="🎰" title="Casino" subtitle="Gamble (21+)" onClick={()=>{if(age<21){addLog("Too young");return;} if(money<100)return; setMoney(m=>m-100); if(Math.random()>0.5){setMoney(m=>m+200);addLog("Won $200");}else addLog("Lost $100");}} color="bg-yellow-100 text-yellow-600" />
+                                <MenuRow icon="🩺" title="Doctor" subtitle="$200" onClick={handleDoctor} color="bg-red-100 text-red-600" />
+                                <MenuRow icon="🎰" title="Casino" subtitle="Gamble (21+)" onClick={handleCasino} color="bg-yellow-100 text-yellow-600" />
                                 <MenuRow icon="🔪" title="Crime" subtitle="Robbery" onClick={handleCrime} color="bg-gray-800 text-white" />
                                 <MenuRow icon="🐾" title="Pets" subtitle="Adopt (18+)" onClick={()=>setModal('pets')} color="bg-orange-100 text-orange-600" />
                             </div>
@@ -630,6 +731,7 @@
                         ))}
                     </div>
 
+                    {/* MODALS */}
                     {modal === 'careers' && (
                         <Modal title="Job Listings" onClose={()=>setModal(null)}>
                             {Object.keys(CAREER_PATHS).map(cat => (
@@ -639,6 +741,22 @@
                                         <MenuRow key={i} icon="👔" title={j.title} subtitle={`$${j.salary.toLocaleString()}`} rightText="Apply" onClick={()=>applyJob(cat, i)} />
                                     ))}
                                 </div>
+                            ))}
+                        </Modal>
+                    )}
+
+                    {modal === 'parttime' && (
+                        <Modal title="Part-Time Jobs" onClose={()=>setModal(null)}>
+                            {PART_TIME_JOBS.map((j, i) => (
+                                <MenuRow key={i} icon="🚴" title={j.title} subtitle={`$${j.salary}`} rightText="Apply" onClick={()=>applyPartTime(j)} />
+                            ))}
+                        </Modal>
+                    )}
+
+                    {modal === 'cliques' && (
+                        <Modal title="School Cliques" onClose={()=>setModal(null)}>
+                            {CLIQUES.map((c, i) => (
+                                <MenuRow key={i} icon={c.icon} title={c.name} subtitle={c.stat === 'none' ? 'Everyone welcome' : `Requires ${c.stat}`} rightText="Join" onClick={()=>joinClique(c)} />
                             ))}
                         </Modal>
                     )}
@@ -660,6 +778,12 @@
                     {modal === 'realestate' && (
                         <Modal title="Real Estate" onClose={()=>setModal(null)}>
                             {HOUSES.map((h, i) => <MenuRow key={i} icon="🏠" title={h.name} subtitle={`$${h.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleBuyHouse(h)} />)}
+                        </Modal>
+                    )}
+                    
+                    {modal === 'cars' && (
+                        <Modal title="Car Dealership" onClose={()=>setModal(null)}>
+                            {CARS.map((c, i) => <MenuRow key={i} icon="🚗" title={c.name} subtitle={`$${c.price.toLocaleString()}`} rightText="Buy" onClick={()=>handleBuyCar(c)} />)}
                         </Modal>
                     )}
 

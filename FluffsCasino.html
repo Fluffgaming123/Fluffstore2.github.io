@@ -3,1964 +3,1251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluff's Casino</title>
+    <title>Fluff's Casino | Premium Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Bungee+Inline&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Righteous&display=swap');
         
+        :root {
+            --casino-gold: #fbbf24;
+            --casino-dark: #0f172a;
+            --casino-purple: #7c3aed;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117;
-            color: #f0f6f8;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: #020617; /* Slate 950 */
+            color: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        .casino-container {
-            max-width: 960px;
-            margin: auto;
-            padding: 1.5rem;
-            width: 100%;
+        h1, h2, h3, .casino-font {
+            font-family: 'Righteous', cursive;
+            letter-spacing: 1px;
         }
 
-        h1 {
-            font-family: 'Bungee Inline', cursive;
-            text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff69b4;
-            color: #ffe082;
-            text-align: center;
+        /* --- Animations --- */
+        @keyframes shine {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+        
+        .gold-text {
+            background: linear-gradient(to right, #fcd34d 20%, #fff 40%, #fcd34d 60%, #fff 80%);
+            background-size: 200% auto;
+            color: #000;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
         }
 
+        .reel-blur {
+            filter: blur(2px);
+            transform: translateY(10px);
+            transition: all 0.1s;
+        }
+
+        /* --- Custom Components --- */
         .game-card {
-            background-color: #1e2531;
-            border: 4px solid #ffe082;
-            box-shadow: 0 0 15px rgba(255, 224, 130, 0.5);
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .game-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--casino-gold);
         }
 
-        .neon-text {
-            color: #82b1ff;
-            text-shadow: 0 0 4px #82b1ff, 0 0 8px #2962ff;
-            font-weight: 700;
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            transition: all 0.2s;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+        }
+        .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         }
 
-        /* --- Custom Styles for Games --- */
-
-        /* Slot Machine */
-        .reels-container {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .reel {
-            font-size: 3rem;
-            width: 90px;
-            height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #0d1117;
-            border-radius: 0.5rem;
-            border: 2px solid #555;
-            overflow: hidden;
-        }
-
-        /* Roulette */
-        .roulette-bet-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-        }
-        .roulette-chip {
-            background-color: gold;
-            color: black;
-            font-weight: bold;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 0.25rem;
-            font-size: 0.8rem;
-        }
-
-        /* Horse Racing */
-        .race-track {
-            padding: 1rem;
-            background-color: #0d1117;
-            border: 2px solid #444;
-            border-radius: 0.5rem;
-        }
-        .horse-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-        .horse-name {
-            width: 120px;
-            text-align: right;
-            padding-right: 0.5rem;
-        }
-        .progress-bar-container {
-            flex-grow: 1;
-            background-color: #333;
-            border-radius: 0.25rem;
-            height: 20px;
-            overflow: hidden;
-            border: 1px solid #555;
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: #4CAF50; /* Green progress */
-            transition: width 0.3s ease-out;
-        }
-
-        /* Blackjack */
-        .card-container {
-            display: flex;
-            gap: 0.5rem;
-            min-height: 80px;
-            margin-bottom: 1rem;
-        }
+        /* --- Game Specific --- */
         .card {
-            background-color: #f0f6f8;
-            color: #1e2531;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-weight: 700;
-            font-size: 1.25rem;
-            width: 50px;
-            height: 70px;
+            width: 60px; height: 84px;
+            background: white;
+            color: black;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-        }
-        .card.hidden {
-            background-color: #4CAF50; /* Card back green */
-            color: white;
             justify-content: center;
-            font-size: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            position: relative;
         }
-
-        /* Panda Fighting */
-        .brawler-display {
+        .card.red { color: #dc2626; }
+        .card .suit-sm { font-size: 0.8rem; position: absolute; top: 4px; left: 4px; }
+        
+        .chip {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 4px dashed white;
             display: flex;
-            justify-content: space-around;
             align-items: center;
-            margin-bottom: 1rem;
-        }
-        .brawler {
-            font-size: 3rem;
-            text-align: center;
-        }
-        .fight-ring {
-            background-color: #333;
-            border: 5px solid #ff69b4;
-            border-radius: 1rem;
-            padding: 1rem;
-        }
-
-        /* Coin Flip */
-        .coin-display {
-            font-size: 5rem;
-            text-align: center;
-            margin: 2rem 0;
-            animation: flip 0.3s ease-in-out infinite alternate;
-        }
-        @keyframes flip {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(180deg); }
-        }
-
-        /* Poker */
-        .hand-container {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Modal Styling */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
             justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: #1e2531;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            border: 4px solid #ff69b4;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            font-weight: bold;
+            font-size: 0.7rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
         }
 
-        /* Utility */
-        .disabled-btn {
-            opacity: 0.5;
-            cursor: not-allowed;
+        /* Modal Overlay */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
         }
 
+        /* Flappy Canvas */
+        canvas { border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
     </style>
 </head>
-<body class="flex flex-col items-center">
-    <div class="w-full bg-gray-900 border-b border-gray-800 p-3 flex justify-center sticky top-0 z-50">
-        <div class="flex space-x-4 max-w-4xl w-full justify-center">
-            <button id="job-button" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out" onclick="switchView('job-menu')">
-                Get a Job
+<body class="bg-slate-950 text-slate-100">
+
+    <!-- TOP NAVIGATION -->
+    <nav class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goToLobby()">
+                <div class="text-3xl">🐼</div>
+                <div class="hidden md:block">
+                    <h1 class="text-xl font-bold text-white">FLUFF'S <span class="text-yellow-400">CASINO</span></h1>
+                    <p class="text-xs text-slate-400">EST. 2024</p>
+                </div>
+            </div>
+
+            <!-- Balance Display -->
+            <div class="flex items-center space-x-4 bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
+                <span class="text-slate-400 text-sm font-bold uppercase">Balance</span>
+                <span id="nav-balance" class="text-xl font-mono text-green-400 font-bold">$500</span>
+            </div>
+
+            <!-- Job Status -->
+            <button id="nav-job-btn" onclick="openJobModal()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-full border border-slate-700 transition">
+                <i class="fas fa-briefcase text-blue-400"></i>
+                <span id="nav-job-status" class="text-sm font-bold">Unemployed</span>
+                <span id="nav-job-timer" class="text-xs text-slate-400 hidden">(00:00)</span>
             </button>
-            <button id="main-menu-back-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out" onclick="switchView('main-menu')">
-                Back to Lobby
+
+            <!-- Reset Data (Debug) -->
+            <button onclick="resetData()" class="text-xs text-slate-600 hover:text-red-500 ml-2" title="Reset Save Data"><i class="fas fa-trash"></i></button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto px-4 py-8 relative">
+        
+        <!-- NOTIFICATIONS AREA -->
+        <div id="notification-area" class="fixed top-20 right-4 z-40 space-y-2 pointer-events-none"></div>
+
+        <!-- VIEW: LOBBY -->
+        <div id="view-lobby" class="space-y-8">
+            <!-- Hero Section -->
+            <div class="text-center space-y-4 py-8">
+                <h2 class="text-4xl md:text-6xl font-bold gold-text drop-shadow-lg">WELCOME TO THE PANDA PALACE</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">High stakes, big wins, and strict labor laws. Play responsibly.</p>
+            </div>
+
+            <!-- Game Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Slots -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('slots')">
+                    <div class="text-5xl mb-4">🎰</div>
+                    <h3 class="text-xl font-bold mb-2">Panda Slots</h3>
+                    <p class="text-sm text-slate-400 text-center">Classic 3-reel action. Match pandas for 100x!</p>
+                </div>
+                <!-- Blackjack -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('blackjack')">
+                    <div class="text-5xl mb-4">♠️</div>
+                    <h3 class="text-xl font-bold mb-2">Blackjack</h3>
+                    <p class="text-sm text-slate-400 text-center">Hit 21 or bust. Dealer stands on 17.</p>
+                </div>
+                <!-- Roulette -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('roulette')">
+                    <div class="text-5xl mb-4">🔴</div>
+                    <h3 class="text-xl font-bold mb-2">Roulette</h3>
+                    <p class="text-sm text-slate-400 text-center">Red, Black, or Green. 35:1 Payouts.</p>
+                </div>
+                <!-- Horse Racing -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('racing')">
+                    <div class="text-5xl mb-4">🏇</div>
+                    <h3 class="text-xl font-bold mb-2">Fluff's Races</h3>
+                    <p class="text-sm text-slate-400 text-center">Bet on the fastest bamboo eater.</p>
+                </div>
+                 <!-- Poker -->
+                 <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('poker')">
+                    <div class="text-5xl mb-4">♣️</div>
+                    <h3 class="text-xl font-bold mb-2">Texas Hold'em</h3>
+                    <p class="text-sm text-slate-400 text-center">Simplified house poker. Beat the dealer.</p>
+                </div>
+                <!-- Craps -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('craps')">
+                    <div class="text-5xl mb-4">🎲</div>
+                    <h3 class="text-xl font-bold mb-2">Craps</h3>
+                    <p class="text-sm text-slate-400 text-center">Pass Line bets. Roll a 7 or 11 to win.</p>
+                </div>
+                <!-- Coin Flip -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('coinflip')">
+                    <div class="text-5xl mb-4">🪙</div>
+                    <h3 class="text-xl font-bold mb-2">Coin Flip</h3>
+                    <p class="text-sm text-slate-400 text-center">50/50 chance. Double or nothing.</p>
+                </div>
+                <!-- Panda Fighting -->
+                <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer" onclick="openGame('panda-fighting')">
+                    <div class="text-5xl mb-4">🥋</div>
+                    <h3 class="text-xl font-bold mb-2">Fluff's Brawlers</h3>
+                    <p class="text-sm text-slate-400 text-center">Bet on the toughest panda in the ring.</p>
+                </div>
+                 <!-- VIP Lounge -->
+                 <div class="game-card p-6 rounded-xl flex flex-col items-center cursor-pointer border-yellow-500 bg-yellow-900/20" onclick="enterVIP()">
+                    <div class="text-5xl mb-4">👑</div>
+                    <h3 class="text-xl font-bold mb-2 text-yellow-400">VIP Lounge</h3>
+                    <p class="text-sm text-slate-400 text-center">Entry Fee: $1,000 Balance. High Rollers Only.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAMES CONTAINER (Dynamic Content) -->
+        <div id="game-stage" class="hidden">
+            <button onclick="goToLobby()" class="mb-4 text-slate-400 hover:text-white flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Back to Lobby
             </button>
-        </div>
-    </div>
-
-    <div class="casino-container">
-        <h1 class="text-4xl sm:text-5xl my-6">FLUFF'S CASINO 🐼</h1>
-
-        <!-- Header Bar (Added ID for JS targeting) -->
-        <div id="game-header" class="flex justify-center items-center mb-6 p-4 game-card rounded-xl">
-            <div class="text-xl font-bold">Balance: <span id="balance-display" class="neon-text text-2xl">$500</span></div>
-        </div>
-        <!-- Hidden input for file loading, kept here for easy global access -->
-        <input type="file" id="load-file" accept=".json" class="hidden" onchange="loadGame(event)">
-
-
-        <!-- Main Menu -->
-        <div id="main-menu" class="p-6 game-card rounded-xl space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-6">Pick Your Game!</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <button class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('slot-machine')">🎰 Fluff's Slots</button>
-                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('blackjack')">♠️ Blackjack</button>
-                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('roulette')">🔴 Roulette</button>
-                <button class="bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('horse-racing')">🏇 Fluff's Races</button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('poker')">♣️ Fluff's Poker</button>
-                <button class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('coin-flip')">🪙 Coin Flip</button>
-                <button class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('panda-fighting')">🥋 Fluff's Brawlers</button>
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-150" onclick="switchView('craps')">🎲 Fluff's Craps</button>
+            <div id="active-game-content" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl min-h-[400px] relative">
+                <!-- Game HTML injected here -->
             </div>
-
-            <!-- New Game Management Section -->
-            <div class="border-t border-gray-700 pt-4 mt-6 space-y-3">
-                <h3 class="text-xl text-center neon-text">Game Management</h3>
-                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="saveGame()">💾 Save Game Progress</button>
-                <button id="load-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg" onclick="document.getElementById('load-file').click()">📂 Load Game Progress</button>
-            </div>
-
-            <div id="job-cooldown-display" class="text-center text-red-400 mt-4 hidden"></div>
         </div>
 
-        <!-- Job Menu -->
-        <div id="job-menu" class="p-6 game-card rounded-xl space-y-6 hidden">
-            <h2 class="text-3xl text-center neon-text mb-6">Pick a Job</h2>
-            <p class="text-lg text-center">To earn cash, you must work! But beware, once hired, you have only 5 minutes to spend your pay before you are forced back to work for an hour!</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button class="job-select-btn bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg text-md transition duration-150" data-job="Laundromat Employee">🧼 Laundromat Employee</button>
-                <button class="job-select-btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-4 rounded-lg text-md transition duration-150" data-job="McDonalds Worker">🍟 McDonald's Worker</button>
-                <button class="job-select-btn bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-4 rounded-lg text-md transition duration-150" data-job="Liquor Store Employee">🥃 Liquor Store Employee</button>
-            </div>
-            <div id="job-select-message" class="text-center text-red-400 mt-4 hidden"></div>
-        </div>
-
-        <!-- Job Application Form -->
-        <div id="job-application" class="p-6 game-card rounded-xl space-y-4 hidden">
-            <h2 class="text-3xl text-center neon-text mb-6">Job Application: <span id="application-job-title"></span></h2>
-            <form id="application-form" class="space-y-4">
-                <!-- Row 1: Name and Contact -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="app-name" class="block text-sm font-medium text-gray-400">Full Name</label>
-                        <input type="text" id="app-name" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
-                    </div>
-                    <div>
-                        <label for="app-email" class="block text-sm font-medium text-gray-400">Email Address</label>
-                        <input type="email" id="app-email" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+        <!-- JOB CENTER MODAL -->
+        <div id="job-modal" class="modal fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+            <div class="modal-overlay absolute inset-0"></div>
+            <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl w-full max-w-2xl z-50 p-6 relative shadow-2xl">
+                <button onclick="closeModal('job-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
+                <h2 class="text-3xl casino-font mb-6 text-blue-400">Career Center</h2>
+                
+                <!-- State: Unemployed -->
+                <div id="job-unemployed" class="space-y-6">
+                    <p class="text-slate-300">Run out of cash? Get a job to fund your habit. Jobs pay <strong>$300 per shift</strong>.</p>
+                    <div class="grid gap-4">
+                        <button onclick="applyForJob('Laundromat Staff')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl text-left border border-slate-700 transition">
+                            <div class="font-bold text-lg">🧼 Laundromat Staff</div>
+                            <div class="text-sm text-slate-400">Low stress, lots of quarters.</div>
+                        </button>
+                        <button onclick="applyForJob('Burger Flipper')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl text-left border border-slate-700 transition">
+                            <div class="font-bold text-lg">🍔 Burger Flipper</div>
+                            <div class="text-sm text-slate-400">Free grease included.</div>
+                        </button>
+                        <button onclick="applyForJob('Liquor Store Clerk')" class="p-4 bg-slate-800 hover:bg-slate-700 rounded-xl text-left border border-slate-700 transition">
+                            <div class="font-bold text-lg">🥃 Liquor Store Clerk</div>
+                            <div class="text-sm text-slate-400">See your customers at the casino later.</div>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Row 2: Phone and Education -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="app-phone" class="block text-sm font-medium text-gray-400">Phone Number (10 digits)</label>
-                        <input type="tel" id="app-phone" required minlength="10" maxlength="10" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                <!-- State: Employed (Dashboard) -->
+                <div id="job-employed" class="hidden text-center space-y-6">
+                    <div class="bg-blue-900/30 p-6 rounded-xl border border-blue-500/30">
+                        <h3 class="text-2xl font-bold mb-2" id="current-job-title">Job Title</h3>
+                        <p class="text-blue-300 mb-4">Current Status: <span id="job-status-text" class="font-bold text-white">ON BREAK</span></p>
+                        <div class="text-4xl font-mono mb-4" id="job-timer-big">05:00</div>
+                        <p class="text-sm text-slate-400" id="job-instruction">Enjoy your casino break. When the timer hits zero, you must work.</p>
                     </div>
-                    <div>
-                        <label for="app-education" class="block text-sm font-medium text-gray-400">Highest Education</label>
-                        <select id="app-education" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white">
-                            <option value="">-- Select One --</option>
-                            <option value="High School">High School</option>
-                            <option value="Associate">Associate's Degree</option>
-                            <option value="Bachelor">Bachelor's Degree</option>
-                            <option value="Master">Master's or Higher</option>
-                        </select>
+                    <button id="btn-collect-pay" onclick="collectPaycheck()" class="btn-primary w-full py-4 rounded-xl text-xl font-bold hidden">
+                        💰 CLOCK OUT & COLLECT $300
+                    </button>
+                    <button onclick="quitJob()" class="text-red-500 hover:text-red-400 text-sm underline">Quit Job (Lose progress)</button>
+                </div>
+
+                <!-- Application Form -->
+                <div id="job-application-form" class="hidden space-y-4">
+                    <h3 class="text-xl">Application: <span id="app-job-name" class="text-blue-400"></span></h3>
+                    <input type="text" id="app-name" placeholder="Full Name" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 focus:border-blue-500 outline-none">
+                    <textarea id="app-resume" placeholder="Write a resume (min 50 chars). Why do you want this job?" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 focus:border-blue-500 outline-none h-32"></textarea>
+                    <p id="app-error" class="text-red-500 text-sm hidden"></p>
+                    <button onclick="submitApplication()" class="btn-primary w-full py-3 rounded-lg font-bold">Submit Application</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORK LOCKOUT MODAL -->
+        <div id="work-lockout" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center hidden">
+            <div class="text-center space-y-6 max-w-md px-6">
+                <i class="fas fa-user-clock text-6xl text-red-500 mb-4"></i>
+                <h2 class="text-4xl font-bold text-red-500">SHIFT IN PROGRESS</h2>
+                <p class="text-xl text-slate-300">Casino access denied. You are currently working.</p>
+                <div class="text-6xl font-mono text-white" id="work-timer">03:00</div>
+                <p class="text-sm text-slate-500">Finish your shift to get paid.</p>
+                
+                <div class="mt-12 p-6 bg-slate-900 rounded-xl border border-slate-800 w-full">
+                    <h3 class="text-lg font-bold mb-4 text-teal-400">Bored? Play Flappy Fluff</h3>
+                    <canvas id="flappy-canvas" width="320" height="200" class="mx-auto mb-4 cursor-pointer" onclick="jumpFlappy()"></canvas>
+                    <div class="flex justify-between text-sm px-4">
+                        <span>Score: <span id="flappy-score">0</span></span>
+                        <span>High: <span id="flappy-high">0</span></span>
                     </div>
-                </div>
-                
-                <!-- Row 3: Resume -->
-                <div>
-                    <label for="app-resume" class="block text-sm font-medium text-gray-400">Resume / Work History (Min 200 Characters)</label>
-                    <textarea id="app-resume" required rows="6" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white" placeholder="Describe your relevant work experience, skills, and why you are the best fit for this job."></textarea>
-                </div>
-                
-                <div id="application-message" class="text-red-400 text-center"></div>
-
-                <div class="flex justify-between pt-4">
-                    <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg" onclick="switchView('job-menu')">Cancel</button>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Submit Application</button>
-                </div>
-            </form>
-        </div>
-
-
-        <!-- Slot Machine Game -->
-        <div id="slot-machine" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S SLOTS</h2>
-            <div class="reels-container">
-                <div id="reel1" class="reel">?</div>
-                <div id="reel2" class="reel">?</div>
-                <div id="reel3" class="reel">?</div>
-            </div>
-            <div id="slot-result" class="text-xl text-center mb-4 min-h-[30px]">Place your bet to start!</div>
-            <div class="flex flex-col space-y-3">
-                <input type="number" id="slot-bet" placeholder="Bet Amount (Min $10)" min="10" value="10" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                <button id="spin-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150" onclick="spinSlots()">SPIN (Bet: <span id="slot-bet-display">$10</span>)</button>
-            </div>
-            <p class="text-center text-sm text-gray-400 mt-2">Match 3 for a 10x payout! (e.g., 🐼🐼🐼)</p>
-            <button id="slot-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
-        </div>
-
-        <!-- Blackjack Game -->
-        <div id="blackjack" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S BLACKJACK</h2>
-            
-            <div class="text-center mb-4">
-                <p>Dealer's Hand: <span id="dealer-score" class="neon-text">0</span></p>
-                <div id="dealer-hand" class="card-container justify-center"></div>
-            </div>
-
-            <div class="text-center mb-4 border-t border-gray-700 pt-4">
-                <p>Your Hand: <span id="player-score" class="neon-text">0</span></p>
-                <div id="player-hand" class="card-container justify-center"></div>
-            </div>
-
-            <div id="blackjack-result" class="text-xl text-center mb-4 min-h-[30px]">Place your bet and hit DEAL!</div>
-
-            <div class="flex flex-col space-y-3">
-                <input type="number" id="blackjack-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                <div class="flex space-x-3">
-                    <button id="blackjack-deal-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="dealBlackjack()">DEAL</button>
-                    <button id="blackjack-hit-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="hitBlackjack()">HIT</button>
-                    <button id="blackjack-stand-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="standBlackjack()">STAND</button>
+                    <button id="start-flappy" onclick="startFlappy()" class="mt-4 w-full bg-teal-700 hover:bg-teal-600 text-white font-bold py-2 rounded">Start Game</button>
                 </div>
             </div>
-            <button id="blackjack-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
         </div>
-        
-        <!-- Roulette Game -->
-        <div id="roulette" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S ROULETTE</h2>
-            <div id="roulette-wheel-result" class="text-5xl text-center mb-4 min-h-[50px]">?</div>
-            <div id="roulette-message" class="text-xl text-center mb-4 min-h-[30px]">Place your bet and spin!</div>
-            
-            <div id="roulette-betting-area">
-                <h3 class="text-xl neon-text mb-3">Betting Area (Chip: <span id="roulette-chip-value-display">$5</span>)</h3>
-                <div class="roulette-bet-grid">
-                    <!-- Color Bets -->
-                    <button class="roulette-bet-btn bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded-lg" data-type="color" data-value="Red" onclick="placeRouletteBet(this, 'Red')">Red (2x) <span id="bet-chip-Red"></span></button>
-                    <button class="roulette-bet-btn bg-black hover:bg-gray-900 text-white font-bold py-3 rounded-lg" data-type="color" data-value="Black" onclick="placeRouletteBet(this, 'Black')">Black (2x) <span id="bet-chip-Black"></span></button>
-                    <button class="roulette-bet-btn bg-green-700 hover:bg-green-600 text-white font-bold py-3 rounded-lg" data-type="color" data-value="Green" onclick="placeRouletteBet(this, 'Green')">Green (35x) <span id="bet-chip-Green"></span></button>
-                    
-                    <!-- Dozen Bets -->
-                    <button class="roulette-bet-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg" data-type="dozen" data-value="1st12" onclick="placeRouletteBet(this, '1st12')">1st 12 (3x) <span id="bet-chip-1st12"></span></button>
-                    <button class="roulette-bet-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg" data-type="dozen" data-value="2nd12" onclick="placeRouletteBet(this, '2nd12')">2nd 12 (3x) <span id="bet-chip-2nd12"></span></button>
-                    <button class="roulette-bet-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg" data-type="dozen" data-value="3rd12" onclick="placeRouletteBet(this, '3rd12')">3rd 12 (3x) <span id="bet-chip-3rd12"></span></button>
+
+        <!-- LOAN MODAL -->
+        <div id="loan-modal" class="modal fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+            <div class="modal-overlay absolute inset-0"></div>
+            <div class="bg-slate-900 border-2 border-red-500 rounded-2xl w-full max-w-md z-50 p-6 shadow-2xl text-center">
+                <h2 class="text-3xl casino-font mb-4 text-red-500">BUSTED!</h2>
+                <p class="text-slate-300 mb-6">You're out of cash. Fluff offers you a predatory loan.</p>
+                <div class="bg-black p-4 rounded-lg mb-6 border border-slate-700">
+                    <p class="text-green-400 text-2xl font-bold mb-1">+$100 Cash</p>
+                    <p class="text-xs text-slate-500">Interest rate: 0% (For now...)</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="acceptLoan()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg">Accept Deal</button>
+                    <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg">Leave Casino</button>
                 </div>
             </div>
-
-            <div class="flex flex-col space-y-3 mt-4">
-                <input type="number" id="roulette-chip-value" placeholder="Chip Value (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center" onchange="updateRouletteChipValue()">
-                <button id="roulette-spin-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150" onclick="spinRoulette()">SPIN WHEEL</button>
-            </div>
-            <button id="roulette-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
         </div>
 
-        <!-- Horse Racing Game -->
-        <div id="horse-racing" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S RACES</h2>
-            <div id="race-message" class="text-xl text-center mb-4 min-h-[30px]">Pick a horse and place your bet (4x Payout)!</div>
-            
-            <div id="race-track" class="race-track">
-                <!-- Track content is generated by initializeHorseRacing -->
-            </div>
+    </main>
 
-            <div class="flex flex-col space-y-3 mt-4">
-                <input type="number" id="horse-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                
-                <div id="horse-bet-buttons" class="grid grid-cols-2 gap-3">
-                    <!-- Horse buttons generated by initializeHorseRacing -->
-                </div>
-
-                <button id="start-race-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="startRace()">START RACE</button>
-            </div>
-            <button id="horse-racing-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
-        </div>
-
-        <!-- Panda Fighting Game -->
-        <div id="panda-fighting" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S BRAWLERS</h2>
-            
-            <div id="brawlers-display" class="brawler-display">
-                <div class="brawler">
-                    <span id="brawler-1-emoji">🐼</span>
-                    <p id="brawler-1-name" class="text-lg">Rocky</p>
-                </div>
-                <div class="text-4xl text-red-500 font-bold">VS</div>
-                <div class="brawler">
-                    <span id="brawler-2-emoji">🐾</span>
-                    <p id="brawler-2-name" class="text-lg">Bamboo</p>
-                </div>
-            </div>
-            
-            <div id="fighting-result" class="text-xl text-center mb-4 min-h-[30px]">Pick a champion and place your bet! (2x Payout)</div>
-
-            <div class="flex flex-col space-y-3">
-                <input type="number" id="fighter-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                
-                <div class="flex space-x-3">
-                    <button id="bet-brawler-1-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeBrawlerBet(1)">BET ON ROCKY</button>
-                    <button id="bet-brawler-2-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeBrawlerBet(2)">BET ON BAMBOO</button>
-                </div>
-
-                <button id="start-brawl-btn" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="startBrawl()">START BRAWL</button>
-            </div>
-            <button id="fighting-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
-        </div>
-
-        <!-- Coin Flip Game -->
-        <div id="coin-flip" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S COIN FLIP</h2>
-            
-            <div id="coin-emoji" class="coin-display">🪙</div>
-            
-            <div id="flip-result" class="text-xl text-center mb-4 min-h-[30px]">Bet on Panda or Bamboo! (2x Payout)</div>
-
-            <div class="flex flex-col space-y-3">
-                <input type="number" id="flip-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                
-                <div class="flex space-x-3">
-                    <button id="bet-heads-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeFlipBet('Heads')">BET ON 🐼</button>
-                    <button id="bet-tails-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeFlipBet('Tails')">BET ON 🎋</button>
-                </div>
-
-                <button id="start-flip-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="startFlip()">FLIP COIN</button>
-            </div>
-            <button id="flip-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
-        </div>
-        
-        <!-- Poker Game -->
-        <div id="poker" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S POKER (Simplified Hold'em)</h2>
-            
-            <div class="text-center mb-4">
-                <p>Dealer's Hand: <span id="poker-dealer-score" class="neon-text">?</span></p>
-                <div id="poker-dealer-hand" class="hand-container justify-center"></div>
-            </div>
-            <div class="text-center mb-4">
-                <p>Community Cards (Flop, Turn, River):</p>
-                <div id="poker-community-cards" class="hand-container justify-center"></div>
-            </div>
-            <div class="text-center mb-4 border-t border-gray-700 pt-4">
-                <p>Your Hand: <span id="poker-player-score" class="neon-text">?</span></p>
-                <div id="poker-player-hand" class="hand-container justify-center"></div>
-            </div>
-
-            <div id="poker-result" class="text-xl text-center mb-4 min-h-[30px]">Place your bet and hit DEAL!</div>
-
-            <div class="flex flex-col space-y-3">
-                <input type="number" id="poker-bet" placeholder="Bet Amount (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                <div class="flex space-x-3">
-                    <button id="poker-deal-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="dealPoker()">DEAL</button>
-                    <button id="poker-fold-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="foldPoker()">FOLD (Lose Bet)</button>
-                    <button id="poker-call-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg disabled-btn" disabled onclick="callPoker()">CALL (Double Bet)</button>
-                </div>
-            </div>
-            <button id="poker-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
-        </div>
-
-        <!-- Craps Game -->
-        <div id="craps" class="p-6 game-card rounded-xl hidden space-y-4">
-            <h2 class="text-3xl text-center neon-text mb-4">FLUFF'S CRAPS</h2>
-
-            <div id="dice-display" class="text-5xl text-center mb-4 min-h-[50px]">
-                <span id="die1">🎲</span> + <span id="die2">🎲</span> = <span id="craps-roll-total">?</span>
-            </div>
-
-            <div id="craps-point-display" class="text-xl text-center mb-4">POINT: <span id="craps-point" class="neon-text">OFF</span></div>
-            
-            <div id="craps-message" class="text-xl text-center mb-4 min-h-[30px]">Place a Pass Line Bet or Roll!</div>
-
-            <div class="flex flex-col space-y-3">
-                <input type="number" id="craps-bet" placeholder="Pass Line Bet (Min $5)" min="5" value="5" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white text-center">
-                
-                <button id="craps-pass-line-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg" onclick="placeCrapsBet()">PLACE PASS LINE BET</button>
-
-                <button id="craps-roll-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg text-lg transition duration-150 disabled-btn" disabled onclick="rollCraps()">ROLL DICE</button>
-            </div>
-            <button id="craps-back-btn" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded-lg" onclick="switchView('main-menu')">Back to Lobby</button>
-        </div>
-    </div>
-
-
-    <!-- Modals -->
-    <div id="loan-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3 class="text-2xl font-bold mb-4 text-red-400">GAME OVER!</h3>
-            <p id="loan-message" class="mb-6 text-lg">Fluff's body guards escort you to Fluff's office. He has a deal. He will give you a loan of $100 but you have to pay it back in the next hour. Do you accept or get kicked out of the casino until you earn more money?</p>
-            <div class="flex justify-around">
-                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg" onclick="acceptLoan()">Accept Loan ($100)</button>
-                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" onclick="kickOut()">Get Kicked Out</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="job-lockout-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3 class="text-2xl font-bold mb-4 text-red-400">BREAK OVER!</h3>
-            <p id="lockout-message" class="mb-6 text-lg">Your 5-minute break is over! You must return to work. You are locked out of games until your employment cooldown ends.</p>
-            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" onclick="closeJobLockoutModal()">Return to Menu</button>
-        </div>
-    </div>
-
-    <div id="job-cooldown-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3 class="text-2xl font-bold mb-4 text-yellow-400">Application Cooldown</h3>
-            <p id="cooldown-message" class="mb-6 text-lg">You must wait before applying again. Cooldown remaining: <span id="cooldown-time"></span></p>
-            <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" onclick="closeJobCooldownModal()">OK</button>
-        </div>
-    </div>
-
-
+    <!-- JAVASCRIPT ENGINE -->
     <script>
-        // --- GAME STATE VARIABLES ---
-        let gameState = {
-            currentBalance: 500,
-            currentView: 'main-menu',
-            lastLoanTime: 0, // Timestamp of last accepted loan
-            loanCooldown: 300000, // 5 minutes (300,000 ms)
-            job: null, // Stores the accepted job title
-            jobBreakEndTime: 0, // Timestamp when the 5-minute break ends
-            jobCooldownEndTime: 0, // Timestamp when the 1-hour job cooldown ends
-            
-            // Blackjack State
-            deck: [],
-            dealerHand: [],
-            playerHand: [],
-            blackjackBet: 0,
-            
-            // Roulette State
-            rouletteBet: {},
-            rouletteChipValue: 5,
-            
-            // Horse Racing State
-            horses: [
-                { id: 1, name: 'Bamboo Blitz', emoji: '💚', position: 0, odds: 3.0 },
-                { id: 2, name: 'Panda Power', emoji: '🐼', position: 0, odds: 4.0 },
-                { id: 3, name: 'Yin-Yang Dash', emoji: '☯️', position: 0, odds: 5.0 },
-                { id: 4, name: 'Paw Print Fury', emoji: '🐾', position: 0, odds: 6.0 },
-            ],
-            horseBet: 0,
-            selectedHorseId: null,
-
-            // Panda Fighting State
-            fighterBet: 0,
-            selectedFighter: null,
-            
-            // Coin Flip State
-            flipBet: 0,
-            selectedFlipSide: null,
-
-            // Poker State
-            pokerDeck: [],
-            pokerDealerHand: [],
-            pokerPlayerHand: [],
-            pokerCommunityCards: [],
-            pokerBet: 0,
-            pokerPhase: 'preflop', // preflop, flop, turn, river, showdown
-            
-            // Craps State
-            crapsPoint: null,
-            crapsBetAmount: 0,
-            crapsBetType: null, // 'pass_line'
+        // --- CORE STATE ---
+        const CONFIG = {
+            breakTime: 5 * 60 * 1000, // 5 mins to play
+            workTime: 3 * 60 * 1000,  // 3 mins to work
+            pay: 300,
+            vipThreshold: 1000
         };
 
-        const SLOT_SYMBOLS = ['🐼', '🎋', '💚', '☯️', '💰', '🐾']; // Panda-themed
-        const MIN_BET = 5; // Minimum bet for most games
-        const SLOT_MIN_BET = 10; // Slots has a higher min bet
-        const JOB_BREAK_DURATION = 300000; // 5 minutes in ms
-        const JOB_COOLDOWN_DURATION = 3600000; // 1 hour in ms (60 * 60 * 1000)
-        
-        // Dice Emojis for Craps
-        const DICE_EMOJIS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        let state = {
+            balance: 500,
+            job: null, // { title: "Name", status: "break"|"working", endTime: timestamp }
+            stats: { wins: 0, losses: 0, spins: 0 },
+            flappyHigh: 0
+        };
 
-        // --- UTILITY FUNCTIONS ---
-
-        /**
-         * Updates the balance display and saves the state to local file storage.
-         */
-        function updateBalance(amount) {
-            gameState.currentBalance += amount;
-            document.getElementById('balance-display').textContent = `$${gameState.currentBalance.toLocaleString()}`;
-        }
-
-        function saveGameStateToFile() {
-            const dataToSave = JSON.stringify({
-                currentBalance: gameState.currentBalance,
-                lastLoanTime: gameState.lastLoanTime,
-                job: gameState.job,
-                jobBreakEndTime: gameState.jobBreakEndTime,
-                jobCooldownEndTime: gameState.jobCooldownEndTime,
-            });
-
-            const blob = new Blob([dataToSave], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'fluffs_casino_save.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        // --- INIT ---
+        window.onload = () => {
+            loadGame();
+            updateUI();
+            setInterval(gameLoop, 1000); // 1s tick for timers
             
-            // Display message
-            const saveBtn = document.getElementById('save-button');
-            saveBtn.textContent = 'Game Saved!';
-            setTimeout(() => { saveBtn.textContent = '💾 Save Game Progress'; }, 1500);
+            // Flappy inputs
+            document.addEventListener('keydown', (e) => {
+                if(e.code === 'Space') jumpFlappy();
+            });
+        };
+
+        // --- SAVE SYSTEM ---
+        function saveGame() {
+            localStorage.setItem('fluffs_casino_v2', JSON.stringify(state));
         }
 
-        function loadGameStateFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
+        function loadGame() {
+            const saved = localStorage.getItem('fluffs_casino_v2');
+            if (saved) {
                 try {
-                    const loadedData = JSON.parse(e.target.result);
-                    
-                    gameState.currentBalance = loadedData.currentBalance || 500;
-                    gameState.lastLoanTime = loadedData.lastLoanTime || 0;
-                    gameState.job = loadedData.job || null;
-                    gameState.jobBreakEndTime = loadedData.jobBreakEndTime || 0;
-                    gameState.jobCooldownEndTime = loadedData.jobCooldownEndTime || 0;
+                    const parsed = JSON.parse(saved);
+                    // Merge to ensure new fields exist
+                    state = { ...state, ...parsed };
+                } catch(e) { console.error("Save corrupt"); }
+            }
+        }
 
-                    updateBalance(0); // Update display
-                    
-                    const loadBtn = document.getElementById('load-button');
-                    loadBtn.textContent = 'Game Loaded!';
-                    setTimeout(() => { loadBtn.textContent = '📂 Load Game Progress'; }, 1500);
-                } catch (error) {
-                    // Use a message box for errors instead of alert()
-                    const errorMessage = "Error loading save file. The file may be corrupted.";
-                    document.getElementById('loan-message').textContent = errorMessage;
+        function resetData() {
+            if(confirm("Reset all progress?")) {
+                localStorage.removeItem('fluffs_casino_v2');
+                location.reload();
+            }
+        }
+
+        // --- UI & NAVIGATION ---
+        function goToLobby() {
+            document.getElementById('view-lobby').classList.remove('hidden');
+            document.getElementById('game-stage').classList.add('hidden');
+            document.getElementById('active-game-content').innerHTML = '';
+        }
+
+        function updateUI() {
+            // Balance Animation
+            const balanceEl = document.getElementById('nav-balance');
+            balanceEl.textContent = '$' + state.balance.toLocaleString();
+            
+            // Job Status Button
+            const jobStatus = document.getElementById('nav-job-status');
+            const jobTimer = document.getElementById('nav-job-timer');
+            
+            if (state.job) {
+                jobStatus.textContent = state.job.status === 'break' ? 'On Break' : 'Working';
+                jobTimer.classList.remove('hidden');
+            } else {
+                jobStatus.textContent = "Get a Job";
+                jobTimer.classList.add('hidden');
+            }
+
+            // Check Loan
+            if (state.balance < 5 && (!state.job || state.job.status !== 'working')) {
+                // Only show loan if really broke and not currently locked in work modal
+                if(document.getElementById('work-lockout').classList.contains('hidden')) {
                     document.getElementById('loan-modal').classList.remove('hidden');
-                    document.querySelector('#loan-modal button:first-child').classList.add('disabled-btn');
-                    document.querySelector('#loan-modal button:first-child').disabled = true;
-                    document.querySelector('#loan-modal button:last-child').textContent = 'Close';
-                    document.querySelector('#loan-modal button:last-child').onclick = () => document.getElementById('loan-modal').classList.add('hidden');
                 }
-            };
-            reader.readAsText(file);
-        }
-
-        // Expose functions to global scope for button clicks
-        window.saveGame = saveGameStateToFile;
-        window.loadGame = loadGameStateFromFile;
-
-
-        /**
-         * Checks the balance and triggers the loan modal if necessary.
-         */
-        function checkLoanEligibility(minBet = MIN_BET) {
-            if (gameState.currentBalance < minBet) {
-                const now = Date.now();
-                const timeSinceLastLoan = now - gameState.lastLoanTime;
-                
-                document.getElementById('loan-modal').classList.remove('hidden');
-                document.querySelector('#loan-modal button:last-child').textContent = 'Get Kicked Out';
-                document.querySelector('#loan-modal button:last-child').onclick = kickOut;
-
-
-                if (timeSinceLastLoan < gameState.loanCooldown && gameState.lastLoanTime !== 0) {
-                    const remainingTime = gameState.loanCooldown - timeSinceLastLoan;
-                    const minutes = Math.ceil(remainingTime / 60000);
-                    document.getElementById('loan-message').textContent = `Fluff says his ledger is full. You must wait for the loan cooldown. Try again in ${minutes} minutes.`;
-                    document.querySelector('#loan-modal button:first-child').classList.add('disabled-btn');
-                    document.querySelector('#loan-modal button:first-child').disabled = true;
-                } else {
-                    document.getElementById('loan-message').textContent = "Fluff's body guards escort you to Fluff's office. He has a deal. He will give you a loan of $100 but you have to pay it back in the next hour. Do you accept or get kicked out of the casino until you earn more money?";
-                    document.querySelector('#loan-modal button:first-child').classList.remove('disabled-btn');
-                    document.querySelector('#loan-modal button:first-child').disabled = false;
-                }
-                return true;
             }
-            return false;
         }
 
-        function acceptLoan() {
-            if (document.querySelector('#loan-modal button:first-child').disabled) return;
-
-            updateBalance(100);
-            gameState.lastLoanTime = Date.now();
-            document.getElementById('loan-modal').classList.add('hidden');
-        }
-
-        function kickOut() {
-            document.getElementById('loan-modal').classList.add('hidden');
-            switchView('main-menu');
-        }
-
-        function closeJobLockoutModal() {
-            document.getElementById('job-lockout-modal').classList.add('hidden');
-            switchView('main-menu');
-        }
-
-        function closeJobCooldownModal() {
-            document.getElementById('job-cooldown-modal').classList.add('hidden');
-            switchView('main-menu');
-        }
-
-
-        /**
-         * Handles view switching and game initialization/cleanup.
-         */
-        function switchView(viewId) {
-            const isGamblingView = viewId !== 'main-menu' && viewId !== 'job-menu' && viewId !== 'job-application';
+        function notify(msg, type = 'info') {
+            const notif = document.createElement('div');
+            const colors = type === 'win' ? 'bg-green-600 border-green-400' : (type === 'lose' ? 'bg-red-600 border-red-400' : 'bg-slate-700 border-slate-500');
+            notif.className = `${colors} text-white px-6 py-3 rounded-lg shadow-xl border-l-4 font-bold transform transition-all duration-500 translate-x-full opacity-0`;
+            notif.innerText = msg;
             
-            // FIX: Check Job Lockout. Blocks play if the 5-minute gambling window has expired 
-            // AND they are still in the 1-hour overall employment cooldown.
-            if (isGamblingView && 
-                gameState.jobBreakEndTime < Date.now() && 
-                gameState.jobCooldownEndTime > Date.now()
-            ) {
-                document.getElementById('job-lockout-modal').classList.remove('hidden');
-                document.getElementById('lockout-message').textContent = `Your 5-minute break is over! You must return to work. You are locked out of games until your employment cooldown ends. (Next job application available in ${formatTime(gameState.jobCooldownEndTime - Date.now())})`;
-                return;
-            }
-
-            // Hide all main content views
-            document.querySelectorAll('.casino-container > div').forEach(div => {
-                if (div.id !== 'loan-modal' && 
-                    div.id !== 'job-lockout-modal' && 
-                    div.id !== 'job-cooldown-modal' && 
-                    div.id !== 'game-header' && // FIX: Don't hide header
-                    div.tagName !== 'H1' // FIX: Don't hide Title
-                    ) {
-                    div.classList.add('hidden');
-                }
-            });
-
-            // Show the requested view
-            const targetView = document.getElementById(viewId);
-            if (targetView) {
-                targetView.classList.remove('hidden');
-                gameState.currentView = viewId;
-            }
-
-            // Game-specific initialization
-            if (viewId === 'slot-machine') initializeSlotMachine();
-            if (viewId === 'blackjack') initializeBlackjack();
-            if (viewId === 'roulette') initializeRoulette();
-            if (viewId === 'horse-racing') initializeHorseRacing();
-            if (viewId === 'panda-fighting') initializePandaFighting();
-            if (viewId === 'coin-flip') initializeCoinFlip();
-            if (viewId === 'poker') initializePoker();
-            if (viewId === 'craps') initializeCraps();
-            if (viewId === 'main-menu') updateJobCooldownDisplay();
-
-            // Handle Back to Lobby button visibility
-            document.getElementById('main-menu-back-btn').classList.toggle('hidden', !isGamblingView);
-            document.getElementById('job-button').classList.toggle('hidden', isGamblingView || gameState.jobBreakEndTime > Date.now());
-        }
-
-        // --- JOB SYSTEM LOGIC ---
-
-        function updateJobCooldownDisplay() {
-            const now = Date.now();
-            const jobCooldownDiv = document.getElementById('job-cooldown-display');
-            const jobButton = document.getElementById('job-button');
-
-            // Job Break Lockout Timer
-            if (gameState.jobBreakEndTime > now) {
-                const remainingBreak = gameState.jobBreakEndTime - now;
-                jobCooldownDiv.classList.remove('hidden');
-                jobCooldownDiv.textContent = `EMPLOYED: Break ends in ${formatTime(remainingBreak)}.`;
-                jobButton.classList.add('disabled-btn');
-                jobButton.disabled = true;
-                
-                // Save/Load buttons are in the main menu, which is where the player must be when this timer is running.
-                return;
-            }
-
-            // Job Cooldown Timer
-            if (gameState.jobCooldownEndTime > now) {
-                const remainingCooldown = gameState.jobCooldownEndTime - now;
-                jobCooldownDiv.classList.remove('hidden');
-                jobCooldownDiv.textContent = `Job Cooldown: ${formatTime(remainingCooldown)}`;
-                jobButton.classList.add('disabled-btn');
-                jobButton.disabled = true;
-                return;
-            }
+            const area = document.getElementById('notification-area');
+            area.appendChild(notif);
             
-            // No Cooldown/Lockout
-            jobCooldownDiv.classList.add('hidden');
-            jobButton.classList.remove('disabled-btn');
-            jobButton.disabled = false;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Check cooldown every second
-            setInterval(updateJobCooldownDisplay, 1000);
-            updateBalance(0); // Initial balance update
-
-            // Job selection event listeners
-            document.querySelectorAll('.job-select-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const jobTitle = e.target.getAttribute('data-job');
-                    gameState.job = jobTitle;
-                    document.getElementById('application-job-title').textContent = jobTitle;
-                    document.getElementById('job-select-message').classList.add('hidden');
-                    switchView('job-application');
-                });
+            requestAnimationFrame(() => {
+                notif.classList.remove('translate-x-full', 'opacity-0');
             });
 
-            // Job Application submission
-            document.getElementById('application-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                processJobApplication();
-            });
-
-            switchView('main-menu'); // Start on main menu
-        });
-
-        function formatTime(ms) {
-            const totalSeconds = Math.ceil(ms / 1000);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            return `${minutes}m ${seconds}s`;
+            setTimeout(() => {
+                notif.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => notif.remove(), 500);
+            }, 3000);
         }
 
-        function processJobApplication() {
-            const name = document.getElementById('app-name').value;
-            const email = document.getElementById('app-email').value;
-            const phone = document.getElementById('app-phone').value;
-            const education = document.getElementById('app-education').value;
+        // --- JOB SYSTEM ---
+        function openJobModal() {
+            const modal = document.getElementById('job-modal');
+            const unemployed = document.getElementById('job-unemployed');
+            const employed = document.getElementById('job-employed');
+            const appForm = document.getElementById('job-application-form');
+
+            modal.classList.remove('hidden');
+            appForm.classList.add('hidden');
+
+            if (state.job) {
+                unemployed.classList.add('hidden');
+                employed.classList.remove('hidden');
+                document.getElementById('current-job-title').textContent = state.job.title;
+                updateJobModalTimer();
+            } else {
+                unemployed.classList.remove('hidden');
+                employed.classList.add('hidden');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function applyForJob(title) {
+            document.getElementById('job-unemployed').classList.add('hidden');
+            document.getElementById('job-application-form').classList.remove('hidden');
+            document.getElementById('app-job-name').textContent = title;
+        }
+
+        function submitApplication() {
             const resume = document.getElementById('app-resume').value;
-            const message = document.getElementById('application-message');
-
-            // Validation 1: All required fields filled
-            if (!name || !email || phone.length < 10 || !education || !resume) {
-                message.textContent = 'Please fill out all required fields.';
-                return;
-            }
-
-            // Validation 2: Basic email format check
-            if (!email.includes('@') || !email.includes('.')) {
-                message.textContent = 'Please enter a valid email address.';
-                return;
-            }
-
-            // Validation 3: Resume Length
-            if (resume.length < 200) {
-                 message.textContent = `Your resume is too short. Please provide at least 200 characters (currently: ${resume.length}).`;
-                return;
-            }
-
-            // Validation 4: "No Junk" Rule (Resume must contain letters and numbers)
-            const letterCount = (resume.match(/[a-zA-Z]/g) || []).length;
-            const nonSpaceCount = resume.replace(/\s/g, '').length;
+            const error = document.getElementById('app-error');
             
-            if (letterCount / nonSpaceCount < 0.5) { // Ensure at least 50% of non-space characters are letters
-                message.textContent = 'Your resume appears to contain random characters or too many symbols. Please write a realistic work history.';
+            if (resume.length < 50) {
+                error.textContent = "Resume too short. Put some effort in!";
+                error.classList.remove('hidden');
                 return;
             }
 
-            // Application Accepted!
-            message.textContent = `Congratulations, ${name}! You've been hired as a ${gameState.job}!`;
-            message.classList.remove('text-red-400');
-            message.classList.add('text-green-400');
-
-            // Grant Paycheck and start the break timer
-            updateBalance(300);
-            gameState.jobBreakEndTime = Date.now() + JOB_BREAK_DURATION;
+            const title = document.getElementById('app-job-name').textContent;
             
-            // Set the next cooldown for applying for a job
-            gameState.jobCooldownEndTime = Date.now() + JOB_COOLDOWN_DURATION;
-
-            // Reset form for next time
-            document.getElementById('application-form').reset();
-
-            // After a short delay, go to main menu
-            setTimeout(() => {
-                switchView('main-menu');
-                message.classList.add('hidden');
-                message.classList.remove('text-green-400');
-                message.classList.add('text-red-400');
-            }, 3000); 
-        }
-
-        // --- GAME LOGIC ---
-
-        // SLOTS
-        function initializeSlotMachine() {
-            document.getElementById('reel1').textContent = '?';
-            document.getElementById('reel2').textContent = '?';
-            document.getElementById('reel3').textContent = '?';
-            document.getElementById('slot-result').textContent = 'Place your bet to start!';
-            document.getElementById('spin-btn').classList.remove('disabled-btn');
-            document.getElementById('spin-btn').disabled = false;
-            document.getElementById('slot-back-btn').disabled = false;
-        }
-
-        function spinSlots() {
-            const betInput = document.getElementById('slot-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(SLOT_MIN_BET)) return;
-            if (bet < SLOT_MIN_BET) {
-                document.getElementById('slot-result').textContent = `Minimum bet is $${SLOT_MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('slot-result').textContent = "Insufficient funds!";
-                return;
-            }
-
-            updateBalance(-bet);
-            document.getElementById('slot-result').textContent = "Spinning...";
-            document.getElementById('spin-btn').classList.add('disabled-btn');
-            document.getElementById('spin-btn').disabled = true;
-            document.getElementById('slot-back-btn').disabled = true;
-
-            const reels = [
-                document.getElementById('reel1'),
-                document.getElementById('reel2'),
-                document.getElementById('reel3')
-            ];
-
-            const results = [];
-
-            let spinCount = 0;
-            const spinInterval = setInterval(() => {
-                reels.forEach((reel, index) => {
-                    if (spinCount < 50 + index * 10) { // Spin longer for each reel
-                        reel.textContent = SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)];
-                    }
-                });
-
-                spinCount++;
-                if (spinCount >= 80) { // Stop after max spins
-                    clearInterval(spinInterval);
-                    
-                    // Final results
-                    reels.forEach((reel) => {
-                        results.push(SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)]);
-                    });
-
-                    document.getElementById('reel1').textContent = results[0];
-                    document.getElementById('reel2').textContent = results[1];
-                    document.getElementById('reel3').textContent = results[2];
-
-                    processSlotPayout(bet, results);
-                }
-            }, 50);
-        }
-
-        function processSlotPayout(bet, results) {
-            let winAmount = 0;
-            let message = "";
-
-            if (results[0] === results[1] && results[1] === results[2]) {
-                // Jackpot: 3 in a row
-                winAmount = bet * 10;
-                message = `JACKPOT! ${results[0]}${results[1]}${results[2]}! You won $${winAmount}! 🏆`;
-            } else {
-                message = "Try again!";
-            }
-
-            if (winAmount > 0) {
-                updateBalance(winAmount);
-            }
-            document.getElementById('slot-result').textContent = message;
-            document.getElementById('spin-btn').classList.remove('disabled-btn');
-            document.getElementById('spin-btn').disabled = false;
-            document.getElementById('slot-back-btn').disabled = false;
-        }
-
-        // BLACKJACK
-        function initializeBlackjack() {
-            gameState.deck = createDeck();
-            gameState.dealerHand = [];
-            gameState.playerHand = [];
-            gameState.blackjackBet = 0;
-            document.getElementById('dealer-hand').innerHTML = '';
-            document.getElementById('player-hand').innerHTML = '';
-            document.getElementById('dealer-score').textContent = 0;
-            document.getElementById('player-score').textContent = 0;
-            document.getElementById('blackjack-result').textContent = 'Place your bet and hit DEAL!';
-            document.getElementById('blackjack-deal-btn').classList.remove('disabled-btn');
-            document.getElementById('blackjack-deal-btn').disabled = false;
-            document.getElementById('blackjack-hit-btn').classList.add('disabled-btn');
-            document.getElementById('blackjack-hit-btn').disabled = true;
-            document.getElementById('blackjack-stand-btn').classList.add('disabled-btn');
-            document.getElementById('blackjack-stand-btn').disabled = true;
-            document.getElementById('blackjack-bet').disabled = false;
-            document.getElementById('blackjack-back-btn').disabled = false;
-        }
-
-        function createDeck() {
-            const suits = ['♠', '♥', '♦', '♣'];
-            const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-            let deck = [];
-            for (let suit of suits) {
-                for (let value of values) {
-                    deck.push({ value, suit });
-                }
-            }
-            // Shuffle
-            for (let i = deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [deck[i], deck[j]] = [deck[j], deck[i]];
-            }
-            return deck;
-        }
-
-        function getCardValue(card) {
-            if (['K', 'Q', 'J'].includes(card.value)) return 10;
-            if (card.value === 'A') return 11;
-            return parseInt(card.value);
-        }
-
-        function calculateScore(hand) {
-            let score = hand.reduce((sum, card) => sum + getCardValue(card), 0);
-            let aces = hand.filter(card => card.value === 'A').length;
-
-            while (score > 21 && aces > 0) {
-                score -= 10;
-                aces--;
-            }
-            return score;
-        }
-
-        function renderHand(hand, elementId, hideFirst = false) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = '';
-            hand.forEach((card, index) => {
-                const isHidden = hideFirst && index === 0;
-                const color = (card.suit === '♥' || card.suit === '♦') ? 'text-red-600' : 'text-black';
-                
-                let cardHTML = '';
-                if (isHidden) {
-                    cardHTML = `<div class="card hidden"><p>?</p></div>`;
-                } else {
-                    cardHTML = `
-                        <div class="card bg-gray-200">
-                            <span class="text-sm self-start ${color}">${card.suit}</span>
-                            <span class="${color}">${card.value}</span>
-                            <span class="text-sm self-end ${color}">${card.suit}</span>
-                        </div>
-                    `;
-                }
-                container.innerHTML += cardHTML;
-            });
-        }
-
-        function dealBlackjack() {
-            const betInput = document.getElementById('blackjack-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(MIN_BET)) return;
-            if (bet < MIN_BET) {
-                document.getElementById('blackjack-result').textContent = `Minimum bet is $${MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('blackjack-result').textContent = "Insufficient funds!";
-                return;
-            }
-
-            initializeBlackjack();
-            gameState.blackjackBet = bet;
-            updateBalance(-bet);
-
-            // Deal initial cards
-            for (let i = 0; i < 2; i++) {
-                gameState.playerHand.push(gameState.deck.pop());
-                gameState.dealerHand.push(gameState.deck.pop());
-            }
-
-            renderHand(gameState.playerHand, 'player-hand');
-            renderHand(gameState.dealerHand, 'dealer-hand', true);
-            document.getElementById('player-score').textContent = calculateScore(gameState.playerHand);
-            document.getElementById('dealer-score').textContent = '??';
-
-            document.getElementById('blackjack-result').textContent = 'Hit or Stand?';
-            document.getElementById('blackjack-deal-btn').classList.add('disabled-btn');
-            document.getElementById('blackjack-deal-btn').disabled = true;
-            document.getElementById('blackjack-hit-btn').classList.remove('disabled-btn');
-            document.getElementById('blackjack-hit-btn').disabled = false;
-            document.getElementById('blackjack-stand-btn').classList.remove('disabled-btn');
-            document.getElementById('blackjack-stand-btn').disabled = false;
-            document.getElementById('blackjack-bet').disabled = true;
-            document.getElementById('blackjack-back-btn').disabled = true;
-
-            // Check for instant Blackjack
-            if (calculateScore(gameState.playerHand) === 21) {
-                document.getElementById('blackjack-result').textContent = 'BLACKJACK! 🎉';
-                standBlackjack(); // Auto-stand
-            }
-        }
-
-        function hitBlackjack() {
-            gameState.playerHand.push(gameState.deck.pop());
-            renderHand(gameState.playerHand, 'player-hand');
-            const score = calculateScore(gameState.playerHand);
-            document.getElementById('player-score').textContent = score;
-
-            if (score > 21) {
-                document.getElementById('blackjack-result').textContent = 'BUST! You lose.';
-                endBlackjackGame(false);
-            } else if (score === 21) {
-                document.getElementById('blackjack-result').textContent = '21! Auto-stand.';
-                standBlackjack();
-            }
-        }
-
-        function standBlackjack() {
-            // Reveal dealer's hidden card
-            renderHand(gameState.dealerHand, 'dealer-hand');
-            document.getElementById('dealer-score').textContent = calculateScore(gameState.dealerHand);
-
-            // Dealer's turn
-            while (calculateScore(gameState.dealerHand) < 17) {
-                gameState.dealerHand.push(gameState.deck.pop());
-                renderHand(gameState.dealerHand, 'dealer-hand');
-                document.getElementById('dealer-score').textContent = calculateScore(gameState.dealerHand);
-            }
-
-            const playerScore = calculateScore(gameState.playerHand);
-            const dealerScore = calculateScore(gameState.dealerHand);
-            let message = '';
-            let win = false;
-
-            if (dealerScore > 21) {
-                message = 'Dealer busts! You win! 🥳';
-                win = true;
-            } else if (playerScore > dealerScore) {
-                message = 'You win! 🥳';
-                win = true;
-            } else if (playerScore < dealerScore) {
-                message = 'Dealer wins. 😔';
-                win = false;
-            } else {
-                message = 'Push! It\'s a tie. 🤝';
-                win = null; // Push means bet is returned
-            }
-
-            document.getElementById('blackjack-result').textContent = message;
-            endBlackjackGame(win);
-        }
-
-        function endBlackjackGame(win) {
-            document.getElementById('blackjack-hit-btn').classList.add('disabled-btn');
-            document.getElementById('blackjack-hit-btn').disabled = true;
-            document.getElementById('blackjack-stand-btn').classList.add('disabled-btn');
-            document.getElementById('blackjack-stand-btn').disabled = true;
-            document.getElementById('blackjack-deal-btn').classList.remove('disabled-btn');
-            document.getElementById('blackjack-deal-btn').disabled = false;
-            document.getElementById('blackjack-bet').disabled = false;
-            document.getElementById('blackjack-back-btn').disabled = false;
-
-            if (win === true) {
-                const multiplier = (calculateScore(gameState.playerHand) === 21 && gameState.playerHand.length === 2) ? 2.5 : 2; // Blackjack pays 3:2
-                updateBalance(gameState.blackjackBet * multiplier);
-            } else if (win === null) {
-                updateBalance(gameState.blackjackBet); // Return bet
-            }
-        }
-        
-        // ROULETTE
-        function initializeRoulette() {
-            gameState.rouletteBet = {};
-            document.getElementById('roulette-message').textContent = 'Place your bet and spin!';
-            document.getElementById('roulette-wheel-result').textContent = '?';
-            document.getElementById('roulette-spin-btn').classList.remove('disabled-btn');
-            document.getElementById('roulette-spin-btn').disabled = false;
-            document.getElementById('roulette-chip-value').disabled = false;
-            document.getElementById('roulette-back-btn').disabled = false;
-            updateRouletteChipValue();
-            updateRouletteBetDisplay();
-            document.querySelectorAll('.roulette-bet-btn').forEach(btn => btn.disabled = false);
-        }
-
-        function updateRouletteChipValue() {
-            const input = document.getElementById('roulette-chip-value');
-            gameState.rouletteChipValue = parseInt(input.value) || MIN_BET;
-            if (gameState.rouletteChipValue < MIN_BET) gameState.rouletteChipValue = MIN_BET;
-            input.value = gameState.rouletteChipValue;
-            document.getElementById('roulette-chip-value-display').textContent = `$${gameState.rouletteChipValue}`;
-        }
-
-        function placeRouletteBet(button, betKey) {
-            if (checkLoanEligibility(gameState.rouletteChipValue)) return;
-            if (gameState.rouletteChipValue > gameState.currentBalance) {
-                document.getElementById('roulette-message').textContent = "Insufficient funds for this chip value!";
-                return;
-            }
-
-            const amount = gameState.rouletteChipValue;
-            gameState.rouletteBet[betKey] = (gameState.rouletteBet[betKey] || 0) + amount;
-            updateBalance(-amount);
-
-            document.getElementById('roulette-message').textContent = `Bet of $${amount} placed on ${betKey}.`;
-            updateRouletteBetDisplay();
-        }
-
-        function updateRouletteBetDisplay() {
-            document.querySelectorAll('[id^="bet-chip-"]').forEach(span => span.innerHTML = '');
-
-            for (const [key, amount] of Object.entries(gameState.rouletteBet)) {
-                if (amount > 0) {
-                    document.getElementById(`bet-chip-${key}`).innerHTML = `<span class="roulette-chip">$${amount}</span>`;
-                }
-            }
-        }
-
-        function spinRoulette() {
-            const totalBet = Object.values(gameState.rouletteBet).reduce((sum, amount) => sum + amount, 0);
-            if (totalBet === 0) {
-                document.getElementById('roulette-message').textContent = "Please place a bet before spinning!";
-                return;
-            }
-            
-            document.getElementById('roulette-message').textContent = "Wheel spinning...";
-            document.getElementById('roulette-spin-btn').classList.add('disabled-btn');
-            document.getElementById('roulette-spin-btn').disabled = true;
-            document.getElementById('roulette-chip-value').disabled = true;
-            document.getElementById('roulette-back-btn').disabled = true;
-            document.querySelectorAll('.roulette-bet-btn').forEach(btn => btn.disabled = true);
-
-            const outcomes = [
-                { num: 0, color: 'Green' }, ...Array.from({ length: 36 }, (_, i) => {
-                    const num = i + 1;
-                    return { num, color: (num % 2 === 0) ? (num >= 11 && num <= 18 || num >= 29 && num <= 36 ? 'Black' : 'Red') : (num >= 1 && num <= 10 || num >= 19 && num <= 28 ? 'Red' : 'Black') };
-                })
-            ];
-
-            // Animation
-            let spinCount = 0;
-            const spinDuration = 3000;
-            const startTime = Date.now();
-            
-            const animateSpin = () => {
-                const elapsedTime = Date.now() - startTime;
-                if (elapsedTime < spinDuration) {
-                    const currentOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-                    document.getElementById('roulette-wheel-result').textContent = currentOutcome.num;
-                    requestAnimationFrame(animateSpin);
-                } else {
-                    const winningIndex = Math.floor(Math.random() * outcomes.length);
-                    const winningOutcome = outcomes[winningIndex];
-                    document.getElementById('roulette-wheel-result').textContent = winningOutcome.num;
-                    processRoulettePayout(winningOutcome.num, winningOutcome.color);
-                }
+            // Hired!
+            state.job = {
+                title: title,
+                status: 'break',
+                endTime: Date.now() + CONFIG.breakTime
             };
-
-            animateSpin();
+            
+            // Signing bonus
+            state.balance += 300;
+            saveGame();
+            
+            notify(`HIRED! $300 Bonus. Break ends in 5m.`, 'win');
+            openJobModal(); // Refresh modal state
         }
 
-        function processRoulettePayout(winningNumber, winningColor) {
-            let totalWin = 0;
-            const number = winningNumber;
-            const color = winningColor;
+        function collectPaycheck() {
+            if (state.job && state.job.status === 'complete') {
+                state.balance += CONFIG.pay;
+                // Start next break
+                state.job.status = 'break';
+                state.job.endTime = Date.now() + CONFIG.breakTime;
+                saveGame();
+                notify(`PAYDAY! +$${CONFIG.pay}`, 'win');
+                document.getElementById('work-lockout').classList.add('hidden');
+                updateUI();
+                openJobModal();
+            }
+        }
 
-            for (const [betKey, betAmount] of Object.entries(gameState.rouletteBet)) {
-                let win = 0;
+        function quitJob() {
+            if(confirm("Quit your job? You'll stop earning money.")) {
+                state.job = null;
+                saveGame();
+                openJobModal();
+                updateUI();
+            }
+        }
 
-                // Color Bets (2x, Green 35x)
-                if (betKey === 'Red' && color === 'Red') win = betAmount * 2;
-                else if (betKey === 'Black' && color === 'Black') win = betAmount * 2;
-                else if (betKey === 'Green' && color === 'Green') win = betAmount * 35;
+        function gameLoop() {
+            const now = Date.now();
+            const timerNav = document.getElementById('nav-job-timer');
 
-                // Dozen Bets (3x)
-                else if (betKey === '1st12' && number >= 1 && number <= 12) win = betAmount * 3;
-                else if (betKey === '2nd12' && number >= 13 && number <= 24) win = betAmount * 3;
-                else if (betKey === '3rd12' && number >= 25 && number <= 36) win = betAmount * 3;
+            if (state.job) {
+                const timeLeft = Math.max(0, state.job.endTime - now);
+                const mins = Math.floor(timeLeft / 60000);
+                const secs = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+                const timeStr = `${mins}:${secs}`;
                 
-                totalWin += win;
-            }
-            
-            let message = `The ball landed on ${number} (${color}).`;
-            if (totalWin > 0) {
-                updateBalance(totalWin);
-                message += ` You won $${totalWin}! 🎉`;
-            } else {
-                message += ` No win. 😔`;
-            }
+                timerNav.textContent = `(${timeStr})`;
 
-            document.getElementById('roulette-message').textContent = message;
-            
-            // Cleanup
-            gameState.rouletteBet = {};
-            updateRouletteBetDisplay();
-            document.getElementById('roulette-spin-btn').classList.remove('disabled-btn');
-            document.getElementById('roulette-spin-btn').disabled = false;
-            document.getElementById('roulette-chip-value').disabled = false;
-            document.getElementById('roulette-back-btn').disabled = false;
-            document.querySelectorAll('.roulette-bet-btn').forEach(btn => btn.disabled = false);
-        }
+                // Modal Timer Update
+                if (!document.getElementById('job-modal').classList.contains('hidden')) {
+                    updateJobModalTimer();
+                }
 
-        // HORSE RACING
-        function initializeHorseRacing() {
-            gameState.horseBet = 0;
-            gameState.selectedHorseId = null;
-            document.getElementById('race-message').textContent = 'Pick a horse and place your bet (4x Payout)!';
-            document.getElementById('start-race-btn').classList.add('disabled-btn');
-            document.getElementById('start-race-btn').disabled = true;
-            document.getElementById('horse-racing-back-btn').disabled = false;
-            
-            // Reset horse positions
-            gameState.horses.forEach(h => h.position = 0);
-            
-            // Render initial track
-            const trackContainer = document.getElementById('race-track');
-            trackContainer.innerHTML = `<p class="text-center text-gray-500">Track ready. Place your bet!</p>`;
-            
-            // Render horse buttons
-            const horseButtonContainer = document.getElementById('horse-bet-buttons');
-            horseButtonContainer.innerHTML = '';
-            gameState.horses.forEach(horse => {
-                horseButtonContainer.innerHTML += `
-                    <button id="horse-btn-${horse.id}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-lg" onclick="selectHorse(${horse.id})">
-                        ${horse.emoji} ${horse.name}
-                    </button>
-                `;
-            });
-        }
-
-        function selectHorse(horseId) {
-            gameState.selectedHorseId = horseId;
-            document.getElementById('race-message').textContent = `Betting on Horse #${horseId}: ${gameState.horses.find(h => h.id === horseId).name}. Ready to bet.`;
-            
-            // Highlight selected horse button
-            document.querySelectorAll('[id^="horse-btn-"]').forEach(btn => {
-                btn.classList.remove('bg-yellow-500', 'text-gray-900');
-                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            });
-            const selectedBtn = document.getElementById(`horse-btn-${horseId}`);
-            selectedBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            selectedBtn.classList.add('bg-yellow-500', 'text-gray-900');
-
-            document.getElementById('start-race-btn').classList.remove('disabled-btn');
-            document.getElementById('start-race-btn').disabled = false;
-        }
-
-        function renderRaceTrack() {
-            const trackContainer = document.getElementById('race-track');
-            trackContainer.innerHTML = '';
-            
-            gameState.horses.forEach(horse => {
-                trackContainer.innerHTML += `
-                    <div class="horse-row">
-                        <div class="horse-name">${horse.name} ${horse.emoji}</div>
-                        <div class="progress-bar-container">
-                            <div id="progress-${horse.id}" class="progress-bar" style="width: ${horse.position}%;"></div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function startRace() {
-            const betInput = document.getElementById('horse-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(MIN_BET)) return;
-            if (!gameState.selectedHorseId) {
-                document.getElementById('race-message').textContent = "Please select a horse!";
-                return;
-            }
-            if (bet < MIN_BET) {
-                document.getElementById('race-message').textContent = `Minimum bet is $${MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('race-message').textContent = "Insufficient funds!";
-                return;
-            }
-
-            gameState.horseBet = bet;
-            updateBalance(-bet);
-            document.getElementById('race-message').textContent = "AND THEY'RE OFF!";
-            document.getElementById('start-race-btn').classList.add('disabled-btn');
-            document.getElementById('start-race-btn').disabled = true;
-            document.getElementById('horse-racing-back-btn').disabled = true;
-            document.getElementById('horse-bet-buttons').querySelectorAll('button').forEach(btn => btn.disabled = true);
-            
-            renderRaceTrack();
-            
-            let raceInterval;
-            const raceEndPosition = 100;
-            let finishedHorses = 0;
-
-            raceInterval = setInterval(() => {
-                let winningHorse = null;
-                
-                gameState.horses.forEach(horse => {
-                    if (horse.position < raceEndPosition) {
-                        // Movement is weighted by odds (higher odds = slower, lower odds = faster/more frequent movement)
-                        const movementFactor = (10 - horse.odds) / 10; // Simple inverse scale: 3.0 -> 0.7, 6.0 -> 0.4
-                        const speed = (Math.random() * 2 + 1) * movementFactor;
-                        horse.position = Math.min(raceEndPosition, horse.position + speed);
-                        
-                        document.getElementById(`progress-${horse.id}`).style.width = `${horse.position}%`;
-
-                        if (horse.position >= raceEndPosition && !winningHorse) {
-                            winningHorse = horse;
-                            finishedHorses++;
-                        }
+                // State Transitions
+                if (timeLeft <= 0) {
+                    if (state.job.status === 'break') {
+                        // Break over -> Start Work
+                        state.job.status = 'working';
+                        state.job.endTime = now + CONFIG.workTime;
+                        saveGame();
+                        // Trigger Lockout
+                        checkLockout();
+                    } else if (state.job.status === 'working') {
+                        // Work over -> Paycheck ready
+                        state.job.status = 'complete';
+                        // Keep lockout open but change button
+                        checkLockout(); 
                     }
-                });
-                
-                if (finishedHorses === 1) {
-                    clearInterval(raceInterval);
-                    processRacePayout(winningHorse);
-                }
-            }, 50);
-        }
-
-        function processRacePayout(winningHorse) {
-            let message = '';
-            let winAmount = 0;
-            
-            if (winningHorse.id === gameState.selectedHorseId) {
-                winAmount = gameState.horseBet * 4; // 3:1 payout + original bet returned
-                updateBalance(winAmount);
-                message = `${winningHorse.emoji} ${winningHorse.name} WINS! You won $${winAmount}! 🎉`;
-            } else {
-                message = `${winningHorse.emoji} ${winningHorse.name} WINS. Your horse did not place. 😔`;
-            }
-            
-            document.getElementById('race-message').textContent = message;
-            document.getElementById('start-race-btn').classList.remove('disabled-btn');
-            document.getElementById('start-race-btn').disabled = false;
-            document.getElementById('horse-racing-back-btn').disabled = false;
-            document.getElementById('horse-bet-buttons').querySelectorAll('button').forEach(btn => btn.disabled = false);
-        }
-
-        // PANDA FIGHTING
-        function initializePandaFighting() {
-            gameState.fighterBet = 0;
-            gameState.selectedFighter = null;
-            document.getElementById('fighting-result').textContent = 'Pick a champion and place your bet! (2x Payout)';
-            document.getElementById('start-brawl-btn').classList.add('disabled-btn');
-            document.getElementById('start-brawl-btn').disabled = true;
-            document.getElementById('fighting-back-btn').disabled = false;
-            document.getElementById('bet-brawler-1-btn').disabled = false;
-            document.getElementById('bet-brawler-2-btn').disabled = false;
-
-            // Reset button colors
-            document.getElementById('bet-brawler-1-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-brawler-1-btn').classList.add('bg-blue-600', 'hover:bg-blue-700');
-            document.getElementById('bet-brawler-2-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-brawler-2-btn').classList.add('bg-red-600', 'hover:bg-red-700');
-        }
-
-        function placeBrawlerBet(fighterId) {
-            gameState.selectedFighter = fighterId;
-            document.getElementById('fighting-result').textContent = `Betting on Brawler ${fighterId}. Ready to brawl!`;
-            
-            // Highlight selected button
-            document.getElementById('bet-brawler-1-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-brawler-1-btn').classList.add('bg-blue-600', 'hover:bg-blue-700');
-            document.getElementById('bet-brawler-2-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-brawler-2-btn').classList.add('bg-red-600', 'hover:bg-red-700');
-
-            const selectedBtn = document.getElementById(`bet-brawler-${fighterId}-btn`);
-            selectedBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'bg-red-600', 'hover:bg-red-700');
-            selectedBtn.classList.add('bg-yellow-500', 'text-gray-900');
-
-            document.getElementById('start-brawl-btn').classList.remove('disabled-btn');
-            document.getElementById('start-brawl-btn').disabled = false;
-        }
-
-        function startBrawl() {
-            const betInput = document.getElementById('fighter-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(MIN_BET)) return;
-            if (!gameState.selectedFighter) {
-                document.getElementById('fighting-result').textContent = "Please select a brawler!";
-                return;
-            }
-            if (bet < MIN_BET) {
-                document.getElementById('fighting-result').textContent = `Minimum bet is $${MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('fighting-result').textContent = "Insufficient funds!";
-                return;
-            }
-
-            gameState.fighterBet = bet;
-            updateBalance(-bet);
-            
-            document.getElementById('fighting-result').textContent = "BRAWL IN PROGRESS...";
-            document.getElementById('start-brawl-btn').classList.add('disabled-btn');
-            document.getElementById('start-brawl-btn').disabled = true;
-            document.getElementById('fighting-back-btn').disabled = true;
-            document.getElementById('bet-brawler-1-btn').disabled = true;
-            document.getElementById('bet-brawler-2-btn').disabled = true;
-
-            // Simple weighted random winner (Brawler 1 is slightly favored)
-            const winnerId = (Math.random() < 0.55) ? 1 : 2; 
-
-            setTimeout(() => {
-                processBrawlPayout(winnerId);
-            }, 2000);
-        }
-
-        function processBrawlPayout(winnerId) {
-            let message = '';
-            let winAmount = 0;
-            const winnerName = (winnerId === 1) ? 'Rocky' : 'Bamboo';
-
-            if (winnerId === gameState.selectedFighter) {
-                winAmount = gameState.fighterBet * 2;
-                updateBalance(winAmount);
-                message = `${winnerName} WINS! You won $${winAmount}! 🏆`;
-            } else {
-                message = `${winnerName} WINS. Your champion was defeated. 😔`;
-            }
-            
-            document.getElementById('fighting-result').textContent = message;
-            document.getElementById('start-brawl-btn').classList.remove('disabled-btn');
-            document.getElementById('start-brawl-btn').disabled = false;
-            document.getElementById('fighting-back-btn').disabled = false;
-            document.getElementById('bet-brawler-1-btn').disabled = false;
-            document.getElementById('bet-brawler-2-btn').disabled = false;
-        }
-
-        // COIN FLIP
-        function initializeCoinFlip() {
-            gameState.flipBet = 0;
-            gameState.selectedFlipSide = null;
-            document.getElementById('flip-result').textContent = 'Bet on Panda or Bamboo! (2x Payout)';
-            document.getElementById('start-flip-btn').classList.add('disabled-btn');
-            document.getElementById('start-flip-btn').disabled = true;
-            document.getElementById('flip-back-btn').disabled = false;
-            document.getElementById('bet-heads-btn').disabled = false;
-            document.getElementById('bet-tails-btn').disabled = false;
-            document.getElementById('coin-emoji').textContent = '🪙';
-            
-            // Reset button colors
-            document.getElementById('bet-heads-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-heads-btn').classList.add('bg-green-600', 'hover:bg-green-700');
-            document.getElementById('bet-tails-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-tails-btn').classList.add('bg-red-600', 'hover:bg-red-700');
-        }
-
-        function placeFlipBet(side) {
-            gameState.selectedFlipSide = side;
-            document.getElementById('flip-result').textContent = `Betting on ${side}. Ready to flip!`;
-            
-            // Highlight selected button
-            document.getElementById('bet-heads-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-heads-btn').classList.add('bg-green-600', 'hover:bg-green-700');
-            document.getElementById('bet-tails-btn').classList.remove('bg-yellow-500', 'text-gray-900');
-            document.getElementById('bet-tails-btn').classList.add('bg-red-600', 'hover:bg-red-700');
-
-            const selectedBtn = document.getElementById(side === 'Heads' ? 'bet-heads-btn' : 'bet-tails-btn');
-            selectedBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'bg-red-600', 'hover:bg-red-700');
-            selectedBtn.classList.add('bg-yellow-500', 'text-gray-900');
-
-            document.getElementById('start-flip-btn').classList.remove('disabled-btn');
-            document.getElementById('start-flip-btn').disabled = false;
-        }
-
-        function startFlip() {
-            const betInput = document.getElementById('flip-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(MIN_BET)) return;
-            if (!gameState.selectedFlipSide) {
-                document.getElementById('flip-result').textContent = "Please select a side!";
-                return;
-            }
-            if (bet < MIN_BET) {
-                document.getElementById('flip-result').textContent = `Minimum bet is $${MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('flip-result').textContent = "Insufficient funds!";
-                return;
-            }
-
-            gameState.flipBet = bet;
-            updateBalance(-bet);
-            
-            document.getElementById('flip-result').textContent = "FLIPPING...";
-            document.getElementById('start-flip-btn').classList.add('disabled-btn');
-            document.getElementById('start-flip-btn').disabled = true;
-            document.getElementById('flip-back-btn').disabled = true;
-            document.getElementById('bet-heads-btn').disabled = true;
-            document.getElementById('bet-tails-btn').disabled = true;
-
-            document.getElementById('coin-emoji').classList.add('animate-spin');
-
-            // Simple random winner
-            const result = (Math.random() < 0.5) ? 'Heads' : 'Tails'; 
-
-            setTimeout(() => {
-                document.getElementById('coin-emoji').classList.remove('animate-spin');
-                document.getElementById('coin-emoji').textContent = (result === 'Heads') ? '🐼' : '🎋';
-                processFlipPayout(result);
-            }, 2000);
-        }
-
-        function processFlipPayout(result) {
-            let message = '';
-            let winAmount = 0;
-
-            if (result === gameState.selectedFlipSide) {
-                winAmount = gameState.flipBet * 2;
-                updateBalance(winAmount);
-                message = `It's ${result}! You won $${winAmount}! 🥳`;
-            } else {
-                message = `It's ${result}. You lose. 😔`;
-            }
-            
-            document.getElementById('flip-result').textContent = message;
-            document.getElementById('start-flip-btn').classList.remove('disabled-btn');
-            document.getElementById('start-flip-btn').disabled = false;
-            document.getElementById('flip-back-btn').disabled = false;
-            document.getElementById('bet-heads-btn').disabled = false;
-            document.getElementById('bet-tails-btn').disabled = false;
-        }
-        
-        // POKER
-        function initializePoker() {
-            gameState.pokerDeck = createDeck();
-            gameState.pokerDealerHand = [];
-            gameState.pokerPlayerHand = [];
-            gameState.pokerCommunityCards = [];
-            gameState.pokerBet = 0;
-            gameState.pokerPhase = 'preflop';
-            document.getElementById('poker-dealer-hand').innerHTML = '';
-            document.getElementById('poker-player-hand').innerHTML = '';
-            document.getElementById('poker-community-cards').innerHTML = '';
-            document.getElementById('poker-result').textContent = 'Place your bet and hit DEAL!';
-            document.getElementById('poker-deal-btn').classList.remove('disabled-btn');
-            document.getElementById('poker-deal-btn').disabled = false;
-            document.getElementById('poker-fold-btn').classList.add('disabled-btn');
-            document.getElementById('poker-fold-btn').disabled = true;
-            document.getElementById('poker-call-btn').classList.add('disabled-btn');
-            document.getElementById('poker-call-btn').disabled = true;
-            document.getElementById('poker-bet').disabled = false;
-            document.getElementById('poker-back-btn').disabled = false;
-        }
-
-        function dealPoker() {
-            const betInput = document.getElementById('poker-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(MIN_BET)) return;
-            if (bet < MIN_BET) {
-                document.getElementById('poker-result').textContent = `Minimum bet is $${MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('poker-result').textContent = "Insufficient funds!";
-                return;
-            }
-            
-            initializePoker(); // Full reset
-
-            gameState.pokerBet = bet;
-            updateBalance(-bet);
-
-            // Deal hole cards
-            gameState.pokerPlayerHand.push(gameState.pokerDeck.pop(), gameState.pokerDeck.pop());
-            gameState.pokerDealerHand.push(gameState.pokerDeck.pop(), gameState.pokerDeck.pop());
-
-            renderHand(gameState.pokerPlayerHand, 'poker-player-hand');
-            renderHand(gameState.pokerDealerHand, 'poker-dealer-hand', true);
-            
-            gameState.pokerPhase = 'preflop';
-            document.getElementById('poker-result').textContent = 'Dealer has dealt. Call to continue or Fold.';
-            document.getElementById('poker-deal-btn').classList.add('disabled-btn');
-            document.getElementById('poker-deal-btn').disabled = true;
-            document.getElementById('poker-fold-btn').classList.remove('disabled-btn');
-            document.getElementById('poker-fold-btn').disabled = false;
-            document.getElementById('poker-call-btn').classList.remove('disabled-btn');
-            document.getElementById('poker-call-btn').disabled = false;
-            document.getElementById('poker-bet').disabled = true;
-            document.getElementById('poker-back-btn').disabled = true;
-        }
-
-        function foldPoker() {
-            document.getElementById('poker-result').textContent = 'FOLD! You lose the initial bet. 😔';
-            endPokerGame(false);
-        }
-
-        function callPoker() {
-            // Player calls, double the bet
-            const callBet = gameState.pokerBet;
-            if (callBet > gameState.currentBalance) {
-                document.getElementById('poker-result').textContent = "Insufficient funds to CALL! You must Fold.";
-                return;
-            }
-
-            updateBalance(-callBet);
-            gameState.pokerBet += callBet;
-            
-            // Draw all community cards (Flop, Turn, River)
-            gameState.pokerDeck.pop(); // Burn card
-            gameState.pokerCommunityCards.push(gameState.pokerDeck.pop(), gameState.pokerDeck.pop(), gameState.pokerDeck.pop()); // Flop
-            gameState.pokerDeck.pop(); // Burn card
-            gameState.pokerCommunityCards.push(gameState.pokerDeck.pop()); // Turn
-            gameState.pokerDeck.pop(); // Burn card
-            gameState.pokerCommunityCards.push(gameState.pokerDeck.pop()); // River
-
-            renderHand(gameState.pokerCommunityCards, 'poker-community-cards');
-            
-            document.getElementById('poker-result').textContent = 'All cards dealt. Determining winner...';
-            
-            // Show dealer's hand
-            renderHand(gameState.pokerDealerHand, 'poker-dealer-hand');
-            
-            // Determine winner after a short delay
-            setTimeout(() => {
-                const playerHand = gameState.pokerPlayerHand.concat(gameState.pokerCommunityCards);
-                const dealerHand = gameState.pokerDealerHand.concat(gameState.pokerCommunityCards);
-                
-                // Simplified winner check: highest pair value
-                const playerRank = getSimplifiedPokerRank(playerHand);
-                const dealerRank = getSimplifiedPokerRank(dealerHand);
-                
-                let win = null;
-                let message = '';
-
-                if (playerRank > dealerRank) {
-                    win = true;
-                    message = `YOU WIN! (Rank: ${playerRank}) vs Dealer (Rank: ${dealerRank}). 🎉`;
-                } else if (playerRank < dealerRank) {
-                    win = false;
-                    message = `DEALER WINS! (Rank: ${dealerRank}) vs You (Rank: ${playerRank}). 😔`;
                 } else {
-                    win = null;
-                    message = `PUSH! It's a tie. Your bet is returned. 🤝`;
+                    // Timer running
+                    if (state.job.status === 'working') checkLockout(); // Ensure lockout stays up
                 }
+            }
+        }
+
+        function updateJobModalTimer() {
+            const now = Date.now();
+            if (!state.job) return;
+            
+            const timeLeft = Math.max(0, state.job.endTime - now);
+            const mins = Math.floor(timeLeft / 60000);
+            const secs = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+            const bigTimer = document.getElementById('job-timer-big');
+            const statusText = document.getElementById('job-status-text');
+            const instruction = document.getElementById('job-instruction');
+            const payBtn = document.getElementById('btn-collect-pay');
+
+            bigTimer.textContent = `${mins}:${secs}`;
+
+            if (state.job.status === 'break') {
+                statusText.textContent = "ON BREAK";
+                statusText.className = "font-bold text-green-400";
+                instruction.textContent = "Gamble while you can!";
+                payBtn.classList.add('hidden');
+            } else if (state.job.status === 'working') {
+                statusText.textContent = "WORKING";
+                statusText.className = "font-bold text-red-400";
+                instruction.textContent = "You should be locked out working.";
+                payBtn.classList.add('hidden');
+            } else if (state.job.status === 'complete') {
+                statusText.textContent = "SHIFT DONE";
+                bigTimer.textContent = "00:00";
+                instruction.textContent = "Clock out to get paid.";
+                payBtn.classList.remove('hidden');
+            }
+        }
+
+        function checkLockout() {
+            const lockout = document.getElementById('work-lockout');
+            const now = Date.now();
+            
+            if (state.job && state.job.status === 'working') {
+                lockout.classList.remove('hidden');
+                // Update lockout timer
+                const timeLeft = Math.max(0, state.job.endTime - now);
+                const mins = Math.floor(timeLeft / 60000);
+                const secs = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+                document.getElementById('work-timer').textContent = `${mins}:${secs}`;
                 
-                document.getElementById('poker-result').textContent = message;
-                endPokerGame(win);
+                // Ensure Flappy Loop is running if visible
+                if(!flappyRunning) initFlappy();
 
-            }, 2000);
-        }
-
-        // Extremely simplified ranking function for Poker
-        function getSimplifiedPokerRank(hand) {
-            // Count card values (A=14, K=13, Q=12, J=11)
-            const cardCounts = {};
-            hand.forEach(card => {
-                let value = getCardValue(card);
-                if (card.value === 'A') value = 14;
-                if (card.value === 'K') value = 13;
-                if (card.value === 'Q') value = 12;
-                if (card.value === 'J') value = 11;
-                cardCounts[value] = (cardCounts[value] || 0) + 1;
-            });
-            
-            let maxCount = 0;
-            let maxRank = 0; // Highest value of the highest count group
-
-            for (const [value, count] of Object.entries(cardCounts)) {
-                const numValue = parseInt(value);
-                if (count > maxCount) {
-                    maxCount = count;
-                    maxRank = numValue;
-                } else if (count === maxCount && numValue > maxRank) {
-                    maxRank = numValue;
+            } else if (state.job && state.job.status === 'complete') {
+                lockout.classList.remove('hidden');
+                document.getElementById('work-timer').textContent = "DONE";
+                
+                const container = document.getElementById('work-timer').parentElement;
+                if (!document.getElementById('lockout-collect-btn')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'lockout-collect-btn';
+                    btn.className = "btn-primary px-8 py-4 rounded-xl text-2xl font-bold mt-4";
+                    btn.innerText = "COLLECT PAYCHECK";
+                    btn.onclick = collectPaycheck;
+                    document.getElementById('work-timer').replaceWith(btn);
+                }
+            } else {
+                lockout.classList.add('hidden');
+                // Restore timer if it was replaced
+                if(document.getElementById('lockout-collect-btn')) {
+                     const div = document.createElement('div');
+                     div.id = 'work-timer';
+                     div.className = "text-6xl font-mono text-white";
+                     document.getElementById('lockout-collect-btn').replaceWith(div);
                 }
             }
+        }
+
+        // --- LOAN ---
+        function acceptLoan() {
+            state.balance += 100;
+            saveGame();
+            updateUI();
+            document.getElementById('loan-modal').classList.add('hidden');
+            notify("Loan Accepted. Don't lose it.", 'info');
+        }
+
+
+        // --- GAMES MANAGER ---
+        function openGame(gameId) {
+            if (gameId === 'vip-slots' && state.balance < CONFIG.vipThreshold) {
+                notify("VIP Only! Need $1,000", 'lose');
+                return;
+            }
             
-            // Simple Rank: 100 * (Number of Matching Cards) + (Highest Card Value of that Match)
-            // e.g., Three 8s = 308. Two 10s = 210.
-            return maxCount * 100 + maxRank;
+            document.getElementById('view-lobby').classList.add('hidden');
+            document.getElementById('game-stage').classList.remove('hidden');
+            const container = document.getElementById('active-game-content');
+            
+            // Inject Game HTML
+            container.innerHTML = getGameHTML(gameId);
+            
+            // Init Game Logic
+            if(gameId === 'slots') initSlots();
+            if(gameId === 'blackjack') initBlackjack();
+            if(gameId === 'racing') initRacing();
+            if(gameId === 'poker') initPoker();
+            if(gameId === 'coinflip') initCoinFlip();
+            if(gameId === 'craps') initCraps();
+            if(gameId === 'roulette') initRoulette();
+            if(gameId === 'panda-fighting') initPandaFighting();
         }
 
-        function endPokerGame(win) {
-            document.getElementById('poker-fold-btn').classList.add('disabled-btn');
-            document.getElementById('poker-fold-btn').disabled = true;
-            document.getElementById('poker-call-btn').classList.add('disabled-btn');
-            document.getElementById('poker-call-btn').disabled = true;
-            document.getElementById('poker-deal-btn').classList.remove('disabled-btn');
-            document.getElementById('poker-deal-btn').disabled = false;
-            document.getElementById('poker-bet').disabled = false;
-            document.getElementById('poker-back-btn').disabled = false;
+        function getGameHTML(id) {
+            if(id === 'slots') return `
+                <h2 class="text-3xl text-center mb-8">Panda Slots</h2>
+                <div class="flex justify-center gap-4 mb-8">
+                    <div id="reel1" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div>
+                    <div id="reel2" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div>
+                    <div id="reel3" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div>
+                </div>
+                <div class="text-center space-y-4">
+                    <p class="text-slate-400">Bet: $10</p>
+                    <button onclick="spinSlots()" class="btn-primary px-12 py-4 rounded-full text-2xl font-bold">SPIN</button>
+                    <p id="slot-msg" class="h-6 font-bold text-yellow-400"></p>
+                </div>`;
+            
+            if(id === 'blackjack') return `
+                <h2 class="text-3xl text-center mb-4">Blackjack</h2>
+                <div class="flex justify-between max-w-md mx-auto mb-8">
+                    <div class="text-center">
+                        <p class="text-slate-400 text-sm mb-2">DEALER <span id="d-score" class="bg-slate-700 px-2 rounded ml-2">0</span></p>
+                        <div id="d-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-slate-400 text-sm mb-2">YOU <span id="p-score" class="bg-slate-700 px-2 rounded ml-2">0</span></p>
+                        <div id="p-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div>
+                    </div>
+                </div>
+                <div class="text-center space-y-4">
+                    <div id="bj-controls" class="space-x-2">
+                        <button onclick="startBlackjack()" class="btn-primary px-8 py-2 rounded-lg">Deal ($20)</button>
+                    </div>
+                    <div id="bj-actions" class="hidden space-x-2">
+                        <button onclick="hit()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-lg font-bold">Hit</button>
+                        <button onclick="stand()" class="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded-lg font-bold">Stand</button>
+                    </div>
+                    <p id="bj-msg" class="h-6 font-bold text-yellow-400"></p>
+                </div>`;
 
-            if (win === true) {
-                updateBalance(gameState.pokerBet * 2); // Win total pot
-            } else if (win === null) {
-                updateBalance(gameState.pokerBet); // Return original bet (Push)
-            }
+            if(id === 'racing') return `
+                <h2 class="text-3xl text-center mb-6">Fluff's Races</h2>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6 space-y-4" id="race-track">
+                    <!-- Horses injected here -->
+                </div>
+                <div class="text-center">
+                    <p class="mb-2">Pick Winner ($20 Bet, 4x Payout)</p>
+                    <div class="flex justify-center gap-2 mb-4">
+                        <button onclick="betHorse(0)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🐼 Panda</button>
+                        <button onclick="betHorse(1)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🎋 Bamboo</button>
+                        <button onclick="betHorse(2)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🚀 Flash</button>
+                        <button onclick="betHorse(3)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🐌 Slowpoke</button>
+                    </div>
+                    <p id="race-msg" class="h-6 font-bold text-yellow-400"></p>
+                </div>`;
+            
+            if(id === 'craps') return `
+                <h2 class="text-3xl text-center mb-6">Craps</h2>
+                <div class="flex justify-center gap-4 mb-8 text-6xl">
+                    <div id="die1" class="bg-white text-black w-20 h-20 flex items-center justify-center rounded-lg shadow-lg">?</div>
+                    <div id="die2" class="bg-white text-black w-20 h-20 flex items-center justify-center rounded-lg shadow-lg">?</div>
+                </div>
+                <div class="text-center space-y-4">
+                    <div class="text-xl">Point: <span id="craps-point" class="font-bold text-yellow-400">OFF</span></div>
+                    <div class="flex justify-center gap-4">
+                        <input type="number" id="craps-bet" value="10" class="bg-slate-800 border border-slate-600 rounded px-4 py-2 w-24 text-center">
+                        <button onclick="rollCraps()" class="btn-primary px-8 py-2 rounded-lg font-bold">Roll (Pass Line)</button>
+                    </div>
+                    <p id="craps-msg" class="h-6 font-bold"></p>
+                </div>`;
+
+            if(id === 'poker') return `
+                <h2 class="text-3xl text-center mb-6">Texas Hold'em</h2>
+                <div class="flex justify-between max-w-md mx-auto mb-4">
+                     <div class="text-center">
+                        <p class="text-slate-400 text-sm mb-2">DEALER</p>
+                        <div id="pk-dealer-hand" class="flex justify-center -space-x-4 min-h-[84px]"></div>
+                     </div>
+                     <div class="text-center">
+                        <p class="text-slate-400 text-sm mb-2">YOU</p>
+                        <div id="pk-player-hand" class="flex justify-center -space-x-4 min-h-[84px]"></div>
+                     </div>
+                </div>
+                <div class="text-center mb-6">
+                    <p class="text-slate-400 text-sm mb-2">COMMUNITY</p>
+                    <div id="pk-community" class="flex justify-center gap-2 min-h-[84px]"></div>
+                </div>
+                <div class="text-center space-y-4">
+                     <div id="pk-controls">
+                        <button onclick="startPoker()" class="btn-primary px-8 py-2 rounded-lg">Deal ($20)</button>
+                     </div>
+                     <div id="pk-actions" class="hidden space-x-2">
+                        <button onclick="callPoker()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-lg font-bold">Call</button>
+                        <button onclick="foldPoker()" class="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded-lg font-bold">Fold</button>
+                     </div>
+                     <p id="pk-msg" class="h-6 font-bold text-yellow-400"></p>
+                </div>`;
+
+            if(id === 'coinflip') return `
+                <h2 class="text-3xl text-center mb-6">Coin Flip</h2>
+                <div id="coin-display" class="coin-display">🪙</div>
+                <div class="text-center space-y-4">
+                     <div class="flex justify-center gap-4">
+                        <button onclick="flipCoin('Heads')" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded text-xl">🐼 Heads</button>
+                        <button onclick="flipCoin('Tails')" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded text-xl">🎋 Tails</button>
+                     </div>
+                     <p class="text-slate-400">Bet: $20 | Win: $40</p>
+                     <p id="cf-msg" class="h-6 font-bold text-yellow-400"></p>
+                </div>`;
+            
+            if(id === 'roulette') return `
+                <h2 class="text-3xl text-center mb-6">Roulette</h2>
+                <div class="text-center mb-6">
+                    <div id="roulette-wheel" class="text-6xl mb-2">🎡</div>
+                    <p id="roulette-result" class="text-2xl font-bold text-yellow-400">Place Bet</p>
+                </div>
+                <div class="flex justify-center gap-4">
+                    <button onclick="betRoulette('Red')" class="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded font-bold">Red (2x)</button>
+                    <button onclick="betRoulette('Black')" class="bg-slate-900 border border-slate-600 hover:bg-slate-800 text-white px-6 py-3 rounded font-bold">Black (2x)</button>
+                    <button onclick="betRoulette('Green')" class="bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded font-bold">Green (14x)</button>
+                </div>
+                <p class="text-center mt-4 text-slate-400">Bet: $20</p>`;
+
+            if(id === 'panda-fighting') return `
+                <h2 class="text-3xl text-center mb-6">Panda Brawlers</h2>
+                <div class="brawler-display">
+                     <div class="text-center">
+                        <div class="text-6xl mb-2">🥊</div>
+                        <p class="font-bold text-red-400">Rocky</p>
+                     </div>
+                     <div class="text-2xl font-bold text-slate-500">VS</div>
+                     <div class="text-center">
+                        <div class="text-6xl mb-2">🥋</div>
+                        <p class="font-bold text-blue-400">Bamboo</p>
+                     </div>
+                </div>
+                <div class="text-center space-y-4">
+                    <div class="flex justify-center gap-4">
+                        <button onclick="betFighter('Rocky')" class="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded font-bold">Bet Rocky ($20)</button>
+                        <button onclick="betFighter('Bamboo')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold">Bet Bamboo ($20)</button>
+                    </div>
+                    <p id="pf-msg" class="h-6 font-bold text-yellow-400"></p>
+                </div>`;
+                
+            return `<div class="text-center py-10">Game Under Renovation 🚧</div>`;
         }
+
+        // --- GAME LOGIC IMPLEMENTATIONS ---
         
-        // CRAPS
-        function initializeCraps() {
-            gameState.crapsPoint = null;
-            gameState.crapsBetAmount = 0;
-            gameState.crapsBetType = null;
-            document.getElementById('craps-point').textContent = 'OFF';
-            document.getElementById('craps-roll-total').textContent = '?';
-            document.getElementById('die1').textContent = '🎲';
-            document.getElementById('die2').textContent = '🎲';
-            document.getElementById('craps-message').textContent = 'Place a Pass Line Bet or Roll!';
-            document.getElementById('craps-roll-btn').classList.add('disabled-btn');
-            document.getElementById('craps-roll-btn').disabled = true;
-            document.getElementById('craps-pass-line-btn').classList.remove('disabled-btn');
-            document.getElementById('craps-pass-line-btn').disabled = false;
-            document.getElementById('craps-bet').disabled = false;
-            document.getElementById('craps-back-btn').disabled = false;
-        }
-
-        function placeCrapsBet() {
-            const betInput = document.getElementById('craps-bet');
-            const bet = parseInt(betInput.value);
-
-            if (checkLoanEligibility(MIN_BET)) return;
-            if (bet < MIN_BET) {
-                document.getElementById('craps-message').textContent = `Minimum bet is $${MIN_BET}!`;
-                return;
-            }
-            if (bet > gameState.currentBalance) {
-                document.getElementById('craps-message').textContent = "Insufficient funds!";
-                return;
-            }
-            if (gameState.crapsBetAmount > 0) {
-                 document.getElementById('craps-message').textContent = "Bet already placed. Roll the dice!";
-                return;
-            }
-
-            gameState.crapsBetAmount = bet;
-            gameState.crapsBetType = 'pass_line';
-            updateBalance(-bet);
-
-            document.getElementById('craps-message').textContent = `Pass Line bet of $${bet} placed. Roll the dice!`;
-            document.getElementById('craps-roll-btn').classList.remove('disabled-btn');
-            document.getElementById('craps-roll-btn').disabled = false;
-            document.getElementById('craps-pass-line-btn').classList.add('disabled-btn');
-            document.getElementById('craps-pass-line-btn').disabled = true;
-            document.getElementById('craps-bet').disabled = true;
-            document.getElementById('craps-back-btn').disabled = true;
-        }
-
-        function rollDice() {
-            const die1 = Math.floor(Math.random() * 6) + 1;
-            const die2 = Math.floor(Math.random() * 6) + 1;
-            return { die1, die2, total: die1 + die2 };
-        }
-        
-        function getDiceEmoji(roll) {
-            return DICE_EMOJIS[roll - 1]; // Array is 0-indexed
-        }
-
-        function rollCraps() {
-            document.getElementById('craps-roll-btn').disabled = true;
-            document.getElementById('craps-message').textContent = "Rolling...";
-
-            // Animation
-            let rollCount = 0;
-            const rollInterval = setInterval(() => {
-                const roll = rollDice();
-                document.getElementById('die1').textContent = getDiceEmoji(roll.die1);
-                document.getElementById('die2').textContent = getDiceEmoji(roll.die2);
-                document.getElementById('craps-roll-total').textContent = '?';
-                rollCount++;
-                if (rollCount >= 20) {
-                    clearInterval(rollInterval);
-                    const finalRoll = rollDice();
-                    document.getElementById('die1').textContent = getDiceEmoji(finalRoll.die1);
-                    document.getElementById('die2').textContent = getDiceEmoji(finalRoll.die2);
-                    document.getElementById('craps-roll-total').textContent = finalRoll.total;
-                    processCrapsRoll(finalRoll.total);
+        // SLOTS
+        function initSlots() { /* Ready */ }
+        function spinSlots() {
+            if (state.balance < 10) return notify("Broke!", 'lose');
+            state.balance -= 10;
+            saveGame(); updateUI();
+            
+            const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+            const symbols = ['🍒', '🍋', '🐼', '💎', '7️⃣'];
+            
+            reels.forEach(r => r.classList.add('reel-blur'));
+            
+            let spins = 0;
+            const interval = setInterval(() => {
+                reels.forEach(r => r.textContent = symbols[Math.floor(Math.random() * symbols.length)]);
+                spins++;
+                if (spins > 15) {
+                    clearInterval(interval);
+                    reels.forEach(r => r.classList.remove('reel-blur'));
+                    
+                    const res = reels.map(r => r.textContent);
+                    if (res[0] === res[1] && res[1] === res[2]) {
+                        const win = res[0] === '🐼' ? 500 : 100;
+                        state.balance += win;
+                        notify(`JACKPOT! +$${win}`, 'win');
+                        document.getElementById('slot-msg').textContent = "WINNER!";
+                    } else {
+                        document.getElementById('slot-msg').textContent = "";
+                    }
+                    saveGame(); updateUI();
                 }
             }, 100);
         }
 
-        function processCrapsRoll(total) {
-            let message = '';
-            let win = false;
-            let gameOver = false;
-
-            if (gameState.crapsPoint === null) {
-                // Come Out Roll
-                if (total === 7 || total === 11) {
-                    message = `Natural ${total}! You win the Pass Line bet! 🎉`;
-                    win = true;
-                    gameOver = true;
-                } else if (total === 2 || total === 3 || total === 12) {
-                    message = `Craps ${total}! Pass Line loses. 😔`;
-                    win = false;
-                    gameOver = true;
-                } else {
-                    // Set Point
-                    gameState.crapsPoint = total;
-                    document.getElementById('craps-point').textContent = total;
-                    message = `Point is set to ${total}. Roll again to hit the point or seven out!`;
-                    document.getElementById('craps-roll-btn').disabled = false;
-                }
+        // BLACKJACK
+        let bjDeck = [], dHand = [], pHand = [];
+        function initBlackjack() {
+            document.getElementById('bj-controls').classList.remove('hidden');
+            document.getElementById('bj-actions').classList.add('hidden');
+        }
+        function startBlackjack() {
+            if (state.balance < 20) return notify("Need $20", 'lose');
+            state.balance -= 20; updateUI();
+            
+            bjDeck = createDeck();
+            pHand = [drawCard(), drawCard()];
+            dHand = [drawCard(), drawCard()];
+            
+            renderBJ(true); // Hide dealer 2nd card
+            
+            document.getElementById('bj-controls').classList.add('hidden');
+            document.getElementById('bj-actions').classList.remove('hidden');
+            
+            if (getHandValue(pHand) === 21) endBJ();
+        }
+        function createDeck() {
+            const suits = ['♠','♥','♦','♣'];
+            const vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            let d = [];
+            for(let s of suits) for(let v of vals) d.push({v,s});
+            return d.sort(()=>Math.random()-.5);
+        }
+        function drawCard() { return bjDeck.pop(); }
+        function getHandValue(h) {
+            let sum = 0, aces = 0;
+            h.forEach(c => {
+                if(c.v === 'A') aces++;
+                else if(['J','Q','K'].includes(c.v)) sum += 10;
+                else sum += parseInt(c.v);
+            });
+            for(let i=0; i<aces; i++) sum += 11;
+            while(sum > 21 && aces > 0) { sum -= 10; aces--; }
+            return sum;
+        }
+        function renderBJ(hideDealer) {
+            const pDiv = document.getElementById('p-hand');
+            const dDiv = document.getElementById('d-hand');
+            
+            pDiv.innerHTML = pHand.map(c => `<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
+            document.getElementById('p-score').textContent = getHandValue(pHand);
+            
+            if(hideDealer) {
+                dDiv.innerHTML = `<div class="card ${['♥','♦'].includes(dHand[0].s)?'red':''}"><span class="suit-sm">${dHand[0].s}</span>${dHand[0].v}</div>
+                                  <div class="card bg-blue-600 border-2 border-white"></div>`;
+                document.getElementById('d-score').textContent = "?";
             } else {
-                // Point Roll
-                if (total === gameState.crapsPoint) {
-                    message = `You hit the Point, ${total}! Pass Line wins! 🎉`;
-                    win = true;
-                    gameOver = true;
-                } else if (total === 7) {
-                    message = `Seven Out! Pass Line loses. 😔`;
-                    win = false;
-                    gameOver = true;
-                } else {
-                    // Keep rolling
-                    message = `Rolled ${total}. Try again for the Point of ${gameState.crapsPoint}.`;
-                    document.getElementById('craps-roll-btn').disabled = false;
-                }
-            }
-
-            document.getElementById('craps-message').textContent = message;
-
-            if (gameOver) {
-                if (win) {
-                    updateBalance(gameState.crapsBetAmount * 2);
-                }
-                // Reset for next game
-                setTimeout(() => {
-                    initializeCraps();
-                    document.getElementById('craps-message').textContent = message + " Start a new game.";
-                }, 2000);
+                dDiv.innerHTML = dHand.map(c => `<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
+                document.getElementById('d-score').textContent = getHandValue(dHand);
             }
         }
+        function hit() {
+            pHand.push(drawCard());
+            renderBJ(true);
+            if (getHandValue(pHand) > 21) endBJ();
+        }
+        function stand() { endBJ(); }
+        function endBJ() {
+            document.getElementById('bj-actions').classList.add('hidden');
+            document.getElementById('bj-controls').classList.remove('hidden');
+            
+            // Dealer logic
+            let pScore = getHandValue(pHand);
+            if (pScore <= 21) {
+                while(getHandValue(dHand) < 17) dHand.push(drawCard());
+            }
+            renderBJ(false);
+            
+            let dScore = getHandValue(dHand);
+            let msg = "";
+            
+            if (pScore > 21) msg = "Bust! You Lose.";
+            else if (dScore > 21) { msg = "Dealer Busts! Win $40"; state.balance += 40; notify("Win!", 'win'); }
+            else if (pScore > dScore) { msg = "You Win! $40"; state.balance += 40; notify("Win!", 'win'); }
+            else if (pScore === dScore) { msg = "Push. $20 Back"; state.balance += 20; }
+            else msg = "Dealer Wins.";
+            
+            document.getElementById('bj-msg').textContent = msg;
+            saveGame(); updateUI();
+        }
+
+        // HORSE RACING
+        const horses = ["🐼 Panda", "🎋 Bamboo", "🚀 Flash", "🐌 Slowpoke"];
+        function initRacing() {
+            const track = document.getElementById('race-track');
+            track.innerHTML = horses.map((h, i) => `
+                <div class="mb-2">
+                    <div class="text-xs mb-1 flex justify-between"><span>${h}</span><span id="h-dist-${i}">0m</span></div>
+                    <div class="w-full bg-slate-800 rounded-full h-4">
+                        <div id="h-bar-${i}" class="bg-blue-500 h-4 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function betHorse(idx) {
+            if(state.balance < 20) return notify("Need $20", 'lose');
+            state.balance -= 20; updateUI();
+            
+            document.getElementById('race-msg').textContent = `Running... Go ${horses[idx]}!`;
+            
+            let pos = [0,0,0,0];
+            const interval = setInterval(() => {
+                let winner = -1;
+                for(let i=0; i<4; i++) {
+                    pos[i] += Math.random() * 5;
+                    document.getElementById(`h-bar-${i}`).style.width = Math.min(100, pos[i]) + '%';
+                    document.getElementById(`h-dist-${i}`).innerText = Math.floor(pos[i]) + 'm';
+                    if (pos[i] >= 100) winner = i;
+                }
+                
+                if (winner > -1) {
+                    clearInterval(interval);
+                    if (winner === idx) {
+                        state.balance += 80;
+                        notify(`Won $80!`, 'win');
+                        document.getElementById('race-msg').textContent = "WINNER!";
+                    } else {
+                        document.getElementById('race-msg').textContent = `${horses[winner]} won. You lost.`;
+                    }
+                    saveGame(); updateUI();
+                }
+            }, 100);
+        }
+
+        // CRAPS
+        let point = 0;
+        function initCraps() {
+             document.getElementById('craps-point').textContent = "OFF";
+             point = 0;
+        }
+        function rollCraps() {
+            const betInput = document.getElementById('craps-bet');
+            const bet = parseInt(betInput.value);
+            
+            if (bet > state.balance) return notify("Not enough cash!", 'lose');
+            
+            // Dice Animation
+            let rolls = 0;
+            const interval = setInterval(() => {
+                const d1 = Math.ceil(Math.random() * 6);
+                const d2 = Math.ceil(Math.random() * 6);
+                document.getElementById('die1').textContent = d1;
+                document.getElementById('die2').textContent = d2;
+                rolls++;
+                
+                if (rolls > 10) {
+                    clearInterval(interval);
+                    const total = d1 + d2;
+                    let msg = `Rolled ${total}.`;
+                    
+                    if (point === 0) { // Come Out
+                        if (total === 7 || total === 11) {
+                            msg += " WIN!";
+                            state.balance += bet;
+                            notify("Pass Line Win!", 'win');
+                        } else if (total === 2 || total === 3 || total === 12) {
+                            msg += " CRAPS! Lose.";
+                            state.balance -= bet;
+                            notify("Craps!", 'lose');
+                        } else {
+                            point = total;
+                            document.getElementById('craps-point').textContent = point;
+                            msg += ` Point is ${point}.`;
+                        }
+                    } else { // Point Phase
+                        if (total === point) {
+                            msg += " HIT POINT! WIN!";
+                            state.balance += bet;
+                            point = 0;
+                            document.getElementById('craps-point').textContent = "OFF";
+                            notify("Hit Point!", 'win');
+                        } else if (total === 7) {
+                            msg += " SEVEN OUT! Lose.";
+                            state.balance -= bet;
+                            point = 0;
+                            document.getElementById('craps-point').textContent = "OFF";
+                            notify("Seven Out", 'lose');
+                        }
+                    }
+                    
+                    document.getElementById('craps-msg').textContent = msg;
+                    saveGame(); updateUI();
+                }
+            }, 50);
+        }
+
+        // COIN FLIP
+        function initCoinFlip() { /* Ready */ }
+        function flipCoin(side) {
+            if(state.balance < 20) return notify("Need $20", 'lose');
+            state.balance -= 20; updateUI();
+            
+            const coin = document.getElementById('coin-display');
+            document.getElementById('cf-msg').textContent = "Flipping...";
+            
+            // Animation
+            let flips = 0;
+            const interval = setInterval(() => {
+                coin.textContent = flips % 2 === 0 ? "🪙" : "✨";
+                flips++;
+                if (flips > 10) {
+                    clearInterval(interval);
+                    const res = Math.random() < 0.5 ? 'Heads' : 'Tails';
+                    coin.textContent = res === 'Heads' ? "🐼" : "🎋";
+                    
+                    if (res === side) {
+                        state.balance += 40;
+                        notify("Won $40!", 'win');
+                        document.getElementById('cf-msg').textContent = "WINNER!";
+                    } else {
+                        document.getElementById('cf-msg').textContent = "Lost.";
+                    }
+                    saveGame(); updateUI();
+                }
+            }, 100);
+        }
+
+        // POKER
+        let pkDeck = [], pkHand = [], pkDealer = [], pkComm = [];
+        function initPoker() {
+             document.getElementById('pk-controls').classList.remove('hidden');
+             document.getElementById('pk-actions').classList.add('hidden');
+             document.getElementById('pk-dealer-hand').innerHTML = '';
+             document.getElementById('pk-player-hand').innerHTML = '';
+             document.getElementById('pk-community').innerHTML = '';
+        }
+        function startPoker() {
+            if (state.balance < 20) return notify("Need $20", 'lose');
+            state.balance -= 20; updateUI();
+            
+            pkDeck = createDeck();
+            pkHand = [drawCard(), drawCard()];
+            pkDealer = [drawCard(), drawCard()];
+            pkComm = [];
+            
+            // Render Player Hand
+            const pDiv = document.getElementById('pk-player-hand');
+            pDiv.innerHTML = pkHand.map(c => `<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
+            
+            // Render Dealer Backs
+            document.getElementById('pk-dealer-hand').innerHTML = `<div class="card bg-blue-600 border-2 border-white"></div><div class="card bg-blue-600 border-2 border-white"></div>`;
+            
+            document.getElementById('pk-controls').classList.add('hidden');
+            document.getElementById('pk-actions').classList.remove('hidden');
+            document.getElementById('pk-msg').textContent = "Call ($20) or Fold?";
+        }
+        function foldPoker() {
+             document.getElementById('pk-msg').textContent = "Folded.";
+             initPoker();
+        }
+        function callPoker() {
+            if (state.balance < 20) return notify("Need $20 to Call", 'lose');
+            state.balance -= 20; updateUI();
+            
+            // Deal Community
+            pkComm = [drawCard(), drawCard(), drawCard(), drawCard(), drawCard()];
+            document.getElementById('pk-community').innerHTML = pkComm.map(c => `<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
+            
+            // Reveal Dealer
+            const dDiv = document.getElementById('pk-dealer-hand');
+            dDiv.innerHTML = pkDealer.map(c => `<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
+            
+            // Simple Logic: High card sum
+            const pVal = getHandValue(pkHand) + getHandValue(pkComm.slice(0,3)); // Simplified logic
+            const dVal = getHandValue(pkDealer) + getHandValue(pkComm.slice(0,3));
+            
+            // Just random for "simplified house poker" feel if logic too complex for this snippets
+            // Actually let's use the BJ value logic as a placeholder for "hand strength"
+            if (pVal > dVal) {
+                state.balance += 80;
+                notify("Won Pot $80!", 'win');
+                document.getElementById('pk-msg').textContent = "Winner!";
+            } else {
+                document.getElementById('pk-msg').textContent = "Dealer Wins.";
+            }
+            
+            setTimeout(initPoker, 3000);
+            saveGame();
+        }
+
+        // ROULETTE
+        function initRoulette() { /* Ready */ }
+        function betRoulette(type) {
+             if (state.balance < 20) return notify("Need $20", 'lose');
+             state.balance -= 20;
+             document.getElementById('roulette-result').textContent = "Spinning...";
+             
+             setTimeout(() => {
+                 const num = Math.floor(Math.random() * 37);
+                 let color = (num === 0) ? 'Green' : (num % 2 === 0 ? 'Black' : 'Red'); // Simplified
+                 
+                 let win = 0;
+                 if (type === color) win = 40;
+                 if (type === 'Green' && num === 0) win = 700; // 35:1 * 20
+                 
+                 document.getElementById('roulette-result').textContent = `${num} (${color})`;
+                 if (win > 0) {
+                     state.balance += win;
+                     notify(`Won $${win}!`, 'win');
+                 } else {
+                     notify("Lost", 'lose');
+                 }
+                 saveGame(); updateUI();
+             }, 1000);
+        }
+
+        // PANDA FIGHTING
+        function initPandaFighting() { /* Ready */ }
+        function betFighter(name) {
+             if (state.balance < 20) return notify("Need $20", 'lose');
+             state.balance -= 20;
+             document.getElementById('pf-msg').textContent = "Fighting...";
+             
+             setTimeout(() => {
+                 const winner = Math.random() < 0.5 ? 'Rocky' : 'Bamboo';
+                 if (winner === name) {
+                     state.balance += 40;
+                     notify("Won $40!", 'win');
+                     document.getElementById('pf-msg').textContent = `${winner} Won!`;
+                 } else {
+                     document.getElementById('pf-msg').textContent = `${winner} Won. You Lost.`;
+                 }
+                 saveGame(); updateUI();
+             }, 1500);
+        }
         
+        // VIP
+        function enterVIP() {
+            if (state.balance < CONFIG.vipThreshold) {
+                notify("VIP Only! Need $1,000", 'lose');
+                return;
+            }
+            alert("Welcome to the VIP Lounge. (Placeholder for VIP specific features)");
+        }
+
+        // --- FLAPPY FLUFF (Canvas) ---
+        let flappyRunning = false;
+        let bird, pipes, score;
+        const canvas = document.getElementById('flappy-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function initFlappy() {
+            if(flappyRunning) return;
+            flappyRunning = true;
+            bird = { x: 50, y: 100, vy: 0 };
+            pipes = [];
+            score = 0;
+            loopFlappy();
+        }
+
+        function startFlappy() {
+            initFlappy();
+        }
+
+        function jumpFlappy() {
+            if(bird) bird.vy = -6;
+        }
+
+        function loopFlappy() {
+            if (!flappyRunning) return;
+            
+            // Physics
+            bird.vy += 0.4;
+            bird.y += bird.vy;
+
+            // Pipes
+            if (Math.random() < 0.02) {
+                pipes.push({ x: 320, h: Math.random() * 100 + 20 });
+            }
+            pipes.forEach(p => p.x -= 2);
+            pipes = pipes.filter(p => p.x > -30);
+
+            // Collision
+            if (bird.y > 200 || bird.y < 0) resetFlappy();
+            pipes.forEach(p => {
+                if (bird.x + 10 > p.x && bird.x < p.x + 30) {
+                    // Gap logic simplified: pipes are bottom, gap is top? 
+                    // Let's do simple pillars from bottom
+                    if (bird.y > 200 - p.h) resetFlappy();
+                }
+            });
+
+            // Draw
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0,0,320,200);
+            
+            ctx.fillStyle = 'white'; // Bird
+            ctx.beginPath(); ctx.arc(bird.x, bird.y, 10, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'black'; ctx.font="10px Arial"; ctx.fillText("🐼", bird.x-6, bird.y+4);
+
+            ctx.fillStyle = '#22c55e'; // Pipes
+            pipes.forEach(p => {
+                ctx.fillRect(p.x, 200-p.h, 30, p.h);
+            });
+            
+            // Score
+            score++;
+            document.getElementById('flappy-score').innerText = Math.floor(score/10);
+
+            requestAnimationFrame(loopFlappy);
+        }
+
+        function resetFlappy() {
+            if (Math.floor(score/10) > state.flappyHigh) state.flappyHigh = Math.floor(score/10);
+            document.getElementById('flappy-high').innerText = state.flappyHigh;
+            bird.y = 100; bird.vy = 0; pipes = []; score = 0;
+        }
+
     </script>
 </body>
 </html>

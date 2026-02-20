@@ -49,6 +49,12 @@
             transform: translateY(10px);
             transition: all 0.1s;
         }
+        
+        .spinning-wheel {
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: inline-block;
+            transform-origin: center center;
+        }
 
         /* --- Custom Components --- */
         .game-card {
@@ -115,6 +121,18 @@
             box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
         }
         
+        .vip-reel {
+            border-color: #ffd700;
+            background-color: #222;
+            box-shadow: inset 0 0 10px #ffd700;
+        }
+        
+        .vip-text {
+            color: #ffd700;
+            text-shadow: 0 0 5px #ffd700, 0 0 10px #b8860b;
+            font-family: 'Bungee Inline', cursive;
+        }
+
         /* Modal Overlay */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.85);
@@ -172,6 +190,13 @@
 
         <!-- VIEW: LOBBY -->
         <div id="view-lobby" class="space-y-8">
+            
+            <!-- Hero Section -->
+            <div class="text-center space-y-4 py-8">
+                <h2 class="text-4xl md:text-6xl font-bold gold-text drop-shadow-lg">WELCOME TO THE PANDA PALACE</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">High stakes, big wins, and strict labor laws. Play responsibly.</p>
+            </div>
+
             <!-- Hero Buttons -->
             <div class="flex justify-center gap-4 flex-wrap">
                 <button onclick="window.openShop()" class="bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105">
@@ -188,47 +213,55 @@
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('slots')">
                     <div class="text-4xl mb-2">🎰</div>
                     <h3 class="font-bold">Panda Slots</h3>
+                    <p class="text-xs text-slate-400 mt-2">Match pandas for huge payouts!</p>
                 </div>
                 <!-- Blackjack -->
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('blackjack')">
                     <div class="text-4xl mb-2">♠️</div>
                     <h3 class="font-bold">Blackjack</h3>
+                    <p class="text-xs text-slate-400 mt-2">Beat the dealer to 21.</p>
                 </div>
                 <!-- Roulette -->
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('roulette')">
                     <div class="text-4xl mb-2">🎡</div>
                     <h3 class="font-bold">Roulette</h3>
+                    <p class="text-xs text-slate-400 mt-2">Bet on colors and numbers.</p>
                 </div>
                 <!-- Horse Racing -->
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('racing')">
                     <div class="text-4xl mb-2">🏇</div>
                     <h3 class="font-bold">Fluff's Races</h3>
+                    <p class="text-xs text-slate-400 mt-2">Pick the fastest animal.</p>
                 </div>
                  <!-- Poker -->
                  <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('poker')">
                     <div class="text-4xl mb-2">🃏</div>
                     <h3 class="font-bold">Hold'em</h3>
+                    <p class="text-xs text-slate-400 mt-2">House poker against the dealer.</p>
                 </div>
                 <!-- Craps -->
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('craps')">
                     <div class="text-4xl mb-2">🎲</div>
                     <h3 class="font-bold">Craps</h3>
+                    <p class="text-xs text-slate-400 mt-2">Roll the dice and hit the point.</p>
                 </div>
                 <!-- Coin Flip -->
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('coinflip')">
                     <div class="text-4xl mb-2">🪙</div>
                     <h3 class="font-bold">Coin Flip</h3>
+                    <p class="text-xs text-slate-400 mt-2">50/50 double or nothing.</p>
                 </div>
                 <!-- Panda Fighting -->
                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer text-center" onclick="window.openGame('panda-fighting')">
                     <div class="text-4xl mb-2">🥊</div>
                     <h3 class="font-bold">Brawlers</h3>
+                    <p class="text-xs text-slate-400 mt-2">Bet on the underground fights.</p>
                 </div>
                  <!-- VIP Lounge -->
                  <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer border-yellow-500 bg-yellow-900/10 col-span-2 md:col-span-1" onclick="window.enterVIP()">
                     <div class="text-4xl mb-2">👑</div>
                     <h3 class="font-bold text-yellow-400">VIP Lounge</h3>
-                    <p class="text-xs text-yellow-600">$1,000+ Entry</p>
+                    <p class="text-xs text-yellow-600 mt-2">High Rollers Only ($1,000+)</p>
                 </div>
             </div>
             
@@ -397,8 +430,8 @@
     <script>
         // 1. CONFIG & STATE
         const CONFIG = {
-            breakTime: 5 * 60 * 1000, // 5 mins to play
-            workTime: 3 * 60 * 1000,  // 3 mins to work
+            breakTime: 5 * 60 * 1000, 
+            workTime: 3 * 60 * 1000, 
             vipThreshold: 1000,
             jobs: {
                 'Laundromat Staff': { pay: 300, minChars: 50 },
@@ -420,7 +453,7 @@
 
         let state = {
             balance: 500,
-            job: null, // { title: "Name", status: "break"|"working", endTime: timestamp }
+            job: null,
             inventory: [],
             stats: { wins: 0, losses: 0, wagered: 0, biggestWin: 0, jobsCompleted: 0, flappyHigh: 0 },
             achievements: []
@@ -431,14 +464,38 @@
         let audioCtx = null;
         let audioEnabled = false;
 
-        // --- INIT ---
+        // Custom Bet Globals for Multi-Step games
+        let currentBjBet = 0;
+        let currentPokerBet = 0;
+        let currentCrapsBet = 0;
+        let crapsPoint = 0;
+
+        // --- CONSTANTS ---
+        const VIP_SYMBOLS = ['👑', '💎', '🐉', '🎰', '7️⃣', '🐼'];
+        const DICE_EMOJIS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+        // --- INIT & CHEAT CODE ---
+        let cheatBuffer = "";
         window.onload = () => {
             loadGame();
             updateUI();
             setInterval(gameLoop, 1000);
             
             document.addEventListener('keydown', (e) => {
-                if(e.code === 'Space') jumpFlappy();
+                if(e.code === 'Space' && flappyRunning) window.jumpFlappy();
+                
+                // Cheat code logic
+                if(e.key.length === 1 && e.key.match(/[a-z]/i)) {
+                    cheatBuffer += e.key.toLowerCase();
+                    if(cheatBuffer.length > 10) cheatBuffer = cheatBuffer.slice(-10);
+                    if(cheatBuffer === "fluffmoney") {
+                        state.balance += 10000;
+                        window.notify("CHEAT ACTIVATED! +$10,000", "win");
+                        saveGame();
+                        updateUI();
+                        cheatBuffer = "";
+                    }
+                }
             });
         };
 
@@ -799,12 +856,28 @@
         }
 
         // --- GAMES MANAGER ---
+        function getValidBet(inputId, isVIP = false) {
+            const betInput = document.getElementById(inputId);
+            if (!betInput) return null;
+            const bet = parseInt(betInput.value);
+            
+            if (isNaN(bet) || bet < 5) {
+                notify("Minimum bet is $5", 'lose');
+                return null;
+            }
+            if (!isVIP && bet > 300) {
+                notify("Max standard bet is $300. Visit VIP Lounge for higher limits!", 'lose');
+                return null;
+            }
+            if (bet > state.balance) {
+                notify("Not enough cash!", 'lose');
+                return null;
+            }
+            return bet;
+        }
+
         function openGame(gameId) {
             playSound('click');
-            if (gameId === 'vip-slots' && state.balance < CONFIG.vipThreshold) {
-                notify("VIP Only! Need $1,000", 'lose');
-                return;
-            }
             
             document.getElementById('view-lobby').classList.add('hidden');
             document.getElementById('game-stage').classList.remove('hidden');
@@ -820,25 +893,105 @@
             if(gameId === 'roulette') initRoulette();
             if(gameId === 'panda-fighting') initPandaFighting();
         }
+        
+        function openVIPGame(gameId) {
+            playSound('click');
+            if (state.balance < CONFIG.vipThreshold) {
+                notify("VIP Only! Need $1,000", 'lose');
+                return;
+            }
+            
+            document.getElementById('view-lobby').classList.add('hidden');
+            document.getElementById('game-stage').classList.remove('hidden');
+            const container = document.getElementById('active-game-content');
+            
+            if (gameId === 'vip-slots') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-8">VIP GOLD SLOTS</h2>
+                <div class="flex justify-center gap-4 mb-8">
+                    <div id="vip-reel1" class="reel vip-reel w-24 h-32 flex items-center justify-center text-5xl">👑</div>
+                    <div id="vip-reel2" class="reel vip-reel w-24 h-32 flex items-center justify-center text-5xl">👑</div>
+                    <div id="vip-reel3" class="reel vip-reel w-24 h-32 flex items-center justify-center text-5xl">👑</div>
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <p class="text-yellow-500 mb-2">No Betting Limits!</p>
+                    <input type="number" id="vip-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                    <button id="vip-spin-btn" onclick="window.spinVIPSlots()" class="bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 text-black w-full py-4 rounded-full text-2xl font-bold border-2 border-yellow-300">SPIN VIP</button>
+                    <p id="vip-slot-result" class="h-6 font-bold text-yellow-400"></p>
+                    <button onclick="window.enterVIP()" class="text-slate-400 hover:text-white underline text-sm">Back to VIP Lounge</button>
+                </div>
+                `;
+            } else if (gameId === 'vip-blackjack') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-4">VIP BLACKJACK</h2>
+                <div class="flex justify-between max-w-md mx-auto mb-8">
+                    <div class="text-center">
+                        <p class="text-yellow-600 text-sm mb-2 font-bold">DEALER <span id="d-score" class="bg-yellow-900 px-2 rounded ml-2 text-white">0</span></p>
+                        <div id="d-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-yellow-600 text-sm mb-2 font-bold">YOU <span id="p-score" class="bg-yellow-900 px-2 rounded ml-2 text-white">0</span></p>
+                        <div id="p-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div>
+                    </div>
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <div id="bj-controls" class="space-y-4">
+                        <input type="number" id="vip-bj-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                        <button onclick="window.startBlackjack(true)" class="bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 text-black w-full py-3 rounded-lg font-bold">Deal VIP</button>
+                    </div>
+                    <div id="bj-actions" class="hidden flex gap-2">
+                        <button onclick="window.hit(true)" class="bg-blue-600 hover:bg-blue-500 text-white w-1/2 py-3 rounded-lg font-bold border-2 border-yellow-600">Hit</button>
+                        <button onclick="window.stand(true)" class="bg-red-600 hover:bg-red-500 text-white w-1/2 py-3 rounded-lg font-bold border-2 border-yellow-600">Stand</button>
+                    </div>
+                    <p id="bj-msg" class="h-6 font-bold text-yellow-400"></p>
+                    <button onclick="window.enterVIP()" class="text-slate-400 hover:text-white underline text-sm mt-4">Back to VIP Lounge</button>
+                </div>
+                `;
+                initBlackjack();
+            } else if (gameId === 'vip-roulette') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-6">VIP ROULETTE</h2>
+                <div class="text-center mb-6">
+                    <div class="text-8xl mb-4 overflow-hidden py-4">
+                        <div id="vip-roulette-wheel" class="spinning-wheel inline-block">🎡</div>
+                    </div>
+                    <p id="vip-roulette-result" class="text-2xl font-bold text-yellow-400">Place VIP Bet</p>
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <input type="number" id="vip-rl-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                    <div class="flex justify-center gap-2">
+                        <button id="btn-vr-red" onclick="window.betVIPRoulette('Red')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded font-bold border-2 border-yellow-600">Red (2x)</button>
+                        <button id="btn-vr-black" onclick="window.betVIPRoulette('Black')" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 text-white px-4 py-3 rounded font-bold border-2">Black (2x)</button>
+                        <button id="btn-vr-green" onclick="window.betVIPRoulette('Green')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-3 rounded font-bold border-2 border-yellow-600">Green (36x)</button>
+                    </div>
+                    <button onclick="window.enterVIP()" class="mt-4 text-slate-400 hover:text-white underline text-sm block mx-auto">Back to VIP Lounge</button>
+                </div>
+                `;
+            }
+        }
 
         function getGameHTML(id) {
-            if(id === 'slots') return `<h2 class="text-3xl text-center mb-8">Panda Slots</h2><div class="flex justify-center gap-4 mb-8"><div id="reel1" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div><div id="reel2" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div><div id="reel3" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div></div><div class="text-center space-y-4"><p class="text-slate-400">Bet: $10</p><button onclick="window.spinSlots()" class="btn-primary px-12 py-4 rounded-full text-2xl font-bold">SPIN</button><p id="slot-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
-            if(id === 'blackjack') return `<h2 class="text-3xl text-center mb-4">Blackjack</h2><div class="flex justify-between max-w-md mx-auto mb-8"><div class="text-center"><p class="text-slate-400 text-sm mb-2">DEALER <span id="d-score" class="bg-slate-700 px-2 rounded ml-2">0</span></p><div id="d-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div></div><div class="text-center"><p class="text-slate-400 text-sm mb-2">YOU <span id="p-score" class="bg-slate-700 px-2 rounded ml-2">0</span></p><div id="p-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div></div></div><div class="text-center space-y-4"><div id="bj-controls" class="space-x-2"><button onclick="window.startBlackjack()" class="btn-primary px-8 py-2 rounded-lg">Deal ($20)</button></div><div id="bj-actions" class="hidden space-x-2"><button onclick="window.hit()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-lg font-bold">Hit</button><button onclick="window.stand()" class="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded-lg font-bold">Stand</button></div><p id="bj-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
-            if(id === 'racing') return `<h2 class="text-3xl text-center mb-6">Fluff's Races</h2><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6 space-y-4" id="race-track"></div><div class="text-center"><p class="mb-2">Pick Winner ($20 Bet, 4x Payout)</p><div class="flex justify-center gap-2 mb-4"><button onclick="window.betHorse(0)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🐼 Panda</button><button onclick="window.betHorse(1)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🎋 Bamboo</button><button onclick="window.betHorse(2)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🚀 Flash</button><button onclick="window.betHorse(3)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">🐌 Slowpoke</button></div><p id="race-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
-            if(id === 'craps') return `<h2 class="text-3xl text-center mb-6">Craps</h2><div class="flex justify-center gap-4 mb-8 text-6xl"><div id="die1" class="bg-white text-black w-20 h-20 flex items-center justify-center rounded-lg shadow-lg">?</div><div id="die2" class="bg-white text-black w-20 h-20 flex items-center justify-center rounded-lg shadow-lg">?</div></div><div class="text-center space-y-4"><div class="text-xl">Point: <span id="craps-point" class="font-bold text-yellow-400">OFF</span></div><div class="flex justify-center gap-4"><input type="number" id="craps-bet" value="10" class="bg-slate-800 border border-slate-600 rounded px-4 py-2 w-24 text-center"><button onclick="window.rollCraps()" class="btn-primary px-8 py-2 rounded-lg font-bold">Roll (Pass Line)</button></div><p id="craps-msg" class="h-6 font-bold"></p></div>`;
-            if(id === 'poker') return `<h2 class="text-3xl text-center mb-6">Texas Hold'em</h2><div class="flex justify-between max-w-md mx-auto mb-4"><div class="text-center"><p class="text-slate-400 text-sm mb-2">DEALER</p><div id="pk-dealer-hand" class="flex justify-center -space-x-4 min-h-[84px]"></div></div><div class="text-center"><p class="text-slate-400 text-sm mb-2">YOU</p><div id="pk-player-hand" class="flex justify-center -space-x-4 min-h-[84px]"></div></div></div><div class="text-center mb-6"><p class="text-slate-400 text-sm mb-2">COMMUNITY</p><div id="pk-community" class="flex justify-center gap-2 min-h-[84px]"></div></div><div class="text-center space-y-4"><div id="pk-controls"><button onclick="window.startPoker()" class="btn-primary px-8 py-2 rounded-lg">Deal ($20)</button></div><div id="pk-actions" class="hidden space-x-2"><button onclick="window.callPoker()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-lg font-bold">Call</button><button onclick="window.foldPoker()" class="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded-lg font-bold">Fold</button></div><p id="pk-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
-            if(id === 'coinflip') return `<h2 class="text-3xl text-center mb-6">Coin Flip</h2><div id="coin-display" class="coin-display">🪙</div><div class="text-center space-y-4"><div class="flex justify-center gap-4"><button onclick="window.flipCoin('Heads')" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded text-xl">🐼 Heads</button><button onclick="window.flipCoin('Tails')" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded text-xl">🎋 Tails</button></div><p class="text-slate-400">Bet: $20 | Win: $40</p><p id="cf-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
-            if(id === 'roulette') return `<h2 class="text-3xl text-center mb-6">Roulette</h2><div class="text-center mb-6"><div id="roulette-wheel" class="text-6xl mb-2">🎡</div><p id="roulette-result" class="text-2xl font-bold text-yellow-400">Place Bet</p></div><div class="flex justify-center gap-4"><button onclick="window.betRoulette('Red')" class="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded font-bold">Red (2x)</button><button onclick="window.betRoulette('Black')" class="bg-slate-900 border border-slate-600 hover:bg-slate-800 text-white px-6 py-3 rounded font-bold">Black (2x)</button><button onclick="window.betRoulette('Green')" class="bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded font-bold">Green (14x)</button></div><p class="text-center mt-4 text-slate-400">Bet: $20</p>`;
-            if(id === 'panda-fighting') return `<h2 class="text-3xl text-center mb-6">Panda Brawlers</h2><div class="brawler-display"><div class="text-center"><div class="text-6xl mb-2">🥊</div><p class="font-bold text-red-400">Rocky</p></div><div class="text-2xl font-bold text-slate-500">VS</div><div class="text-center"><div class="text-6xl mb-2">🥋</div><p class="font-bold text-blue-400">Bamboo</p></div></div><div class="text-center space-y-4"><div class="flex justify-center gap-4"><button onclick="window.betFighter('Rocky')" class="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded font-bold">Bet Rocky ($20)</button><button onclick="window.betFighter('Bamboo')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded font-bold">Bet Bamboo ($20)</button></div><p id="pf-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
+            if(id === 'slots') return `<h2 class="text-3xl text-center mb-8">Panda Slots</h2><div class="flex justify-center gap-4 mb-8"><div id="reel1" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div><div id="reel2" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div><div id="reel3" class="reel bg-slate-950 border-4 border-slate-700 rounded-lg w-24 h-32 flex items-center justify-center text-5xl">🍒</div></div><div class="text-center max-w-sm mx-auto space-y-4"><input type="number" id="slot-bet" value="10" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><button onclick="window.spinSlots()" class="btn-primary w-full py-4 rounded-full text-2xl font-bold">SPIN</button><p id="slot-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
+            if(id === 'blackjack') return `<h2 class="text-3xl text-center mb-4">Blackjack</h2><div class="flex justify-between max-w-md mx-auto mb-8"><div class="text-center"><p class="text-slate-400 text-sm mb-2">DEALER <span id="d-score" class="bg-slate-700 px-2 rounded ml-2">0</span></p><div id="d-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div></div><div class="text-center"><p class="text-slate-400 text-sm mb-2">YOU <span id="p-score" class="bg-slate-700 px-2 rounded ml-2">0</span></p><div id="p-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div></div></div><div class="text-center max-w-sm mx-auto space-y-4"><div id="bj-controls" class="space-y-4"><input type="number" id="bj-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><button onclick="window.startBlackjack(false)" class="btn-primary w-full py-3 rounded-lg font-bold">Deal</button></div><div id="bj-actions" class="hidden flex gap-2"><button onclick="window.hit()" class="bg-blue-600 hover:bg-blue-500 text-white w-1/2 py-3 rounded-lg font-bold">Hit</button><button onclick="window.stand()" class="bg-red-600 hover:bg-red-500 text-white w-1/2 py-3 rounded-lg font-bold">Stand</button></div><p id="bj-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
+            if(id === 'racing') return `<h2 class="text-3xl text-center mb-6">Fluff's Races</h2><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6 space-y-4" id="race-track"></div><div class="text-center max-w-sm mx-auto space-y-4"><p class="mb-2">Pick Winner (4x Payout)</p><input type="number" id="race-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><div class="grid grid-cols-2 gap-2"><button onclick="window.betHorse(0)" class="bg-slate-700 hover:bg-slate-600 py-3 rounded font-bold">🐼 Panda</button><button onclick="window.betHorse(1)" class="bg-slate-700 hover:bg-slate-600 py-3 rounded font-bold">🎋 Bamboo</button><button onclick="window.betHorse(2)" class="bg-slate-700 hover:bg-slate-600 py-3 rounded font-bold">🚀 Flash</button><button onclick="window.betHorse(3)" class="bg-slate-700 hover:bg-slate-600 py-3 rounded font-bold">🐌 Slowpoke</button></div><p id="race-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
+            if(id === 'craps') return `<h2 class="text-3xl text-center mb-6">Craps</h2><div class="flex justify-center gap-4 mb-8 text-6xl"><div id="die1" class="bg-white text-black w-20 h-20 flex items-center justify-center rounded-lg shadow-lg">?</div><div id="die2" class="bg-white text-black w-20 h-20 flex items-center justify-center rounded-lg shadow-lg">?</div></div><div class="text-center max-w-sm mx-auto space-y-4"><div class="text-xl">Point: <span id="craps-point" class="font-bold text-yellow-400">OFF</span></div><div class="flex flex-col gap-4"><input type="number" id="craps-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><button onclick="window.rollCraps()" class="btn-primary w-full py-3 rounded-lg font-bold text-lg">Roll (Pass Line)</button></div><p id="craps-msg" class="h-6 font-bold"></p></div>`;
+            if(id === 'poker') return `<h2 class="text-3xl text-center mb-6">Texas Hold'em</h2><div class="flex justify-between max-w-md mx-auto mb-4"><div class="text-center"><p class="text-slate-400 text-sm mb-2">DEALER</p><div id="pk-dealer-hand" class="flex justify-center -space-x-4 min-h-[84px]"></div></div><div class="text-center"><p class="text-slate-400 text-sm mb-2">YOU</p><div id="pk-player-hand" class="flex justify-center -space-x-4 min-h-[84px]"></div></div></div><div class="text-center mb-6"><p class="text-slate-400 text-sm mb-2">COMMUNITY</p><div id="pk-community" class="flex justify-center gap-2 min-h-[84px]"></div></div><div class="text-center max-w-sm mx-auto space-y-4"><div id="pk-controls" class="space-y-4"><input type="number" id="pk-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><button onclick="window.startPoker()" class="btn-primary w-full py-3 rounded-lg font-bold text-lg">Deal</button></div><div id="pk-actions" class="hidden flex gap-2"><button onclick="window.callPoker()" class="bg-blue-600 hover:bg-blue-500 text-white w-1/2 py-3 rounded-lg font-bold">Call (Match Bet)</button><button onclick="window.foldPoker()" class="bg-red-600 hover:bg-red-500 text-white w-1/2 py-3 rounded-lg font-bold">Fold</button></div><p id="pk-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
+            if(id === 'coinflip') return `<h2 class="text-3xl text-center mb-6">Coin Flip</h2><div id="coin-display" class="coin-display">🪙</div><div class="text-center max-w-sm mx-auto space-y-4"><p class="text-slate-400">Win: 2x Payout</p><input type="number" id="cf-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><div class="flex justify-center gap-4"><button onclick="window.flipCoin('Heads')" class="bg-slate-700 hover:bg-slate-600 w-1/2 py-3 rounded text-xl font-bold">🐼 Heads</button><button onclick="window.flipCoin('Tails')" class="bg-slate-700 hover:bg-slate-600 w-1/2 py-3 rounded text-xl font-bold">🎋 Tails</button></div><p id="cf-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
+            if(id === 'roulette') return `<h2 class="text-3xl text-center mb-6">Roulette</h2><div class="text-center mb-6"><div id="roulette-wheel" class="text-6xl mb-2">🎡</div><p id="roulette-result" class="text-2xl font-bold text-yellow-400">Place Bet</p></div><div class="text-center max-w-sm mx-auto space-y-4"><input type="number" id="rl-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><div class="flex justify-center gap-2"><button onclick="window.betRoulette('Red')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded font-bold">Red (2x)</button><button onclick="window.betRoulette('Black')" class="bg-slate-900 border border-slate-600 hover:bg-slate-800 text-white px-4 py-3 rounded font-bold">Black (2x)</button><button onclick="window.betRoulette('Green')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-3 rounded font-bold">Green (36x)</button></div></div>`;
+            if(id === 'panda-fighting') return `<h2 class="text-3xl text-center mb-6">Panda Brawlers</h2><div class="brawler-display"><div class="text-center"><div class="text-6xl mb-2">🥊</div><p class="font-bold text-red-400">Rocky</p></div><div class="text-2xl font-bold text-slate-500">VS</div><div class="text-center"><div class="text-6xl mb-2">🥋</div><p class="font-bold text-blue-400">Bamboo</p></div></div><div class="text-center max-w-sm mx-auto space-y-4"><p class="text-slate-400 mb-2">Win: 2x Payout</p><input type="number" id="pf-bet" value="20" min="5" class="w-full bg-slate-800 border border-slate-600 rounded px-4 py-2 text-center text-xl font-bold"><div class="flex justify-center gap-4"><button onclick="window.betFighter('Rocky')" class="bg-red-600 hover:bg-red-500 text-white w-1/2 py-3 rounded font-bold">Bet Rocky</button><button onclick="window.betFighter('Bamboo')" class="bg-blue-600 hover:bg-blue-500 text-white w-1/2 py-3 rounded font-bold">Bet Bamboo</button></div><p id="pf-msg" class="h-6 font-bold text-yellow-400"></p></div>`;
             return `<div></div>`;
         }
 
         // --- GAME LOGIC IMPLEMENTATIONS ---
         
+        // SLOTS
         function initSlots() { /* Ready */ }
         function spinSlots() {
-            if (state.balance < 10) return notify("Broke!", 'lose');
-            state.balance -= 10; updateStats('wager', 10); saveGame(); updateUI();
+            const bet = getValidBet('slot-bet');
+            if(!bet) return;
+            state.balance -= bet; 
+            updateStats('wager', bet); saveGame(); updateUI();
+            
             const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
             const symbols = ['🍒', '🍋', '🐼', '💎', '7️⃣'];
             playSound('spin');
@@ -852,11 +1005,11 @@
                     reels.forEach(r => r.classList.remove('reel-blur'));
                     const res = reels.map(r => r.textContent);
                     if (res[0] === res[1] && res[1] === res[2]) {
-                        const win = res[0] === '🐼' ? 500 : 100;
+                        const win = res[0] === '🐼' ? bet * 50 : bet * 10;
                         state.balance += win; updateStats('win', win); notify(`JACKPOT! +$${win}`, 'win');
                         document.getElementById('slot-msg').textContent = "WINNER!";
                     } else {
-                        updateStats('lose', 10); document.getElementById('slot-msg').textContent = "";
+                        updateStats('lose', bet); document.getElementById('slot-msg').textContent = "";
                     }
                     saveGame(); updateUI();
                 }
@@ -866,13 +1019,17 @@
         // BLACKJACK
         let bjDeck = [], dHand = [], pHand = [];
         function initBlackjack() { document.getElementById('bj-controls').classList.remove('hidden'); document.getElementById('bj-actions').classList.add('hidden'); }
-        function startBlackjack() {
-            if (state.balance < 20) return notify("Need $20", 'lose');
-            state.balance -= 20; updateStats('wager', 20); updateUI();
+        function startBlackjack(isVIP = false) {
+            const betInputId = isVIP ? 'vip-bj-bet' : 'bj-bet';
+            const bet = getValidBet(betInputId, isVIP);
+            if(!bet) return;
+            currentBjBet = bet;
+            state.balance -= bet; updateStats('wager', bet); updateUI();
             bjDeck = createDeck(); pHand = [drawCard(), drawCard()]; dHand = [drawCard(), drawCard()];
             renderBJ(true);
             document.getElementById('bj-controls').classList.add('hidden');
             document.getElementById('bj-actions').classList.remove('hidden');
+            document.getElementById('bj-msg').textContent = "";
             if (getHandValue(pHand) === 21) endBJ();
         }
         function createDeck() { const s=['♠','♥','♦','♣'], v=['2','3','4','5','6','7','8','9','10','J','Q','K','A']; let d=[]; for(let S of s) for(let V of v) d.push({v:V,s:S}); return d.sort(()=>Math.random()-.5); }
@@ -890,91 +1047,270 @@
             document.getElementById('bj-actions').classList.add('hidden'); document.getElementById('bj-controls').classList.remove('hidden');
             let p = getHandValue(pHand); if(p<=21) while(getHandValue(dHand)<17) dHand.push(drawCard()); renderBJ(false);
             let d = getHandValue(dHand), msg="";
-            if(p>21){msg="Bust!"; updateStats('lose', 20);} else if(d>21){msg="Dealer Bust! Win $40"; state.balance+=40; updateStats('win',40); notify("Win!",'win');} else if(p>d){msg="Win $40!"; state.balance+=40; updateStats('win',40); notify("Win!",'win');} else if(p===d){msg="Push"; state.balance+=20;} else{msg="Dealer Wins"; updateStats('lose',20);}
+            if(p>21){msg="Bust!"; updateStats('lose', currentBjBet);} 
+            else if(d>21){let winAmt = currentBjBet*2; msg=`Dealer Bust! Win $${winAmt}`; state.balance+=winAmt; updateStats('win',winAmt); notify("Win!",'win');} 
+            else if(p>d){let winAmt = currentBjBet*2; msg=`Win $${winAmt}!`; state.balance+=winAmt; updateStats('win',winAmt); notify("Win!",'win');} 
+            else if(p===d){msg="Push"; state.balance+=currentBjBet;} 
+            else{msg="Dealer Wins"; updateStats('lose',currentBjBet);}
             document.getElementById('bj-msg').textContent=msg; saveGame(); updateUI();
         }
 
         const horses=["🐼 Panda","🎋 Bamboo","🚀 Flash","🐌 Slowpoke"];
         function initRacing() { document.getElementById('race-track').innerHTML=horses.map((h,i)=>`<div class="mb-2"><div class="text-xs mb-1 flex justify-between"><span>${h}</span><span id="h-dist-${i}">0m</span></div><div class="w-full bg-slate-800 rounded-full h-4"><div id="h-bar-${i}" class="bg-blue-500 h-4 rounded-full" style="width:0%"></div></div></div>`).join(''); }
         function betHorse(idx) {
-            if(state.balance<20) return notify("Need $20",'lose'); state.balance-=20; updateUI(); updateStats('wager',20); document.getElementById('race-msg').textContent=`Go ${horses[idx]}!`; playSound('spin');
+            const bet = getValidBet('race-bet');
+            if(!bet) return;
+            state.balance -= bet; updateUI(); updateStats('wager', bet); document.getElementById('race-msg').textContent=`Go ${horses[idx]}!`; playSound('spin');
+            
             let pos=[0,0,0,0]; const i=setInterval(()=>{ let w=-1; for(let k=0;k<4;k++){ pos[k]+=Math.random()*5; document.getElementById(`h-bar-${k}`).style.width=Math.min(100,pos[k])+'%'; document.getElementById(`h-dist-${k}`).innerText=Math.floor(pos[k])+'m'; if(pos[k]>=100) w=k; }
-            if(w>-1){ clearInterval(i); if(w===idx){state.balance+=80; notify("Won $80!",'win'); updateStats('win',80); document.getElementById('race-msg').textContent="WINNER!";} else {updateStats('lose',20); document.getElementById('race-msg').textContent=`${horses[w]} won.`;} saveGame(); updateUI(); } },100);
+            if(w>-1){ clearInterval(i); if(w===idx){let win = bet * 4; state.balance+=win; notify(`Won $${win}!`, 'win'); updateStats('win',win); document.getElementById('race-msg').textContent="WINNER!";} else {updateStats('lose', bet); document.getElementById('race-msg').textContent=`${horses[w]} won.`;} saveGame(); updateUI(); } },100);
         }
 
-        let point=0; function initCraps(){document.getElementById('craps-point').textContent="OFF";point=0;}
+        function initCraps(){document.getElementById('craps-point').textContent="OFF";crapsPoint=0; document.getElementById('craps-bet').disabled = false; }
         function rollCraps() {
-            const betInput=document.getElementById('craps-bet'); const bet=parseInt(betInput.value); if(bet>state.balance) return notify("Not enough cash!",'lose');
-            let rolls=0; playSound('spin'); const i=setInterval(()=>{ const d1=Math.ceil(Math.random()*6), d2=Math.ceil(Math.random()*6); document.getElementById('die1').textContent=d1; document.getElementById('die2').textContent=d2; rolls++;
-            if(rolls>10){ clearInterval(i); const t=d1+d2; let msg=`Rolled ${t}.`;
-            if(point===0){ if(t===7||t===11){msg+=" WIN!"; state.balance+=bet; updateStats('win',bet); notify("Win!",'win');} else if(t===2||t===3||t===12){msg+=" CRAPS!"; state.balance-=bet; updateStats('lose',bet); notify("Lose",'lose');} else {point=t; document.getElementById('craps-point').textContent=point; msg+=` Point is ${point}`;} }
-            else { if(t===point){msg+=" HIT POINT!"; state.balance+=bet; updateStats('win',bet); point=0; document.getElementById('craps-point').textContent="OFF"; notify("Win!",'win');} else if(t===7){msg+=" SEVEN OUT!"; state.balance-=bet; updateStats('lose',bet); point=0; document.getElementById('craps-point').textContent="OFF"; notify("Lose",'lose');} }
-            document.getElementById('craps-msg').textContent=msg; saveGame(); updateUI(); } },50);
+            if(crapsPoint === 0) {
+                const bet = getValidBet('craps-bet');
+                if(!bet) return;
+                currentCrapsBet = bet;
+                document.getElementById('craps-bet').disabled = true;
+                state.balance -= currentCrapsBet;
+                updateStats('wager', currentCrapsBet);
+                updateUI();
+            }
+            
+            let rolls=0; playSound('spin'); 
+            const i=setInterval(()=>{ 
+                const d1=Math.ceil(Math.random()*6), d2=Math.ceil(Math.random()*6); 
+                document.getElementById('die1').textContent=DICE_EMOJIS[d1-1]; 
+                document.getElementById('die2').textContent=DICE_EMOJIS[d2-1]; 
+                rolls++;
+                
+                if(rolls>10){ 
+                    clearInterval(i); const t=d1+d2; let msg=`Rolled ${t}.`;
+                    if(crapsPoint===0){ 
+                        if(t===7||t===11){let win = currentCrapsBet*2; msg+=" WIN!"; state.balance+=win; updateStats('win', win); notify("Win!",'win'); document.getElementById('craps-bet').disabled = false;} 
+                        else if(t===2||t===3||t===12){msg+=" CRAPS!"; updateStats('lose', currentCrapsBet); notify("Lose",'lose'); document.getElementById('craps-bet').disabled = false;} 
+                        else {crapsPoint=t; document.getElementById('craps-point').textContent=crapsPoint; msg+=` Point is ${crapsPoint}`;} 
+                    } else { 
+                        if(t===crapsPoint){let win = currentCrapsBet*2; msg+=" HIT POINT!"; state.balance+=win; updateStats('win', win); crapsPoint=0; document.getElementById('craps-point').textContent="OFF"; notify("Win!",'win'); document.getElementById('craps-bet').disabled = false;} 
+                        else if(t===7){msg+=" SEVEN OUT!"; updateStats('lose', currentCrapsBet); crapsPoint=0; document.getElementById('craps-point').textContent="OFF"; notify("Lose",'lose'); document.getElementById('craps-bet').disabled = false;} 
+                    }
+                    document.getElementById('craps-msg').textContent=msg; saveGame(); updateUI(); 
+                } 
+            },50);
         }
 
         function initCoinFlip(){/*Ready*/}
         function flipCoin(s){
-            if(state.balance<20) return notify("Need $20",'lose'); state.balance-=20; updateUI(); updateStats('wager',20); document.getElementById('cf-msg').textContent="Flipping..."; playSound('spin');
-            let f=0; const i=setInterval(()=>{ document.getElementById('coin-display').textContent=f%2===0?"🪙":"✨"; f++; if(f>10){ clearInterval(i); const r=Math.random()<0.5?'Heads':'Tails'; document.getElementById('coin-display').textContent=r==='Heads'?"🐼":"🎋"; if(r===s){state.balance+=40; updateStats('win',40); notify("Won $40!",'win'); document.getElementById('cf-msg').textContent="WINNER!";} else {updateStats('lose',20); document.getElementById('cf-msg').textContent="Lost.";} saveGame(); updateUI(); } },100);
+            const bet = getValidBet('cf-bet');
+            if(!bet) return;
+            state.balance -= bet; updateUI(); updateStats('wager', bet); document.getElementById('cf-msg').textContent="Flipping..."; playSound('spin');
+            let f=0; const i=setInterval(()=>{ document.getElementById('coin-display').textContent=f%2===0?"🪙":"✨"; f++; if(f>10){ clearInterval(i); const r=Math.random()<0.5?'Heads':'Tails'; document.getElementById('coin-display').textContent=r==='Heads'?"🐼":"🎋"; if(r===s){ let win=bet*2; state.balance+=win; updateStats('win',win); notify(`Won $${win}!`, 'win'); document.getElementById('cf-msg').textContent="WINNER!";} else {updateStats('lose',bet); document.getElementById('cf-msg').textContent="Lost.";} saveGame(); updateUI(); } },100);
         }
 
         function initPoker(){ document.getElementById('pk-controls').classList.remove('hidden'); document.getElementById('pk-actions').classList.add('hidden'); document.getElementById('pk-dealer-hand').innerHTML=''; document.getElementById('pk-player-hand').innerHTML=''; document.getElementById('pk-community').innerHTML=''; }
         function startPoker(){
-            if(state.balance<20) return notify("Need $20",'lose'); state.balance-=20; updateUI(); updateStats('wager',20);
+            const bet = getValidBet('pk-bet');
+            if(!bet) return;
+            currentPokerBet = bet;
+            state.balance -= bet; updateUI(); updateStats('wager', bet);
             pkDeck=createDeck(); pkHand=[drawCard(),drawCard()]; pkDealer=[drawCard(),drawCard()]; pkComm=[];
             document.getElementById('pk-player-hand').innerHTML=pkHand.map(c=>`<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
             document.getElementById('pk-dealer-hand').innerHTML=`<div class="card bg-blue-600 border-2 border-white"></div><div class="card bg-blue-600 border-2 border-white"></div>`;
-            document.getElementById('pk-controls').classList.add('hidden'); document.getElementById('pk-actions').classList.remove('hidden'); document.getElementById('pk-msg').textContent="Call ($20) or Fold?";
+            document.getElementById('pk-controls').classList.add('hidden'); document.getElementById('pk-actions').classList.remove('hidden'); document.getElementById('pk-msg').textContent=`Call ($${currentPokerBet}) or Fold?`;
         }
-        function foldPoker(){ document.getElementById('pk-msg').textContent="Folded."; updateStats('lose',20); initPoker(); }
+        function foldPoker(){ document.getElementById('pk-msg').textContent="Folded."; updateStats('lose',currentPokerBet); initPoker(); }
         function callPoker(){
-            if(state.balance<20) return notify("Need $20",'lose'); state.balance-=20; updateUI(); updateStats('wager',20);
+            if(state.balance < currentPokerBet) return notify(`Need $${currentPokerBet} to Call`, 'lose'); 
+            state.balance -= currentPokerBet; updateUI(); updateStats('wager', currentPokerBet);
+            
             pkComm=[drawCard(),drawCard(),drawCard(),drawCard(),drawCard()]; document.getElementById('pk-community').innerHTML=pkComm.map(c=>`<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
             document.getElementById('pk-dealer-hand').innerHTML=pkDealer.map(c=>`<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
             const pV=getHandValue(pkHand)+getHandValue(pkComm.slice(0,3)), dV=getHandValue(pkDealer)+getHandValue(pkComm.slice(0,3));
-            if(pV>dV){state.balance+=80; updateStats('win',80); notify("Won $80!",'win'); document.getElementById('pk-msg').textContent="Winner!";} else {updateStats('lose',40); document.getElementById('pk-msg').textContent="Dealer Wins.";}
-            setTimeout(initPoker,3000); saveGame();
+            if(pV>dV){let winAmt = currentPokerBet * 4; state.balance+=winAmt; updateStats('win',winAmt); notify(`Won Pot $${winAmt}!`, 'win'); document.getElementById('pk-msg').textContent="Winner!";} else {updateStats('lose',currentPokerBet*2); document.getElementById('pk-msg').textContent="Dealer Wins.";}
+            setTimeout(initPoker,3000); saveGame(); updateUI();
         }
 
         function initRoulette(){/*Ready*/}
         function betRoulette(t){
-            if(state.balance<20) return notify("Need $20",'lose'); state.balance-=20; updateStats('wager',20); document.getElementById('roulette-result').textContent="Spinning..."; playSound('spin');
-            setTimeout(()=>{ const n=Math.floor(Math.random()*37), c=(n===0)?'Green':(n%2===0?'Black':'Red'); let w=0; if(t===c) w=40; if(t==='Green'&&n===0) w=700;
-            document.getElementById('roulette-result').textContent=`${n} (${c})`; if(w>0){state.balance+=w; updateStats('win',w); notify(`Won $${w}!`, 'win');} else {updateStats('lose',20); notify("Lost",'lose');} saveGame(); updateUI(); },1000);
+            const bet = getValidBet('rl-bet');
+            if(!bet) return;
+            state.balance -= bet; updateStats('wager', bet); document.getElementById('roulette-result').textContent="Spinning..."; playSound('spin');
+            setTimeout(()=>{ const n=Math.floor(Math.random()*37), c=(n===0)?'Green':(n%2===0?'Black':'Red'); let w=0; if(t===c) w=bet*2; if(t==='Green'&&n===0) w=bet*36;
+            document.getElementById('roulette-result').textContent=`${n} (${c})`; if(w>0){state.balance+=w; updateStats('win',w); notify(`Won $${w}!`, 'win');} else {updateStats('lose',bet); notify("Lost",'lose');} saveGame(); updateUI(); },1000);
+        }
+        
+        function betVIPRoulette(type) {
+            const bet = getValidBet('vip-rl-bet', true);
+            if(!bet) return;
+            
+            const btns = document.querySelectorAll('#active-game-content button');
+            btns.forEach(b => b.disabled = true);
+            
+            state.balance -= bet; updateStats('wager', bet); 
+            
+            const wheel = document.getElementById('vip-roulette-wheel');
+            const resultText = document.getElementById('vip-roulette-result');
+            
+            resultText.textContent = "Spinning...";
+            playSound('spin');
+            
+            const extra = Math.floor(Math.random() * 360);
+            const totalDeg = 1800 + extra;
+            
+            wheel.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            wheel.style.transform = `rotate(${totalDeg}deg)`;
+            
+            setTimeout(() => {
+                const num = Math.floor(Math.random() * 37);
+                let color = (num === 0) ? 'Green' : (num % 2 === 0 ? 'Black' : 'Red');
+                
+                let win = 0;
+                if (type === color) win = bet*2;
+                if (type === 'Green' && num === 0) win = bet*36;
+                
+                resultText.textContent = `${num} (${color})`;
+                if (win > 0) {
+                    state.balance += win; updateStats('win', win); notify(`VIP Win! $${win}!`, 'win');
+                } else {
+                    updateStats('lose', bet); notify("Lost", 'lose');
+                }
+                
+                wheel.style.transition = 'none';
+                wheel.style.transform = `rotate(${extra}deg)`;
+                
+                btns.forEach(b => b.disabled = false);
+                
+                saveGame(); updateUI();
+            }, 3000);
         }
 
         function initPandaFighting(){/*Ready*/}
         function betFighter(n){
-            if(state.balance<20) return notify("Need $20",'lose'); state.balance-=20; updateStats('wager',20); document.getElementById('pf-msg').textContent="Fighting...";
-            setTimeout(()=>{ const w=Math.random()<0.5?'Rocky':'Bamboo'; if(w===n){state.balance+=40; updateStats('win',40); notify("Won $40!",'win'); document.getElementById('pf-msg').textContent=`${w} Won!`;} else {updateStats('lose',20); document.getElementById('pf-msg').textContent=`${w} Won. Lost.`;} saveGame(); updateUI(); },1500);
+            const bet = getValidBet('pf-bet');
+            if(!bet) return;
+            state.balance -= bet; updateStats('wager', bet); document.getElementById('pf-msg').textContent="Fighting...";
+            setTimeout(()=>{ const w=Math.random()<0.5?'Rocky':'Bamboo'; if(w===n){let win = bet * 2; state.balance+=win; updateStats('win',win); notify(`Won $${win}!`, 'win'); document.getElementById('pf-msg').textContent=`${w} Won!`;} else {updateStats('lose',bet); document.getElementById('pf-msg').textContent=`${w} Won. Lost.`;} saveGame(); updateUI(); },1500);
         }
 
-        // --- VIP & Flappy Fallbacks ---
-        const VIP_SYMBOLS = ['👑', '💎', '🐉', '🎰', '7️⃣', '🐼'];
-
+        // --- VIP & Flappy ---
         function enterVIP() {
             if (state.balance >= CONFIG.vipThreshold) {
-                switchView('vip-menu');
+                document.getElementById('view-lobby').classList.add('hidden');
+                document.getElementById('game-stage').classList.remove('hidden');
+                const container = document.getElementById('active-game-content');
+                container.innerHTML = `
+                <h2 class="text-4xl text-center vip-text mb-8">👑 VIP LOUNGE 👑</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                    <div class="vip-card p-6 rounded-xl flex flex-col items-center cursor-pointer text-center hover:scale-105 transition" onclick="window.openVIPGame('vip-slots')">
+                        <div class="text-6xl mb-4">🎰</div>
+                        <h3 class="font-bold text-yellow-400 text-2xl">VIP Slots</h3>
+                        <p class="text-sm text-yellow-600 mt-2">Mega Jackpots</p>
+                    </div>
+                    <div class="vip-card p-6 rounded-xl flex flex-col items-center cursor-pointer text-center hover:scale-105 transition" onclick="window.openVIPGame('vip-blackjack')">
+                        <div class="text-6xl mb-4">♠️</div>
+                        <h3 class="font-bold text-yellow-400 text-2xl">VIP 21</h3>
+                        <p class="text-sm text-yellow-600 mt-2">High stakes Blackjack</p>
+                    </div>
+                    <div class="vip-card p-6 rounded-xl flex flex-col items-center cursor-pointer text-center hover:scale-105 transition" onclick="window.openVIPGame('vip-roulette')">
+                        <div class="text-6xl mb-4">🎡</div>
+                        <h3 class="font-bold text-yellow-400 text-2xl">VIP Roulette</h3>
+                        <p class="text-sm text-yellow-600 mt-2">Premium spinning wheel</p>
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <button onclick="window.goToLobby()" class="text-slate-400 hover:text-white underline">Leave Lounge</button>
+                </div>
+                `;
             } else {
                 notify("VIP Only! Need $1,000", 'lose');
             }
         }
+        
+        function openVIPGame(gameId) {
+            playSound('click');
+            if (state.balance < CONFIG.vipThreshold) {
+                notify("VIP Only! Need $1,000", 'lose');
+                return;
+            }
+            const container = document.getElementById('active-game-content');
+            if (gameId === 'vip-slots') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-8">VIP GOLD SLOTS</h2>
+                <div class="flex justify-center gap-4 mb-8">
+                    <div id="vip-reel1" class="reel vip-reel w-24 h-32 flex items-center justify-center text-5xl">👑</div>
+                    <div id="vip-reel2" class="reel vip-reel w-24 h-32 flex items-center justify-center text-5xl">👑</div>
+                    <div id="vip-reel3" class="reel vip-reel w-24 h-32 flex items-center justify-center text-5xl">👑</div>
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <p class="text-yellow-500 mb-2">No Betting Limits!</p>
+                    <input type="number" id="vip-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                    <button id="vip-spin-btn" onclick="window.spinVIPSlots()" class="bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 text-black w-full py-4 rounded-full text-2xl font-bold border-2 border-yellow-300">SPIN VIP</button>
+                    <p id="vip-slot-result" class="h-6 font-bold text-yellow-400"></p>
+                    <button onclick="window.enterVIP()" class="text-slate-400 hover:text-white underline text-sm">Back to VIP Lounge</button>
+                </div>
+                `;
+            } else if (gameId === 'vip-blackjack') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-4">VIP BLACKJACK</h2>
+                <div class="flex justify-between max-w-md mx-auto mb-8">
+                    <div class="text-center">
+                        <p class="text-yellow-600 text-sm mb-2 font-bold">DEALER <span id="d-score" class="bg-yellow-900 px-2 rounded ml-2 text-white">0</span></p>
+                        <div id="d-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-yellow-600 text-sm mb-2 font-bold">YOU <span id="p-score" class="bg-yellow-900 px-2 rounded ml-2 text-white">0</span></p>
+                        <div id="p-hand" class="flex justify-center -space-x-8 min-h-[100px]"></div>
+                    </div>
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <div id="bj-controls" class="space-y-4">
+                        <input type="number" id="vip-bj-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                        <button onclick="window.startBlackjack(true)" class="bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-400 hover:to-yellow-600 text-black w-full py-3 rounded-lg font-bold">Deal VIP</button>
+                    </div>
+                    <div id="bj-actions" class="hidden flex gap-2">
+                        <button onclick="window.hit()" class="bg-blue-600 hover:bg-blue-500 text-white w-1/2 py-3 rounded-lg font-bold border-2 border-yellow-600">Hit</button>
+                        <button onclick="window.stand()" class="bg-red-600 hover:bg-red-500 text-white w-1/2 py-3 rounded-lg font-bold border-2 border-yellow-600">Stand</button>
+                    </div>
+                    <p id="bj-msg" class="h-6 font-bold text-yellow-400"></p>
+                    <button onclick="window.enterVIP()" class="text-slate-400 hover:text-white underline text-sm mt-4">Back to VIP Lounge</button>
+                </div>
+                `;
+                initBlackjack();
+            } else if (gameId === 'vip-roulette') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-6">VIP ROULETTE</h2>
+                <div class="text-center mb-6">
+                    <div class="text-8xl mb-4 overflow-hidden py-4">
+                        <div id="vip-roulette-wheel" class="spinning-wheel inline-block">🎡</div>
+                    </div>
+                    <p id="vip-roulette-result" class="text-2xl font-bold text-yellow-400">Place VIP Bet</p>
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <input type="number" id="vip-rl-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                    <div class="flex justify-center gap-2">
+                        <button onclick="window.betVIPRoulette('Red')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded font-bold border-2 border-yellow-600">Red (2x)</button>
+                        <button onclick="window.betVIPRoulette('Black')" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 text-white px-4 py-3 rounded font-bold border-2">Black (2x)</button>
+                        <button onclick="window.betVIPRoulette('Green')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-3 rounded font-bold border-2 border-yellow-600">Green (36x)</button>
+                    </div>
+                    <button onclick="window.enterVIP()" class="mt-4 text-slate-400 hover:text-white underline text-sm block mx-auto">Back to VIP Lounge</button>
+                </div>
+                `;
+            }
+        }
 
         function spinVIPSlots() {
-            if (state.balance < 100) return notify("Need $100!", 'lose');
-            state.balance -= 100;
-            updateStats('wager', 100);
+            const bet = getValidBet('vip-bet', true);
+            if (!bet) return;
+            state.balance -= bet;
+            updateStats('wager', bet);
             updateUI();
+            playSound('spin');
             
             document.getElementById('vip-slot-result').textContent = "Spinning...";
             document.getElementById('vip-spin-btn').disabled = true;
 
-            const reels = [
-                document.getElementById('vip-reel1'),
-                document.getElementById('vip-reel2'),
-                document.getElementById('vip-reel3')
-            ];
-
+            const reels = [ document.getElementById('vip-reel1'), document.getElementById('vip-reel2'), document.getElementById('vip-reel3') ];
             const results = [];
             let spinCount = 0;
             const spinInterval = setInterval(() => {
@@ -985,21 +1321,22 @@
                 spinCount++;
                 if (spinCount >= 20) {
                     clearInterval(spinInterval);
-                    
-                    reels.forEach(() => {
-                        results.push(VIP_SYMBOLS[Math.floor(Math.random() * VIP_SYMBOLS.length)]);
-                    });
+                    reels.forEach(() => { results.push(VIP_SYMBOLS[Math.floor(Math.random() * VIP_SYMBOLS.length)]); });
+
+                    document.getElementById('vip-reel1').textContent = results[0];
+                    document.getElementById('vip-reel2').textContent = results[1];
+                    document.getElementById('vip-reel3').textContent = results[2];
 
                     let winAmount = 0;
                     let message = "";
 
                     if (results[0] === results[1] && results[1] === results[2]) {
                         if (results[0] === '👑') {
-                            winAmount = 10000;
-                            message = `MEGA JACKPOT! You won $${winAmount}!`;
+                            winAmount = bet * 100;
+                            message = `MEGA JACKPOT! 👑👑👑 You won $${winAmount}!`;
                         } else {
-                            winAmount = 1000;
-                            message = `VIP WIN! You won $${winAmount}!`;
+                            winAmount = bet * 10;
+                            message = `VIP WIN! ${results[0]}${results[1]}${results[2]}! You won $${winAmount}!`;
                         }
                     } else {
                         message = "Try again!";
@@ -1010,7 +1347,7 @@
                         updateStats('win', winAmount);
                         notify(message, 'win');
                     } else {
-                         updateStats('lose', 100);
+                         updateStats('lose', bet);
                     }
                     
                     document.getElementById('vip-slot-result').textContent = message;
@@ -1045,10 +1382,12 @@
         window.flipCoin = flipCoin;
         window.initCoinFlip = initCoinFlip;
         window.betRoulette = betRoulette;
+        window.betVIPRoulette = betVIPRoulette;
         window.initRoulette = initRoulette;
         window.betFighter = betFighter;
         window.initPandaFighting = initPandaFighting;
         window.openGame = openGame;
+        window.openVIPGame = openVIPGame;
         window.spinSlots = spinSlots;
         window.startBlackjack = startBlackjack;
         window.hit = hit;

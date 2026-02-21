@@ -316,11 +316,21 @@ DO NOT FORGET THIS TAG AT THE VERY END OF YOUR MESSAGE. Keep responses to 1-4 se
             messageInput.style.height = '';
 
             const char = charDB[state.activeChar];
-            state.history.push({ role: 'model', parts: [{ text: char.greeting }] });
-            appendMessage('model', char.greeting);
             
-            // Speak greeting if TTS is on
-            setTimeout(() => speakText(char.greeting), 300);
+            // FIX: Gemini API requires the conversation history to start with a 'user' role.
+            // We inject a hidden user message before the model's greeting to satisfy the API.
+            state.history = [
+                { role: 'user', parts: [{ text: '*Joins the chat*' }] },
+                { role: 'model', parts: [{ text: char.greeting }] }
+            ];
+            
+            // Handle splitting the initial greeting for Group Chat
+            if (state.activeChar === 'gc') {
+                parseAndRenderGCMessage(char.greeting);
+            } else {
+                appendMessage('model', char.greeting, false, state.activeChar, 'default');
+                setTimeout(() => speakText(char.greeting, state.activeChar), 300);
+            }
         }
 
         function updateRadio() {
@@ -596,7 +606,10 @@ DO NOT FORGET THIS TAG AT THE VERY END OF YOUR MESSAGE. Keep responses to 1-4 se
                         body: JSON.stringify(payload)
                     });
                     
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) {
+                        const errDetails = await response.text();
+                        throw new Error(`HTTP error! status: ${response.status}, details: ${errDetails}`);
+                    }
                     
                     const data = await response.json();
                     if (data.candidates?.[0]?.content?.parts?.[0]?.text) {

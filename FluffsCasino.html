@@ -49,12 +49,6 @@
             transform: translateY(10px);
             transition: all 0.1s;
         }
-        
-        .spinning-wheel {
-            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
-            display: inline-block;
-            transform-origin: center center;
-        }
 
         /* --- Custom Components --- */
         .game-card {
@@ -258,7 +252,7 @@
                     <p class="text-xs text-slate-400 mt-2">Bet on the underground fights.</p>
                 </div>
                  <!-- VIP Lounge -->
-                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer border-yellow-500 bg-yellow-900/10 col-span-2 md:col-span-1" onclick="window.enterVIP()">
+                 <div class="game-card p-4 rounded-xl flex flex-col items-center cursor-pointer border-yellow-500 bg-yellow-900/10 col-span-2 md:col-span-4" onclick="window.enterVIP()">
                     <div class="text-4xl mb-2">👑</div>
                     <h3 class="font-bold text-yellow-400">VIP Lounge</h3>
                     <p class="text-xs text-yellow-600 mt-2">High Rollers Only ($1,000+)</p>
@@ -276,7 +270,7 @@
             <button onclick="window.goToLobby()" class="mb-4 text-slate-400 hover:text-white flex items-center gap-2">
                 <i class="fas fa-arrow-left"></i> Back to Lobby
             </button>
-            <div id="active-game-content" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl min-h-[400px] relative">
+            <div id="active-game-content" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl min-h-[400px] relative overflow-hidden">
                 <!-- Game HTML injected here -->
             </div>
         </div>
@@ -428,6 +422,10 @@
 
     <!-- JAVASCRIPT ENGINE -->
     <script>
+        // --- CONSTANTS ---
+        const VIP_SYMBOLS = ['👑', '💎', '🐉', '🎰', '7️⃣', '🐼'];
+        const DICE_EMOJIS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
         // 1. CONFIG & STATE
         const CONFIG = {
             breakTime: 5 * 60 * 1000, 
@@ -469,13 +467,12 @@
         let currentPokerBet = 0;
         let currentCrapsBet = 0;
         let crapsPoint = 0;
-
-        // --- CONSTANTS ---
-        const VIP_SYMBOLS = ['👑', '💎', '🐉', '🎰', '7️⃣', '🐼'];
-        const DICE_EMOJIS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        
+        // Cheats
+        window.forceWin = false;
+        let cheatBuffer = "";
 
         // --- INIT & CHEAT CODE ---
-        let cheatBuffer = "";
         window.onload = () => {
             loadGame();
             updateUI();
@@ -487,12 +484,23 @@
                 // Cheat code logic
                 if(e.key.length === 1 && e.key.match(/[a-z]/i)) {
                     cheatBuffer += e.key.toLowerCase();
-                    if(cheatBuffer.length > 10) cheatBuffer = cheatBuffer.slice(-10);
-                    if(cheatBuffer === "fluffmoney") {
+                    if(cheatBuffer.length > 20) cheatBuffer = cheatBuffer.slice(-20);
+                    
+                    if(cheatBuffer.endsWith("fluffmoney")) {
                         state.balance += 10000;
-                        window.notify("CHEAT ACTIVATED! +$10,000", "win");
+                        window.notify("CHEAT: +$10,000", "win");
                         saveGame();
                         updateUI();
+                        cheatBuffer = "";
+                    } else if (cheatBuffer.endsWith("money")) {
+                        state.balance += 200000;
+                        window.notify("CHEAT: +$200,000", "win");
+                        saveGame();
+                        updateUI();
+                        cheatBuffer = "";
+                    } else if (cheatBuffer.endsWith("winwin")) {
+                        window.forceWin = !window.forceWin;
+                        window.notify("CHEAT: God Mode " + (window.forceWin ? "ON" : "OFF"), "win");
                         cheatBuffer = "";
                     }
                 }
@@ -967,6 +975,25 @@
                     <button onclick="window.enterVIP()" class="mt-4 text-slate-400 hover:text-white underline text-sm block mx-auto">Back to VIP Lounge</button>
                 </div>
                 `;
+            } else if (gameId === 'vip-racing') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-6">VIP RACES</h2>
+                <div class="bg-black p-4 rounded-xl border border-yellow-600 mb-6 space-y-4" id="vip-race-track">
+                    <!-- Horses injected here -->
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <p class="mb-2 text-yellow-500 font-bold">Pick VIP Winner (4x Payout)</p>
+                    <input type="number" id="vip-race-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="window.betVIPHorse(0)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🐼 Panda</button>
+                        <button onclick="window.betVIPHorse(1)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🎋 Bamboo</button>
+                        <button onclick="window.betVIPHorse(2)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🚀 Flash</button>
+                        <button onclick="window.betVIPHorse(3)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🐌 Slowpoke</button>
+                    </div>
+                    <p id="vip-race-msg" class="h-6 font-bold text-yellow-400"></p>
+                    <button onclick="window.enterVIP()" class="mt-4 text-slate-400 hover:text-white underline text-sm block mx-auto">Back to VIP Lounge</button>
+                </div>`;
+                initVIPRacing();
             }
         }
 
@@ -1003,6 +1030,11 @@
                 if (spins > 15) {
                     clearInterval(interval);
                     reels.forEach(r => r.classList.remove('reel-blur'));
+                    
+                    if (window.forceWin) {
+                        reels.forEach(r => r.textContent = '🐼');
+                    }
+                    
                     const res = reels.map(r => r.textContent);
                     if (res[0] === res[1] && res[1] === res[2]) {
                         const win = res[0] === '🐼' ? bet * 50 : bet * 10;
@@ -1026,6 +1058,12 @@
             currentBjBet = bet;
             state.balance -= bet; updateStats('wager', bet); updateUI();
             bjDeck = createDeck(); pHand = [drawCard(), drawCard()]; dHand = [drawCard(), drawCard()];
+            
+            if(window.forceWin) {
+                pHand = [{v:'A', s:'♠'}, {v:'K', s:'♠'}];
+                dHand = [{v:'10', s:'♥'}, {v:'6', s:'♥'}];
+            }
+            
             renderBJ(true);
             document.getElementById('bj-controls').classList.add('hidden');
             document.getElementById('bj-actions').classList.remove('hidden');
@@ -1047,6 +1085,9 @@
             document.getElementById('bj-actions').classList.add('hidden'); document.getElementById('bj-controls').classList.remove('hidden');
             let p = getHandValue(pHand); if(p<=21) while(getHandValue(dHand)<17) dHand.push(drawCard()); renderBJ(false);
             let d = getHandValue(dHand), msg="";
+            
+            if (window.forceWin) { p = 21; d = 22; }
+            
             if(p>21){msg="Bust!"; updateStats('lose', currentBjBet);} 
             else if(d>21){let winAmt = currentBjBet*2; msg=`Dealer Bust! Win $${winAmt}`; state.balance+=winAmt; updateStats('win',winAmt); notify("Win!",'win');} 
             else if(p>d){let winAmt = currentBjBet*2; msg=`Win $${winAmt}!`; state.balance+=winAmt; updateStats('win',winAmt); notify("Win!",'win');} 
@@ -1062,8 +1103,47 @@
             if(!bet) return;
             state.balance -= bet; updateUI(); updateStats('wager', bet); document.getElementById('race-msg').textContent=`Go ${horses[idx]}!`; playSound('spin');
             
-            let pos=[0,0,0,0]; const i=setInterval(()=>{ let w=-1; for(let k=0;k<4;k++){ pos[k]+=Math.random()*5; document.getElementById(`h-bar-${k}`).style.width=Math.min(100,pos[k])+'%'; document.getElementById(`h-dist-${k}`).innerText=Math.floor(pos[k])+'m'; if(pos[k]>=100) w=k; }
-            if(w>-1){ clearInterval(i); if(w===idx){let win = bet * 4; state.balance+=win; notify(`Won $${win}!`, 'win'); updateStats('win',win); document.getElementById('race-msg').textContent="WINNER!";} else {updateStats('lose', bet); document.getElementById('race-msg').textContent=`${horses[w]} won.`;} saveGame(); updateUI(); } },100);
+            let pos=[0,0,0,0]; const i=setInterval(()=>{ let w=-1; for(let k=0;k<4;k++){ pos[k]+=Math.random()*5; 
+            if (window.forceWin && k === idx) pos[k] += 2;
+            document.getElementById(`h-bar-${k}`).style.width=Math.min(100,pos[k])+'%'; document.getElementById(`h-dist-${k}`).innerText=Math.floor(pos[k])+'m'; if(pos[k]>=100) w=k; }
+            if(w>-1){ clearInterval(i); 
+            if(window.forceWin) w = idx;
+            if(w===idx){let win = bet * 4; state.balance+=win; notify(`Won $${win}!`, 'win'); updateStats('win',win); document.getElementById('race-msg').textContent="WINNER!";} else {updateStats('lose', bet); document.getElementById('race-msg').textContent=`${horses[w]} won.`;} saveGame(); updateUI(); } },100);
+        }
+
+        function initVIPRacing() { 
+            document.getElementById('vip-race-track').innerHTML=horses.map((h,i)=>`<div class="mb-2"><div class="text-xs mb-1 flex justify-between text-yellow-500"><span>${h}</span><span id="vip-h-dist-${i}">0m</span></div><div class="w-full bg-slate-800 rounded-full h-4 border border-yellow-700"><div id="vip-h-bar-${i}" class="bg-yellow-500 h-4 rounded-full" style="width:0%"></div></div></div>`).join(''); 
+        }
+        function betVIPHorse(idx) {
+            const bet = getValidBet('vip-race-bet', true);
+            if(!bet) return;
+            state.balance -= bet; updateUI(); updateStats('wager', bet); 
+            document.getElementById('vip-race-msg').textContent=`Go ${horses[idx]}!`; playSound('spin');
+            
+            let pos=[0,0,0,0]; 
+            const interval=setInterval(()=>{ 
+                let w=-1; 
+                for(let k=0;k<4;k++){ 
+                    pos[k]+=Math.random()*5; 
+                    if (window.forceWin && k === idx) pos[k] += 2; 
+                    document.getElementById(`vip-h-bar-${k}`).style.width=Math.min(100,pos[k])+'%'; 
+                    document.getElementById(`vip-h-dist-${k}`).innerText=Math.floor(pos[k])+'m'; 
+                    if(pos[k]>=100) w=k; 
+                }
+                if(w>-1){ 
+                    clearInterval(interval); 
+                    if(window.forceWin) w = idx; 
+                    if(w===idx){
+                        let win = bet * 4; 
+                        state.balance+=win; notify(`VIP Won $${win}!`, 'win'); updateStats('win',win); 
+                        document.getElementById('vip-race-msg').textContent="WINNER!";
+                    } else {
+                        updateStats('lose', bet); 
+                        document.getElementById('vip-race-msg').textContent=`${horses[w]} won.`;
+                    } 
+                    saveGame(); updateUI(); 
+                } 
+            },100);
         }
 
         function initCraps(){document.getElementById('craps-point').textContent="OFF";crapsPoint=0; document.getElementById('craps-bet').disabled = false; }
@@ -1080,7 +1160,11 @@
             
             let rolls=0; playSound('spin'); 
             const i=setInterval(()=>{ 
-                const d1=Math.ceil(Math.random()*6), d2=Math.ceil(Math.random()*6); 
+                let d1=Math.ceil(Math.random()*6), d2=Math.ceil(Math.random()*6); 
+                if (rolls > 10 && window.forceWin) {
+                    if (crapsPoint === 0) { d1 = 3; d2 = 4; }
+                    else { d1 = Math.floor(crapsPoint/2); d2 = crapsPoint - d1; }
+                }
                 document.getElementById('die1').textContent=DICE_EMOJIS[d1-1]; 
                 document.getElementById('die2').textContent=DICE_EMOJIS[d2-1]; 
                 rolls++;
@@ -1105,7 +1189,37 @@
             const bet = getValidBet('cf-bet');
             if(!bet) return;
             state.balance -= bet; updateUI(); updateStats('wager', bet); document.getElementById('cf-msg').textContent="Flipping..."; playSound('spin');
-            let f=0; const i=setInterval(()=>{ document.getElementById('coin-display').textContent=f%2===0?"🪙":"✨"; f++; if(f>10){ clearInterval(i); const r=Math.random()<0.5?'Heads':'Tails'; document.getElementById('coin-display').textContent=r==='Heads'?"🐼":"🎋"; if(r===s){ let win=bet*2; state.balance+=win; updateStats('win',win); notify(`Won $${win}!`, 'win'); document.getElementById('cf-msg').textContent="WINNER!";} else {updateStats('lose',bet); document.getElementById('cf-msg').textContent="Lost.";} saveGame(); updateUI(); } },100);
+            let f=0; const i=setInterval(()=>{ document.getElementById('coin-display').textContent=f%2===0?"🪙":"✨"; f++; if(f>10){ clearInterval(i); let r=Math.random()<0.5?'Heads':'Tails'; if(window.forceWin) r = s; document.getElementById('coin-display').textContent=r==='Heads'?"🐼":"🎋"; if(r===s){ let win=bet*2; state.balance+=win; updateStats('win',win); notify(`Won $${win}!`, 'win'); document.getElementById('cf-msg').textContent="WINNER!";} else {updateStats('lose',bet); document.getElementById('cf-msg').textContent="Lost.";} saveGame(); updateUI(); } },100);
+        }
+
+        function evaluatePokerHand(cards) {
+            let vals = cards.map(c => {
+                if(c.v==='A') return 14; if(c.v==='K') return 13; if(c.v==='Q') return 12; if(c.v==='J') return 11;
+                return parseInt(c.v);
+            }).sort((a,b)=>b-a);
+            let counts = {}; vals.forEach(v => counts[v] = (counts[v]||0)+1);
+            let pairs = [], threes = [], fours = [];
+            for(let v in counts) {
+                if(counts[v]===2) pairs.push(parseInt(v));
+                if(counts[v]===3) threes.push(parseInt(v));
+                if(counts[v]===4) fours.push(parseInt(v));
+            }
+            pairs.sort((a,b)=>b-a); threes.sort((a,b)=>b-a); fours.sort((a,b)=>b-a);
+            let suits = {}; cards.forEach(c => suits[c.s] = (suits[c.s]||0)+1);
+            let hasFlush = Object.values(suits).some(c => c >= 5);
+            let uVals = [...new Set(vals)]; if(uVals.includes(14)) uVals.push(1);
+            let hasStraight = false, stHigh = 0;
+            for(let i=0; i<=uVals.length-5; i++){ if(uVals[i]-uVals[i+4]===4){ hasStraight=true; stHigh=uVals[i]; break; } }
+            
+            if(hasStraight && hasFlush) return 80000 + stHigh;
+            if(fours.length) return 70000 + fours[0];
+            if(threes.length && pairs.length) return 60000 + threes[0]*100 + pairs[0];
+            if(hasFlush) return 50000 + vals[0];
+            if(hasStraight) return 40000 + stHigh;
+            if(threes.length) return 30000 + threes[0];
+            if(pairs.length >= 2) return 20000 + pairs[0]*100 + pairs[1];
+            if(pairs.length === 1) return 10000 + pairs[0];
+            return vals[0];
         }
 
         function initPoker(){ document.getElementById('pk-controls').classList.remove('hidden'); document.getElementById('pk-actions').classList.add('hidden'); document.getElementById('pk-dealer-hand').innerHTML=''; document.getElementById('pk-player-hand').innerHTML=''; document.getElementById('pk-community').innerHTML=''; }
@@ -1126,7 +1240,12 @@
             
             pkComm=[drawCard(),drawCard(),drawCard(),drawCard(),drawCard()]; document.getElementById('pk-community').innerHTML=pkComm.map(c=>`<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
             document.getElementById('pk-dealer-hand').innerHTML=pkDealer.map(c=>`<div class="card ${['♥','♦'].includes(c.s)?'red':''}"><span class="suit-sm">${c.s}</span>${c.v}</div>`).join('');
-            const pV=getHandValue(pkHand)+getHandValue(pkComm.slice(0,3)), dV=getHandValue(pkDealer)+getHandValue(pkComm.slice(0,3));
+            
+            let pV = evaluatePokerHand([...pkHand, ...pkComm]);
+            let dV = evaluatePokerHand([...pkDealer, ...pkComm]);
+            
+            if(window.forceWin) pV = 999999;
+            
             if(pV>dV){let winAmt = currentPokerBet * 4; state.balance+=winAmt; updateStats('win',winAmt); notify(`Won Pot $${winAmt}!`, 'win'); document.getElementById('pk-msg').textContent="Winner!";} else {updateStats('lose',currentPokerBet*2); document.getElementById('pk-msg').textContent="Dealer Wins.";}
             setTimeout(initPoker,3000); saveGame(); updateUI();
         }
@@ -1136,7 +1255,7 @@
             const bet = getValidBet('rl-bet');
             if(!bet) return;
             state.balance -= bet; updateStats('wager', bet); document.getElementById('roulette-result').textContent="Spinning..."; playSound('spin');
-            setTimeout(()=>{ const n=Math.floor(Math.random()*37), c=(n===0)?'Green':(n%2===0?'Black':'Red'); let w=0; if(t===c) w=bet*2; if(t==='Green'&&n===0) w=bet*36;
+            setTimeout(()=>{ let n=Math.floor(Math.random()*37), c=(n===0)?'Green':(n%2===0?'Black':'Red'); if(window.forceWin){ c = t; if(t==='Green') n=0; else n = t==='Red'?1:2; } let w=0; if(t===c) w=bet*2; if(t==='Green'&&n===0) w=bet*36;
             document.getElementById('roulette-result').textContent=`${n} (${c})`; if(w>0){state.balance+=w; updateStats('win',w); notify(`Won $${w}!`, 'win');} else {updateStats('lose',bet); notify("Lost",'lose');} saveGame(); updateUI(); },1000);
         }
         
@@ -1162,8 +1281,9 @@
             wheel.style.transform = `rotate(${totalDeg}deg)`;
             
             setTimeout(() => {
-                const num = Math.floor(Math.random() * 37);
+                let num = Math.floor(Math.random() * 37);
                 let color = (num === 0) ? 'Green' : (num % 2 === 0 ? 'Black' : 'Red');
+                if(window.forceWin){ color = type; if(type==='Green') num=0; else num = type==='Red'?1:2; }
                 
                 let win = 0;
                 if (type === color) win = bet*2;
@@ -1190,10 +1310,10 @@
             const bet = getValidBet('pf-bet');
             if(!bet) return;
             state.balance -= bet; updateStats('wager', bet); document.getElementById('pf-msg').textContent="Fighting...";
-            setTimeout(()=>{ const w=Math.random()<0.5?'Rocky':'Bamboo'; if(w===n){let win = bet * 2; state.balance+=win; updateStats('win',win); notify(`Won $${win}!`, 'win'); document.getElementById('pf-msg').textContent=`${w} Won!`;} else {updateStats('lose',bet); document.getElementById('pf-msg').textContent=`${w} Won. Lost.`;} saveGame(); updateUI(); },1500);
+            setTimeout(()=>{ let w=Math.random()<0.5?'Rocky':'Bamboo'; if(window.forceWin) w = n; if(w===n){let win = bet * 2; state.balance+=win; updateStats('win',win); notify(`Won $${win}!`, 'win'); document.getElementById('pf-msg').textContent=`${w} Won!`;} else {updateStats('lose',bet); document.getElementById('pf-msg').textContent=`${w} Won. Lost.`;} saveGame(); updateUI(); },1500);
         }
 
-        // --- VIP & Flappy ---
+        // --- VIP ---
         function enterVIP() {
             if (state.balance >= CONFIG.vipThreshold) {
                 document.getElementById('view-lobby').classList.add('hidden');
@@ -1201,7 +1321,7 @@
                 const container = document.getElementById('active-game-content');
                 container.innerHTML = `
                 <h2 class="text-4xl text-center vip-text mb-8">👑 VIP LOUNGE 👑</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
                     <div class="vip-card p-6 rounded-xl flex flex-col items-center cursor-pointer text-center hover:scale-105 transition" onclick="window.openVIPGame('vip-slots')">
                         <div class="text-6xl mb-4">🎰</div>
                         <h3 class="font-bold text-yellow-400 text-2xl">VIP Slots</h3>
@@ -1216,6 +1336,11 @@
                         <div class="text-6xl mb-4">🎡</div>
                         <h3 class="font-bold text-yellow-400 text-2xl">VIP Roulette</h3>
                         <p class="text-sm text-yellow-600 mt-2">Premium spinning wheel</p>
+                    </div>
+                    <div class="vip-card p-6 rounded-xl flex flex-col items-center cursor-pointer text-center hover:scale-105 transition" onclick="window.openVIPGame('vip-racing')">
+                        <div class="text-6xl mb-4">🏇</div>
+                        <h3 class="font-bold text-yellow-400 text-2xl">VIP Races</h3>
+                        <p class="text-sm text-yellow-600 mt-2">High stakes derbies</p>
                     </div>
                 </div>
                 <div class="text-center mt-8">
@@ -1296,6 +1421,25 @@
                     <button onclick="window.enterVIP()" class="mt-4 text-slate-400 hover:text-white underline text-sm block mx-auto">Back to VIP Lounge</button>
                 </div>
                 `;
+            } else if (gameId === 'vip-racing') {
+                container.innerHTML = `
+                <h2 class="text-3xl text-center vip-text mb-6">VIP RACES</h2>
+                <div class="bg-black p-4 rounded-xl border border-yellow-600 mb-6 space-y-4" id="vip-race-track">
+                    <!-- Horses injected here -->
+                </div>
+                <div class="text-center max-w-sm mx-auto space-y-4">
+                    <p class="mb-2 text-yellow-500 font-bold">Pick VIP Winner (4x Payout)</p>
+                    <input type="number" id="vip-race-bet" value="500" min="100" class="w-full bg-black border border-yellow-600 rounded px-4 py-2 text-center text-xl font-bold text-yellow-500">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="window.betVIPHorse(0)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🐼 Panda</button>
+                        <button onclick="window.betVIPHorse(1)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🎋 Bamboo</button>
+                        <button onclick="window.betVIPHorse(2)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🚀 Flash</button>
+                        <button onclick="window.betVIPHorse(3)" class="bg-slate-900 border border-yellow-600 hover:bg-slate-800 py-3 rounded font-bold text-yellow-500">🐌 Slowpoke</button>
+                    </div>
+                    <p id="vip-race-msg" class="h-6 font-bold text-yellow-400"></p>
+                    <button onclick="window.enterVIP()" class="mt-4 text-slate-400 hover:text-white underline text-sm block mx-auto">Back to VIP Lounge</button>
+                </div>`;
+                initVIPRacing();
             }
         }
 
@@ -1311,7 +1455,6 @@
             document.getElementById('vip-spin-btn').disabled = true;
 
             const reels = [ document.getElementById('vip-reel1'), document.getElementById('vip-reel2'), document.getElementById('vip-reel3') ];
-            const results = [];
             let spinCount = 0;
             const spinInterval = setInterval(() => {
                 reels.forEach((reel) => {
@@ -1321,12 +1464,9 @@
                 spinCount++;
                 if (spinCount >= 20) {
                     clearInterval(spinInterval);
-                    reels.forEach(() => { results.push(VIP_SYMBOLS[Math.floor(Math.random() * VIP_SYMBOLS.length)]); });
-
-                    document.getElementById('vip-reel1').textContent = results[0];
-                    document.getElementById('vip-reel2').textContent = results[1];
-                    document.getElementById('vip-reel3').textContent = results[2];
-
+                    if(window.forceWin) reels.forEach(r => r.textContent = '👑');
+                    
+                    const results = reels.map(r => r.textContent);
                     let winAmount = 0;
                     let message = "";
 
@@ -1358,6 +1498,7 @@
             }, 100);
         }
 
+        // --- FLAPPY FLUFF ---
         function switchToFlappyBird() {
             document.getElementById('job-lockout-modal').classList.add('hidden');
             switchView('flappy-bird-container');
@@ -1393,6 +1534,7 @@
         window.hit = hit;
         window.stand = stand;
         window.betHorse = betHorse;
+        window.betVIPHorse = betVIPHorse;
         window.enterVIP = enterVIP;
         window.spinVIPSlots = spinVIPSlots;
         window.goToLobby = goToLobby;
@@ -1410,6 +1552,7 @@
         window.jumpFlappy = jumpFlappy;
         window.buyItem = buyItem;
         window.kickOut = () => { document.getElementById('loan-modal').classList.add('hidden'); goToLobby(); };
+        window.notify = notify;
 
     </script>
 </body>

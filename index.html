@@ -3,50 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluff Store 2!! | Baby Jayce Studios</title>
-    <!-- Load Tailwind CSS -->
+    <title>Baby Jayce Studios | Fluff Store 2</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configure Tailwind for Inter Font and Premium Colors -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Poppins:wght@700;800&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Outfit:wght@700;900&display=swap');
+
         :root {
-            --brand-primary: #10b981; /* Emerald 500 */
-            --glass-bg: rgba(30, 41, 59, 0.7);
+            --emerald: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.4);
+            --indigo: #6366f1;
+            --amber: #f59e0b;
+            --slate-950: #020617;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top right, #1e1b4b, #020617);
-            background-attachment: fixed;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-950);
+            color: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        .font-heading { font-family: 'Poppins', sans-serif; }
-
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* --- IMMERSIVE BACKGROUND --- */
+        .bg-animate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 1) 0%, rgba(2, 6, 23, 1) 100%);
+            z-index: -1;
         }
 
-        .game-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            z-index: -1;
+            pointer-events: none;
         }
 
-        .game-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--brand-primary);
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+        /* --- UI COMPONENTS --- */
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .btn-premium {
-            transition: all 0.3s ease;
+        .glass-card:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: var(--emerald);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px var(--emerald-glow);
+        }
+
+        .neon-button {
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .btn-premium::after {
+        .neon-button::before {
             content: '';
             position: absolute;
             top: 0; left: -100%; width: 100%; height: 100%;
@@ -54,274 +75,229 @@
             transition: 0.5s;
         }
 
-        .btn-premium:hover::after {
-            left: 100%;
+        .neon-button:hover::before { left: 100%; }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
 
-        /* Subtle scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--emerald); }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand': '#10b981',
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="text-slate-200 min-h-screen selection:bg-brand selection:text-white">
+<body>
 
-    <!-- NAVIGATION OVERLAY -->
-    <nav class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 mb-8">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center font-bold text-slate-950">F2</div>
-                <span class="font-heading text-xl tracking-tight text-white hidden sm:inline">FLUFF STORE <span class="text-brand">2</span></span>
-            </div>
-            <div class="flex gap-4">
-                <a href="Credits.html" class="text-sm font-medium hover:text-brand transition-colors">Credits</a>
-                <a href="SDP.html" class="text-sm font-medium hover:text-brand transition-colors">Snow Predictor</a>
-            </div>
+    <div class="bg-animate"></div>
+    <div class="bg-mesh"></div>
+
+    <!-- MODERN NAVIGATION -->
+    <nav class="sticky top-0 z-50 px-6 py-4 flex justify-center">
+        <div class="glass-card px-6 py-2 rounded-full flex items-center gap-8 border-white/5">
+            <a href="#featured" class="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-colors">Featured</a>
+            <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
+            <a href="#collection" class="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-colors">Library</a>
+            <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
+            <a href="SDP.html" class="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-colors">Snow Predictor</a>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
-    <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8 pb-16">
-        <!-- BRAND LOGO (NOW IN A CIRCLE) -->
-        <div class="flex justify-center mb-8">
-            <div class="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-brand/50 shadow-2xl shadow-brand/20 bg-slate-800 flex items-center justify-center">
-                <img src="https://www.dropbox.com/scl/fi/sqimj1vs9xx979rxammel/Fluff-Store-2-Logo.png?rlkey=9hmzfi9gm22wenzjsow4s3r56&st=fw7qn248&raw=1" 
-                     alt="Fluff Store 2 Logo" 
-                     class="w-full h-full object-cover"
-                     onerror="this.parentElement.style.display='none'">
+    <header class="relative max-w-7xl mx-auto px-6 pt-12 pb-24 text-center">
+        <!-- LOGO CENTERPIECE -->
+        <div class="flex justify-center mb-10">
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-emerald-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-2 border-white/10 bg-slate-900 flex items-center justify-center">
+                    <img src="https://www.dropbox.com/scl/fi/sqimj1vs9xx979rxammel/Fluff-Store-2-Logo.png?rlkey=9hmzfi9gm22wenzjsow4s3r56&st=fw7qn248&raw=1" 
+                         alt="Studio Logo" 
+                         class="w-full h-full object-cover">
+                </div>
             </div>
         </div>
 
-        <h1 class="text-6xl md:text-8xl font-extrabold text-white tracking-tighter mb-6 font-heading">
-            Baby Jayce <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand to-cyan-400">Studios</span>
+        <h1 class="font-outfit text-5xl md:text-8xl font-black tracking-tight text-white mb-4">
+            BABY JAYCE <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">STUDIOS</span>
         </h1>
-        <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12">
+        <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-12">
             The next generation of the Fluff gaming universe. Handcrafted experiences, zero filler. 
-            Try <a href="https://spew14.github.io/games/" class="text-brand hover:underline">spew14.github.io</a> for more.
+            Official Partner: <a href="https://spew14.github.io/games/" class="text-emerald-400 font-semibold hover:underline">spew14.github.io</a>
         </p>
-        
-        <!-- PRIMARY BUTTONS -->
-        <div class="flex flex-col items-center gap-8">
-            <div class="flex justify-center space-x-4 flex-wrap gap-y-4">
-                <a href="FluffChat.html" class="btn-premium flex items-center gap-3 bg-brand text-slate-950 font-extrabold py-4 px-10 rounded-2xl shadow-xl shadow-brand/20 hover:scale-105 text-xl">
-                    <span class="text-2xl">💬</span> Fluff Chat
-                </a>
-                
-                <!-- Updated Fluffbot Button with STATIC NEW badge -->
-                <a href="FluffBot.html" class="btn-premium flex items-center gap-3 bg-indigo-600 text-white font-extrabold py-4 px-10 rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-105 text-xl relative">
-                    <span class="text-2xl">🤖</span> Fluffbot
-                    <span class="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] px-2 py-1 rounded-full uppercase tracking-tighter border-2 border-slate-950 font-black">NEW</span>
+
+        <!-- COMMAND CENTER BUTTONS -->
+        <div class="flex flex-col items-center gap-6">
+            <div class="flex justify-center gap-4 flex-wrap">
+                <!-- CASINO: Now the primary Big Button -->
+                <a href="FluffsCasino.html" class="neon-button px-12 py-5 bg-amber-500 text-slate-950 font-bold rounded-2xl flex items-center gap-4 hover:scale-110 shadow-2xl shadow-amber-500/30 text-2xl transition-all">
+                    <span>🎰</span> FLUFF'S CASINO
                 </a>
             </div>
-            
-            <div class="flex justify-center flex-wrap gap-4">
-                <a href="FNAFhub.html" class="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl border border-white/10 transition-all">
-                    🐻 FNAF Series
-                </a>
-                <a href="FluffsCasino.html" class="flex items-center gap-2 bg-amber-500/90 hover:bg-amber-400 text-slate-950 font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-500/10">
-                    🎰 Casino
-                </a>
+            <div class="flex justify-center gap-4 flex-wrap">
+                <a href="FluffChat.html" class="glass-card px-8 py-3 rounded-xl text-sm font-bold hover:text-emerald-400 flex items-center gap-2">💬 CHAT</a>
+                <a href="FluffBot.html" class="glass-card px-8 py-3 rounded-xl text-sm font-bold hover:text-indigo-400 flex items-center gap-2">🤖 BOT</a>
+                <a href="FNAFhub.html" class="glass-card px-8 py-3 rounded-xl text-sm font-bold hover:text-rose-400 flex items-center gap-2">🐻 FNAF HUB</a>
             </div>
         </div>
     </header>
 
-    <!-- MAIN GAMES SECTION -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+    <main class="max-w-7xl mx-auto px-6 pb-32">
         
-        <!-- TOP TIER / FEATURED HITS -->
-        <div class="mb-12">
-            <div class="flex items-center gap-4 mb-8">
-                <h2 class="text-3xl font-bold text-white font-heading">Featured Hits</h2>
+        <!-- SECTION 1: FEATURED HITS -->
+        <section id="featured" class="mb-24">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-2 h-8 bg-emerald-500 rounded-full"></div>
+                <h2 class="font-outfit text-3xl font-bold tracking-tight">FEATURED HITS</h2>
                 <div class="h-px bg-white/10 flex-grow"></div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Kill Em All -->
-                <a href="Killlall.html" class="game-card glass-panel p-6 rounded-3xl block group border-b-4 border-rose-600 shadow-rose-900/20">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-rose-500/20 rounded-2xl text-rose-400">🔫</div>
-                        <span class="px-3 py-1 bg-rose-600 text-white text-xs font-bold rounded-full uppercase tracking-wider">FPS</span>
+                <a href="KEA.html" class="glass-card p-8 rounded-[2.5rem] block group border-b-4 border-rose-600">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-14 h-14 bg-rose-500/10 rounded-2xl flex items-center justify-center text-3xl">🔫</div>
+                        <span class="px-3 py-1 bg-rose-600/20 text-rose-400 text-[10px] font-black rounded-full border border-rose-600/30 tracking-widest uppercase">FPS // Beta</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 text-white group-hover:text-rose-400 transition-colors">Kill Em All</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4">High-octane shooter action. Survive the waves.</p>
-                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
-                        <span class="px-2 py-1 bg-rose-950 text-rose-400 rounded border border-rose-800/50 uppercase">Beta</span>
+                    <h3 class="font-outfit text-3xl font-bold text-white mb-3 group-hover:text-rose-400">Kill Em All</h3>
+                    <p class="text-slate-400 leading-relaxed mb-6">Brutal wave-based survival. High intensity first-person shooter action.</p>
+                    <div class="flex items-center gap-2">
+                        <div class="h-1 w-12 bg-rose-600 rounded-full"></div>
+                        <span class="text-[10px] font-bold text-rose-600 uppercase tracking-tighter">Recommended</span>
                     </div>
                 </a>
 
                 <!-- Fluff Blast -->
-                <a href="Fluffblast.html" class="game-card glass-panel p-6 rounded-3xl block group border-b-4 border-fuchsia-500 shadow-fuchsia-900/20">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-fuchsia-500/20 rounded-2xl text-fuchsia-400">🧩</div>
-                        <span class="px-3 py-1 bg-fuchsia-600 text-white text-xs font-bold rounded-full uppercase tracking-wider">Puzzle</span>
+                <a href="Fluffblast.html" class="glass-card p-8 rounded-[2.5rem] block group border-b-4 border-fuchsia-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-14 h-14 bg-fuchsia-500/10 rounded-2xl flex items-center justify-center text-3xl">🧩</div>
+                        <span class="px-3 py-1 bg-fuchsia-600/20 text-fuchsia-400 text-[10px] font-black rounded-full border border-fuchsia-600/30 tracking-widest uppercase">Puzzle // Hit</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 text-white group-hover:text-fuchsia-400 transition-colors">Fluff Blast</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Addictive block puzzle action! Fit the shapes and clear the board.</p>
-                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
-                        <span class="px-2 py-1 bg-fuchsia-950 text-fuchsia-400 rounded border border-fuchsia-800/50 uppercase font-black">ACTIVE</span>
+                    <h3 class="font-outfit text-3xl font-bold text-white mb-3 group-hover:text-fuchsia-400">Fluff Blast</h3>
+                    <p class="text-slate-400 leading-relaxed mb-6">Classic block blast mechanics. Clear rows and beat your high score.</p>
+                    <div class="flex items-center gap-2">
+                        <div class="h-1 w-12 bg-fuchsia-500 rounded-full"></div>
+                        <span class="text-[10px] font-bold text-fuchsia-500 uppercase tracking-tighter">Trending Now</span>
                     </div>
                 </a>
 
-                <!-- Retro Diamond -->
-                <a href="RD.html" class="game-card glass-panel p-6 rounded-3xl block group border-b-4 border-emerald-500">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400">⚾</div>
-                        <span class="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full uppercase tracking-wider">Baseball</span>
+                <!-- Rhybye Factory Tycoon -->
+                <a href="RhybyeFactoryTycoon.html" class="glass-card p-8 rounded-[2.5rem] block group border-b-4 border-amber-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-3xl">🏭</div>
+                        <span class="px-3 py-1 bg-amber-600/20 text-amber-400 text-[10px] font-black rounded-full border border-amber-600/30 tracking-widest uppercase">Tycoon // New</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-2 text-white group-hover:text-emerald-400 transition-colors">Retro Diamond</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Step up to the plate in this nostalgic experience.</p>
-                    <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
-                        <span class="px-2 py-1 bg-slate-900 rounded text-emerald-400 uppercase">Beta</span>
+                    <h3 class="font-outfit text-3xl font-bold text-white mb-3 group-hover:text-amber-400 italic">Rhybye Factory Tycoon</h3>
+                    <p class="text-slate-400 leading-relaxed mb-6">Scale your production and become a Rhybye billionaire.</p>
+                    <div class="flex items-center gap-2">
+                        <div class="h-1 w-12 bg-amber-600 rounded-full"></div>
+                        <span class="text-[10px] font-bold text-amber-600 uppercase tracking-tighter">New Launch</span>
                     </div>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <!-- COLLECTION GRID -->
-        <div class="mb-12">
-            <div class="flex items-center gap-4 mb-8">
-                <h2 class="text-3xl font-bold text-white font-heading">The Collection</h2>
+        <!-- SECTION 2: THE COLLECTION -->
+        <section id="collection" class="mb-24">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-2 h-8 bg-indigo-500 rounded-full"></div>
+                <h2 class="font-outfit text-3xl font-bold tracking-tight">STUDIO LIBRARY</h2>
                 <div class="h-px bg-white/10 flex-grow"></div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Ritlife -->
-                <a href="Ritlife.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-blue-500 block group">
-                    <div class="p-3 bg-blue-500/20 rounded-2xl text-blue-400 w-fit mb-4">🌟</div>
-                    <h3 class="text-xl font-bold mb-1 text-white group-hover:text-blue-400">Ritlife</h3>
-                    <p class="text-slate-400 text-sm mb-4">Realistic life simulation with deep choices.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-blue-400 uppercase">Life Sim</span>
+                <a href="Ritlife.html" class="glass-card p-6 rounded-3xl border-b-2 border-blue-500 group">
+                    <div class="text-2xl mb-4">🌟</div>
+                    <h3 class="font-bold text-white group-hover:text-blue-400">Ritlife</h3>
+                    <p class="text-slate-400 text-xs mt-2">Deep life simulation engine.</p>
                 </a>
-
                 <!-- Project Fluff -->
-                <a href="ProjectFluff.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-red-500 block group">
-                    <div class="p-3 bg-red-500/20 rounded-2xl text-red-400 w-fit mb-4">☣️</div>
-                    <h3 class="text-xl font-bold mb-1 text-white group-hover:text-red-400">Project Fluff</h3>
-                    <p class="text-slate-400 text-sm mb-4">Survive the dangers of Rosewood.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-red-400 uppercase">Survival</span>
+                <a href="ProjectFluff.html" class="glass-card p-6 rounded-3xl border-b-2 border-red-500 group">
+                    <div class="text-2xl mb-4">☣️</div>
+                    <h3 class="font-bold text-white group-hover:text-red-400">Project Fluff</h3>
+                    <p class="text-slate-400 text-xs mt-2">Open world survival beta.</p>
                 </a>
-
                 <!-- Driving Simulator -->
-                <a href="DrivingSimulator.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-orange-500 block group">
-                    <div class="p-3 bg-orange-500/20 rounded-2xl text-orange-400 w-fit mb-4">🏎️</div>
-                    <h3 class="text-xl font-bold mb-1 text-white group-hover:text-orange-400">Driving Simulator</h3>
-                    <p class="text-slate-400 text-sm mb-4">High-speed action across urban environments.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-orange-400 uppercase">Racing</span>
+                <a href="DrivingSimulator.html" class="glass-card p-6 rounded-3xl border-b-2 border-orange-500 group">
+                    <div class="text-2xl mb-4">🏎️</div>
+                    <h3 class="font-bold text-white group-hover:text-orange-400 text-sm">Driving Simulator</h3>
+                    <p class="text-slate-400 text-xs mt-2">City racing and drift mechanics.</p>
                 </a>
-
+                <!-- Retro Diamond -->
+                <a href="RD.html" class="glass-card p-6 rounded-3xl border-b-2 border-emerald-500 group">
+                    <div class="text-2xl mb-4">⚾</div>
+                    <h3 class="font-bold text-white group-hover:text-emerald-400">Retro Diamond</h3>
+                    <p class="text-slate-400 text-xs mt-2">Pixel-perfect arcade baseball.</p>
+                </a>
                 <!-- My Mall -->
-                <a href="MyMall.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-violet-500">
-                    <div class="p-3 bg-violet-500/20 rounded-2xl text-violet-400 w-fit mb-4">🏢</div>
-                    <h3 class="text-xl font-bold mb-1 text-white">My Mall</h3>
-                    <p class="text-slate-400 text-sm mb-4">Build and manage the ultimate shopping empire.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-violet-400 uppercase">Tycoon</span>
+                <a href="MyMall.html" class="glass-card p-6 rounded-3xl border-b-2 border-violet-500 group">
+                    <div class="text-2xl mb-4">🏢</div>
+                    <h3 class="font-bold text-white group-hover:text-violet-400">My Mall</h3>
+                    <p class="text-slate-400 text-xs mt-2">Shopping center management tycoon.</p>
                 </a>
-
                 <!-- My Pooping Fluff -->
-                <a href="MyPoopingFluff.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-purple-500">
-                    <div class="p-3 bg-purple-500/20 rounded-2xl text-purple-400 w-fit mb-4">💩</div>
-                    <h3 class="text-xl font-bold mb-1 text-white">My Pooping Fluff</h3>
-                    <p class="text-slate-400 text-sm mb-4">A hilariously idle pet simulator for Fluff lovers.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-purple-400 uppercase">Idle</span>
+                <a href="MyPoopingFluff.html" class="glass-card p-6 rounded-3xl border-b-2 border-purple-500 group">
+                    <div class="text-2xl mb-4">💩</div>
+                    <h3 class="font-bold text-white group-hover:text-purple-400">My Pooping Fluff</h3>
+                    <p class="text-slate-400 text-xs mt-2">Oddly addictive idle pet game.</p>
                 </a>
-
                 <!-- Mystery Slot -->
-                <div class="game-card glass-panel p-6 rounded-3xl opacity-60 border-b-4 border-slate-700 animate-pulse">
-                    <div class="p-3 bg-slate-700/50 rounded-2xl text-slate-500 w-fit mb-4">❓</div>
-                    <h3 class="text-xl font-bold mb-1 text-slate-500">?????</h3>
-                    <p class="text-slate-600 text-sm mb-4">Classified project in development...</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-slate-600 uppercase">SECRET</span>
+                <div class="glass-card p-6 rounded-3xl opacity-30 border-dashed border-slate-700">
+                    <div class="text-2xl mb-4">❓</div>
+                    <h3 class="font-bold text-slate-500 uppercase text-xs tracking-widest">Secret Project</h3>
                 </div>
-
                 <!-- Fluff Hunting -->
-                <a href="FluffHunting.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-rose-500">
-                    <div class="p-3 bg-rose-500/20 rounded-2xl text-rose-400 w-fit mb-4">🏹</div>
-                    <h3 class="text-xl font-bold mb-1 text-white">Fluff Hunting</h3>
-                    <p class="text-slate-400 text-sm mb-4">Explore the wild and collect rare animals.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-rose-400 uppercase">Hunting</span>
-                </a>
-
-                <!-- Banana Clicker -->
-                <a href="BananaClicker.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-yellow-500">
-                    <div class="p-3 bg-yellow-500/20 rounded-2xl text-yellow-400 w-fit mb-4">🍌</div>
-                    <h3 class="text-xl font-bold mb-1 text-white">Banana Clicker</h3>
-                    <p class="text-slate-400 text-sm mb-4">The classic beta clicker with a crypto twist.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-yellow-400 uppercase">Beta</span>
-                </a>
-
-                <!-- Brainrot Surfers -->
-                <a href="BrainrotSurfers.html" class="game-card glass-panel p-6 rounded-3xl border-b-4 border-indigo-500">
-                    <div class="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400 w-fit mb-4"> skateboard </div>
-                    <h3 class="text-xl font-bold mb-1 text-white">Brainrot Surfers</h3>
-                    <p class="text-slate-400 text-sm mb-4">Fast-paced surfing with meme icons.</p>
-                    <span class="px-2 py-1 bg-slate-900 rounded text-[10px] font-bold text-indigo-400 uppercase">Arcade</span>
+                <a href="FluffHunting.html" class="glass-card p-6 rounded-3xl border-b-2 border-rose-500 group">
+                    <div class="text-2xl mb-4">🏹</div>
+                    <h3 class="font-bold text-white group-hover:text-rose-400">Fluff Hunting</h3>
+                    <p class="text-slate-400 text-xs mt-2">Wilderness exploration simulator.</p>
                 </a>
             </div>
-        </div>
+        </section>
 
-        <!-- UTILITY SECTION -->
-        <div class="mb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <a href="AmplifyStudy.html" class="game-card glass-panel p-6 rounded-3xl border-l-4 border-amber-500 flex items-center gap-4">
-                <span class="text-3xl">🐶</span>
-                <div>
-                    <h3 class="font-bold text-white">Not Pib Clic</h3>
-                    <p class="text-xs text-slate-400 uppercase tracking-widest">Pibble Pets Beta</p>
-                </div>
-            </a>
-            <a href="OfflinePibClicker.html" class="game-card glass-panel p-6 rounded-3xl border-l-4 border-cyan-500 flex items-center gap-4">
-                <span class="text-3xl">🔌</span>
-                <div>
-                    <h3 class="font-bold text-white">Offline Pib Clicker</h3>
-                    <p class="text-xs text-slate-400 uppercase tracking-widest">School Friendly</p>
-                </div>
-            </a>
-        </div>
-
-        <!-- LEGACY ARCHIVE -->
-        <section class="mt-20">
+        <!-- LEGACY ARCHIVE SECTION -->
+        <section id="archive" class="opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
             <div class="flex items-center gap-4 mb-8">
-                <h2 class="text-2xl font-bold text-slate-500 font-heading">Legacy Archive</h2>
+                <h2 class="font-outfit text-xl font-bold tracking-widest text-slate-600">LEGACY ARCHIVE</h2>
                 <div class="h-px bg-white/5 flex-grow"></div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <a href="StealTheBrainrot.html" class="glass-panel p-4 rounded-xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all flex items-center justify-between group">
-                    <span class="font-bold text-slate-400 group-hover:text-white">Steal The Brainrot</span>
-                    <span class="text-[10px] border border-slate-600 px-2 py-0.5 rounded text-slate-600">ARCHIVED</span>
-                </a>
-                <a href="FishAFluff.html" class="glass-panel p-4 rounded-xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all flex items-center justify-between group">
-                    <span class="font-bold text-slate-400 group-hover:text-white">Fish a Fluff</span>
-                    <span class="text-[10px] border border-slate-600 px-2 py-0.5 rounded text-slate-600">ARCHIVED</span>
-                </a>
-                <a href="StealAFluff.html" class="glass-panel p-4 rounded-xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all flex items-center justify-between group">
-                    <span class="font-bold text-slate-400 group-hover:text-white">Steal a Fluff</span>
-                    <span class="text-[10px] border border-slate-600 px-2 py-0.5 rounded text-slate-600">ARCHIVED</span>
-                </a>
+            <div class="flex flex-wrap gap-4">
+                <a href="StealTheBrainrot.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-emerald-500 hover:text-emerald-400 transition-all">STEAL THE BRAINROT</a>
+                <a href="FishAFluff.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-emerald-500 hover:text-emerald-400 transition-all">FISH A FLUFF</a>
+                <a href="StealAFluff.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-emerald-500 hover:text-emerald-400 transition-all">STEAL A FLUFF</a>
+                <a href="BananaClicker.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-emerald-500 hover:text-emerald-400 transition-all">BANANA CLICKER</a>
+                <a href="BrainrotSurfers.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-emerald-500 hover:text-emerald-400 transition-all">BRAINROT SURFERS</a>
+                <a href="AmplifyStudy.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-amber-500 hover:text-amber-400 transition-all uppercase">Not Pib Clic</a>
+                <a href="OfflinePibClicker.html" class="px-4 py-2 border border-white/5 rounded-lg text-xs font-bold text-slate-500 hover:border-cyan-500 hover:text-cyan-400 transition-all uppercase">Offline Pib Clicker</a>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="glass-panel border-t border-white/5 mt-12 py-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-slate-500 text-sm mb-4">
-                &copy; 2025 <span class="text-slate-300">[fluffgaming123]</span>. Powered by Baby Jayce Studios.
-            </p>
-            <div class="flex justify-center space-x-6">
-                <a href="https://github.com/[fluffgaming123]" class="text-slate-400 hover:text-brand transition-colors">GitHub</a>
-                <a href="mailto:stephaniepilat06@gmail.com" class="text-slate-400 hover:text-brand transition-colors">Contact Support</a>
+    <!-- FOOTER -->
+    <footer class="glass-card border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <p class="font-outfit text-xl font-bold text-white mb-1 tracking-tight">BABY JAYCE <span class="text-emerald-500">STUDIOS</span></p>
+                <p class="text-slate-500 text-sm italic">Engineered for Fluff Enthusiasts.</p>
             </div>
+            <div class="flex gap-10">
+                <a href="https://github.com/[fluffgaming123]" class="text-slate-400 hover:text-emerald-400 transition-all flex flex-col items-center">
+                    <span class="text-xs uppercase font-black tracking-widest">Source</span>
+                    <span class="font-bold">GitHub</span>
+                </a>
+                <a href="Credits.html" class="text-slate-400 hover:text-emerald-400 transition-all flex flex-col items-center">
+                    <span class="text-xs uppercase font-black tracking-widest">Studio</span>
+                    <span class="font-bold">Credits</span>
+                </a>
+                <a href="mailto:stephaniepilat06@gmail.com" class="text-slate-400 hover:text-emerald-400 transition-all flex flex-col items-center">
+                    <span class="text-xs uppercase font-black tracking-widest">Support</span>
+                    <span class="font-bold">Contact</span>
+                </a>
+            </div>
+            <p class="text-slate-600 text-[10px] font-bold uppercase tracking-[0.3em]">© 2025 Baby Jayce Studios. All rights reserved.</p>
         </div>
     </footer>
 

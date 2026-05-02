@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generic 3D Prints | Baby Jayce Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Outfit:wght@700;900&display=swap');
+
+        :root {
+            --emerald: #10b981;
+            --emerald-glow: rgba(16, 185, 129, 0.4);
+            --indigo: #6366f1;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --slate-950: #020617;
+            --cyan: #06b6d4;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-950);
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* --- IMMERSIVE BACKGROUND --- */
+        .bg-animate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 1) 0%, rgba(2, 6, 23, 1) 100%);
+            z-index: -1;
+        }
+
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- UI COMPONENTS --- */
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: var(--emerald);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px var(--emerald-glow);
+        }
+
+        .neon-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .neon-button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .neon-button:hover::before { left: 100%; }
+
+        /* Custom Input Styling */
+        .glass-input {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--emerald);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--emerald); }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animate"></div>
+    <div class="bg-mesh"></div>
+
+    <!-- MODERN NAVIGATION -->
+    <nav class="sticky top-0 z-50 px-6 py-4 flex justify-center">
+        <div class="glass-card px-6 py-2 rounded-full flex items-center gap-8 border-white/5">
+            <a href="index.html" class="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-rose-400 transition-colors flex items-center gap-2">
+                <span>←</span> Back to Studio
+            </a>
+            <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
+            <a href="#services" class="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-colors">Services</a>
+            <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
+            <a href="#gallery" class="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-emerald-400 transition-colors">Gallery</a>
+            <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
+            <a href="#quote" class="text-xs font-semibold uppercase tracking-widest text-emerald-400 hover:text-white transition-colors">Request Quote</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="relative max-w-7xl mx-auto px-6 pt-12 pb-20 text-center">
+        <div class="flex justify-center mb-8">
+            <div class="w-24 h-24 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                🖨️
+            </div>
+        </div>
+
+        <h1 class="font-outfit text-5xl md:text-8xl font-black tracking-tight text-white mb-4">
+            GENERIC <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">3D PRINTS</span>
+        </h1>
+        <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed mb-10">
+            High-precision printing for gamers, creators, and hobbyists. From custom miniatures to functional parts, we bring your digital ideas into physical reality.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex justify-center gap-4 flex-wrap">
+            <a href="#gallery" class="neon-button px-8 py-4 bg-emerald-500 text-slate-950 font-bold rounded-xl flex items-center gap-3 hover:scale-105 shadow-xl shadow-emerald-500/20 text-lg transition-all">
+                BROWSE GALLERY
+            </a>
+            <a href="#quote" class="glass-card px-8 py-4 rounded-xl text-lg font-bold hover:text-cyan-400 flex items-center gap-2">
+                CUSTOM ORDER 📝
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 pb-32">
+        
+        <!-- SECTION 1: OUR CAPABILITIES -->
+        <section id="services" class="mb-24">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-2 h-8 bg-cyan-500 rounded-full"></div>
+                <h2 class="font-outfit text-3xl font-bold tracking-tight">OUR CAPABILITIES</h2>
+                <div class="h-px bg-white/10 flex-grow"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Standard PLA -->
+                <div class="glass-card p-8 rounded-[2rem] border-t-4 border-cyan-500 group">
+                    <div class="w-14 h-14 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6">🧵</div>
+                    <h3 class="font-outfit text-2xl font-bold text-white mb-3 group-hover:text-cyan-400">Standard PLA</h3>
+                    <p class="text-slate-400 leading-relaxed mb-4">Perfect for functional parts, cosplay props, and durable everyday items. We print your provided STL files with precision.</p>
+                    <ul class="text-sm text-slate-500 space-y-2">
+                        <li class="flex items-center gap-2"><span class="text-cyan-500">✓</span> High Durability</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-500">✓</span> Matte & Solid Colors</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-500">✓</span> Cost-Effective</li>
+                    </ul>
+                </div>
+
+                <!-- Silk PLA -->
+                <div class="glass-card p-8 rounded-[2rem] border-t-4 border-amber-500 group">
+                    <div class="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-3xl mb-6">✨</div>
+                    <h3 class="font-outfit text-2xl font-bold text-white mb-3 group-hover:text-amber-400">Silk PLA</h3>
+                    <p class="text-slate-400 leading-relaxed mb-4">Features a beautiful, shiny, metallic-like finish. Ideal for decorative items, articulated dragons, and display pieces.</p>
+                    <ul class="text-sm text-slate-500 space-y-2">
+                        <li class="flex items-center gap-2"><span class="text-amber-500">✓</span> Metallic / Shiny Finish</li>
+                        <li class="flex items-center gap-2"><span class="text-amber-500">✓</span> Dual/Tri-Color Options</li>
+                        <li class="flex items-center gap-2"><span class="text-amber-500">✓</span> Perfect for Display</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: FEATURED PRINTS GALLERY -->
+        <section id="gallery" class="mb-24">
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-2 h-8 bg-emerald-500 rounded-full"></div>
+                <h2 class="font-outfit text-3xl font-bold tracking-tight">PRINT GALLERY</h2>
+                <div class="h-px bg-white/10 flex-grow"></div>
+            </div>
+            <!-- Negotiable Pricing Text -->
+            <p class="text-amber-400 text-sm font-bold uppercase tracking-widest mb-10 pl-6">* Prices can be negotiated!</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Product 1 -->
+                <a href="#quote" onclick="prefillForm('Articulated Dragon')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500010041581895721/image.png?ex=69f6e0b6&is=69f58f36&hm=ef1fd642227711cccebbb196a544a82c57d4f4607de8d65479573d6c9fe13a92&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Articulated Dragon">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-md uppercase mb-2 inline-block">Best Seller</span>
+                        <h3 class="font-bold text-white group-hover:text-emerald-400 text-lg">Articulated Dragon</h3>
+                        <p class="text-slate-400 text-xs mt-1">Fully movable joints, printed in dual-color silk PLA.</p>
+                        <div class="mt-4 text-emerald-400 font-bold text-sm flex items-center justify-between">
+                            $5.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 2 -->
+                <a href="#quote" onclick="prefillForm('Rocktopus')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500010332062617691/image.png?ex=69f6e0fc&is=69f58f7c&hm=4a3ae02229597bb49819df233fa84dc1bdf0ee8c83573e0620fc490770b24940&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Rocktopus">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <span class="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-[10px] font-black rounded-md uppercase mb-2 inline-block">Meme Print</span>
+                        <h3 class="font-bold text-white group-hover:text-indigo-400 text-lg">Rocktopus</h3>
+                        <p class="text-slate-400 text-xs mt-1">The classic Dwayne "The Rock" Johnson octopus.</p>
+                        <div class="mt-4 text-indigo-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 3 -->
+                <a href="#quote" onclick="prefillForm('Rocktopus (Rock Feet)')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500010365428170794/image.png?ex=69f6e103&is=69f58f83&hm=4a40bfd96887504e86c9160a2beecac75dece9c31e1d13c2506e56955cc9f935&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Rocktopus (Rock Feet)">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-indigo-400 text-lg">Rocktopus (Rock Feet)</h3>
+                        <p class="text-slate-400 text-xs mt-1">Upgraded version featuring Rock faces on the tentacles!</p>
+                        <div class="mt-4 text-indigo-400 font-bold text-sm flex items-center justify-between">
+                            $4.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 4 -->
+                <a href="#quote" onclick="prefillForm('Rocktopus Modular')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500010365428170794/image.png?ex=69f6e103&is=69f58f83&hm=4a40bfd96887504e86c9160a2beecac75dece9c31e1d13c2506e56955cc9f935&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Rocktopus Modular">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <span class="px-2 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-black rounded-md uppercase mb-2 inline-block">Customizable</span>
+                        <h3 class="font-bold text-white group-hover:text-indigo-400 text-lg">Rocktopus Modular</h3>
+                        <p class="text-slate-400 text-xs mt-1">Base is $3. Normal feet are free! Rock feet are +$1. Other leg attachments +$1 each.</p>
+                        <div class="mt-4 text-indigo-400 font-bold text-sm flex items-center justify-between">
+                            Base $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 5 -->
+                <a href="#quote" onclick="prefillForm('Fidget Cone')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(244,63,94,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500010530126168114/image.png?ex=69f6e12b&is=69f58fab&hm=4e7b792e5356859291eff43707c75a7d8f1891866ab1d777e9c221e3b0f74749&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Fidget Cone">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-rose-400 text-lg">Fidget Cone</h3>
+                        <p class="text-slate-400 text-xs mt-1">Satisfying desk toy to keep your hands busy.</p>
+                        <div class="mt-4 text-rose-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 6 -->
+                <a href="#quote" onclick="prefillForm('Fidget Star')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(244,63,94,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500010764973641909/image.png?ex=69f6e163&is=69f58fe3&hm=08d31f42b5b94b4d07ec6518d3f5a35ede7f651cfb0b09ea2f615587ed0a2d4c&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Fidget Star">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-rose-400 text-lg">Fidget Star</h3>
+                        <p class="text-slate-400 text-xs mt-1">Expandable and collapsible geometric star toy.</p>
+                        <div class="mt-4 text-rose-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 7 -->
+                <a href="#quote" onclick="prefillForm('Trophy Truck with suspension')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500011026307879114/image.png?ex=69f6e1a1&is=69f59021&hm=5b8a25eba263f650b725ae2ecd9583914afcafa5a9d4e152793ab19ba1c1aee1&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Trophy Truck with suspension">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <span class="px-2 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-black rounded-md uppercase mb-2 inline-block">Working Parts</span>
+                        <h3 class="font-bold text-white group-hover:text-amber-400 text-lg">Trophy Truck</h3>
+                        <p class="text-slate-400 text-xs mt-1">Features working print-in-place suspension!</p>
+                        <div class="mt-4 text-amber-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 8 -->
+                <a href="#quote" onclick="prefillForm('Jeep with suspension')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500011292168159282/image.png?ex=69f6e1e0&is=69f59060&hm=e4896e5def6412a42a6285785e5e6fcefb26dff4b024b0f854bbcb6bed80ef9e&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Jeep with suspension">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-amber-400 text-lg">Jeep</h3>
+                        <p class="text-slate-400 text-xs mt-1">Off-road model featuring working suspension.</p>
+                        <div class="mt-4 text-amber-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 9 -->
+                <a href="#quote" onclick="prefillForm('SUV with suspension')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500011121149739098/image.png?ex=69f6e1b8&is=69f59038&hm=8b89ec3aa184f3708f07e8c6c912534a4a17153f42f8fd9985f0bb214d1526f4&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="SUV with suspension">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-amber-400 text-lg">SUV</h3>
+                        <p class="text-slate-400 text-xs mt-1">Sport utility vehicle model with working suspension.</p>
+                        <div class="mt-4 text-amber-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 10 -->
+                <a href="#quote" onclick="prefillForm('Small Ragdoll')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500011452013084802/image.png?ex=69f6e207&is=69f59087&hm=296cbd843ca730ce55b7d6feb303541986072ed8266da720f3c1a27927667661&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Small Ragdoll">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-cyan-400 text-lg">Small Ragdoll</h3>
+                        <p class="text-slate-400 text-xs mt-1">Miniature articulated jointed figure.</p>
+                        <div class="mt-4 text-cyan-400 font-bold text-sm flex items-center justify-between">
+                            $2.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Product 11 -->
+                <a href="#quote" onclick="prefillForm('Ragdoll')" class="glass-card p-4 rounded-3xl group cursor-pointer block">
+                    <div class="aspect-square bg-slate-800 rounded-2xl mb-4 flex items-center justify-center text-6xl relative overflow-hidden group-hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-transparent z-0"></div>
+                        <img src="https://cdn.discordapp.com/attachments/1392973100315840625/1500011390004367541/image.png?ex=69f6e1f8&is=69f59078&hm=0510e1a9f3398c69e56c50eab6fecc81e4c19bad5e4a68b12cdd06bc58763846&" class="w-full h-full object-cover rounded-2xl relative z-10 group-hover:scale-110 transition-transform duration-500" alt="Ragdoll">
+                    </div>
+                    <div class="px-2 pb-2">
+                        <h3 class="font-bold text-white group-hover:text-cyan-400 text-lg">Ragdoll</h3>
+                        <p class="text-slate-400 text-xs mt-1">Full-sized articulated jointed figure.</p>
+                        <div class="mt-4 text-cyan-400 font-bold text-sm flex items-center justify-between">
+                            $3.00
+                            <span class="opacity-0 group-hover:opacity-100 transition-opacity">Order →</span>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: REQUEST A QUOTE -->
+        <section id="quote" class="max-w-3xl mx-auto">
+            <div class="glass-card p-8 md:p-12 rounded-[2.5rem] border-t-4 border-emerald-500 relative overflow-hidden">
+                <!-- Background glow inside card -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+                
+                <h2 class="font-outfit text-4xl font-bold text-white mb-2">Start Your Project</h2>
+                <p class="text-slate-400 mb-8">Have an STL file ready? Fill out the details below and we'll get back to you with a quote and estimated print time.</p>
+                
+                <form action="https://formspree.io/f/xlgzdoyy" method="POST" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Name</label>
+                            <input type="text" name="name" required class="glass-input w-full px-4 py-3 rounded-xl" placeholder="John Doe">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
+                            <input type="email" name="email" required class="glass-input w-full px-4 py-3 rounded-xl" placeholder="john@example.com">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Material Preference</label>
+                        <select name="material" class="glass-input w-full px-4 py-3 rounded-xl appearance-none">
+                            <option value="pla">Standard PLA</option>
+                            <option value="silk">Silk PLA (Shiny/Metallic)</option>
+                            <option value="other">Not Sure</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Project Description & STL Link</label>
+                        <textarea name="message" required rows="4" class="glass-input w-full px-4 py-3 rounded-xl resize-none" placeholder="Paste a link to your file (Thingiverse, Printables, etc.) and describe your desired colors or size..."></textarea>
+                    </div>
+
+                    <button type="submit" class="neon-button w-full py-4 bg-emerald-500 text-slate-950 font-bold rounded-xl hover:scale-[1.02] shadow-xl shadow-emerald-500/20 text-lg transition-all mt-4">
+                        SUBMIT REQUEST
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER (Identical to main site) -->
+    <footer class="glass-card border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <p class="font-outfit text-xl font-bold text-white mb-1 tracking-tight">BABY JAYCE <span class="text-emerald-500">STUDIOS</span></p>
+                <p class="text-slate-500 text-sm italic">Engineered for Fluff Enthusiasts.</p>
+            </div>
+            <div class="flex gap-10">
+                <a href="https://github.com/[fluffgaming123]" class="text-slate-400 hover:text-emerald-400 transition-all flex flex-col items-center">
+                    <span class="text-xs uppercase font-black tracking-widest">Source</span>
+                    <span class="font-bold">GitHub</span>
+                </a>
+                <a href="Credits.html" class="text-slate-400 hover:text-emerald-400 transition-all flex flex-col items-center">
+                    <span class="text-xs uppercase font-black tracking-widest">Studio</span>
+                    <span class="font-bold">Credits</span>
+                </a>
+                <a href="mailto:stephaniepilat06@gmail.com" class="text-slate-400 hover:text-emerald-400 transition-all flex flex-col items-center">
+                    <span class="text-xs uppercase font-black tracking-widest">Support</span>
+                    <span class="font-bold">Contact</span>
+                </a>
+            </div>
+            <p class="text-slate-600 text-[10px] font-bold uppercase tracking-[0.3em]">© 2025 Baby Jayce Studios. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ADDED JAVASCRIPT FOR AUTO-FILLING THE FORM -->
+    <script>
+        function prefillForm(itemName) {
+            const messageBox = document.querySelector('textarea[name="message"]');
+            if (messageBox) {
+                messageBox.value = "Hello! I am interested in ordering the: " + itemName + ".\n\nHere are my details/colors: ";
+            }
+        }
+    </script>
+</body>
+</html>

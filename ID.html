@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invincible Draft Battle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* tailwind gray-900 */
+            color: #f7fafc; /* tailwind gray-50 */
+            overflow-x: hidden;
+        }
+        .bangers-font {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+        }
+        
+        /* Comic book style accents */
+        .comic-border {
+            border: 4px solid #fbd38d; /* orange-300 */
+            box-shadow: 8px 8px 0px #dd6b20; /* orange-600 */
+            border-radius: 12px;
+        }
+        
+        .comic-border-blue {
+            border: 4px solid #90cdf4; /* blue-300 */
+            box-shadow: 8px 8px 0px #3182ce; /* blue-600 */
+            border-radius: 12px;
+        }
+
+        .comic-border-red {
+            border: 4px solid #feb2b2; /* red-300 */
+            box-shadow: 8px 8px 0px #e53e3e; /* red-600 */
+            border-radius: 12px;
+        }
+
+        /* Wheel Animation */
+        @keyframes spinFast {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-1000px); }
+        }
+
+        .slot-machine-container {
+            height: 60px;
+            overflow: hidden;
+            position: relative;
+            background: #2d3748;
+            border-radius: 8px;
+            border: 2px solid #4a5568;
+        }
+
+        .slot-items {
+            position: absolute;
+            width: 100%;
+            transition: top 2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .slot-item {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            margin: 10% auto;
+            width: 90%;
+            max-width: 600px;
+            animation: zoomIn 0.3s;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Blood splatter effect for battle */
+        .splatter {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .winner-text {
+            background: -webkit-linear-gradient(#fbd38d, #dd6b20);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 relative">
+
+    <!-- Sound Toggle Button -->
+    <button id="btn-mute" class="fixed top-4 right-4 md:top-6 md:right-6 bg-gray-800 p-3 rounded-full border-2 border-gray-600 text-2xl hover:bg-gray-700 transition-colors z-50 shadow-lg flex items-center justify-center w-14 h-14" title="Toggle Sound">
+        🔊
+    </button>
+
+    <!-- Header -->
+    <header class="text-center my-6 w-full max-w-4xl">
+        <h1 class="text-5xl md:text-7xl bangers-font text-yellow-400 drop-shadow-[0_4px_4px_rgba(220,38,38,0.8)] uppercase">Invincible Draft</h1>
+        <p class="text-xl mt-2 text-gray-300">Build your ultimate fighter to survive!</p>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="w-full max-w-4xl flex flex-col gap-8 relative" id="game-container">
+        
+        <!-- Setup Phase -->
+        <div id="setup-phase" class="flex flex-col items-center justify-center space-y-6 bg-gray-800 p-8 comic-border text-center">
+            <h2 class="text-3xl bangers-font text-white">Step 1: Discover Your Opponent</h2>
+            <p class="text-gray-300">Spin the wheel to see who you have to fight.</p>
+            
+            <div class="w-full max-w-md">
+                <div class="slot-machine-container mb-4 shadow-inner">
+                    <div id="opponent-slot" class="slot-items top-0">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-spin-opponent" class="bg-red-600 hover:bg-red-500 text-white bangers-font text-2xl py-3 px-8 rounded-lg shadow-[0_4px_0_#991b1b] active:shadow-[0_0px_0_#991b1b] active:translate-y-1 transition-all">
+                Spin for Opponent
+            </button>
+
+            <div id="opponent-reveal" class="hidden mt-6 animate-pulse">
+                <p class="text-lg">Your Opponent is:</p>
+                <h3 id="opponent-name-display" class="text-4xl bangers-font text-red-500 mt-2 tracking-wide"></h3>
+                <button id="btn-start-draft" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white bangers-font text-xl py-2 px-6 rounded-lg shadow-[0_4px_0_#1e3a8a] active:shadow-[0_0px_0_#1e3a8a] active:translate-y-1 transition-all">
+                    Start Drafting
+                </button>
+            </div>
+        </div>
+
+        <!-- Draft Phase (Hidden initially) -->
+        <div id="draft-phase" class="hidden flex-col md:flex-row gap-6 w-full">
+            
+            <!-- Draft Action Area -->
+            <div class="w-full md:w-2/3 bg-gray-800 p-6 comic-border-blue flex flex-col relative">
+                <h2 class="text-3xl bangers-font text-blue-400 mb-4 border-b border-gray-600 pb-2">Draft Phase</h2>
+                
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xl font-bold text-gray-300">Spin, choose, and assign!</span>
+                    <span class="text-sm bg-gray-700 px-3 py-1 rounded-full text-white"><span id="draft-progress">0</span>/8</span>
+                </div>
+
+                <!-- Spinners -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="flex flex-col items-center">
+                        <span class="text-gray-500 mb-1 text-sm font-bold tracking-wider">OPTION A</span>
+                        <div class="w-full slot-machine-container shadow-inner">
+                            <div id="draft-slot-a" class="slot-items top-0"></div>
+                        </div>
+                        <button id="btn-select-a" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 opacity-50 cursor-not-allowed transition-all" disabled>Select A</button>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <span class="text-gray-500 mb-1 text-sm font-bold tracking-wider">OPTION B</span>
+                        <div class="w-full slot-machine-container shadow-inner">
+                            <div id="draft-slot-b" class="slot-items top-0"></div>
+                        </div>
+                        <button id="btn-select-b" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 opacity-50 cursor-not-allowed transition-all" disabled>Select B</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mt-auto">
+                    <button id="btn-spin-draft" class="bg-yellow-500 hover:bg-yellow-400 text-gray-900 bangers-font text-3xl py-4 px-12 rounded-xl shadow-[0_6px_0_#b45309] active:shadow-[0_0px_0_#b45309] active:translate-y-1 transition-all w-full max-w-sm">
+                        SPIN CHOICES
+                    </button>
+                </div>
+
+                <!-- Assignment Panel -->
+                <div id="assignment-panel" class="hidden flex-col items-center mt-6 p-4 bg-gray-700 rounded-lg border-2 border-blue-400 shadow-lg transition-all">
+                    <h3 class="text-xl text-white mb-3 text-center">Assign <span id="assign-char-name" class="font-bold bangers-font tracking-wider text-2xl text-yellow-400"></span> to:</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full" id="category-buttons">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fighter Summary Panel -->
+            <div class="w-full md:w-1/3 bg-gray-900 p-6 border-2 border-gray-700 rounded-xl shadow-2xl flex flex-col">
+                <h3 class="text-2xl bangers-font text-white mb-4 text-center">Your Fighter</h3>
+                
+                <div class="space-y-4 flex-grow" id="fighter-stats">
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Strength</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-strength">???</div>
+                    </div>
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Speed</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-speed">???</div>
+                    </div>
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Durability</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-durability">???</div>
+                    </div>
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Battle IQ</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-biq">???</div>
+                    </div>
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Agility/Reflexes</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-agility">???</div>
+                    </div>
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Powers/Hax</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-powers">???</div>
+                    </div>
+                    <div class="stat-row border-b border-gray-700 pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Weaponry/Gear</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-gear">???</div>
+                    </div>
+                    <div class="stat-row pb-2">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Ruthlessness</div>
+                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-ruthlessness">???</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t-2 border-red-900 text-center">
+                    <span class="text-sm text-gray-400">Gauntlet Streak: <span id="gauntlet-streak" class="text-white font-bold text-lg">0</span></span><br>
+                    <span class="text-sm text-gray-400">Fighting Against:</span>
+                    <div class="text-xl bangers-font text-red-500 tracking-wide" id="summary-opponent-name">???</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Battle Phase (Hidden initially) -->
+        <div id="battle-phase" class="hidden flex-col items-center w-full bg-gray-900 p-8 comic-border-red relative overflow-hidden">
+            <!-- decorative background elements -->
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at center, #9b1c1c 0%, transparent 70%);"></div>
+
+            <h2 class="text-5xl bangers-font text-white mb-8 z-10 uppercase tracking-widest text-shadow-lg">The Showdown</h2>
+            
+            <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-3xl z-10 mb-8">
+                <!-- Player Side -->
+                <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] w-full md:w-5/12">
+                    <h3 class="text-3xl bangers-font text-blue-400 mb-2">Your Fighter</h3>
+                    <div class="text-4xl text-white font-bold my-4" id="player-score-display">--</div>
+                    <p class="text-sm text-gray-400">Total Power Level</p>
+                </div>
+
+                <!-- VS -->
+                <div class="my-6 md:my-0 flex flex-col items-center justify-center w-full md:w-2/12">
+                    <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center bangers-font text-4xl text-white shadow-[0_0_20px_rgba(220,38,38,0.8)] border-4 border-yellow-400 animate-bounce">
+                        VS
+                    </div>
+                </div>
+
+                <!-- Opponent Side -->
+                <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] w-full md:w-5/12">
+                    <h3 class="text-3xl bangers-font text-red-400 mb-2" id="battle-opponent-name">Opponent</h3>
+                    <div class="text-4xl text-white font-bold my-4" id="opponent-score-display">--</div>
+                    <p class="text-sm text-gray-400">Total Power Level</p>
+                </div>
+            </div>
+
+            <button id="btn-simulate-battle" class="z-10 bg-gradient-to-r from-red-600 to-yellow-500 hover:from-red-500 hover:to-yellow-400 text-white bangers-font text-4xl py-4 px-12 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.6)] transform transition hover:scale-105 active:scale-95">
+                FIGHT!
+            </button>
+
+            <!-- Battle Log -->
+            <div id="battle-log" class="mt-8 w-full max-w-2xl bg-black/50 p-4 rounded-lg border border-gray-700 h-48 overflow-y-auto text-sm font-mono text-green-400 hidden z-10 flex-col gap-2">
+                <!-- logs appended here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content comic-border bg-gray-900 p-8 flex flex-col items-center text-center relative overflow-hidden">
+            <!-- Blood Splatters -->
+            <div id="splatter-1" class="splatter bg-red-600 w-32 h-32 rounded-full blur-xl -top-10 -left-10"></div>
+            <div id="splatter-2" class="splatter bg-red-700 w-40 h-40 rounded-full blur-xl -bottom-10 -right-10"></div>
+
+            <h2 id="result-title" class="text-6xl bangers-font mb-4 z-10">RESULT</h2>
+            <p id="result-desc" class="text-xl text-gray-300 mb-8 z-10 max-w-md">Description</p>
+            
+            <div class="flex gap-4 z-10">
+                <button id="btn-next-fight" class="hidden bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 transition-all">
+                    Next Opponent!
+                </button>
+                <button id="btn-play-again" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all">
+                    Start Over
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- AUDIO SETUP (Tone.js) ---
+        let audioStarted = false;
+        let isMuted = false;
+        let tickSynth, winSynth, loseSynth, punchSynth;
+
+        // Mute Button Logic
+        const btnMute = document.getElementById('btn-mute');
+        btnMute.addEventListener('click', () => {
+            isMuted = !isMuted;
+            btnMute.textContent = isMuted ? '🔇' : '🔊';
+        });
+
+        async function initAudio() {
+            if (audioStarted) return;
+            await Tone.start();
+            
+            tickSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).toDestination();
+            tickSynth.volume.value = -12;
+
+            winSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            winSynth.volume.value = -5;
+            
+            loseSynth = new Tone.FMSynth().toDestination();
+            loseSynth.volume.value = -5;
+            
+            punchSynth = new Tone.MetalSynth({
+                frequency: 200,
+                envelope: { attack: 0.001, decay: 0.1, release: 0.01 },
+                harmonicity: 5.1,
+                modulationIndex: 32,
+                resonance: 4000,
+                octaves: 1.5
+            }).toDestination();
+            punchSynth.volume.value = -5;
+
+            audioStarted = true;
+        }
+
+        function playTick() {
+            if (audioStarted && tickSynth && !isMuted) tickSynth.triggerAttackRelease("C6", "32n");
+        }
+
+        function playSelect() {
+            if (audioStarted && winSynth && !isMuted) winSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        }
+
+        function playPunch() {
+            if (audioStarted && punchSynth && !isMuted) punchSynth.triggerAttackRelease("16n");
+        }
+
+        function playWin() {
+            if (audioStarted && winSynth && !isMuted) winSynth.triggerAttackRelease(["G4", "B4", "D5", "G5"], "2n");
+        }
+
+        function playLose() {
+            if (audioStarted && loseSynth && !isMuted) loseSynth.triggerAttackRelease("C2", "1n");
+        }
+
+        // --- GAME DATA ---
+
+        // Characters with hidden stats (1-10 scale)
+        const characters = [
+            { name: "Omni-Man", strength: 9.5, speed: 9.5, agility: 8.5, durability: 9, biq: 8, powers: 7, gear: 1, ruthlessness: 9, color: "#ef4444" },
+            { name: "Invincible", strength: 8, speed: 8.5, agility: 8, durability: 8.5, biq: 6, powers: 6, gear: 1, ruthlessness: 4, color: "#facc15" },
+            { name: "Atom Eve", strength: 3, speed: 6, agility: 6, durability: 4, biq: 7, powers: 10, gear: 1, ruthlessness: 3, color: "#f472b6" },
+            { name: "Battle Beast", strength: 10, speed: 8, agility: 9, durability: 9.5, biq: 9, powers: 2, gear: 8, ruthlessness: 10, color: "#d97706" },
+            { name: "Allen the Alien", strength: 8.5, speed: 8, agility: 7, durability: 9, biq: 6, powers: 4, gear: 1, ruthlessness: 5, color: "#f97316" },
+            { name: "Robot", strength: 7, speed: 6, agility: 5, durability: 7, biq: 10, powers: 8, gear: 10, ruthlessness: 8, color: "#94a3b8" },
+            { name: "Cecil Stedman", strength: 1, speed: 1, agility: 2, durability: 1, biq: 10, powers: 0, gear: 10, ruthlessness: 9, color: "#4b5563" },
+            { name: "The Immortal", strength: 7.5, speed: 7, agility: 7, durability: 7, biq: 7, powers: 5, gear: 2, ruthlessness: 6, color: "#3b82f6" },
+            { name: "Monster Girl", strength: 8, speed: 5, agility: 4, durability: 8.5, biq: 5, powers: 6, gear: 1, ruthlessness: 7, color: "#16a34a" },
+            { name: "Conquest", strength: 9.8, speed: 9, agility: 8, durability: 9.5, biq: 8, powers: 6, gear: 3, ruthlessness: 10, color: "#7f1d1d" },
+            { name: "Thragg", strength: 10, speed: 10, agility: 10, durability: 10, biq: 9, powers: 7, gear: 1, ruthlessness: 10, color: "#991b1b" },
+            { name: "Rex Splode", strength: 3, speed: 4, agility: 5, durability: 3, biq: 5, powers: 7, gear: 6, ruthlessness: 4, color: "#b91c1c" },
+            { name: "Dupli-Kate", strength: 3, speed: 3, agility: 5, durability: 2, biq: 6, powers: 8, gear: 2, ruthlessness: 3, color: "#8b5cf6" },
+            { name: "Mauler Twins", strength: 7, speed: 4, agility: 4, durability: 7, biq: 8, powers: 3, gear: 9, ruthlessness: 7, color: "#0ea5e9" },
+            { name: "Angstrom Levy", strength: 2, speed: 2, agility: 3, durability: 2, biq: 9, powers: 10, gear: 8, ruthlessness: 8, color: "#84cc16" },
+            { name: "Titan", strength: 6, speed: 4, agility: 3, durability: 8, biq: 6, powers: 5, gear: 1, ruthlessness: 6, color: "#57534e" },
+            { name: "Doc Seismic", strength: 2, speed: 2, agility: 2, durability: 2, biq: 7, powers: 8, gear: 9, ruthlessness: 5, color: "#fb923c" },
+            { name: "Darkwing", strength: 3, speed: 4, agility: 6, durability: 3, biq: 8, powers: 4, gear: 9, ruthlessness: 8, color: "#1e293b" },
+            { name: "Donald Ferguson", strength: 3, speed: 3, agility: 4, durability: 8, biq: 8, powers: 2, gear: 9, ruthlessness: 8, color: "#9ca3af" },
+            { name: "Debbie Grayson", strength: 1, speed: 1, agility: 2, durability: 1, biq: 6, powers: 0, gear: 3, ruthlessness: 7, color: "#fca5a5" },
+            { name: "William Clockwell", strength: 1, speed: 2, agility: 2, durability: 1, biq: 5, powers: 0, gear: 1, ruthlessness: 2, color: "#fcd34d" },
+            { name: "Art Rosenbaum", strength: 1, speed: 1, agility: 1, durability: 1, biq: 7, powers: 0, gear: 6, ruthlessness: 1, color: "#d1d5db" },
+            { name: "Machine Head", strength: 2, speed: 2, agility: 2, durability: 4, biq: 9, powers: 0, gear: 8, ruthlessness: 9, color: "#eab308" },
+            { name: "Damien Darkblood", strength: 4, speed: 3, agility: 3, durability: 5, biq: 9, powers: 6, gear: 4, ruthlessness: 6, color: "#dc2626" },
+            // NEW CHARACTERS
+            { name: "Space Racer", strength: 5, speed: 9, agility: 9, durability: 6, biq: 8, powers: 5, gear: 10, ruthlessness: 7, color: "#a78bfa" },
+            { name: "Thaedus", strength: 8, speed: 8, agility: 7, durability: 8, biq: 10, powers: 6, gear: 7, ruthlessness: 8, color: "#cbd5e1" },
+            { name: "General Kregg", strength: 9, speed: 9, agility: 8, durability: 9, biq: 8, powers: 6, gear: 6, ruthlessness: 9, color: "#b91c1c" },
+            { name: "Anissa", strength: 9.2, speed: 9.2, agility: 9, durability: 9, biq: 8, powers: 6, gear: 2, ruthlessness: 9, color: "#4ade80" },
+            { name: "Oliver Grayson", strength: 6, speed: 7, agility: 8, durability: 6, biq: 5, powers: 5, gear: 2, ruthlessness: 6, color: "#c084fc" },
+            { name: "Shrinking Rae", strength: 2, speed: 6, agility: 9, durability: 2, biq: 6, powers: 8, gear: 2, ruthlessness: 4, color: "#f87171" },
+            { name: "Black Samson", strength: 6, speed: 5, agility: 5, durability: 6, biq: 7, powers: 6, gear: 7, ruthlessness: 5, color: "#1e3a8a" },
+            { name: "Shapesmith", strength: 5, speed: 4, agility: 8, durability: 7, biq: 4, powers: 9, gear: 1, ruthlessness: 3, color: "#a3e635" },
+            { name: "Dinosaurus", strength: 9, speed: 6, agility: 5, durability: 9, biq: 10, powers: 5, gear: 1, ruthlessness: 9, color: "#b45309" },
+            // NEWEST CHARACTERS
+            { name: "Red Rush", strength: 6, speed: 10, agility: 10, durability: 4, biq: 7, powers: 5, gear: 1, ruthlessness: 4, color: "#ef4444" },
+            { name: "Lucan", strength: 9.3, speed: 9, agility: 8, durability: 9.4, biq: 7, powers: 6, gear: 1, ruthlessness: 8, color: "#b91c1c" },
+            { name: "Thula", strength: 8.5, speed: 9.2, agility: 9.5, durability: 8.5, biq: 8, powers: 5, gear: 8, ruthlessness: 9, color: "#9ca3af" },
+            { name: "Bulletproof", strength: 7.5, speed: 8, agility: 8, durability: 8, biq: 6, powers: 7, gear: 2, ruthlessness: 5, color: "#fb923c" },
+            { name: "Isotope", strength: 2, speed: 9, agility: 9, durability: 2, biq: 7, powers: 9, gear: 1, ruthlessness: 4, color: "#10b981" },
+            { name: "Omnipotus", strength: 10, speed: 7, agility: 6, durability: 9, biq: 8, powers: 10, gear: 3, ruthlessness: 9, color: "#2dd4bf" },
+            { name: "Green Ghost", strength: 4, speed: 8, agility: 9, durability: 3, biq: 6, powers: 9, gear: 1, ruthlessness: 3, color: "#4ade80" },
+            { name: "Aquarus", strength: 6, speed: 6, agility: 5, durability: 6, biq: 5, powers: 8, gear: 1, ruthlessness: 4, color: "#3b82f6" },
+            { name: "Martian Emperor", strength: 8, speed: 7, agility: 8, durability: 8, biq: 9, powers: 9, gear: 4, ruthlessness: 8, color: "#84cc16" }
+        ];
+
+        // Categories to draft
+        const categories = [
+            { id: "strength", name: "Strength", desc: "Raw physical power and lifting capability." },
+            { id: "speed", name: "Speed", desc: "Movement, flight, and reaction time." },
+            { id: "agility", name: "Agility/Reflexes", desc: "Dodging, acrobatics, and reaction time." },
+            { id: "durability", name: "Durability", desc: "Ability to take a hit and keep fighting." },
+            { id: "biq", name: "Battle IQ", desc: "Strategy, adaptability, and combat experience." },
+            { id: "powers", name: "Powers/Hax", desc: "Energy projection, reality warping, tech, or unique abilities." },
+            { id: "gear", name: "Weaponry/Gear", desc: "Access to high-tech weapons, armor, or gadgets." },
+            { id: "ruthlessness", name: "Ruthlessness", desc: "Willingness to go for the kill immediately." }
+        ];
+
+        // --- STATE VARIABLES ---
+        let currentOpponent = null;
+        let draftsCompleted = 0;
+        let gauntletStreak = 0;
+        let selectedCharacterForDraft = null;
+        let playerFighter = {
+            strength: null, speed: null, agility: null, durability: null, biq: null, powers: null, gear: null, ruthlessness: null
+        };
+        let currentOptionA = null;
+        let currentOptionB = null;
+
+        // --- DOM ELEMENTS ---
+        // Setup
+        const setupPhase = document.getElementById('setup-phase');
+        const opponentSlotContainer = document.getElementById('opponent-slot');
+        const btnSpinOpponent = document.getElementById('btn-spin-opponent');
+        const opponentReveal = document.getElementById('opponent-reveal');
+        const opponentNameDisplay = document.getElementById('opponent-name-display');
+        const btnStartDraft = document.getElementById('btn-start-draft');
+        const summaryOpponentName = document.getElementById('summary-opponent-name');
+
+        // Draft
+        const draftPhase = document.getElementById('draft-phase');
+        const draftProgressEl = document.getElementById('draft-progress');
+        
+        const slotAContainer = document.getElementById('draft-slot-a');
+        const slotBContainer = document.getElementById('draft-slot-b');
+        const btnSpinDraft = document.getElementById('btn-spin-draft');
+        const btnSelectA = document.getElementById('btn-select-a');
+        const btnSelectB = document.getElementById('btn-select-b');
+
+        const assignmentPanel = document.getElementById('assignment-panel');
+        const assignCharName = document.getElementById('assign-char-name');
+        const categoryButtonsContainer = document.getElementById('category-buttons');
+
+        // Stats
+        const statEls = {
+            strength: document.getElementById('stat-strength'),
+            speed: document.getElementById('stat-speed'),
+            agility: document.getElementById('stat-agility'),
+            durability: document.getElementById('stat-durability'),
+            biq: document.getElementById('stat-biq'),
+            powers: document.getElementById('stat-powers'),
+            gear: document.getElementById('stat-gear'),
+            ruthlessness: document.getElementById('stat-ruthlessness')
+        };
+
+        // Battle
+        const battlePhase = document.getElementById('battle-phase');
+        const gauntletStreakDisplay = document.getElementById('gauntlet-streak');
+        const battleOpponentName = document.getElementById('battle-opponent-name');
+        const btnSimulateBattle = document.getElementById('btn-simulate-battle');
+        const battleLog = document.getElementById('battle-log');
+        const playerScoreDisplay = document.getElementById('player-score-display');
+        const opponentScoreDisplay = document.getElementById('opponent-score-display');
+
+        // Modal
+        const resultModal = document.getElementById('result-modal');
+        const resultTitle = document.getElementById('result-title');
+        const resultDesc = document.getElementById('result-desc');
+        const btnPlayAgain = document.getElementById('btn-play-again');
+        const btnNextFight = document.getElementById('btn-next-fight');
+        const splatters = document.querySelectorAll('.splatter');
+
+        // --- HELPER FUNCTIONS ---
+
+        // Utility to get random elements
+        function getRandomCharacter() {
+            return characters[Math.floor(Math.random() * characters.length)];
+        }
+
+        // Slot Machine Animation Logic
+        function populateSlot(containerElement, finalCharacter, itemCount = 30) {
+            containerElement.innerHTML = '';
+            // Add a bunch of random characters for the blur effect
+            for (let i = 0; i < itemCount; i++) {
+                const char = getRandomCharacter();
+                const div = document.createElement('div');
+                div.className = 'slot-item';
+                div.textContent = char.name;
+                div.style.color = char.color || 'white';
+                containerElement.appendChild(div);
+            }
+            // Add the final target character at the bottom
+            const finalDiv = document.createElement('div');
+            finalDiv.className = 'slot-item font-black text-2xl';
+            finalDiv.textContent = finalCharacter.name;
+            finalDiv.style.color = finalCharacter.color || '#fbbf24';
+            containerElement.appendChild(finalDiv);
+
+            // Reset position
+            containerElement.style.transition = 'none';
+            containerElement.style.top = '0px';
+        }
+
+        function spinSlot(containerElement, itemCount = 30, duration = 2000) {
+            return new Promise(resolve => {
+                // Force reflow
+                void containerElement.offsetWidth;
+                
+                containerElement.style.transition = `top ${duration}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+                // Calculate distance: item height (60px) * number of random items
+                const distance = -(itemCount * 60);
+                containerElement.style.top = `${distance}px`;
+
+                let ticks = 0;
+                const maxTicks = 15;
+                const tickInterval = setInterval(() => {
+                    playTick();
+                    ticks++;
+                    if (ticks >= maxTicks) clearInterval(tickInterval);
+                }, duration / maxTicks);
+
+                setTimeout(() => {
+                    clearInterval(tickInterval);
+                    resolve();
+                }, duration + 100);
+            });
+        }
+
+        function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+
+        // --- GAME LOGIC ---
+
+        // Phase 1: Spin Opponent
+        btnSpinOpponent.addEventListener('click', async () => {
+            await initAudio(); // Initialize audio context on user interaction
+            btnSpinOpponent.disabled = true;
+            btnSpinOpponent.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Pick an opponent (weight it slightly towards stronger characters for fun)
+            const strongOpponents = characters.filter(c => c.strength > 7 || c.powers > 8);
+            currentOpponent = Math.random() > 0.3 ? 
+                strongOpponents[Math.floor(Math.random() * strongOpponents.length)] : 
+                getRandomCharacter();
+
+            populateSlot(opponentSlotContainer, currentOpponent, 40);
+            
+            // Add blur effect during spin
+            opponentSlotContainer.style.filter = "blur(2px)";
+            await spinSlot(opponentSlotContainer, 40, 2500);
+            opponentSlotContainer.style.filter = "none";
+
+            opponentNameDisplay.textContent = currentOpponent.name;
+            opponentNameDisplay.style.color = currentOpponent.color;
+            summaryOpponentName.textContent = currentOpponent.name;
+            summaryOpponentName.style.color = currentOpponent.color;
+            battleOpponentName.textContent = currentOpponent.name;
+            battleOpponentName.style.color = currentOpponent.color;
+
+            opponentReveal.classList.remove('hidden');
+        });
+
+        // Transition to Draft Phase
+        btnStartDraft.addEventListener('click', () => {
+            setupPhase.classList.add('hidden');
+            draftPhase.classList.remove('hidden');
+            draftPhase.classList.add('flex');
+            updateDraftUI();
+        });
+
+        // Phase 2: Drafting
+        function updateDraftUI() {
+            draftProgressEl.textContent = draftsCompleted;
+            
+            // Hide assignment panel
+            assignmentPanel.classList.add('hidden');
+            assignmentPanel.classList.remove('flex');
+            selectedCharacterForDraft = null;
+
+            // Reset visual selection borders
+            slotAContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
+            slotBContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
+
+            // Reset state for new spin
+            btnSpinDraft.disabled = false;
+            btnSpinDraft.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            btnSelectA.disabled = true;
+            btnSelectA.classList.add('opacity-50', 'cursor-not-allowed');
+            btnSelectB.disabled = true;
+            btnSelectB.classList.add('opacity-50', 'cursor-not-allowed');
+
+            slotAContainer.style.transition = 'none';
+            slotAContainer.style.top = '0px';
+            slotAContainer.innerHTML = '<div class="slot-item text-gray-500">?</div>';
+            
+            slotBContainer.style.transition = 'none';
+            slotBContainer.style.top = '0px';
+            slotBContainer.innerHTML = '<div class="slot-item text-gray-500">?</div>';
+        }
+
+        btnSpinDraft.addEventListener('click', async () => {
+            btnSpinDraft.disabled = true;
+            btnSpinDraft.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Pick two distinct random characters
+            currentOptionA = getRandomCharacter();
+            do {
+                currentOptionB = getRandomCharacter();
+            } while (currentOptionB.name === currentOptionA.name);
+
+            populateSlot(slotAContainer, currentOptionA, 25);
+            populateSlot(slotBContainer, currentOptionB, 30); // Spin slightly longer
+
+            slotAContainer.style.filter = "blur(1px)";
+            slotBContainer.style.filter = "blur(1px)";
+
+            // Spin both, wait for both to finish
+            await Promise.all([
+                spinSlot(slotAContainer, 25, 1500),
+                spinSlot(slotBContainer, 30, 2000)
+            ]);
+
+            slotAContainer.style.filter = "none";
+            slotBContainer.style.filter = "none";
+
+            // Enable selection buttons and hide old assignment panel
+            assignmentPanel.classList.add('hidden');
+            assignmentPanel.classList.remove('flex');
+            slotAContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
+            slotBContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
+
+            btnSelectA.disabled = false;
+            btnSelectA.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnSelectB.disabled = false;
+            btnSelectB.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+
+        function initiateAssignment(character, slot) {
+            selectedCharacterForDraft = character;
+            assignCharName.textContent = character.name;
+            assignCharName.style.color = character.color;
+
+            // Visual feedback
+            slotAContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
+            slotBContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
+            if (slot === 'A') slotAContainer.parentElement.classList.add('border-4', 'border-yellow-400');
+            if (slot === 'B') slotBContainer.parentElement.classList.add('border-4', 'border-yellow-400');
+
+            // Generate category buttons
+            categoryButtonsContainer.innerHTML = '';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                const isAssigned = playerFighter[cat.id] !== null;
+                
+                btn.className = `font-bold py-2 px-2 rounded text-sm transition-all ${isAssigned ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1'}`;
+                btn.textContent = cat.name;
+                btn.disabled = isAssigned;
+                
+                if (!isAssigned) {
+                    btn.addEventListener('click', () => confirmAssignment(cat.id));
+                }
+                categoryButtonsContainer.appendChild(btn);
+            });
+
+            assignmentPanel.classList.remove('hidden');
+            assignmentPanel.classList.add('flex');
+            
+            // Scroll to assignment panel
+            assignmentPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function confirmAssignment(categoryId) {
+            playSelect();
+            // Assign character
+            playerFighter[categoryId] = selectedCharacterForDraft;
+            
+            // Update UI
+            statEls[categoryId].textContent = selectedCharacterForDraft.name;
+            statEls[categoryId].style.color = selectedCharacterForDraft.color;
+
+            // Flash effect on selection
+            statEls[categoryId].parentElement.classList.add('bg-gray-700', 'transition-colors', 'duration-300');
+            setTimeout(() => statEls[categoryId].parentElement.classList.remove('bg-gray-700'), 300);
+
+            draftsCompleted++;
+            
+            if (draftsCompleted >= categories.length) {
+                startBattlePhase();
+            } else {
+                updateDraftUI();
+            }
+        }
+
+        btnSelectA.addEventListener('click', () => initiateAssignment(currentOptionA, 'A'));
+        btnSelectB.addEventListener('click', () => initiateAssignment(currentOptionB, 'B'));
+
+
+        // Phase 3: Battle Simulation
+        function startBattlePhase() {
+            draftPhase.classList.add('hidden');
+            draftPhase.classList.remove('flex');
+            
+            battlePhase.classList.remove('hidden');
+            battlePhase.classList.add('flex');
+        }
+
+        function addLog(message, color = 'text-green-400') {
+            const p = document.createElement('p');
+            p.className = color;
+            p.textContent = `> ${message}`;
+            battleLog.appendChild(p);
+            battleLog.scrollTop = battleLog.scrollHeight;
+        }
+
+        btnSimulateBattle.addEventListener('click', async () => {
+            btnSimulateBattle.disabled = true;
+            btnSimulateBattle.classList.add('hidden');
+            
+            battleLog.classList.remove('hidden');
+            battleLog.classList.add('flex');
+            battleLog.innerHTML = '';
+
+            addLog("SIMULATING COMBAT ENVIRONMENT...", "text-blue-400");
+            await wait(1000);
+
+            // Calculate Player Score (Hidden)
+            // The score is the sum of the selected stat from the chosen character
+            let playerScore = 0;
+            let playerBreakdown = "";
+            for (let i=0; i<categories.length; i++) {
+                const catId = categories[i].id;
+                const charObj = playerFighter[catId];
+                const statValue = charObj[catId]; // e.g. playerFighter['strength'].strength
+                playerScore += statValue;
+                playerBreakdown += `${categories[i].name}: ${statValue.toFixed(1)} (${charObj.name})\n`;
+            }
+
+            // Calculate Opponent Score
+            let opponentScore = 0;
+            for (let i=0; i<categories.length; i++) {
+                const catId = categories[i].id;
+                opponentScore += currentOpponent[catId];
+            }
+
+            // Apply Gauntlet Scaling (15% buff to opponent per streak)
+            opponentScore = opponentScore * (1 + (gauntletStreak * 0.15));
+
+            // Add a slight randomization factor to simulate luck/circumstance (-10% to +10%)
+            const rFactorPlayer = 1 + ((Math.random() * 0.2) - 0.1);
+            const rFactorOpponent = 1 + ((Math.random() * 0.2) - 0.1);
+            
+            const finalPlayerScore = playerScore * rFactorPlayer;
+            const finalOpponentScore = opponentScore * rFactorOpponent;
+
+            // Animate counting up scores
+            addLog("CALCULATING POWER LEVELS...", "text-yellow-400");
+            await animateCounter(playerScoreDisplay, 0, finalPlayerScore, 1500);
+            await animateCounter(opponentScoreDisplay, 0, finalOpponentScore, 1500);
+
+            await wait(500);
+
+            // Generate narrative logs based on stats
+            if (playerFighter.speed.speed > currentOpponent.speed) {
+                addLog(`Your fighter's speed (${playerFighter.speed.name}) allows for first strike!`);
+            } else {
+                addLog(`${currentOpponent.name} blitzes forward instantly!`, 'text-red-400');
+            }
+            await wait(800);
+
+            if (playerFighter.durability.durability < currentOpponent.strength - 2) {
+                addLog(`WARNING: Your durability (${playerFighter.durability.name}) is severely outmatched by opponent's raw power!`, 'text-red-500 font-bold');
+            } else {
+                addLog(`Your fighter tanks the initial hits thanks to ${playerFighter.durability.name}'s resilience.`);
+            }
+            await wait(800);
+
+            if (playerFighter.biq.biq > currentOpponent.biq) {
+                addLog(`Superior Battle IQ (${playerFighter.biq.name}) identifies a critical weakness!`, 'text-yellow-300');
+            }
+            await wait(1000);
+            
+            if (playerFighter.gear.gear > 7) {
+                addLog(`Advanced weaponry (${playerFighter.gear.name}) unleashes devastating damage!`, 'text-blue-300');
+                playPunch();
+            }
+            await wait(1000);
+
+            // Determine Winner
+            const diff = finalPlayerScore - finalOpponentScore;
+            
+            if (diff > 5) {
+                playWin();
+                showResult("VICTORY!", `Your chimera fighter utterly dominated ${currentOpponent.name}. It wasn't even close.`, "text-yellow-400", false, true);
+            } else if (diff > 0) {
+                playWin();
+                showResult("NARROW WIN!", `It was a bloody, brutal fight, but your fighter managed to rip ${currentOpponent.name} apart just before collapsing.`, "text-orange-400", false, true);
+            } else if (diff > -5) {
+                playLose();
+                showResult("DEFEAT...", `You fought valiantly, but ${currentOpponent.name} proved too much in the end. Your fighter was left as a smear.`, "text-red-500", true, false);
+            } else {
+                playLose();
+                showResult("ANNIHILATION", `Why did you even try? ${currentOpponent.name} didn't even break a sweat turning your fighter into paste.`, "text-red-600 font-black", true, false);
+            }
+        });
+
+        // Number animation
+        function animateCounter(element, start, end, duration) {
+            return new Promise(resolve => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    // easeOutQuart
+                    const easeProgress = 1 - Math.pow(1 - progress, 4);
+                    const currentVal = start + easeProgress * (end - start);
+                    
+                    element.textContent = currentVal.toFixed(1);
+                    
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        element.textContent = end.toFixed(1);
+                        resolve();
+                    }
+                };
+                window.requestAnimationFrame(step);
+            });
+        }
+
+
+        // Phase 4: Results
+        function showResult(title, desc, titleClass, isGory = false, playerWon = false) {
+            resultTitle.textContent = title;
+            resultTitle.className = `text-6xl bangers-font mb-4 z-10 ${titleClass}`;
+            resultDesc.textContent = desc;
+
+            if (isGory) {
+                splatters.forEach(s => s.style.opacity = '1');
+            } else {
+                splatters.forEach(s => s.style.opacity = '0');
+            }
+            
+            if (playerWon) {
+                btnNextFight.classList.remove('hidden');
+            } else {
+                btnNextFight.classList.add('hidden');
+            }
+
+            resultModal.style.display = 'block';
+        }
+
+        btnNextFight.addEventListener('click', async () => {
+            gauntletStreak++;
+            gauntletStreakDisplay.textContent = gauntletStreak;
+            
+            resultModal.style.display = 'none';
+            battlePhase.classList.add('hidden');
+            battlePhase.classList.remove('flex');
+            
+            // Go back to setup phase to spin NEW opponent
+            setupPhase.classList.remove('hidden');
+            opponentReveal.classList.add('hidden');
+            
+            btnSpinOpponent.disabled = false;
+            btnSpinOpponent.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnSpinOpponent.textContent = "Spin Next Opponent";
+            
+            // Override Draft Button to go straight to battle
+            btnStartDraft.textContent = "Continue Gauntlet";
+            btnStartDraft.onclick = () => {
+                setupPhase.classList.add('hidden');
+                
+                // RESET BATTLE UI FOR NEXT FIGHT
+                playerScoreDisplay.textContent = '--';
+                opponentScoreDisplay.textContent = '--';
+                btnSimulateBattle.classList.remove('hidden');
+                btnSimulateBattle.disabled = false;
+                battleLog.classList.add('hidden');
+                battleLog.classList.remove('flex');
+                battleLog.innerHTML = '';
+                
+                startBattlePhase();
+            };
+        });
+
+        btnPlayAgain.addEventListener('click', () => {
+            // Reset Game State
+            currentOpponent = null;
+            draftsCompleted = 0;
+            gauntletStreak = 0;
+            gauntletStreakDisplay.textContent = '0';
+            selectedCharacterForDraft = null;
+            playerFighter = { strength: null, speed: null, agility: null, durability: null, biq: null, powers: null, gear: null, ruthlessness: null };
+            
+            // Reset UI
+            resultModal.style.display = 'none';
+            battlePhase.classList.add('hidden');
+            battlePhase.classList.remove('flex');
+            setupPhase.classList.remove('hidden');
+            
+            btnSpinOpponent.disabled = false;
+            btnSpinOpponent.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnSpinOpponent.textContent = "Spin for Opponent";
+            opponentReveal.classList.add('hidden');
+            
+            btnStartDraft.textContent = "Start Drafting";
+            btnStartDraft.onclick = () => {
+                setupPhase.classList.add('hidden');
+                draftPhase.classList.remove('hidden');
+                draftPhase.classList.add('flex');
+                updateDraftUI();
+            };
+            
+            Object.keys(statEls).forEach(key => {
+                statEls[key].textContent = '???';
+                statEls[key].style.color = '#fde047'; // yellow-300
+            });
+            
+            summaryOpponentName.textContent = '???';
+            summaryOpponentName.style.color = '';
+            
+            playerScoreDisplay.textContent = '--';
+            opponentScoreDisplay.textContent = '--';
+            btnSimulateBattle.classList.remove('hidden');
+            btnSimulateBattle.disabled = false;
+            battleLog.classList.add('hidden');
+            battleLog.classList.remove('flex');
+            battleLog.innerHTML = '';
+        });
+
+        // Initialize button overrides
+        btnStartDraft.onclick = () => {
+            setupPhase.classList.add('hidden');
+            draftPhase.classList.remove('hidden');
+            draftPhase.classList.add('flex');
+            updateDraftUI();
+        };
+
+        // Initialize slot UI on load
+        opponentSlotContainer.innerHTML = '<div class="slot-item text-gray-500">?</div>';
+
+    </script>
+</body>
+</html>

@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -19,29 +20,28 @@
             letter-spacing: 2px;
         }
         
-        /* Comic book style accents */
         .comic-border {
-            border: 4px solid #fbd38d; /* orange-300 */
-            box-shadow: 8px 8px 0px #dd6b20; /* orange-600 */
+            border: 4px solid #fbd38d;
+            box-shadow: 8px 8px 0px #dd6b20;
             border-radius: 12px;
         }
         
         .comic-border-blue {
-            border: 4px solid #90cdf4; /* blue-300 */
-            box-shadow: 8px 8px 0px #3182ce; /* blue-600 */
+            border: 4px solid #90cdf4;
+            box-shadow: 8px 8px 0px #3182ce;
             border-radius: 12px;
         }
 
         .comic-border-red {
-            border: 4px solid #feb2b2; /* red-300 */
-            box-shadow: 8px 8px 0px #e53e3e; /* red-600 */
+            border: 4px solid #feb2b2;
+            box-shadow: 8px 8px 0px #e53e3e;
             border-radius: 12px;
         }
 
-        /* Wheel Animation */
-        @keyframes spinFast {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-1000px); }
+        .comic-border-purple {
+            border: 4px solid #d6bcfa;
+            box-shadow: 8px 8px 0px #6b46c1;
+            border-radius: 12px;
         }
 
         .slot-machine-container {
@@ -70,7 +70,6 @@
             text-shadow: 1px 1px 2px black;
         }
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -96,18 +95,11 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        /* Blood splatter effect for battle */
         .splatter {
             position: absolute;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s;
-        }
-        
-        .winner-text {
-            background: -webkit-linear-gradient(#fbd38d, #dd6b20);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
@@ -119,7 +111,7 @@
     </button>
 
     <!-- Header -->
-    <header class="text-center my-6 w-full max-w-4xl">
+    <header class="text-center my-6 w-full max-w-4xl cursor-pointer" onclick="location.reload()" title="Click to go home">
         <h1 class="text-5xl md:text-7xl bangers-font text-yellow-400 drop-shadow-[0_4px_4px_rgba(220,38,38,0.8)] uppercase">Invincible Draft</h1>
         <p class="text-xl mt-2 text-gray-300">Build your ultimate fighter to survive!</p>
     </header>
@@ -127,153 +119,175 @@
     <!-- Main Game Container -->
     <main class="w-full max-w-4xl flex flex-col gap-8 relative" id="game-container">
         
-        <!-- Setup Phase -->
-        <div id="setup-phase" class="flex flex-col items-center justify-center space-y-6 bg-gray-800 p-8 comic-border text-center">
-            <h2 class="text-3xl bangers-font text-white">Step 1: Discover Your Opponent</h2>
-            <p class="text-gray-300">Spin the wheel to see who you have to fight.</p>
-            
-            <div class="w-full max-w-md">
-                <div class="slot-machine-container mb-4 shadow-inner">
-                    <div id="opponent-slot" class="slot-items top-0">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <button id="btn-spin-opponent" class="bg-red-600 hover:bg-red-500 text-white bangers-font text-2xl py-3 px-8 rounded-lg shadow-[0_4px_0_#991b1b] active:shadow-[0_0px_0_#991b1b] active:translate-y-1 transition-all">
-                Spin for Opponent
-            </button>
-
-            <div id="opponent-reveal" class="hidden mt-6 animate-pulse">
-                <p class="text-lg">Your Opponent is:</p>
-                <h3 id="opponent-name-display" class="text-4xl bangers-font text-red-500 mt-2 tracking-wide"></h3>
-                <button id="btn-start-draft" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white bangers-font text-xl py-2 px-6 rounded-lg shadow-[0_4px_0_#1e3a8a] active:shadow-[0_0px_0_#1e3a8a] active:translate-y-1 transition-all">
-                    Start Drafting
+        <!-- Main Menu -->
+        <div id="main-menu" class="flex flex-col items-center justify-center w-full gap-8 bg-gray-800 p-8 comic-border text-center">
+            <h2 class="text-4xl bangers-font text-white">Select Game Mode</h2>
+            <div class="flex flex-col md:flex-row gap-6 w-full justify-center mt-4">
+                <button id="btn-mode-chimera" class="bg-blue-600 hover:bg-blue-500 text-white bangers-font text-3xl py-6 px-8 rounded-xl shadow-[0_6px_0_#1e3a8a] active:shadow-none active:translate-y-2 transition-all w-full md:w-1/2">
+                    Chimera Draft
+                    <p class="text-sm font-sans font-bold mt-2 text-blue-200 tracking-wide">Draft 8 stats for 1 Fighter</p>
+                </button>
+                <button id="btn-mode-fusion" class="bg-purple-600 hover:bg-purple-500 text-white bangers-font text-3xl py-6 px-8 rounded-xl shadow-[0_6px_0_#581c87] active:shadow-none active:translate-y-2 transition-all w-full md:w-1/2">
+                    Fusion Battle
+                    <p class="text-sm font-sans font-bold mt-2 text-purple-200 tracking-wide">Fuse 2 pairs for a 2v2 Showdown</p>
                 </button>
             </div>
         </div>
 
-        <!-- Draft Phase (Hidden initially) -->
-        <div id="draft-phase" class="hidden flex-col md:flex-row gap-6 w-full">
-            
-            <!-- Draft Action Area -->
-            <div class="w-full md:w-2/3 bg-gray-800 p-6 comic-border-blue flex flex-col relative">
-                <h2 class="text-3xl bangers-font text-blue-400 mb-4 border-b border-gray-600 pb-2">Draft Phase</h2>
+        <!-- ==================== CHIMERA MODE CONTAINERS ==================== -->
+        <div id="chimera-container" class="hidden flex-col gap-8 w-full">
+            <!-- Setup Phase -->
+            <div id="setup-phase" class="flex flex-col items-center justify-center space-y-6 bg-gray-800 p-8 comic-border text-center">
+                <h2 class="text-3xl bangers-font text-white">Step 1: Discover Your Opponent</h2>
+                <p class="text-gray-300">Spin the wheel to see who you have to fight.</p>
                 
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-xl font-bold text-gray-300">Spin, choose, and assign!</span>
-                    <span class="text-sm bg-gray-700 px-3 py-1 rounded-full text-white"><span id="draft-progress">0</span>/8</span>
-                </div>
-
-                <!-- Spinners -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="flex flex-col items-center">
-                        <span class="text-gray-500 mb-1 text-sm font-bold tracking-wider">OPTION A</span>
-                        <div class="w-full slot-machine-container shadow-inner">
-                            <div id="draft-slot-a" class="slot-items top-0"></div>
-                        </div>
-                        <button id="btn-select-a" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 opacity-50 cursor-not-allowed transition-all" disabled>Select A</button>
-                    </div>
-                    
-                    <div class="flex flex-col items-center">
-                        <span class="text-gray-500 mb-1 text-sm font-bold tracking-wider">OPTION B</span>
-                        <div class="w-full slot-machine-container shadow-inner">
-                            <div id="draft-slot-b" class="slot-items top-0"></div>
-                        </div>
-                        <button id="btn-select-b" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 opacity-50 cursor-not-allowed transition-all" disabled>Select B</button>
+                <div class="w-full max-w-md">
+                    <div class="slot-machine-container mb-4 shadow-inner">
+                        <div id="opponent-slot" class="slot-items top-0"></div>
                     </div>
                 </div>
 
-                <div class="flex justify-center mt-auto">
-                    <button id="btn-spin-draft" class="bg-yellow-500 hover:bg-yellow-400 text-gray-900 bangers-font text-3xl py-4 px-12 rounded-xl shadow-[0_6px_0_#b45309] active:shadow-[0_0px_0_#b45309] active:translate-y-1 transition-all w-full max-w-sm">
-                        SPIN CHOICES
+                <button id="btn-spin-opponent" class="bg-red-600 hover:bg-red-500 text-white bangers-font text-2xl py-3 px-8 rounded-lg shadow-[0_4px_0_#991b1b] active:shadow-none active:translate-y-1 transition-all">
+                    Spin for Opponent
+                </button>
+
+                <div id="opponent-reveal" class="hidden mt-6 animate-pulse">
+                    <p class="text-lg">Your Opponent is:</p>
+                    <h3 id="opponent-name-display" class="text-4xl bangers-font text-red-500 mt-2 tracking-wide"></h3>
+                    <button id="btn-start-draft" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white bangers-font text-xl py-2 px-6 rounded-lg shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all">
+                        Start Drafting
                     </button>
-                </div>
-
-                <!-- Assignment Panel -->
-                <div id="assignment-panel" class="hidden flex-col items-center mt-6 p-4 bg-gray-700 rounded-lg border-2 border-blue-400 shadow-lg transition-all">
-                    <h3 class="text-xl text-white mb-3 text-center">Assign <span id="assign-char-name" class="font-bold bangers-font tracking-wider text-2xl text-yellow-400"></span> to:</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full" id="category-buttons">
-                        <!-- Populated by JS -->
-                    </div>
                 </div>
             </div>
 
-            <!-- Fighter Summary Panel -->
-            <div class="w-full md:w-1/3 bg-gray-900 p-6 border-2 border-gray-700 rounded-xl shadow-2xl flex flex-col">
-                <h3 class="text-2xl bangers-font text-white mb-4 text-center">Your Fighter</h3>
-                
-                <div class="space-y-4 flex-grow" id="fighter-stats">
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Strength</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-strength">???</div>
+            <!-- Draft Phase -->
+            <div id="draft-phase" class="hidden flex-col md:flex-row gap-6 w-full">
+                <!-- Draft Action Area -->
+                <div class="w-full md:w-2/3 bg-gray-800 p-6 comic-border-blue flex flex-col relative">
+                    <h2 class="text-3xl bangers-font text-blue-400 mb-4 border-b border-gray-600 pb-2">Draft Phase</h2>
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-xl font-bold text-gray-300">Spin, choose, and assign!</span>
+                        <span class="text-sm bg-gray-700 px-3 py-1 rounded-full text-white"><span id="draft-progress">0</span>/8</span>
                     </div>
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Speed</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-speed">???</div>
+
+                    <!-- Spinners -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="flex flex-col items-center">
+                            <span class="text-gray-500 mb-1 text-sm font-bold tracking-wider">OPTION A</span>
+                            <div class="w-full slot-machine-container shadow-inner">
+                                <div id="draft-slot-a" class="slot-items top-0"></div>
+                            </div>
+                            <button id="btn-select-a" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 opacity-50 cursor-not-allowed transition-all" disabled>Select A</button>
+                        </div>
+                        
+                        <div class="flex flex-col items-center">
+                            <span class="text-gray-500 mb-1 text-sm font-bold tracking-wider">OPTION B</span>
+                            <div class="w-full slot-machine-container shadow-inner">
+                                <div id="draft-slot-b" class="slot-items top-0"></div>
+                            </div>
+                            <button id="btn-select-b" class="mt-4 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 opacity-50 cursor-not-allowed transition-all" disabled>Select B</button>
+                        </div>
                     </div>
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Durability</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-durability">???</div>
+
+                    <div class="flex justify-center mt-auto">
+                        <button id="btn-spin-draft" class="bg-yellow-500 hover:bg-yellow-400 text-gray-900 bangers-font text-3xl py-4 px-12 rounded-xl shadow-[0_6px_0_#b45309] active:shadow-none active:translate-y-1 transition-all w-full max-w-sm">
+                            SPIN CHOICES
+                        </button>
                     </div>
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Battle IQ</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-biq">???</div>
-                    </div>
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Agility/Reflexes</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-agility">???</div>
-                    </div>
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Powers/Hax</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-powers">???</div>
-                    </div>
-                    <div class="stat-row border-b border-gray-700 pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Weaponry/Gear</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-gear">???</div>
-                    </div>
-                    <div class="stat-row pb-2">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Ruthlessness</div>
-                        <div class="text-lg text-yellow-300 font-semibold h-7" id="stat-ruthlessness">???</div>
+
+                    <!-- Assignment Panel -->
+                    <div id="assignment-panel" class="hidden flex-col items-center mt-6 p-4 bg-gray-700 rounded-lg border-2 border-blue-400 shadow-lg transition-all">
+                        <h3 class="text-xl text-white mb-3 text-center">Assign <span id="assign-char-name" class="font-bold bangers-font tracking-wider text-2xl text-yellow-400"></span> to:</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full" id="category-buttons"></div>
                     </div>
                 </div>
 
-                <div class="mt-4 pt-4 border-t-2 border-red-900 text-center">
-                    <span class="text-sm text-gray-400">Gauntlet Streak: <span id="gauntlet-streak" class="text-white font-bold text-lg">0</span></span><br>
-                    <span class="text-sm text-gray-400">Fighting Against:</span>
-                    <div class="text-xl bangers-font text-red-500 tracking-wide" id="summary-opponent-name">???</div>
+                <!-- Fighter Summary Panel -->
+                <div class="w-full md:w-1/3 bg-gray-900 p-6 border-2 border-gray-700 rounded-xl shadow-2xl flex flex-col">
+                    <h3 class="text-2xl bangers-font text-white mb-4 text-center">Your Fighter</h3>
+                    <div class="space-y-4 flex-grow" id="fighter-stats">
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Strength</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-strength">???</div></div>
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Speed</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-speed">???</div></div>
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Durability</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-durability">???</div></div>
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Battle IQ</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-biq">???</div></div>
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Agility/Reflexes</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-agility">???</div></div>
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Powers/Hax</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-powers">???</div></div>
+                        <div class="stat-row border-b border-gray-700 pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Weaponry/Gear</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-gear">???</div></div>
+                        <div class="stat-row pb-2"><div class="text-xs text-gray-400 uppercase font-bold">Ruthlessness</div><div class="text-lg text-yellow-300 font-semibold h-7" id="stat-ruthlessness">???</div></div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t-2 border-red-900 text-center">
+                        <span class="text-sm text-gray-400">Gauntlet Streak: <span id="gauntlet-streak" class="text-white font-bold text-lg">0</span></span><br>
+                        <span class="text-sm text-gray-400">Fighting Against:</span>
+                        <div class="text-xl bangers-font text-red-500 tracking-wide" id="summary-opponent-name">???</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Battle Phase (Hidden initially) -->
-        <div id="battle-phase" class="hidden flex-col items-center w-full bg-gray-900 p-8 comic-border-red relative overflow-hidden">
-            <!-- decorative background elements -->
-            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at center, #9b1c1c 0%, transparent 70%);"></div>
-
-            <h2 class="text-5xl bangers-font text-white mb-8 z-10 uppercase tracking-widest text-shadow-lg">The Showdown</h2>
-            
-            <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-3xl z-10 mb-8">
-                <!-- Player Side -->
-                <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] w-full md:w-5/12">
-                    <h3 class="text-3xl bangers-font text-blue-400 mb-2">Your Fighter</h3>
-                    <div class="text-4xl text-white font-bold my-4" id="player-score-display">--</div>
-                    <p class="text-sm text-gray-400">Total Power Level</p>
-                </div>
-
-                <!-- VS -->
-                <div class="my-6 md:my-0 flex flex-col items-center justify-center w-full md:w-2/12">
-                    <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center bangers-font text-4xl text-white shadow-[0_0_20px_rgba(220,38,38,0.8)] border-4 border-yellow-400 animate-bounce">
-                        VS
+        <!-- ==================== FUSION MODE CONTAINERS ==================== -->
+        <div id="fusion-container" class="hidden flex-col gap-6 w-full">
+            <div class="bg-gray-800 p-8 comic-border-purple text-center flex flex-col items-center">
+                <h2 class="text-4xl bangers-font text-purple-400 mb-2">Fusion Draft</h2>
+                <p class="text-gray-300 mb-6">Build a 2v2 team by fusing characters together!</p>
+                
+                <!-- Base Characters -->
+                <div class="w-full flex flex-col md:flex-row gap-6 mb-8 justify-center">
+                    <div class="w-full md:w-1/2 bg-gray-900 p-4 rounded border-2 border-gray-600 text-center">
+                        <h3 class="text-sm text-gray-400 font-bold mb-2 uppercase">Base Fighter 1</h3>
+                        <div class="slot-machine-container shadow-inner mb-2"><div id="fusion-base-slot-1" class="slot-items top-0"></div></div>
+                        <div id="fusion-final-1" class="text-yellow-400 font-bold text-lg h-6"></div>
+                    </div>
+                    <div class="w-full md:w-1/2 bg-gray-900 p-4 rounded border-2 border-gray-600 text-center">
+                        <h3 class="text-sm text-gray-400 font-bold mb-2 uppercase">Base Fighter 2</h3>
+                        <div class="slot-machine-container shadow-inner mb-2"><div id="fusion-base-slot-2" class="slot-items top-0"></div></div>
+                        <div id="fusion-final-2" class="text-yellow-400 font-bold text-lg h-6"></div>
                     </div>
                 </div>
 
-                <!-- Opponent Side -->
-                <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] w-full md:w-5/12">
-                    <h3 class="text-3xl bangers-font text-red-400 mb-2" id="battle-opponent-name">Opponent</h3>
-                    <div class="text-4xl text-white font-bold my-4" id="opponent-score-display">--</div>
-                    <p class="text-sm text-gray-400">Total Power Level</p>
+                <button id="btn-spin-fusion-bases" class="bg-blue-600 hover:bg-blue-500 text-white bangers-font text-2xl py-3 px-8 rounded-lg shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all">
+                    Spin Base Fighters
+                </button>
+
+                <!-- Fusion Materials (Hidden initially) -->
+                <div id="fusion-mats-area" class="w-full hidden flex-col items-center mt-8 pt-8 border-t border-gray-700">
+                    <h3 class="text-2xl bangers-font text-pink-400 mb-4">Spin Fusion Partners</h3>
+                    
+                    <div class="w-full flex flex-col md:flex-row gap-6 mb-6 justify-center">
+                        <div class="w-full md:w-1/2 flex flex-col items-center">
+                            <div class="slot-machine-container shadow-inner w-full mb-3"><div id="fusion-mat-slot-1" class="slot-items top-0"></div></div>
+                            <button id="btn-select-mat-1" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 rounded shadow-[0_4px_0_#9d174d] active:shadow-none active:translate-y-1 transition-all opacity-50 cursor-not-allowed" disabled>Assign Partner A</button>
+                        </div>
+                        <div class="w-full md:w-1/2 flex flex-col items-center">
+                            <div class="slot-machine-container shadow-inner w-full mb-3"><div id="fusion-mat-slot-2" class="slot-items top-0"></div></div>
+                            <button id="btn-select-mat-2" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 rounded shadow-[0_4px_0_#9d174d] active:shadow-none active:translate-y-1 transition-all opacity-50 cursor-not-allowed" disabled>Assign Partner B</button>
+                        </div>
+                    </div>
+
+                    <button id="btn-spin-fusion-mats" class="bg-yellow-500 hover:bg-yellow-400 text-gray-900 bangers-font text-3xl py-4 px-12 rounded-xl shadow-[0_6px_0_#b45309] active:shadow-none active:translate-y-1 transition-all">
+                        SPIN PARTNERS
+                    </button>
                 </div>
+
+                <!-- Assignment Panel for Fusion -->
+                <div id="fusion-assignment-panel" class="hidden w-full bg-gray-900 p-6 mt-6 rounded-lg border-2 border-pink-500 shadow-xl flex-col items-center">
+                    <h3 class="text-xl text-white mb-4">Fuse <span id="fusion-mat-name" class="font-bold bangers-font tracking-wider text-2xl text-pink-400"></span> with:</h3>
+                    <div class="flex gap-4 w-full justify-center">
+                        <button id="btn-fuse-with-1" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all">Fighter 1</button>
+                        <button id="btn-fuse-with-2" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all">Fighter 2</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SHARED BATTLE PHASE ==================== -->
+        <div id="battle-phase" class="hidden flex-col items-center w-full bg-gray-900 p-8 comic-border-red relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at center, #9b1c1c 0%, transparent 70%); pointer-events: none;"></div>
+
+            <h2 class="text-5xl bangers-font text-white mb-8 z-10 uppercase tracking-widest text-shadow-lg" id="battle-title">The Showdown</h2>
+            
+            <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl z-10 mb-8" id="battle-arena">
+                <!-- Injected via JS based on mode -->
             </div>
 
             <button id="btn-simulate-battle" class="z-10 bg-gradient-to-r from-red-600 to-yellow-500 hover:from-red-500 hover:to-yellow-400 text-white bangers-font text-4xl py-4 px-12 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.6)] transform transition hover:scale-105 active:scale-95">
@@ -282,7 +296,6 @@
 
             <!-- Battle Log -->
             <div id="battle-log" class="mt-8 w-full max-w-2xl bg-black/50 p-4 rounded-lg border border-gray-700 h-48 overflow-y-auto text-sm font-mono text-green-400 hidden z-10 flex-col gap-2">
-                <!-- logs appended here -->
             </div>
         </div>
     </main>
@@ -290,19 +303,21 @@
     <!-- Result Modal -->
     <div id="result-modal" class="modal">
         <div class="modal-content comic-border bg-gray-900 p-8 flex flex-col items-center text-center relative overflow-hidden">
-            <!-- Blood Splatters -->
             <div id="splatter-1" class="splatter bg-red-600 w-32 h-32 rounded-full blur-xl -top-10 -left-10"></div>
             <div id="splatter-2" class="splatter bg-red-700 w-40 h-40 rounded-full blur-xl -bottom-10 -right-10"></div>
 
             <h2 id="result-title" class="text-6xl bangers-font mb-4 z-10">RESULT</h2>
             <p id="result-desc" class="text-xl text-gray-300 mb-8 z-10 max-w-md">Description</p>
             
-            <div class="flex gap-4 z-10">
+            <div class="flex flex-wrap justify-center gap-4 z-10">
                 <button id="btn-next-fight" class="hidden bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded shadow-[0_4px_0_#166534] active:shadow-none active:translate-y-1 transition-all">
                     Next Opponent!
                 </button>
+                <button id="btn-share-card" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded shadow-[0_4px_0_#7e22ce] active:shadow-none active:translate-y-1 transition-all hidden">
+                    Share Card 📋
+                </button>
                 <button id="btn-play-again" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all">
-                    Start Over
+                    Main Menu
                 </button>
             </div>
         </div>
@@ -314,7 +329,6 @@
         let isMuted = false;
         let tickSynth, winSynth, loseSynth, punchSynth;
 
-        // Mute Button Logic
         const btnMute = document.getElementById('btn-mute');
         btnMute.addEventListener('click', () => {
             isMuted = !isMuted;
@@ -324,7 +338,6 @@
         async function initAudio() {
             if (audioStarted) return;
             await Tone.start();
-            
             tickSynth = new Tone.PolySynth(Tone.Synth, {
                 oscillator: { type: "triangle" },
                 envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
@@ -350,163 +363,106 @@
             audioStarted = true;
         }
 
-        function playTick() {
-            if (audioStarted && tickSynth && !isMuted) tickSynth.triggerAttackRelease("C6", "32n");
-        }
-
-        function playSelect() {
-            if (audioStarted && winSynth && !isMuted) winSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
-        }
-
-        function playPunch() {
-            if (audioStarted && punchSynth && !isMuted) punchSynth.triggerAttackRelease("16n");
-        }
-
-        function playWin() {
-            if (audioStarted && winSynth && !isMuted) winSynth.triggerAttackRelease(["G4", "B4", "D5", "G5"], "2n");
-        }
-
-        function playLose() {
-            if (audioStarted && loseSynth && !isMuted) loseSynth.triggerAttackRelease("C2", "1n");
-        }
+        function playTick() { if (audioStarted && tickSynth && !isMuted) tickSynth.triggerAttackRelease("C6", "32n"); }
+        function playSelect() { if (audioStarted && winSynth && !isMuted) winSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n"); }
+        function playPunch() { if (audioStarted && punchSynth && !isMuted) punchSynth.triggerAttackRelease("16n"); }
+        function playWin() { if (audioStarted && winSynth && !isMuted) winSynth.triggerAttackRelease(["G4", "B4", "D5", "G5"], "2n"); }
+        function playLose() { if (audioStarted && loseSynth && !isMuted) loseSynth.triggerAttackRelease("C2", "1n"); }
 
         // --- GAME DATA ---
-
-        // Characters with hidden stats (1-10 scale)
         const characters = [
-            { name: "Omni-Man", strength: 9.5, speed: 9.5, agility: 8.5, durability: 9, biq: 8, powers: 7, gear: 1, ruthlessness: 9, color: "#ef4444" },
-            { name: "Invincible", strength: 8, speed: 8.5, agility: 8, durability: 8.5, biq: 6, powers: 6, gear: 1, ruthlessness: 4, color: "#facc15" },
-            { name: "Atom Eve", strength: 3, speed: 6, agility: 6, durability: 4, biq: 7, powers: 10, gear: 1, ruthlessness: 3, color: "#f472b6" },
+            // S-Tier / God Tier
+            { name: "Thragg", strength: 10, speed: 10, agility: 10, durability: 10, biq: 9, powers: 7, gear: 1, ruthlessness: 10, color: "#991b1b" },
+            { name: "Conquest", strength: 9.8, speed: 9, agility: 8, durability: 9.5, biq: 8, powers: 6, gear: 3, ruthlessness: 10, color: "#7f1d1d" },
             { name: "Battle Beast", strength: 10, speed: 8, agility: 9, durability: 9.5, biq: 9, powers: 2, gear: 8, ruthlessness: 10, color: "#d97706" },
+            { name: "Omni-Man", strength: 9.5, speed: 9.5, agility: 8.5, durability: 9, biq: 8, powers: 7, gear: 1, ruthlessness: 9, color: "#ef4444" },
+            
+            // High Tier
+            { name: "Invincible", strength: 8.5, speed: 8.5, agility: 8, durability: 8.5, biq: 6, powers: 6, gear: 1, ruthlessness: 4, color: "#facc15" },
             { name: "Allen the Alien", strength: 8.5, speed: 8, agility: 7, durability: 9, biq: 6, powers: 4, gear: 1, ruthlessness: 5, color: "#f97316" },
+            { name: "General Kregg", strength: 9, speed: 9, agility: 8, durability: 9, biq: 8, powers: 6, gear: 6, ruthlessness: 9, color: "#b91c1c" },
+            { name: "Anissa", strength: 9.2, speed: 9.2, agility: 9, durability: 9, biq: 8, powers: 6, gear: 2, ruthlessness: 9, color: "#4ade80" },
+            { name: "Lucan", strength: 9.3, speed: 9, agility: 8, durability: 9.4, biq: 7, powers: 6, gear: 1, ruthlessness: 8, color: "#b91c1c" },
+            { name: "Thula", strength: 8.5, speed: 9.2, agility: 9.5, durability: 8.5, biq: 8, powers: 5, gear: 8, ruthlessness: 9, color: "#9ca3af" },
+            { name: "General Vidor", strength: 9.1, speed: 9, agility: 8, durability: 9.1, biq: 8, powers: 6, gear: 1, ruthlessness: 8, color: "#991b1b" },
+            { name: "Thaedus", strength: 8, speed: 8, agility: 7, durability: 8, biq: 10, powers: 6, gear: 7, ruthlessness: 8, color: "#cbd5e1" },
+            { name: "Space Racer", strength: 5, speed: 9, agility: 9, durability: 6, biq: 8, powers: 5, gear: 10, ruthlessness: 7, color: "#a78bfa" },
+            { name: "Omnipotus", strength: 10, speed: 7, agility: 6, durability: 9, biq: 8, powers: 10, gear: 3, ruthlessness: 9, color: "#2dd4bf" },
+            
+            // Mid Tier
+            { name: "Atom Eve", strength: 3, speed: 6, agility: 6, durability: 4, biq: 7, powers: 10, gear: 1, ruthlessness: 3, color: "#f472b6" },
             { name: "Robot", strength: 7, speed: 6, agility: 5, durability: 7, biq: 10, powers: 8, gear: 10, ruthlessness: 8, color: "#94a3b8" },
-            { name: "Cecil Stedman", strength: 1, speed: 1, agility: 2, durability: 1, biq: 10, powers: 0, gear: 10, ruthlessness: 9, color: "#4b5563" },
             { name: "The Immortal", strength: 7.5, speed: 7, agility: 7, durability: 7, biq: 7, powers: 5, gear: 2, ruthlessness: 6, color: "#3b82f6" },
             { name: "Monster Girl", strength: 8, speed: 5, agility: 4, durability: 8.5, biq: 5, powers: 6, gear: 1, ruthlessness: 7, color: "#16a34a" },
-            { name: "Conquest", strength: 9.8, speed: 9, agility: 8, durability: 9.5, biq: 8, powers: 6, gear: 3, ruthlessness: 10, color: "#7f1d1d" },
-            { name: "Thragg", strength: 10, speed: 10, agility: 10, durability: 10, biq: 9, powers: 7, gear: 1, ruthlessness: 10, color: "#991b1b" },
+            { name: "Mauler Twins", strength: 7, speed: 4, agility: 4, durability: 7, biq: 8, powers: 3, gear: 9, ruthlessness: 7, color: "#0ea5e9" },
+            { name: "Red Rush", strength: 6, speed: 10, agility: 10, durability: 4, biq: 7, powers: 5, gear: 1, ruthlessness: 4, color: "#ef4444" },
+            { name: "Bulletproof", strength: 7.5, speed: 8, agility: 8, durability: 8, biq: 6, powers: 7, gear: 2, ruthlessness: 5, color: "#fb923c" },
+            { name: "Black Samson", strength: 6, speed: 5, agility: 5, durability: 6, biq: 7, powers: 6, gear: 7, ruthlessness: 5, color: "#1e3a8a" },
+            { name: "Martian Emperor", strength: 8, speed: 7, agility: 8, durability: 8, biq: 9, powers: 9, gear: 4, ruthlessness: 8, color: "#84cc16" },
+            { name: "Martian Man", strength: 7, speed: 7, agility: 8, durability: 7, biq: 6, powers: 8, gear: 1, ruthlessness: 4, color: "#22c55e" },
+            { name: "Reaniman", strength: 7.5, speed: 6, agility: 5, durability: 8, biq: 1, powers: 0, gear: 2, ruthlessness: 10, color: "#a3a3a3" },
+            
+            // Low/Street Tier
             { name: "Rex Splode", strength: 3, speed: 4, agility: 5, durability: 3, biq: 5, powers: 7, gear: 6, ruthlessness: 4, color: "#b91c1c" },
             { name: "Dupli-Kate", strength: 3, speed: 3, agility: 5, durability: 2, biq: 6, powers: 8, gear: 2, ruthlessness: 3, color: "#8b5cf6" },
-            { name: "Mauler Twins", strength: 7, speed: 4, agility: 4, durability: 7, biq: 8, powers: 3, gear: 9, ruthlessness: 7, color: "#0ea5e9" },
+            { name: "Multi-Paul", strength: 4, speed: 4, agility: 6, durability: 3, biq: 6, powers: 8, gear: 3, ruthlessness: 6, color: "#8b5cf6" },
             { name: "Angstrom Levy", strength: 2, speed: 2, agility: 3, durability: 2, biq: 9, powers: 10, gear: 8, ruthlessness: 8, color: "#84cc16" },
             { name: "Titan", strength: 6, speed: 4, agility: 3, durability: 8, biq: 6, powers: 5, gear: 1, ruthlessness: 6, color: "#57534e" },
             { name: "Doc Seismic", strength: 2, speed: 2, agility: 2, durability: 2, biq: 7, powers: 8, gear: 9, ruthlessness: 5, color: "#fb923c" },
             { name: "Darkwing", strength: 3, speed: 4, agility: 6, durability: 3, biq: 8, powers: 4, gear: 9, ruthlessness: 8, color: "#1e293b" },
+            { name: "Darkwing II", strength: 4, speed: 4, agility: 6, durability: 3, biq: 7, powers: 6, gear: 8, ruthlessness: 9, color: "#1e293b" },
+            { name: "Shrinking Rae", strength: 2, speed: 6, agility: 9, durability: 2, biq: 6, powers: 8, gear: 2, ruthlessness: 4, color: "#f87171" },
+            { name: "Shapesmith", strength: 5, speed: 4, agility: 8, durability: 7, biq: 4, powers: 9, gear: 1, ruthlessness: 3, color: "#a3e635" },
+            { name: "Isotope", strength: 2, speed: 9, agility: 9, durability: 2, biq: 7, powers: 9, gear: 1, ruthlessness: 4, color: "#10b981" },
+            { name: "Green Ghost", strength: 4, speed: 8, agility: 9, durability: 3, biq: 6, powers: 9, gear: 1, ruthlessness: 3, color: "#4ade80" },
+            { name: "Aquarus", strength: 6, speed: 6, agility: 5, durability: 6, biq: 5, powers: 8, gear: 1, ruthlessness: 4, color: "#3b82f6" },
+            { name: "Octoboss", strength: 5, speed: 4, agility: 4, durability: 5, biq: 5, powers: 6, gear: 4, ruthlessness: 7, color: "#ec4899" },
+            
+            // Human / Joke Tier
+            { name: "Cecil Stedman", strength: 1, speed: 1, agility: 2, durability: 1, biq: 10, powers: 0, gear: 10, ruthlessness: 9, color: "#4b5563" },
             { name: "Donald Ferguson", strength: 3, speed: 3, agility: 4, durability: 8, biq: 8, powers: 2, gear: 9, ruthlessness: 8, color: "#9ca3af" },
+            { name: "Machine Head", strength: 2, speed: 2, agility: 2, durability: 4, biq: 9, powers: 0, gear: 8, ruthlessness: 9, color: "#eab308" },
             { name: "Debbie Grayson", strength: 1, speed: 1, agility: 2, durability: 1, biq: 6, powers: 0, gear: 3, ruthlessness: 7, color: "#fca5a5" },
             { name: "William Clockwell", strength: 1, speed: 2, agility: 2, durability: 1, biq: 5, powers: 0, gear: 1, ruthlessness: 2, color: "#fcd34d" },
             { name: "Art Rosenbaum", strength: 1, speed: 1, agility: 1, durability: 1, biq: 7, powers: 0, gear: 6, ruthlessness: 1, color: "#d1d5db" },
-            { name: "Machine Head", strength: 2, speed: 2, agility: 2, durability: 4, biq: 9, powers: 0, gear: 8, ruthlessness: 9, color: "#eab308" },
-            { name: "Damien Darkblood", strength: 4, speed: 3, agility: 3, durability: 5, biq: 9, powers: 6, gear: 4, ruthlessness: 6, color: "#dc2626" },
-            // NEW CHARACTERS
-            { name: "Space Racer", strength: 5, speed: 9, agility: 9, durability: 6, biq: 8, powers: 5, gear: 10, ruthlessness: 7, color: "#a78bfa" },
-            { name: "Thaedus", strength: 8, speed: 8, agility: 7, durability: 8, biq: 10, powers: 6, gear: 7, ruthlessness: 8, color: "#cbd5e1" },
-            { name: "General Kregg", strength: 9, speed: 9, agility: 8, durability: 9, biq: 8, powers: 6, gear: 6, ruthlessness: 9, color: "#b91c1c" },
-            { name: "Anissa", strength: 9.2, speed: 9.2, agility: 9, durability: 9, biq: 8, powers: 6, gear: 2, ruthlessness: 9, color: "#4ade80" },
-            { name: "Oliver Grayson", strength: 6, speed: 7, agility: 8, durability: 6, biq: 5, powers: 5, gear: 2, ruthlessness: 6, color: "#c084fc" },
-            { name: "Shrinking Rae", strength: 2, speed: 6, agility: 9, durability: 2, biq: 6, powers: 8, gear: 2, ruthlessness: 4, color: "#f87171" },
-            { name: "Black Samson", strength: 6, speed: 5, agility: 5, durability: 6, biq: 7, powers: 6, gear: 7, ruthlessness: 5, color: "#1e3a8a" },
-            { name: "Shapesmith", strength: 5, speed: 4, agility: 8, durability: 7, biq: 4, powers: 9, gear: 1, ruthlessness: 3, color: "#a3e635" },
-            { name: "Dinosaurus", strength: 9, speed: 6, agility: 5, durability: 9, biq: 10, powers: 5, gear: 1, ruthlessness: 9, color: "#b45309" },
-            // NEWEST CHARACTERS
-            { name: "Red Rush", strength: 6, speed: 10, agility: 10, durability: 4, biq: 7, powers: 5, gear: 1, ruthlessness: 4, color: "#ef4444" },
-            { name: "Lucan", strength: 9.3, speed: 9, agility: 8, durability: 9.4, biq: 7, powers: 6, gear: 1, ruthlessness: 8, color: "#b91c1c" },
-            { name: "Thula", strength: 8.5, speed: 9.2, agility: 9.5, durability: 8.5, biq: 8, powers: 5, gear: 8, ruthlessness: 9, color: "#9ca3af" },
-            { name: "Bulletproof", strength: 7.5, speed: 8, agility: 8, durability: 8, biq: 6, powers: 7, gear: 2, ruthlessness: 5, color: "#fb923c" },
-            { name: "Isotope", strength: 2, speed: 9, agility: 9, durability: 2, biq: 7, powers: 9, gear: 1, ruthlessness: 4, color: "#10b981" },
-            { name: "Omnipotus", strength: 10, speed: 7, agility: 6, durability: 9, biq: 8, powers: 10, gear: 3, ruthlessness: 9, color: "#2dd4bf" },
-            { name: "Green Ghost", strength: 4, speed: 8, agility: 9, durability: 3, biq: 6, powers: 9, gear: 1, ruthlessness: 3, color: "#4ade80" },
-            { name: "Aquarus", strength: 6, speed: 6, agility: 5, durability: 6, biq: 5, powers: 8, gear: 1, ruthlessness: 4, color: "#3b82f6" },
-            { name: "Martian Emperor", strength: 8, speed: 7, agility: 8, durability: 8, biq: 9, powers: 9, gear: 4, ruthlessness: 8, color: "#84cc16" }
+            { name: "Amber Bennett", strength: 1, speed: 1, agility: 2, durability: 1, biq: 6, powers: 0, gear: 1, ruthlessness: 6, color: "#fcd34d" },
+            { name: "Rick Sheridan", strength: 1, speed: 2, agility: 2, durability: 1, biq: 4, powers: 0, gear: 1, ruthlessness: 1, color: "#d1d5db" }
         ];
 
-        // Categories to draft
         const categories = [
-            { id: "strength", name: "Strength", desc: "Raw physical power and lifting capability." },
-            { id: "speed", name: "Speed", desc: "Movement, flight, and reaction time." },
-            { id: "agility", name: "Agility/Reflexes", desc: "Dodging, acrobatics, and reaction time." },
-            { id: "durability", name: "Durability", desc: "Ability to take a hit and keep fighting." },
-            { id: "biq", name: "Battle IQ", desc: "Strategy, adaptability, and combat experience." },
-            { id: "powers", name: "Powers/Hax", desc: "Energy projection, reality warping, tech, or unique abilities." },
-            { id: "gear", name: "Weaponry/Gear", desc: "Access to high-tech weapons, armor, or gadgets." },
-            { id: "ruthlessness", name: "Ruthlessness", desc: "Willingness to go for the kill immediately." }
+            { id: "strength", name: "Strength" }, { id: "speed", name: "Speed" },
+            { id: "agility", name: "Agility/Reflexes" }, { id: "durability", name: "Durability" },
+            { id: "biq", name: "Battle IQ" }, { id: "powers", name: "Powers/Hax" },
+            { id: "gear", name: "Weaponry/Gear" }, { id: "ruthlessness", name: "Ruthlessness" }
         ];
 
-        // --- STATE VARIABLES ---
+        // --- GLOBAL STATE ---
+        let currentGameMode = null; // 'chimera' or 'fusion'
+        let lastPlayerScore = 0;
+        let lastOpponentScore = 0;
+        let lastMatchResult = "";
+        
+        // Chimera State
         let currentOpponent = null;
         let draftsCompleted = 0;
         let gauntletStreak = 0;
         let selectedCharacterForDraft = null;
-        let playerFighter = {
-            strength: null, speed: null, agility: null, durability: null, biq: null, powers: null, gear: null, ruthlessness: null
-        };
+        let playerFighter = { strength: null, speed: null, agility: null, durability: null, biq: null, powers: null, gear: null, ruthlessness: null };
         let currentOptionA = null;
         let currentOptionB = null;
 
-        // --- DOM ELEMENTS ---
-        // Setup
-        const setupPhase = document.getElementById('setup-phase');
-        const opponentSlotContainer = document.getElementById('opponent-slot');
-        const btnSpinOpponent = document.getElementById('btn-spin-opponent');
-        const opponentReveal = document.getElementById('opponent-reveal');
-        const opponentNameDisplay = document.getElementById('opponent-name-display');
-        const btnStartDraft = document.getElementById('btn-start-draft');
-        const summaryOpponentName = document.getElementById('summary-opponent-name');
-
-        // Draft
-        const draftPhase = document.getElementById('draft-phase');
-        const draftProgressEl = document.getElementById('draft-progress');
-        
-        const slotAContainer = document.getElementById('draft-slot-a');
-        const slotBContainer = document.getElementById('draft-slot-b');
-        const btnSpinDraft = document.getElementById('btn-spin-draft');
-        const btnSelectA = document.getElementById('btn-select-a');
-        const btnSelectB = document.getElementById('btn-select-b');
-
-        const assignmentPanel = document.getElementById('assignment-panel');
-        const assignCharName = document.getElementById('assign-char-name');
-        const categoryButtonsContainer = document.getElementById('category-buttons');
-
-        // Stats
-        const statEls = {
-            strength: document.getElementById('stat-strength'),
-            speed: document.getElementById('stat-speed'),
-            agility: document.getElementById('stat-agility'),
-            durability: document.getElementById('stat-durability'),
-            biq: document.getElementById('stat-biq'),
-            powers: document.getElementById('stat-powers'),
-            gear: document.getElementById('stat-gear'),
-            ruthlessness: document.getElementById('stat-ruthlessness')
-        };
-
-        // Battle
-        const battlePhase = document.getElementById('battle-phase');
-        const gauntletStreakDisplay = document.getElementById('gauntlet-streak');
-        const battleOpponentName = document.getElementById('battle-opponent-name');
-        const btnSimulateBattle = document.getElementById('btn-simulate-battle');
-        const battleLog = document.getElementById('battle-log');
-        const playerScoreDisplay = document.getElementById('player-score-display');
-        const opponentScoreDisplay = document.getElementById('opponent-score-display');
-
-        // Modal
-        const resultModal = document.getElementById('result-modal');
-        const resultTitle = document.getElementById('result-title');
-        const resultDesc = document.getElementById('result-desc');
-        const btnPlayAgain = document.getElementById('btn-play-again');
-        const btnNextFight = document.getElementById('btn-next-fight');
-        const splatters = document.querySelectorAll('.splatter');
+        // Fusion State
+        let fusionBases = [null, null];
+        let fusionMats = [null, null];
+        let playerFusions = [null, null]; // Object { base: Char, mat: Char }
+        let botFusions = [null, null];
+        let selectedFusionMatIndex = null; 
 
         // --- HELPER FUNCTIONS ---
+        function getRandomCharacter() { return characters[Math.floor(Math.random() * characters.length)]; }
 
-        // Utility to get random elements
-        function getRandomCharacter() {
-            return characters[Math.floor(Math.random() * characters.length)];
-        }
-
-        // Slot Machine Animation Logic
         function populateSlot(containerElement, finalCharacter, itemCount = 30) {
             containerElement.innerHTML = '';
-            // Add a bunch of random characters for the blur effect
             for (let i = 0; i < itemCount; i++) {
                 const char = getRandomCharacter();
                 const div = document.createElement('div');
@@ -515,25 +471,19 @@
                 div.style.color = char.color || 'white';
                 containerElement.appendChild(div);
             }
-            // Add the final target character at the bottom
             const finalDiv = document.createElement('div');
             finalDiv.className = 'slot-item font-black text-2xl';
             finalDiv.textContent = finalCharacter.name;
             finalDiv.style.color = finalCharacter.color || '#fbbf24';
             containerElement.appendChild(finalDiv);
-
-            // Reset position
             containerElement.style.transition = 'none';
             containerElement.style.top = '0px';
         }
 
         function spinSlot(containerElement, itemCount = 30, duration = 2000) {
             return new Promise(resolve => {
-                // Force reflow
                 void containerElement.offsetWidth;
-                
                 containerElement.style.transition = `top ${duration}ms cubic-bezier(0.25, 1, 0.5, 1)`;
-                // Calculate distance: item height (60px) * number of random items
                 const distance = -(itemCount * 60);
                 containerElement.style.top = `${distance}px`;
 
@@ -545,292 +495,19 @@
                     if (ticks >= maxTicks) clearInterval(tickInterval);
                 }, duration / maxTicks);
 
-                setTimeout(() => {
-                    clearInterval(tickInterval);
-                    resolve();
-                }, duration + 100);
+                setTimeout(() => { clearInterval(tickInterval); resolve(); }, duration + 100);
             });
         }
 
-        function wait(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
+        function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-
-        // --- GAME LOGIC ---
-
-        // Phase 1: Spin Opponent
-        btnSpinOpponent.addEventListener('click', async () => {
-            await initAudio(); // Initialize audio context on user interaction
-            btnSpinOpponent.disabled = true;
-            btnSpinOpponent.classList.add('opacity-50', 'cursor-not-allowed');
-
-            // Pick an opponent (weight it slightly towards stronger characters for fun)
-            const strongOpponents = characters.filter(c => c.strength > 7 || c.powers > 8);
-            currentOpponent = Math.random() > 0.3 ? 
-                strongOpponents[Math.floor(Math.random() * strongOpponents.length)] : 
-                getRandomCharacter();
-
-            populateSlot(opponentSlotContainer, currentOpponent, 40);
-            
-            // Add blur effect during spin
-            opponentSlotContainer.style.filter = "blur(2px)";
-            await spinSlot(opponentSlotContainer, 40, 2500);
-            opponentSlotContainer.style.filter = "none";
-
-            opponentNameDisplay.textContent = currentOpponent.name;
-            opponentNameDisplay.style.color = currentOpponent.color;
-            summaryOpponentName.textContent = currentOpponent.name;
-            summaryOpponentName.style.color = currentOpponent.color;
-            battleOpponentName.textContent = currentOpponent.name;
-            battleOpponentName.style.color = currentOpponent.color;
-
-            opponentReveal.classList.remove('hidden');
-        });
-
-        // Transition to Draft Phase
-        btnStartDraft.addEventListener('click', () => {
-            setupPhase.classList.add('hidden');
-            draftPhase.classList.remove('hidden');
-            draftPhase.classList.add('flex');
-            updateDraftUI();
-        });
-
-        // Phase 2: Drafting
-        function updateDraftUI() {
-            draftProgressEl.textContent = draftsCompleted;
-            
-            // Hide assignment panel
-            assignmentPanel.classList.add('hidden');
-            assignmentPanel.classList.remove('flex');
-            selectedCharacterForDraft = null;
-
-            // Reset visual selection borders
-            slotAContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
-            slotBContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
-
-            // Reset state for new spin
-            btnSpinDraft.disabled = false;
-            btnSpinDraft.classList.remove('opacity-50', 'cursor-not-allowed');
-            
-            btnSelectA.disabled = true;
-            btnSelectA.classList.add('opacity-50', 'cursor-not-allowed');
-            btnSelectB.disabled = true;
-            btnSelectB.classList.add('opacity-50', 'cursor-not-allowed');
-
-            slotAContainer.style.transition = 'none';
-            slotAContainer.style.top = '0px';
-            slotAContainer.innerHTML = '<div class="slot-item text-gray-500">?</div>';
-            
-            slotBContainer.style.transition = 'none';
-            slotBContainer.style.top = '0px';
-            slotBContainer.innerHTML = '<div class="slot-item text-gray-500">?</div>';
-        }
-
-        btnSpinDraft.addEventListener('click', async () => {
-            btnSpinDraft.disabled = true;
-            btnSpinDraft.classList.add('opacity-50', 'cursor-not-allowed');
-
-            // Pick two distinct random characters
-            currentOptionA = getRandomCharacter();
-            do {
-                currentOptionB = getRandomCharacter();
-            } while (currentOptionB.name === currentOptionA.name);
-
-            populateSlot(slotAContainer, currentOptionA, 25);
-            populateSlot(slotBContainer, currentOptionB, 30); // Spin slightly longer
-
-            slotAContainer.style.filter = "blur(1px)";
-            slotBContainer.style.filter = "blur(1px)";
-
-            // Spin both, wait for both to finish
-            await Promise.all([
-                spinSlot(slotAContainer, 25, 1500),
-                spinSlot(slotBContainer, 30, 2000)
-            ]);
-
-            slotAContainer.style.filter = "none";
-            slotBContainer.style.filter = "none";
-
-            // Enable selection buttons and hide old assignment panel
-            assignmentPanel.classList.add('hidden');
-            assignmentPanel.classList.remove('flex');
-            slotAContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
-            slotBContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
-
-            btnSelectA.disabled = false;
-            btnSelectA.classList.remove('opacity-50', 'cursor-not-allowed');
-            btnSelectB.disabled = false;
-            btnSelectB.classList.remove('opacity-50', 'cursor-not-allowed');
-        });
-
-        function initiateAssignment(character, slot) {
-            selectedCharacterForDraft = character;
-            assignCharName.textContent = character.name;
-            assignCharName.style.color = character.color;
-
-            // Visual feedback
-            slotAContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
-            slotBContainer.parentElement.classList.remove('border-4', 'border-yellow-400');
-            if (slot === 'A') slotAContainer.parentElement.classList.add('border-4', 'border-yellow-400');
-            if (slot === 'B') slotBContainer.parentElement.classList.add('border-4', 'border-yellow-400');
-
-            // Generate category buttons
-            categoryButtonsContainer.innerHTML = '';
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                const isAssigned = playerFighter[cat.id] !== null;
-                
-                btn.className = `font-bold py-2 px-2 rounded text-sm transition-all ${isAssigned ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1'}`;
-                btn.textContent = cat.name;
-                btn.disabled = isAssigned;
-                
-                if (!isAssigned) {
-                    btn.addEventListener('click', () => confirmAssignment(cat.id));
-                }
-                categoryButtonsContainer.appendChild(btn);
-            });
-
-            assignmentPanel.classList.remove('hidden');
-            assignmentPanel.classList.add('flex');
-            
-            // Scroll to assignment panel
-            assignmentPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        function confirmAssignment(categoryId) {
-            playSelect();
-            // Assign character
-            playerFighter[categoryId] = selectedCharacterForDraft;
-            
-            // Update UI
-            statEls[categoryId].textContent = selectedCharacterForDraft.name;
-            statEls[categoryId].style.color = selectedCharacterForDraft.color;
-
-            // Flash effect on selection
-            statEls[categoryId].parentElement.classList.add('bg-gray-700', 'transition-colors', 'duration-300');
-            setTimeout(() => statEls[categoryId].parentElement.classList.remove('bg-gray-700'), 300);
-
-            draftsCompleted++;
-            
-            if (draftsCompleted >= categories.length) {
-                startBattlePhase();
-            } else {
-                updateDraftUI();
-            }
-        }
-
-        btnSelectA.addEventListener('click', () => initiateAssignment(currentOptionA, 'A'));
-        btnSelectB.addEventListener('click', () => initiateAssignment(currentOptionB, 'B'));
-
-
-        // Phase 3: Battle Simulation
-        function startBattlePhase() {
-            draftPhase.classList.add('hidden');
-            draftPhase.classList.remove('flex');
-            
-            battlePhase.classList.remove('hidden');
-            battlePhase.classList.add('flex');
-        }
-
-        function addLog(message, color = 'text-green-400') {
-            const p = document.createElement('p');
-            p.className = color;
-            p.textContent = `> ${message}`;
-            battleLog.appendChild(p);
-            battleLog.scrollTop = battleLog.scrollHeight;
-        }
-
-        btnSimulateBattle.addEventListener('click', async () => {
-            btnSimulateBattle.disabled = true;
-            btnSimulateBattle.classList.add('hidden');
-            
-            battleLog.classList.remove('hidden');
-            battleLog.classList.add('flex');
-            battleLog.innerHTML = '';
-
-            addLog("SIMULATING COMBAT ENVIRONMENT...", "text-blue-400");
-            await wait(1000);
-
-            // Calculate Player Score (Hidden)
-            // The score is the sum of the selected stat from the chosen character
-            let playerScore = 0;
-            let playerBreakdown = "";
-            for (let i=0; i<categories.length; i++) {
-                const catId = categories[i].id;
-                const charObj = playerFighter[catId];
-                const statValue = charObj[catId]; // e.g. playerFighter['strength'].strength
-                playerScore += statValue;
-                playerBreakdown += `${categories[i].name}: ${statValue.toFixed(1)} (${charObj.name})\n`;
-            }
-
-            // Calculate Opponent Score
-            let opponentScore = 0;
-            for (let i=0; i<categories.length; i++) {
-                const catId = categories[i].id;
-                opponentScore += currentOpponent[catId];
-            }
-
-            // Apply Gauntlet Scaling (15% buff to opponent per streak)
-            opponentScore = opponentScore * (1 + (gauntletStreak * 0.15));
-
-            // Add a slight randomization factor to simulate luck/circumstance (-10% to +10%)
-            const rFactorPlayer = 1 + ((Math.random() * 0.2) - 0.1);
-            const rFactorOpponent = 1 + ((Math.random() * 0.2) - 0.1);
-            
-            const finalPlayerScore = playerScore * rFactorPlayer;
-            const finalOpponentScore = opponentScore * rFactorOpponent;
-
-            // Animate counting up scores
-            addLog("CALCULATING POWER LEVELS...", "text-yellow-400");
-            await animateCounter(playerScoreDisplay, 0, finalPlayerScore, 1500);
-            await animateCounter(opponentScoreDisplay, 0, finalOpponentScore, 1500);
-
-            await wait(500);
-
-            // Generate narrative logs based on stats
-            if (playerFighter.speed.speed > currentOpponent.speed) {
-                addLog(`Your fighter's speed (${playerFighter.speed.name}) allows for first strike!`);
-            } else {
-                addLog(`${currentOpponent.name} blitzes forward instantly!`, 'text-red-400');
-            }
-            await wait(800);
-
-            if (playerFighter.durability.durability < currentOpponent.strength - 2) {
-                addLog(`WARNING: Your durability (${playerFighter.durability.name}) is severely outmatched by opponent's raw power!`, 'text-red-500 font-bold');
-            } else {
-                addLog(`Your fighter tanks the initial hits thanks to ${playerFighter.durability.name}'s resilience.`);
-            }
-            await wait(800);
-
-            if (playerFighter.biq.biq > currentOpponent.biq) {
-                addLog(`Superior Battle IQ (${playerFighter.biq.name}) identifies a critical weakness!`, 'text-yellow-300');
-            }
-            await wait(1000);
-            
-            if (playerFighter.gear.gear > 7) {
-                addLog(`Advanced weaponry (${playerFighter.gear.name}) unleashes devastating damage!`, 'text-blue-300');
-                playPunch();
-            }
-            await wait(1000);
-
-            // Determine Winner
-            const diff = finalPlayerScore - finalOpponentScore;
-            
-            if (diff > 5) {
-                playWin();
-                showResult("VICTORY!", `Your chimera fighter utterly dominated ${currentOpponent.name}. It wasn't even close.`, "text-yellow-400", false, true);
-            } else if (diff > 0) {
-                playWin();
-                showResult("NARROW WIN!", `It was a bloody, brutal fight, but your fighter managed to rip ${currentOpponent.name} apart just before collapsing.`, "text-orange-400", false, true);
-            } else if (diff > -5) {
-                playLose();
-                showResult("DEFEAT...", `You fought valiantly, but ${currentOpponent.name} proved too much in the end. Your fighter was left as a smear.`, "text-red-500", true, false);
-            } else {
-                playLose();
-                showResult("ANNIHILATION", `Why did you even try? ${currentOpponent.name} didn't even break a sweat turning your fighter into paste.`, "text-red-600 font-black", true, false);
-            }
-        });
+        // Exponential Power Calculation (Shared)
+        const calcPower = (charObj, catId) => {
+            const val = charObj[catId];
+            let multiplier = 1.0;
+            if (['strength', 'speed', 'durability', 'powers'].includes(catId)) multiplier = 1.5;
+            return Math.pow(val, 2) * multiplier; 
+        };
 
         // Number animation
         function animateCounter(element, start, end, duration) {
@@ -839,134 +516,514 @@
                 const step = (timestamp) => {
                     if (!startTimestamp) startTimestamp = timestamp;
                     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    // easeOutQuart
                     const easeProgress = 1 - Math.pow(1 - progress, 4);
                     const currentVal = start + easeProgress * (end - start);
-                    
-                    element.textContent = currentVal.toFixed(1);
-                    
-                    if (progress < 1) {
-                        window.requestAnimationFrame(step);
-                    } else {
-                        element.textContent = end.toFixed(1);
-                        resolve();
-                    }
+                    element.textContent = Math.round(currentVal).toLocaleString();
+                    if (progress < 1) window.requestAnimationFrame(step);
+                    else { element.textContent = Math.round(end).toLocaleString(); resolve(); }
                 };
                 window.requestAnimationFrame(step);
             });
         }
 
-
-        // Phase 4: Results
-        function showResult(title, desc, titleClass, isGory = false, playerWon = false) {
-            resultTitle.textContent = title;
-            resultTitle.className = `text-6xl bangers-font mb-4 z-10 ${titleClass}`;
-            resultDesc.textContent = desc;
-
-            if (isGory) {
-                splatters.forEach(s => s.style.opacity = '1');
-            } else {
-                splatters.forEach(s => s.style.opacity = '0');
-            }
+        // --- MODE SELECTION ---
+        document.getElementById('btn-mode-chimera').addEventListener('click', async () => {
+            await initAudio(); playSelect();
+            currentGameMode = 'chimera';
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('chimera-container').classList.remove('hidden');
+            document.getElementById('chimera-container').classList.add('flex');
             
-            if (playerWon) {
-                btnNextFight.classList.remove('hidden');
-            } else {
-                btnNextFight.classList.add('hidden');
-            }
+            // Init chimera
+            document.getElementById('opponent-slot').innerHTML = '<div class="slot-item text-gray-500">?</div>';
+        });
 
-            resultModal.style.display = 'block';
+        document.getElementById('btn-mode-fusion').addEventListener('click', async () => {
+            await initAudio(); playSelect();
+            currentGameMode = 'fusion';
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('fusion-container').classList.remove('hidden');
+            document.getElementById('fusion-container').classList.add('flex');
+
+            // Init fusion UI
+            document.getElementById('fusion-base-slot-1').innerHTML = '<div class="slot-item text-gray-500">?</div>';
+            document.getElementById('fusion-base-slot-2').innerHTML = '<div class="slot-item text-gray-500">?</div>';
+        });
+
+        // ==========================================
+        // CHIMERA DRAFT LOGIC
+        // ==========================================
+        const btnSpinOpponent = document.getElementById('btn-spin-opponent');
+        const opponentReveal = document.getElementById('opponent-reveal');
+        
+        btnSpinOpponent.addEventListener('click', async () => {
+            await initAudio();
+            btnSpinOpponent.disabled = true;
+            btnSpinOpponent.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const strongOpponents = characters.filter(c => c.strength > 7 || c.powers > 8);
+            currentOpponent = Math.random() > 0.3 ? strongOpponents[Math.floor(Math.random() * strongOpponents.length)] : getRandomCharacter();
+
+            const oppSlot = document.getElementById('opponent-slot');
+            populateSlot(oppSlot, currentOpponent, 40);
+            oppSlot.style.filter = "blur(2px)";
+            await spinSlot(oppSlot, 40, 2500);
+            oppSlot.style.filter = "none";
+
+            document.getElementById('opponent-name-display').textContent = currentOpponent.name;
+            document.getElementById('opponent-name-display').style.color = currentOpponent.color;
+            document.getElementById('summary-opponent-name').textContent = currentOpponent.name;
+            document.getElementById('summary-opponent-name').style.color = currentOpponent.color;
+            opponentReveal.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-start-draft').addEventListener('click', () => {
+            document.getElementById('setup-phase').classList.add('hidden');
+            document.getElementById('draft-phase').classList.remove('hidden');
+            document.getElementById('draft-phase').classList.add('flex');
+            updateDraftUI();
+        });
+
+        function updateDraftUI() {
+            document.getElementById('draft-progress').textContent = draftsCompleted;
+            document.getElementById('assignment-panel').classList.add('hidden');
+            document.getElementById('assignment-panel').classList.remove('flex');
+            selectedCharacterForDraft = null;
+
+            const btnSpinDraft = document.getElementById('btn-spin-draft');
+            btnSpinDraft.disabled = false;
+            btnSpinDraft.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            const btnSelectA = document.getElementById('btn-select-a');
+            const btnSelectB = document.getElementById('btn-select-b');
+            btnSelectA.disabled = true; btnSelectA.classList.add('opacity-50', 'cursor-not-allowed');
+            btnSelectB.disabled = true; btnSelectB.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const slotA = document.getElementById('draft-slot-a');
+            const slotB = document.getElementById('draft-slot-b');
+            slotA.parentElement.classList.remove('border-4', 'border-yellow-400');
+            slotB.parentElement.classList.remove('border-4', 'border-yellow-400');
+            
+            slotA.style.transition = 'none'; slotA.style.top = '0px'; slotA.innerHTML = '<div class="slot-item text-gray-500">?</div>';
+            slotB.style.transition = 'none'; slotB.style.top = '0px'; slotB.innerHTML = '<div class="slot-item text-gray-500">?</div>';
         }
 
-        btnNextFight.addEventListener('click', async () => {
-            gauntletStreak++;
-            gauntletStreakDisplay.textContent = gauntletStreak;
-            
-            resultModal.style.display = 'none';
-            battlePhase.classList.add('hidden');
-            battlePhase.classList.remove('flex');
-            
-            // Go back to setup phase to spin NEW opponent
-            setupPhase.classList.remove('hidden');
-            opponentReveal.classList.add('hidden');
-            
-            btnSpinOpponent.disabled = false;
-            btnSpinOpponent.classList.remove('opacity-50', 'cursor-not-allowed');
-            btnSpinOpponent.textContent = "Spin Next Opponent";
-            
-            // Override Draft Button to go straight to battle
-            btnStartDraft.textContent = "Continue Gauntlet";
-            btnStartDraft.onclick = () => {
-                setupPhase.classList.add('hidden');
-                
-                // RESET BATTLE UI FOR NEXT FIGHT
-                playerScoreDisplay.textContent = '--';
-                opponentScoreDisplay.textContent = '--';
-                btnSimulateBattle.classList.remove('hidden');
-                btnSimulateBattle.disabled = false;
-                battleLog.classList.add('hidden');
-                battleLog.classList.remove('flex');
-                battleLog.innerHTML = '';
-                
-                startBattlePhase();
-            };
+        document.getElementById('btn-spin-draft').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-spin-draft');
+            btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            currentOptionA = getRandomCharacter();
+            do { currentOptionB = getRandomCharacter(); } while (currentOptionB.name === currentOptionA.name);
+
+            const slotA = document.getElementById('draft-slot-a');
+            const slotB = document.getElementById('draft-slot-b');
+            populateSlot(slotA, currentOptionA, 25);
+            populateSlot(slotB, currentOptionB, 30);
+
+            slotA.style.filter = "blur(1px)"; slotB.style.filter = "blur(1px)";
+            await Promise.all([spinSlot(slotA, 25, 1500), spinSlot(slotB, 30, 2000)]);
+            slotA.style.filter = "none"; slotB.style.filter = "none";
+
+            document.getElementById('btn-select-a').disabled = false; document.getElementById('btn-select-a').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('btn-select-b').disabled = false; document.getElementById('btn-select-b').classList.remove('opacity-50', 'cursor-not-allowed');
         });
 
-        btnPlayAgain.addEventListener('click', () => {
-            // Reset Game State
-            currentOpponent = null;
-            draftsCompleted = 0;
-            gauntletStreak = 0;
-            gauntletStreakDisplay.textContent = '0';
-            selectedCharacterForDraft = null;
-            playerFighter = { strength: null, speed: null, agility: null, durability: null, biq: null, powers: null, gear: null, ruthlessness: null };
-            
-            // Reset UI
-            resultModal.style.display = 'none';
-            battlePhase.classList.add('hidden');
-            battlePhase.classList.remove('flex');
-            setupPhase.classList.remove('hidden');
-            
-            btnSpinOpponent.disabled = false;
-            btnSpinOpponent.classList.remove('opacity-50', 'cursor-not-allowed');
-            btnSpinOpponent.textContent = "Spin for Opponent";
-            opponentReveal.classList.add('hidden');
-            
-            btnStartDraft.textContent = "Start Drafting";
-            btnStartDraft.onclick = () => {
-                setupPhase.classList.add('hidden');
-                draftPhase.classList.remove('hidden');
-                draftPhase.classList.add('flex');
-                updateDraftUI();
-            };
-            
-            Object.keys(statEls).forEach(key => {
-                statEls[key].textContent = '???';
-                statEls[key].style.color = '#fde047'; // yellow-300
+        function initiateChimeraAssignment(character, slot) {
+            selectedCharacterForDraft = character;
+            document.getElementById('assign-char-name').textContent = character.name;
+            document.getElementById('assign-char-name').style.color = character.color;
+
+            document.getElementById('draft-slot-a').parentElement.classList.remove('border-4', 'border-yellow-400');
+            document.getElementById('draft-slot-b').parentElement.classList.remove('border-4', 'border-yellow-400');
+            if (slot === 'A') document.getElementById('draft-slot-a').parentElement.classList.add('border-4', 'border-yellow-400');
+            if (slot === 'B') document.getElementById('draft-slot-b').parentElement.classList.add('border-4', 'border-yellow-400');
+
+            const container = document.getElementById('category-buttons');
+            container.innerHTML = '';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                const isAssigned = playerFighter[cat.id] !== null;
+                btn.className = `font-bold py-2 px-2 rounded text-sm transition-all ${isAssigned ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_4px_0_#1e3a8a] active:translate-y-1'}`;
+                btn.textContent = cat.name;
+                btn.disabled = isAssigned;
+                if (!isAssigned) btn.addEventListener('click', () => confirmChimeraAssignment(cat.id));
+                container.appendChild(btn);
             });
+
+            document.getElementById('assignment-panel').classList.remove('hidden');
+            document.getElementById('assignment-panel').classList.add('flex');
+            document.getElementById('assignment-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function confirmChimeraAssignment(categoryId) {
+            playSelect();
+            playerFighter[categoryId] = selectedCharacterForDraft;
             
-            summaryOpponentName.textContent = '???';
-            summaryOpponentName.style.color = '';
+            const statEl = document.getElementById(`stat-${categoryId}`);
+            statEl.textContent = selectedCharacterForDraft.name;
+            statEl.style.color = selectedCharacterForDraft.color;
+            statEl.parentElement.classList.add('bg-gray-700', 'transition-colors', 'duration-300');
+            setTimeout(() => statEl.parentElement.classList.remove('bg-gray-700'), 300);
+
+            draftsCompleted++;
+            if (draftsCompleted >= categories.length) {
+                document.getElementById('chimera-container').classList.add('hidden');
+                document.getElementById('chimera-container').classList.remove('flex');
+                setupBattlePhase();
+            } else { updateDraftUI(); }
+        }
+
+        document.getElementById('btn-select-a').addEventListener('click', () => initiateChimeraAssignment(currentOptionA, 'A'));
+        document.getElementById('btn-select-b').addEventListener('click', () => initiateChimeraAssignment(currentOptionB, 'B'));
+
+        // ==========================================
+        // FUSION LOGIC
+        // ==========================================
+        document.getElementById('btn-spin-fusion-bases').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-spin-fusion-bases');
+            btn.disabled = true; btn.classList.add('hidden');
             
-            playerScoreDisplay.textContent = '--';
-            opponentScoreDisplay.textContent = '--';
-            btnSimulateBattle.classList.remove('hidden');
-            btnSimulateBattle.disabled = false;
-            battleLog.classList.add('hidden');
-            battleLog.classList.remove('flex');
-            battleLog.innerHTML = '';
+            fusionBases[0] = getRandomCharacter();
+            do { fusionBases[1] = getRandomCharacter(); } while(fusionBases[1].name === fusionBases[0].name);
+            
+            const slot1 = document.getElementById('fusion-base-slot-1');
+            const slot2 = document.getElementById('fusion-base-slot-2');
+            populateSlot(slot1, fusionBases[0], 25);
+            populateSlot(slot2, fusionBases[1], 30);
+            
+            await Promise.all([spinSlot(slot1, 25, 1500), spinSlot(slot2, 30, 2000)]);
+            
+            document.getElementById('fusion-final-1').textContent = fusionBases[0].name;
+            document.getElementById('fusion-final-1').style.color = fusionBases[0].color;
+            document.getElementById('fusion-final-2').textContent = fusionBases[1].name;
+            document.getElementById('fusion-final-2').style.color = fusionBases[1].color;
+
+            // Show Materials area
+            document.getElementById('fusion-mats-area').classList.remove('hidden');
+            document.getElementById('fusion-mats-area').classList.add('flex');
+            
+            document.getElementById('fusion-mat-slot-1').innerHTML = '<div class="slot-item text-gray-500">?</div>';
+            document.getElementById('fusion-mat-slot-2').innerHTML = '<div class="slot-item text-gray-500">?</div>';
         });
 
-        // Initialize button overrides
-        btnStartDraft.onclick = () => {
-            setupPhase.classList.add('hidden');
-            draftPhase.classList.remove('hidden');
-            draftPhase.classList.add('flex');
-            updateDraftUI();
-        };
+        document.getElementById('btn-spin-fusion-mats').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-spin-fusion-mats');
+            btn.disabled = true; btn.classList.add('hidden');
 
-        // Initialize slot UI on load
-        opponentSlotContainer.innerHTML = '<div class="slot-item text-gray-500">?</div>';
+            fusionMats[0] = getRandomCharacter();
+            do { fusionMats[1] = getRandomCharacter(); } while(fusionMats[1].name === fusionMats[0].name);
+
+            const slot1 = document.getElementById('fusion-mat-slot-1');
+            const slot2 = document.getElementById('fusion-mat-slot-2');
+            populateSlot(slot1, fusionMats[0], 25);
+            populateSlot(slot2, fusionMats[1], 30);
+            
+            await Promise.all([spinSlot(slot1, 25, 1500), spinSlot(slot2, 30, 2000)]);
+
+            document.getElementById('btn-select-mat-1').disabled = false;
+            document.getElementById('btn-select-mat-1').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('btn-select-mat-2').disabled = false;
+            document.getElementById('btn-select-mat-2').classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+
+        function selectFusionMaterial(index) {
+            selectedFusionMatIndex = index;
+            const matChar = fusionMats[index];
+            
+            document.getElementById('fusion-mat-name').textContent = matChar.name;
+            document.getElementById('fusion-mat-name').style.color = matChar.color;
+
+            document.getElementById('fusion-mat-slot-1').parentElement.classList.remove('border-4', 'border-yellow-400');
+            document.getElementById('fusion-mat-slot-2').parentElement.classList.remove('border-4', 'border-yellow-400');
+            document.getElementById(`fusion-mat-slot-${index+1}`).parentElement.classList.add('border-4', 'border-yellow-400');
+
+            const btn1 = document.getElementById('btn-fuse-with-1');
+            const btn2 = document.getElementById('btn-fuse-with-2');
+            
+            btn1.disabled = playerFusions[0] !== null;
+            btn1.className = btn1.disabled ? "w-1/2 bg-gray-600 text-gray-400 font-bold py-3 rounded cursor-not-allowed" : "w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-[0_4px_0_#1e3a8a] active:translate-y-1 transition-all";
+            
+            btn2.disabled = playerFusions[1] !== null;
+            btn2.className = btn2.disabled ? "w-1/2 bg-gray-600 text-gray-400 font-bold py-3 rounded cursor-not-allowed" : "w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-[0_4px_0_#1e3a8a] active:translate-y-1 transition-all";
+
+            document.getElementById('fusion-assignment-panel').classList.remove('hidden');
+            document.getElementById('fusion-assignment-panel').classList.add('flex');
+        }
+
+        document.getElementById('btn-select-mat-1').addEventListener('click', () => selectFusionMaterial(0));
+        document.getElementById('btn-select-mat-2').addEventListener('click', () => selectFusionMaterial(1));
+
+        function confirmFusion(baseIndex) {
+            playSelect();
+            const matChar = fusionMats[selectedFusionMatIndex];
+            const baseChar = fusionBases[baseIndex];
+            
+            playerFusions[baseIndex] = { base: baseChar, mat: matChar };
+            
+            // Update Base Card UI
+            const nameEl = document.getElementById(`fusion-final-${baseIndex+1}`);
+            nameEl.innerHTML = `<span style="color:${baseChar.color}">${baseChar.name}</span> + <span style="color:${matChar.color}">${matChar.name}</span>`;
+            
+            // Disable used mat button
+            const matBtn = document.getElementById(`btn-select-mat-${selectedFusionMatIndex+1}`);
+            matBtn.disabled = true;
+            matBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            matBtn.textContent = "Fused!";
+
+            document.getElementById('fusion-assignment-panel').classList.add('hidden');
+            document.getElementById('fusion-assignment-panel').classList.remove('flex');
+            document.getElementById(`fusion-mat-slot-${selectedFusionMatIndex+1}`).parentElement.classList.remove('border-4', 'border-yellow-400');
+
+            if (playerFusions[0] !== null && playerFusions[1] !== null) {
+                // Generate bot fusions
+                botFusions[0] = { base: getRandomCharacter(), mat: getRandomCharacter() };
+                botFusions[1] = { base: getRandomCharacter(), mat: getRandomCharacter() };
+                
+                setTimeout(() => {
+                    document.getElementById('fusion-container').classList.add('hidden');
+                    document.getElementById('fusion-container').classList.remove('flex');
+                    setupBattlePhase();
+                }, 1000);
+            }
+        }
+
+        document.getElementById('btn-fuse-with-1').addEventListener('click', () => confirmFusion(0));
+        document.getElementById('btn-fuse-with-2').addEventListener('click', () => confirmFusion(1));
+
+        // ==========================================
+        // SHARED BATTLE LOGIC
+        // ==========================================
+        function setupBattlePhase() {
+            const battlePhase = document.getElementById('battle-phase');
+            const arena = document.getElementById('battle-arena');
+            const title = document.getElementById('battle-title');
+            arena.innerHTML = '';
+            
+            if (currentGameMode === 'chimera') {
+                title.textContent = "Chimera Showdown";
+                arena.innerHTML = `
+                    <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] w-full md:w-5/12">
+                        <h3 class="text-3xl bangers-font text-blue-400 mb-2">Your Fighter</h3>
+                        <div class="text-4xl text-white font-bold my-4" id="player-score-display">--</div>
+                        <p class="text-sm text-gray-400">Total Power Level</p>
+                    </div>
+                    <div class="my-6 md:my-0 flex flex-col items-center justify-center w-full md:w-2/12">
+                        <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center bangers-font text-4xl text-white shadow-[0_0_20px_rgba(220,38,38,0.8)] border-4 border-yellow-400 animate-bounce">VS</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] w-full md:w-5/12">
+                        <h3 class="text-3xl bangers-font mb-2" style="color:${currentOpponent.color}">${currentOpponent.name}</h3>
+                        <div class="text-4xl text-white font-bold my-4" id="opponent-score-display">--</div>
+                        <p class="text-sm text-gray-400">Total Power Level</p>
+                    </div>
+                `;
+            } else {
+                title.textContent = "2v2 Fusion Showdown";
+                arena.innerHTML = `
+                    <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] w-full md:w-5/12">
+                        <h3 class="text-2xl bangers-font text-purple-400 mb-2">Your Team</h3>
+                        <p class="text-xs text-gray-300 text-center mb-1"><span style="color:${playerFusions[0].base.color}">${playerFusions[0].base.name}</span> + <span style="color:${playerFusions[0].mat.color}">${playerFusions[0].mat.name}</span></p>
+                        <p class="text-xs text-gray-300 text-center mb-3"><span style="color:${playerFusions[1].base.color}">${playerFusions[1].base.name}</span> + <span style="color:${playerFusions[1].mat.color}">${playerFusions[1].mat.name}</span></p>
+                        <div class="text-4xl text-white font-bold my-2" id="player-score-display">--</div>
+                        <p class="text-sm text-gray-400">Team Power Level</p>
+                    </div>
+                    <div class="my-6 md:my-0 flex flex-col items-center justify-center w-full md:w-2/12">
+                        <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center bangers-font text-4xl text-white shadow-[0_0_20px_rgba(220,38,38,0.8)] border-4 border-yellow-400 animate-bounce">VS</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-800 p-4 rounded-lg border-2 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] w-full md:w-5/12">
+                        <h3 class="text-2xl bangers-font text-red-400 mb-2">Enemy Fusions</h3>
+                        <p class="text-xs text-gray-300 text-center mb-1"><span style="color:${botFusions[0].base.color}">${botFusions[0].base.name}</span> + <span style="color:${botFusions[0].mat.color}">${botFusions[0].mat.name}</span></p>
+                        <p class="text-xs text-gray-300 text-center mb-3"><span style="color:${botFusions[1].base.color}">${botFusions[1].base.name}</span> + <span style="color:${botFusions[1].mat.color}">${botFusions[1].mat.name}</span></p>
+                        <div class="text-4xl text-white font-bold my-2" id="opponent-score-display">--</div>
+                        <p class="text-sm text-gray-400">Team Power Level</p>
+                    </div>
+                `;
+            }
+
+            battlePhase.classList.remove('hidden');
+            battlePhase.classList.add('flex');
+        }
+
+        function addLog(message, color = 'text-green-400') {
+            const p = document.createElement('p');
+            p.className = color;
+            p.textContent = `> ${message}`;
+            const battleLog = document.getElementById('battle-log');
+            battleLog.appendChild(p);
+            battleLog.scrollTop = battleLog.scrollHeight;
+        }
+
+        function calcFusionPower(fusionObj) {
+            let score = 0;
+            categories.forEach(cat => {
+                // Best of both stats!
+                const bestStat = Math.max(fusionObj.base[cat.id], fusionObj.mat[cat.id]);
+                let multiplier = 1.0;
+                if (['strength', 'speed', 'durability', 'powers'].includes(cat.id)) multiplier = 1.5;
+                score += Math.pow(bestStat, 2) * multiplier;
+            });
+            return Math.round(score * 10);
+        }
+
+        document.getElementById('btn-simulate-battle').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-simulate-battle');
+            btn.disabled = true; btn.classList.add('hidden');
+            
+            const battleLog = document.getElementById('battle-log');
+            battleLog.classList.remove('hidden'); battleLog.classList.add('flex');
+            battleLog.innerHTML = '';
+
+            addLog("SIMULATING COMBAT ENVIRONMENT...", "text-blue-400");
+            await wait(1000);
+
+            let playerScore = 0;
+            let opponentScore = 0;
+
+            if (currentGameMode === 'chimera') {
+                for (let i=0; i<categories.length; i++) {
+                    playerScore += calcPower(playerFighter[categories[i].id], categories[i].id);
+                    opponentScore += calcPower(currentOpponent, categories[i].id);
+                }
+                playerScore = Math.round(playerScore * 10);
+                opponentScore = Math.round(opponentScore * 10);
+                opponentScore = Math.round(opponentScore * (1 + (gauntletStreak * 0.15))); // Gauntlet scaling
+            } else {
+                // Fusion Mode power calc
+                const p1 = calcFusionPower(playerFusions[0]);
+                const p2 = calcFusionPower(playerFusions[1]);
+                playerScore = p1 + p2;
+
+                const b1 = calcFusionPower(botFusions[0]);
+                const b2 = calcFusionPower(botFusions[1]);
+                opponentScore = b1 + b2;
+            }
+
+            // RNG variance +/- 5%
+            const finalPlayerScore = Math.round(playerScore * (1 + ((Math.random() * 0.1) - 0.05)));
+            const finalOpponentScore = Math.round(opponentScore * (1 + ((Math.random() * 0.1) - 0.05)));
+
+            lastPlayerScore = finalPlayerScore;
+            lastOpponentScore = finalOpponentScore;
+
+            addLog("CALCULATING POWER LEVELS...", "text-yellow-400");
+            await Promise.all([
+                animateCounter(document.getElementById('player-score-display'), 0, finalPlayerScore, 1500),
+                animateCounter(document.getElementById('opponent-score-display'), 0, finalOpponentScore, 1500)
+            ]);
+
+            await wait(500);
+
+            if (currentGameMode === 'chimera') {
+                if (playerFighter.speed.speed > currentOpponent.speed) addLog(`Your fighter blitzes first!`);
+                else addLog(`${currentOpponent.name} attacks instantly!`, 'text-red-400');
+            } else {
+                addLog("The fusions clash in mid-air!", "text-purple-300");
+            }
+            playPunch();
+            await wait(1000);
+
+            const diff = finalPlayerScore - finalOpponentScore;
+            let oppName = currentGameMode === 'chimera' ? currentOpponent.name : "the enemy fusions";
+
+            if (diff > 1000) {
+                playWin(); lastMatchResult = "FLAWLESS VICTORY";
+                showResult("VICTORY!", `Your team utterly dominated ${oppName}. It wasn't even close.`, "text-yellow-400", false, true);
+            } else if (diff > 0) {
+                playWin(); lastMatchResult = "NARROW WIN";
+                showResult("NARROW WIN!", `It was a bloody fight, but you ripped ${oppName} apart just before collapsing.`, "text-orange-400", false, true);
+            } else if (diff > -1000) {
+                playLose(); lastMatchResult = "DEFEAT";
+                showResult("DEFEAT...", `You fought valiantly, but ${oppName} proved too much in the end.`, "text-red-500", true, false);
+            } else {
+                playLose(); lastMatchResult = "ANNIHILATION";
+                showResult("ANNIHILATION", `Why did you even try? ${oppName} turned you into paste effortlessly.`, "text-red-600 font-black", true, false);
+            }
+        });
+
+        function showResult(title, desc, titleClass, isGory, playerWon) {
+            const rTitle = document.getElementById('result-title');
+            rTitle.textContent = title; rTitle.className = `text-6xl bangers-font mb-4 z-10 ${titleClass}`;
+            document.getElementById('result-desc').textContent = desc;
+
+            document.querySelectorAll('.splatter').forEach(s => s.style.opacity = isGory ? '1' : '0');
+            
+            document.getElementById('btn-share-card').classList.remove('hidden');
+            document.getElementById('btn-share-card').textContent = "Share Card 📋";
+
+            const btnNext = document.getElementById('btn-next-fight');
+            if (playerWon && currentGameMode === 'chimera') {
+                btnNext.classList.remove('hidden');
+            } else {
+                btnNext.classList.add('hidden'); // No gauntlet for fusion mode yet
+            }
+
+            document.getElementById('result-modal').style.display = 'block';
+        }
+
+        // Share Card functionality
+        document.getElementById('btn-share-card').addEventListener('click', () => {
+            const btnShareCard = document.getElementById('btn-share-card');
+            let shareText = `🩸 INVINCIBLE DRAFT BATTLE 🩸\nMode: ${currentGameMode === 'chimera' ? 'Chimera' : '2v2 Fusion'}\n`;
+            
+            if (currentGameMode === 'chimera') {
+                shareText += `Streak: ${gauntletStreak} | Fought: ${currentOpponent.name}\n`;
+                shareText += `Result: ${lastMatchResult}\n\n`;
+                shareText += `🦸 MY CHIMERA (Power: ${lastPlayerScore.toLocaleString()}):\n`;
+                categories.forEach(cat => { shareText += `- ${cat.name}: ${playerFighter[cat.id] ? playerFighter[cat.id].name : "None"}\n`; });
+            } else {
+                shareText += `Result: ${lastMatchResult}\n\n`;
+                shareText += `🦸 MY FUSIONS (Power: ${lastPlayerScore.toLocaleString()}):\n`;
+                shareText += `1: ${playerFusions[0].base.name} + ${playerFusions[0].mat.name}\n`;
+                shareText += `2: ${playerFusions[1].base.name} + ${playerFusions[1].mat.name}\n\n`;
+                shareText += `💀 ENEMY FUSIONS (Power: ${lastOpponentScore.toLocaleString()}):\n`;
+                shareText += `1: ${botFusions[0].base.name} + ${botFusions[0].mat.name}\n`;
+                shareText += `2: ${botFusions[1].base.name} + ${botFusions[1].mat.name}\n`;
+            }
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = shareText;
+            textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus(); textArea.select();
+
+            try {
+                if (document.execCommand('copy')) {
+                    btnShareCard.textContent = "Copied! ✅";
+                    setTimeout(() => { if(btnShareCard.textContent === "Copied! ✅") btnShareCard.textContent = "Share Card 📋"; }, 2000);
+                }
+            } catch (err) {}
+            document.body.removeChild(textArea);
+        });
+
+        document.getElementById('btn-next-fight').addEventListener('click', async () => {
+            gauntletStreak++;
+            document.getElementById('gauntlet-streak').textContent = gauntletStreak;
+            
+            document.getElementById('result-modal').style.display = 'none';
+            document.getElementById('battle-phase').classList.add('hidden');
+            document.getElementById('battle-phase').classList.remove('flex');
+            
+            document.getElementById('setup-phase').classList.remove('hidden');
+            document.getElementById('opponent-reveal').classList.add('hidden');
+            
+            const spinBtn = document.getElementById('btn-spin-opponent');
+            spinBtn.disabled = false; spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            spinBtn.textContent = "Spin Next Opponent";
+            
+            const draftBtn = document.getElementById('btn-start-draft');
+            draftBtn.textContent = "Continue Gauntlet";
+            draftBtn.onclick = () => {
+                document.getElementById('setup-phase').classList.add('hidden');
+                document.getElementById('player-score-display').textContent = '--';
+                document.getElementById('opponent-score-display').textContent = '--';
+                document.getElementById('btn-simulate-battle').classList.remove('hidden');
+                document.getElementById('btn-simulate-battle').disabled = false;
+                setupBattlePhase();
+            };
+        });
+
+        document.getElementById('btn-play-again').addEventListener('click', () => {
+            window.location.reload(); // Quickest way to clean state completely
+        });
 
     </script>
 </body>

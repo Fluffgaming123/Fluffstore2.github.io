@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Garden Remake</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+        
+        body { font-family: 'Nunito', sans-serif; background-color: #0f172a; color: #f8fafc; overflow: hidden; user-select: none; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Weather Effects */
+        #weather-overlay { pointer-events: none; position: fixed; inset: 0; z-index: 50; transition: background 2s ease; mix-blend-mode: overlay; }
+        .weather-rain { background: linear-gradient(to bottom, transparent, rgba(0, 50, 150, 0.2)); animation: rainFall 0.5s linear infinite; }
+        .weather-thunderstorm { background: rgba(20, 20, 40, 0.4); animation: flash 4s infinite; }
+        .weather-heat { background: rgba(255, 100, 0, 0.1); }
+        .weather-snow { background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); }
+        .weather-aurora { background: linear-gradient(45deg, rgba(0, 255, 150, 0.1), rgba(150, 0, 255, 0.1)); animation: auroraShift 10s ease infinite alternate; }
+
+        @keyframes flash { 0%, 95%, 98% { background-color: rgba(20, 20, 40, 0.4); } 96%, 99% { background-color: rgba(255, 255, 255, 0.3); } }
+        @keyframes auroraShift { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(90deg); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+
+        .mut-Golden { filter: sepia(1) saturate(5) hue-rotate(-30deg) drop-shadow(0 0 10px gold); }
+        .mut-Rainbow { animation: rainbowCycle 3s linear infinite; drop-shadow(0 0 10px pink); }
+        .mut-Giant { transform: scale(1.5); transform-origin: bottom center; z-index: 10; }
+        .mut-Crystal { filter: hue-rotate(180deg) saturate(2) brightness(1.5) drop-shadow(0 0 8px cyan); }
+        .mut-Frozen { filter: saturate(0.5) hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 5px lightblue); }
+        .mut-Electric { filter: brightness(1.5) drop-shadow(0 0 15px yellow); animation: jitter 0.2s infinite; }
+        .mut-Shadow { filter: brightness(0.2) drop-shadow(0 0 15px purple); }
+        .mut-Celestial { filter: brightness(1.8) contrast(1.5) drop-shadow(0 0 20px white); animation: float 2s infinite ease-in-out; }
+
+        @keyframes rainbowCycle { 0% { filter: hue-rotate(0deg) saturate(2); } 100% { filter: hue-rotate(360deg) saturate(2); } }
+        @keyframes jitter { 0% { transform: translate(0,0); } 25% { transform: translate(1px, -1px); } 50% { transform: translate(-1px, 1px); } 75% { transform: translate(1px, 1px); } 100% { transform: translate(0,0); } }
+
+        .garden-grid { display: grid; gap: 0.5rem; justify-content: center; align-content: center; padding: 2rem; }
+        .garden-plot { 
+            background: #3f2a1d; border: 2px solid #5c3e2b; border-radius: 0.5rem; 
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.5); position: relative; cursor: pointer;
+            transition: all 0.2s; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 10%;
+        }
+        .garden-plot:hover { border-color: #8b5a2b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .crop-emoji { font-size: 3rem; line-height: 1; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .crop-stage-0 { font-size: 0.8rem; filter: grayscale(0.8); }
+        .crop-stage-1 { font-size: 1.5rem; filter: grayscale(0.4); }
+        .crop-stage-2 { font-size: 2.2rem; filter: grayscale(0.1); }
+        .crop-stage-3 { font-size: 3rem; }
+
+        .progress-bar-container { position: absolute; bottom: -10px; width: 80%; height: 6px; background: #1e293b; border-radius: 4px; overflow: hidden; opacity: 0; transition: opacity 0.2s; }
+        .garden-plot:hover .progress-bar-container, .progress-bar-container.active { opacity: 1; }
+        .progress-bar-fill { height: 100%; background: #22c55e; width: 0%; transition: width 0.5s linear; }
+
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: rgba(30, 41, 59, 0.95); border-left: 4px solid #3b82f6; padding: 12px 20px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: slideIn 0.3s forwards, fadeOut 0.5s 2.5s forwards; pointer-events: auto; }
+        .toast-rare { border-left-color: #eab308; background: linear-gradient(to right, rgba(30,41,59,0.95), rgba(100,80,0,0.8)); }
+        
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        .buff-icon { animation: pulseBuff 2s infinite; }
+        @keyframes pulseBuff { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="flex h-screen w-screen overflow-hidden text-sm md:text-base">
+
+    <!-- Weather Overlay -->
+    <div id="weather-overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-20 md:w-64 bg-slate-800 border-r border-slate-700 flex flex-col justify-between z-20 shrink-0">
+        <div>
+            <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-slate-700 font-bold text-xl text-green-400">
+                <i class="fa-solid fa-leaf md:mr-2"></i> <span class="hidden md:inline">My Garden</span>
+            </div>
+            <ul class="flex flex-col gap-2 p-2 mt-4 overflow-y-auto hide-scrollbar" id="nav-menu">
+                <!-- Nav items generated here -->
+            </ul>
+        </div>
+        <div class="p-4 text-center text-slate-500 text-xs hidden md:block border-t border-slate-700">
+            v2.0.0 Remake
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col relative z-10 overflow-hidden">
+        
+        <!-- Topbar -->
+        <header class="h-16 bg-slate-800/80 backdrop-blur border-b border-slate-700 flex items-center justify-between px-6 shrink-0 z-20">
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col">
+                    <span id="ui-title" class="text-xs font-bold text-blue-400 uppercase tracking-widest hidden md:block">Novice</span>
+                    <div class="flex items-center gap-2 bg-slate-900 px-4 py-1 rounded-lg border border-slate-700 shadow-inner">
+                        <i class="fa-solid fa-coins text-yellow-400"></i>
+                        <span id="ui-money" class="font-bold text-green-400 text-lg">0</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 bg-slate-900 px-4 py-2 rounded-lg border border-slate-700 shadow-inner" id="ui-weather-container">
+                    <i id="ui-weather-icon" class="fa-solid fa-sun text-yellow-200"></i>
+                    <span id="ui-weather-text" class="text-slate-300 font-semibold hidden lg:inline">Clear</span>
+                </div>
+
+                <div id="ui-buffs" class="flex items-center gap-2 hidden sm:flex">
+                    <!-- Buff icons populate here -->
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <div class="text-xs text-slate-400 uppercase tracking-wide">Rebirth</div>
+                    <div id="ui-prestige" class="font-bold text-purple-400">0</div>
+                </div>
+                <div id="active-pet-display" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-xl shadow cursor-pointer hover:bg-slate-600 transition" onclick="switchTab('pets')" title="Active Pet">
+                    🐶
+                </div>
+            </div>
+        </header>
+
+        <!-- View Containers -->
+        <div id="views-container" class="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar bg-slate-900 relative">
+            
+            <!-- Garden View -->
+            <div id="view-garden" class="view-panel absolute inset-0 hidden">
+                <div class="w-full h-full flex flex-col items-center p-6 pb-20">
+                    <div class="flex justify-between w-full max-w-4xl mb-4 items-center">
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-seedling text-green-500"></i> The Garden</h2>
+                        <button onclick="expandGarden()" id="btn-expand" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold shadow transition transform hover:scale-105">
+                            Expand (<i class="fa-solid fa-coins text-yellow-400 text-xs"></i> <span id="expand-cost">1000</span>)
+                        </button>
+                    </div>
+                    <div id="garden-grid" class="garden-grid max-w-full"></div>
+                </div>
+            </div>
+
+            <!-- Shop View -->
+            <div id="view-shop" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-end mb-6 border-b border-slate-700 pb-2">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white"><i class="fa-solid fa-store text-blue-400 mr-2"></i> Seed Shop</h2>
+                            <p class="text-slate-400 mt-1">Stock refreshes every <span class="text-white font-bold">5 minutes</span>.</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-400 uppercase">Next Refresh</div>
+                            <div id="shop-timer" class="font-mono text-xl text-yellow-300">05:00</div>
+                        </div>
+                    </div>
+                    <div id="shop-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                        <!-- Shop items -->
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-toolbox text-gray-400 mr-2"></i> Supplies & Tools</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="text-4xl">💧</div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Sprinkler</h3>
+                                    <p class="text-slate-400 text-sm">Instantly mature a growing crop.</p>
+                                </div>
+                            </div>
+                            <button onclick="buyTool('sprinkler', 5000)" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-coins text-yellow-400"></i> 5,000
+                            </button>
+                        </div>
+                        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="text-4xl">✨</div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Mutagen Fertilizer</h3>
+                                    <p class="text-slate-400 text-sm">Guarantee a mutation on a growing crop.</p>
+                                </div>
+                            </div>
+                            <button onclick="buyTool('fertilizer', 15000)" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-coins text-yellow-400"></i> 15,000
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory View -->
+            <div id="view-inventory" class="view-panel absolute inset-0 hidden p-6 flex flex-col">
+                <div class="max-w-5xl mx-auto w-full flex-1 flex flex-col">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-box-open text-amber-500 mr-2"></i> Inventory</h2>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button onclick="setInvTab('seeds')" id="tab-inv-seeds" class="px-4 md:px-6 py-2 rounded-t-lg bg-slate-700 text-white font-bold border-b-2 border-green-500">Seeds</button>
+                        <button onclick="setInvTab('crops')" id="tab-inv-crops" class="px-4 md:px-6 py-2 rounded-t-lg bg-slate-800 text-slate-400 font-bold hover:text-white">Crops</button>
+                        <button onclick="setInvTab('tools')" id="tab-inv-tools" class="px-4 md:px-6 py-2 rounded-t-lg bg-slate-800 text-slate-400 font-bold hover:text-white">Tools</button>
+                        <button onclick="setInvTab('goods')" id="tab-inv-goods" class="px-4 md:px-6 py-2 rounded-t-lg bg-slate-800 text-slate-400 font-bold hover:text-white">Crafted Goods</button>
+                    </div>
+
+                    <div id="inv-seeds-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto pb-20"></div>
+                    
+                    <div id="inv-crops-container" class="hidden flex-col gap-4 overflow-y-auto pb-20">
+                        <div class="flex justify-end mb-2">
+                            <button onclick="sellAllCrops()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded shadow font-bold transition"><i class="fa-solid fa-sack-dollar mr-2"></i>Sell All</button>
+                        </div>
+                        <div id="inv-crops-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+
+                    <div id="inv-tools-container" class="hidden grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto pb-20"></div>
+                    <div id="inv-goods-container" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pb-20"></div>
+                </div>
+            </div>
+
+            <!-- Kitchen View -->
+            <div id="view-kitchen" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-2"><i class="fa-solid fa-utensils text-orange-400 mr-2"></i> Kitchen & Crafting</h2>
+                    <p class="text-slate-400 mb-6 border-b border-slate-700 pb-4">Combine your crops to create valuable artisan goods and powerful consumable buffs.</p>
+                    <div id="kitchen-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Recipes -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements View -->
+            <div id="view-achievements" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-2">
+                        <h2 class="text-3xl font-bold text-white"><i class="fa-solid fa-trophy text-yellow-400 mr-2"></i> Achievements</h2>
+                        <div class="bg-slate-800 px-4 py-2 rounded border border-slate-600">
+                            Equipped Title: <span id="current-title-display" class="font-bold text-blue-400 uppercase tracking-wider ml-2">Novice</span>
+                        </div>
+                    </div>
+                    <div id="achievements-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Achievements -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collection View -->
+            <div id="view-collection" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-2"><i class="fa-solid fa-book text-purple-400 mr-2"></i> Encyclopedia</h2>
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
+                        <p class="text-slate-400">Discover all crops and mutations to earn permanent bonuses.</p>
+                        <div class="bg-slate-800 px-4 py-2 rounded-full border border-slate-600 text-sm">
+                            Completion: <span id="collection-progress" class="text-green-400 font-bold">0%</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-slate-300 mb-4 mt-8">Crops Discovered</h3>
+                    <div id="collection-crops" class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 mb-8"></div>
+
+                    <h3 class="text-xl font-bold text-slate-300 mb-4 mt-8">Mutations Witnessed</h3>
+                    <div id="collection-mutations" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- Pets View -->
+            <div id="view-pets" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-paw text-orange-400 mr-2"></i> Pets & Companions</h2>
+                    <p class="text-slate-400 mb-6">Pets provide powerful passive bonuses. You can equip one pet at a time.</p>
+                    <div id="pets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+            </div>
+
+            <!-- Trading View -->
+            <div id="view-trading" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-handshake text-teal-400 mr-2"></i> Local Trader</h2>
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-8 text-center relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl"><i class="fa-solid fa-user-tie"></i></div>
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Trader&backgroundColor=transparent" class="w-24 h-24 mx-auto mb-4 bg-slate-700 rounded-full" alt="Trader">
+                        <h3 class="text-2xl font-bold text-white mb-2">Traveling Merchant</h3>
+                        <p class="text-slate-400 mb-8" id="trade-timer-text">New offer arrives in 10:00</p>
+                        
+                        <div id="trade-offer-container" class="flex flex-col md:flex-row items-center justify-center gap-8 bg-slate-900 p-6 rounded-xl border border-slate-700">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quests View -->
+            <div id="view-quests" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-scroll text-yellow-200 mr-2"></i> Daily Quests</h2>
+                    <div id="quests-container" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Prestige View -->
+            <div id="view-prestige" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-5xl mx-auto mt-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-4xl font-bold text-white"><i class="fa-solid fa-infinity text-purple-500 mr-2"></i> Rebirth & Skills</h2>
+                        <div class="bg-purple-900/50 border border-purple-500 text-purple-200 px-6 py-3 rounded-xl font-bold text-lg">
+                            Tokens: <span id="ui-tokens" class="text-white">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-8 flex flex-col md:flex-row gap-6 items-center">
+                        <div class="flex-1">
+                            <p class="text-slate-300 text-lg mb-2">Reset your money, garden, and inventory to gain <span class="text-purple-400 font-bold">Rebirth Tokens</span> based on your lifetime earnings.</p>
+                            <p class="text-slate-400 text-sm">Total Lifetime Earnings: $<span id="lifetime-earnings">0</span></p>
+                            <p class="text-slate-400 text-sm">Tokens earned this run: <span id="next-tokens" class="text-purple-400 font-bold">0</span></p>
+                        </div>
+                        <button id="btn-prestige" onclick="doPrestige()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                            REBIRTH NOW
+                        </button>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Skill Tree</h3>
+                    <div id="skills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Skills populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="view-settings" class="view-panel absolute inset-0 hidden p-6">
+                <div class="max-w-xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-gear text-slate-400 mr-2"></i> Settings</h2>
+                    
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 space-y-6">
+                        <div>
+                            <h3 class="font-bold text-red-400 mb-2">Danger Zone</h3>
+                            <button onclick="hardReset()" class="bg-red-900/50 hover:bg-red-600 text-red-200 border border-red-700 px-4 py-2 rounded transition w-full">Hard Reset Save Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Plant Seed Modal -->
+    <div id="modal-plant" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-slate-800 p-6 rounded-2xl max-w-2xl w-full mx-4 border border-slate-600 shadow-2xl relative">
+            <button onclick="closeModal('modal-plant')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-4">Plant a Seed</h3>
+            <div id="plant-seed-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-2">
+                <!-- Seeds populated dynamically -->
+            </div>
+            <div id="plant-seed-empty" class="text-center py-10 hidden">
+                <i class="fa-solid fa-seedling text-6xl text-slate-600 mb-4"></i>
+                <p class="text-slate-400 text-lg">You don't have any seeds.</p>
+                <button onclick="closeModal('modal-plant'); switchTab('shop');" class="mt-4 bg-blue-600 px-4 py-2 rounded text-white font-bold hover:bg-blue-500">Go to Shop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tool Use Modal -->
+    <div id="modal-tool" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-slate-800 p-6 rounded-2xl max-w-md w-full mx-4 border border-slate-600 shadow-2xl relative">
+            <button onclick="closeModal('modal-tool')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-4">Manage Crop</h3>
+            <div class="grid gap-4">
+                <button onclick="useTool('sprinkler')" id="btn-use-sprinkler" class="bg-slate-700 hover:bg-blue-600 border border-slate-600 p-4 rounded-xl text-left flex items-center gap-4 transition">
+                    <div class="text-3xl">💧</div>
+                    <div>
+                        <div class="font-bold text-white">Use Sprinkler</div>
+                        <div class="text-xs text-slate-400">Instantly matures crop. <span id="lbl-sprinkler-count" class="text-blue-300 font-bold"></span></div>
+                    </div>
+                </button>
+                <button onclick="useTool('fertilizer')" id="btn-use-fertilizer" class="bg-slate-700 hover:bg-purple-600 border border-slate-600 p-4 rounded-xl text-left flex items-center gap-4 transition">
+                    <div class="text-3xl">✨</div>
+                    <div>
+                        <div class="font-bold text-white">Use Mutagen Fertilizer</div>
+                        <div class="text-xs text-slate-400">Guarantees a mutation. <span id="lbl-fertilizer-count" class="text-purple-300 font-bold"></span></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[120] hidden flex items-center justify-center">
+        <div class="bg-slate-800 p-6 rounded-2xl max-w-sm w-full mx-4 border border-slate-600 shadow-2xl">
+            <h3 id="confirm-title" class="text-xl font-bold text-white mb-2">Confirm</h3>
+            <p id="confirm-msg" class="text-slate-400 mb-6 text-sm">Are you sure?</p>
+            <div class="flex gap-4">
+                <button onclick="closeModal('modal-confirm')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg transition">Cancel</button>
+                <button id="confirm-btn-yes" onclick="executeConfirm()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg transition">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="modal-password" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] hidden flex items-center justify-center">
+        <div class="bg-slate-800 p-6 rounded-2xl max-w-sm w-full mx-4 border border-slate-600 shadow-2xl relative">
+            <button onclick="closeModal('modal-password')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h3 class="text-xl font-bold text-white mb-4">Admin Authentication</h3>
+            <input type="password" id="admin-password-input" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white mb-4 outline-none focus:border-blue-500" placeholder="Enter password...">
+            <button onclick="checkAdminPassword()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg transition">Submit</button>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="modal-admin" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center font-mono">
+        <div class="bg-slate-900 p-6 rounded-lg border border-red-500 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 border-b border-red-900 pb-2">
+                <h3 class="text-2xl font-bold text-red-500">>> ADMIN CONSOLE</h3>
+                <button onclick="closeModal('modal-admin')" class="text-red-500 hover:text-red-300">CLOSE</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <button onclick="Admin.addMoney()" class="bg-slate-800 text-green-400 border border-green-900 p-3 hover:bg-slate-700 text-left">> Add $1,000,000</button>
+                <button onclick="Admin.forceWeather()" class="bg-slate-800 text-blue-400 border border-blue-900 p-3 hover:bg-slate-700 text-left">> Reroll Weather</button>
+                <button onclick="Admin.giveAllSeeds()" class="bg-slate-800 text-yellow-400 border border-yellow-900 p-3 hover:bg-slate-700 text-left">> Give 10x All Seeds</button>
+                <button onclick="Admin.mutateAll()" class="bg-slate-800 text-purple-400 border border-purple-900 p-3 hover:bg-slate-700 text-left">> Force Mutate Garden</button>
+                <button onclick="Admin.growAll()" class="bg-slate-800 text-emerald-400 border border-emerald-900 p-3 hover:bg-slate-700 text-left">> Instant Grow Garden</button>
+                <button onclick="Admin.unlockAllPets()" class="bg-slate-800 text-orange-400 border border-orange-900 p-3 hover:bg-slate-700 text-left">> Unlock All Pets</button>
+                <button onclick="Admin.giveTools()" class="bg-slate-800 text-pink-400 border border-pink-900 p-3 hover:bg-slate-700 text-left">> Give 50x Tools</button>
+                <button onclick="Admin.addTokens()" class="bg-slate-800 text-purple-400 border border-purple-900 p-3 hover:bg-slate-700 text-left">> Give 100 Rebirth Tokens</button>
+            </div>
+            <div class="grid grid-cols-1 gap-4 border-t border-red-900 pt-4">
+                <button onclick="Admin.exportSave()" class="bg-slate-800 text-slate-300 border border-slate-700 p-3 hover:bg-slate-700 text-left">> Export Save to Clipboard</button>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-import-input" class="flex-1 bg-black border border-slate-700 text-slate-300 p-2 rounded" placeholder="Paste Base64 save string...">
+                    <button onclick="Admin.importSave()" class="bg-slate-800 text-white border border-slate-700 px-4 py-2 hover:bg-slate-700 rounded">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        // --- GAME DATA & CONSTANTS ---
+        const TIER_COLORS = { Beginner: 'text-gray-300', Intermediate: 'text-blue-400', Advanced: 'text-purple-400', UltraRare: 'text-yellow-400' };
+        
+        const CROPS = {
+            'carrot': { id: 'carrot', name: 'Carrot', emoji: '🥕', tier: 'Beginner', cost: 10, value: 20, time: 30, xp: 5 },
+            'lettuce': { id: 'lettuce', name: 'Lettuce', emoji: '🥬', tier: 'Beginner', cost: 15, value: 32, time: 45, xp: 8 },
+            'strawberry': { id: 'strawberry', name: 'Strawberry', emoji: '🍓', tier: 'Beginner', cost: 25, value: 55, time: 60, xp: 10 },
+            'tomato': { id: 'tomato', name: 'Tomato', emoji: '🍅', tier: 'Beginner', cost: 50, value: 120, time: 120, xp: 20 },
+            'garlic': { id: 'garlic', name: 'Garlic', emoji: '🧄', tier: 'Beginner', cost: 75, value: 180, time: 180, xp: 25 },
+            'potato': { id: 'potato', name: 'Potato', emoji: '🥔', tier: 'Beginner', cost: 100, value: 250, time: 300, xp: 35 },
+            
+            'blueberry': { id: 'blueberry', name: 'Blueberry', emoji: '🫐', tier: 'Intermediate', cost: 300, value: 800, time: 600, xp: 75 },
+            'watermelon': { id: 'watermelon', name: 'Watermelon', emoji: '🍉', tier: 'Intermediate', cost: 800, value: 2200, time: 1200, xp: 150 },
+            'eggplant': { id: 'eggplant', name: 'Eggplant', emoji: '🍆', tier: 'Intermediate', cost: 1200, value: 3500, time: 1800, xp: 200 },
+            'pumpkin': { id: 'pumpkin', name: 'Pumpkin', emoji: '🎃', tier: 'Intermediate', cost: 2000, value: 6000, time: 2400, xp: 300 },
+            'grapes': { id: 'grapes', name: 'Grapes', emoji: '🍇', tier: 'Intermediate', cost: 3500, value: 11000, time: 2800, xp: 400 },
+            'corn': { id: 'corn', name: 'Corn', emoji: '🌽', tier: 'Intermediate', cost: 5000, value: 16000, time: 3600, xp: 500 },
+            
+            'dragonfruit': { id: 'dragonfruit', name: 'Dragonfruit', emoji: '🌺', tier: 'Advanced', cost: 15000, value: 50000, time: 7200, xp: 1000 },
+            'cactusfruit': { id: 'cactusfruit', name: 'Cactus Fruit', emoji: '🌵', tier: 'Advanced', cost: 40000, value: 140000, time: 14400, xp: 2500 },
+            'chili': { id: 'chili', name: 'Fire Chili', emoji: '🌶️', tier: 'Advanced', cost: 60000, value: 210000, time: 21600, xp: 3500 },
+            'crystalberry': { id: 'crystalberry', name: 'Crystal Berry', emoji: '💎', tier: 'Advanced', cost: 100000, value: 380000, time: 28800, xp: 6000 },
+            'mushroom': { id: 'mushroom', name: 'Magic Mushroom', emoji: '🍄', tier: 'Advanced', cost: 150000, value: 580000, time: 36000, xp: 9000 },
+            'moonblossom': { id: 'moonblossom', name: 'Moon Blossom', emoji: '💮', tier: 'Advanced', cost: 250000, value: 1000000, time: 43200, xp: 15000 },
+            
+            'celestialfruit': { id: 'celestialfruit', name: 'Celestial Fruit', emoji: '☄️', tier: 'UltraRare', cost: 1000000, value: 5000000, time: 86400, xp: 50000 },
+            'starfruit': { id: 'starfruit', name: 'Starfruit', emoji: '🌟', tier: 'UltraRare', cost: 2000000, value: 10500000, time: 129600, xp: 80000 },
+            'prismflower': { id: 'prismflower', name: 'Prism Flower', emoji: '🌈', tier: 'UltraRare', cost: 5000000, value: 28000000, time: 172800, xp: 150000 },
+            'goldentree': { id: 'goldentree', name: 'Golden Tree', emoji: '🌳', tier: 'UltraRare', cost: 20000000, value: 120000000, time: 345600, xp: 500000 },
+            'luckyclover': { id: 'luckyclover', name: 'Lucky Clover', emoji: '🍀', tier: 'UltraRare', cost: 50000000, value: 320000000, time: 432000, xp: 1000000 },
+            'mythicbloom': { id: 'mythicbloom', name: 'Mythic Bloom', emoji: '🌸', tier: 'UltraRare', cost: 100000000, value: 700000000, time: 604800, xp: 2000000 },
+        };
+
+        const MUTATIONS = {
+            'Golden': { name: 'Golden', multiplier: 5, chance: 0.05, desc: "Shines brightly, worth 5x." },
+            'Giant': { name: 'Giant', multiplier: 3, chance: 0.08, desc: "Massive size, worth 3x." },
+            'Frozen': { name: 'Frozen', multiplier: 4, chance: 0.03, desc: "Ice cold, worth 4x." },
+            'Electric': { name: 'Electric', multiplier: 8, chance: 0.02, desc: "Crackles with energy, worth 8x." },
+            'Crystal': { name: 'Crystal', multiplier: 15, chance: 0.01, desc: "Pure gem, worth 15x." },
+            'Shadow': { name: 'Shadow', multiplier: 25, chance: 0.005, desc: "Absorbs light, worth 25x." },
+            'Rainbow': { name: 'Rainbow', multiplier: 50, chance: 0.002, desc: "All colors combined, worth 50x." },
+            'Celestial': { name: 'Celestial', multiplier: 100, chance: 0.0005, desc: "Fallen from the stars, worth 100x." }
+        };
+
+        const WEATHER_TYPES = {
+            'Clear': { name: 'Clear', icon: 'fa-sun', color: 'text-yellow-200', growthMult: 1, mutMult: 1, css: '' },
+            'Rain': { name: 'Rain', icon: 'fa-cloud-rain', color: 'text-blue-300', growthMult: 1.5, mutMult: 1.1, css: 'weather-rain' },
+            'Thunderstorm': { name: 'Thunderstorm', icon: 'fa-bolt', color: 'text-yellow-400', growthMult: 1.2, mutMult: 2, css: 'weather-thunderstorm' },
+            'Heat Wave': { name: 'Heat Wave', icon: 'fa-temperature-high', color: 'text-red-400', growthMult: 0.8, mutMult: 0.9, css: 'weather-heat' },
+            'Snow': { name: 'Snow', icon: 'fa-snowflake', color: 'text-blue-100', growthMult: 0.5, mutMult: 1.5, css: 'weather-snow' },
+            'Meteor Shower': { name: 'Meteor Shower', icon: 'fa-meteor', color: 'text-orange-400', growthMult: 1, mutMult: 5, css: 'weather-aurora' },
+            'Aurora': { name: 'Aurora', icon: 'fa-wand-magic-sparkles', color: 'text-purple-300', growthMult: 2, mutMult: 3, css: 'weather-aurora' }
+        };
+
+        const PETS = {
+            'rabbit': { id: 'rabbit', name: 'Lucky Rabbit', emoji: '🐰', cost: 10000, desc: '+10% Mutation Chance', effect: (s) => s.mutChanceBase *= 1.1 },
+            'fox': { id: 'fox', name: 'Swift Fox', emoji: '🦊', cost: 50000, desc: 'Crops grow 15% faster', effect: (s) => s.growthMultBase *= 1.15 },
+            'bee': { id: 'bee', name: 'Worker Bee', emoji: '🐝', cost: 200000, desc: '+20% Crop Value', effect: (s) => s.valueMultBase *= 1.2 },
+            'dragon': { id: 'dragon', name: 'Baby Dragon', emoji: '🐉', cost: 10000000, desc: 'Crops grow 50% faster, +50% Value', effect: (s) => { s.growthMultBase *= 1.5; s.valueMultBase *= 1.5; } },
+            'phoenix': { id: 'phoenix', name: 'Majestic Phoenix', emoji: '🦚', cost: 500000000, desc: 'Weather is always positive, +5x Mutation Chance', effect: (s) => { s.mutChanceBase *= 5; } }
+        };
+
+        const RECIPES = {
+            'berry_jam': { id: 'berry_jam', name: 'Berry Jam', emoji: '🍯', req: { 'strawberry': 3, 'blueberry': 2 }, buffType: 'growth', buffMult: 1.5, time: 600, value: 5000, desc: '+50% Growth Speed (10m)' },
+            'veggie_stew': { id: 'veggie_stew', name: 'Veggie Stew', emoji: '🍲', req: { 'carrot': 5, 'potato': 5, 'tomato': 3 }, buffType: 'value', buffMult: 2.0, time: 600, value: 8000, desc: '2x Crop Value (10m)' },
+            'spicy_salsa': { id: 'spicy_salsa', name: 'Spicy Salsa', emoji: '🥣', req: { 'tomato': 5, 'garlic': 2, 'chili': 1 }, buffType: 'mutation', buffMult: 3.0, time: 600, value: 250000, desc: '3x Mutation Chance (10m)' },
+            'crystal_elixir': { id: 'crystal_elixir', name: 'Crystal Elixir', emoji: '🧪', req: { 'crystalberry': 2, 'moonblossom': 1 }, buffType: 'growth', buffMult: 3.0, time: 900, value: 2000000, desc: '3x Growth Speed (15m)' }
+        };
+
+        const SKILLS = {
+            'growth': { id: 'growth', name: 'Green Thumb', desc: '+10% Growth Speed per level', max: 10, costBase: 1, mult: 0.1 },
+            'value': { id: 'value', name: 'Haggler', desc: '+10% Crop Value per level', max: 10, costBase: 1, mult: 0.1 },
+            'mutation': { id: 'mutation', name: 'Alchemist', desc: '+20% Mut Chance per level', max: 10, costBase: 2, mult: 0.2 },
+            'shop': { id: 'shop', name: 'Fast Track', desc: '-5% Shop Refresh Time per lvl', max: 10, costBase: 1, mult: 0.05 }
+        };
+
+        const ACHIEVEMENTS = {
+            'harv_10': { id: 'harv_10', type: 'harvest', req: 10, title: 'Apprentice', name: 'Starting Out', desc: 'Harvest 10 crops' },
+            'harv_100': { id: 'harv_100', type: 'harvest', req: 100, title: 'Farmer', name: 'Getting the Hang of It', desc: 'Harvest 100 crops' },
+            'harv_1000': { id: 'harv_1000', type: 'harvest', req: 1000, title: 'Master Harvester', name: 'Industrial Scale', desc: 'Harvest 1,000 crops' },
+            'mut_1': { id: 'mut_1', type: 'mutation', req: 1, title: 'Lucky', name: 'First Discovery', desc: 'Harvest 1 Mutated crop' },
+            'mut_50': { id: 'mut_50', type: 'mutation', req: 50, title: 'Mad Scientist', name: 'Genetic Engineering', desc: 'Harvest 50 Mutated crops' },
+            'earn_10k': { id: 'earn_10k', type: 'earn', req: 10000, title: 'Seller', name: 'Making Bank', desc: 'Earn $10,000' },
+            'earn_1m': { id: 'earn_1m', type: 'earn', req: 1000000, title: 'Tycoon', name: 'Millionaire', desc: 'Earn $1,000,000' },
+            'prestige_1': { id: 'prestige_1', type: 'prestige', req: 1, title: 'Reborn', name: 'A New Life', desc: 'Prestige 1 time' }
+        };
+
+        // --- STATE MANAGEMENT ---
+        const DEFAULT_STATE = {
+            money: 50,
+            lifetimeEarnings: 0,
+            prestigeLevel: 0,
+            prestigeTokens: 0,
+            skills: { growth: 0, value: 0, mutation: 0, shop: 0 },
+            gardenSize: 2, // 2x2 to start
+            garden: Array(4).fill(null), // null or { id: 'carrot', plantedAt: timestamp, mutation: null, fertilized: false }
+            inventory: { seeds: { 'carrot': 5, 'strawberry': 1 }, crops: {}, tools: { fertilizer: 0, sprinkler: 0 }, goods: {} },
+            collection: { crops: [], mutations: [] },
+            petsOwned: [],
+            activePet: null,
+            shopSeed: Date.now(),
+            nextShopRefresh: Date.now() + 300000,
+            weatherTimer: Date.now() + 600000,
+            currentWeather: 'Clear',
+            tradeTimer: Date.now() + 600000,
+            currentTrade: null,
+            quests: [],
+            questResetTime: 0,
+            achievements: {},
+            equippedTitle: 'Novice',
+            stats: { totalHarvests: 0, totalMutations: 0, totalPrestige: 0 },
+            activeBuffs: { growth: 0, value: 0, mutation: 0 },
+            lastSaveTime: Date.now()
+        };
+
+        let State = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        let selectedPlotIndex = -1;
+        let currentTab = 'garden';
+        let invTab = 'seeds';
+        let confirmCallback = null;
+        
+        let Cache = { growthMult: 1, mutMult: 1, valueMult: 1, shopSpeedMult: 1 };
+
+        function saveGame() {
+            State.lastSaveTime = Date.now();
+            localStorage.setItem('myGardenSave', JSON.stringify(State));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('myGardenSave');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    State = { ...DEFAULT_STATE, ...parsed };
+                    
+                    // Deep merge objects for migrations
+                    State.inventory = { ...DEFAULT_STATE.inventory, ...parsed.inventory };
+                    if(!State.inventory.tools) State.inventory.tools = { fertilizer: 0, sprinkler: 0 };
+                    if(!State.inventory.goods) State.inventory.goods = {};
+                    State.skills = { ...DEFAULT_STATE.skills, ...parsed.skills };
+                    State.stats = { ...DEFAULT_STATE.stats, ...parsed.stats };
+                    State.activeBuffs = { ...DEFAULT_STATE.activeBuffs, ...parsed.activeBuffs };
+                    
+                    const expectedPlots = State.gardenSize * State.gardenSize;
+                    if (State.garden.length < expectedPlots) {
+                        State.garden = [...State.garden, ...Array(expectedPlots - State.garden.length).fill(null)];
+                    }
+                } catch(e) { console.error("Save corrupted", e); }
+            }
+            processOfflineProgress();
+            updateCaches();
+            generateShopIfNeeded();
+            generateTradeIfNeeded();
+            generateQuestsIfNeeded();
+            refreshAllUI();
+        }
+
+        function showConfirm(title, msg, callback, isDanger = true) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = msg;
+            const btnYes = document.getElementById('confirm-btn-yes');
+            btnYes.className = `flex-1 text-white font-bold py-2 rounded-lg transition ${isDanger ? 'bg-red-600 hover:bg-red-500' : 'bg-purple-600 hover:bg-purple-500'}`;
+            confirmCallback = callback;
+            document.getElementById('modal-confirm').classList.remove('hidden');
+        }
+
+        function executeConfirm() {
+            if (confirmCallback) confirmCallback();
+            closeModal('modal-confirm');
+        }
+
+        function hardReset() {
+            showConfirm(
+                "Hard Reset Save Data", 
+                "Are you absolutely sure? This will delete EVERYTHING including rebirths, tokens, and purchases. There is no going back!", 
+                () => { localStorage.removeItem('myGardenSave'); location.reload(); }, 
+                true
+            );
+        }
+
+        function doPrestige() {
+            const nextTokens = calculateNextTokens();
+            if (nextTokens <= 0) return;
+
+            showConfirm(
+                "Rebirth Confirmation", 
+                `Are you sure you want to Rebirth? You will lose all money, garden plots, crops, and seeds. You will keep your Collection, Pets, Titles, and earn ${nextTokens} Rebirth Tokens!`, 
+                () => {
+                    State.money = 0;
+                    State.gardenSize = 2;
+                    State.garden = Array(4).fill(null);
+                    State.inventory = { seeds: { 'carrot': 5 }, crops: {}, tools: { fertilizer: 0, sprinkler: 0 }, goods: {} };
+                    State.prestigeLevel++;
+                    State.prestigeTokens += nextTokens;
+                    State.stats.totalPrestige++;
+                    State.activeBuffs = { growth: 0, value: 0, mutation: 0 };
+                    checkAchievements('prestige', State.stats.totalPrestige);
+                    saveGame();
+                    location.reload();
+                }, 
+                false
+            );
+        }
+
+        function calculateNextTokens() {
+            return Math.floor(Math.sqrt(State.lifetimeEarnings / 10000)); // $10k = 1, $40k = 2, $100k = 3, $1M = 10
+        }
+
+        function upgradeSkill(skillId) {
+            const sk = SKILLS[skillId];
+            const lvl = State.skills[skillId];
+            if(lvl >= sk.max) return;
+            const cost = sk.costBase + lvl;
+            if(State.prestigeTokens >= cost) {
+                State.prestigeTokens -= cost;
+                State.skills[skillId]++;
+                updateCaches();
+                saveGame();
+                renderPrestige();
+            } else {
+                showToast("Not enough tokens!", "error");
+            }
+        }
+
+        function updateCaches() {
+            const now = Date.now();
+            let s = { growthMultBase: 1, mutChanceBase: 1, valueMultBase: 1 };
+            
+            // 1. Pets
+            if (State.activePet && PETS[State.activePet]) PETS[State.activePet].effect(s);
+
+            // 2. Skills
+            s.growthMultBase += State.skills.growth * SKILLS.growth.mult;
+            s.valueMultBase += State.skills.value * SKILLS.value.mult;
+            s.mutChanceBase += State.skills.mutation * SKILLS.mutation.mult;
+            Cache.shopSpeedMult = 1 - (State.skills.shop * SKILLS.shop.mult);
+
+            // 3. Consumable Buffs
+            if(now < State.activeBuffs.growth) s.growthMultBase *= getBuffMult('growth');
+            if(now < State.activeBuffs.value) s.valueMultBase *= getBuffMult('value');
+            if(now < State.activeBuffs.mutation) s.mutChanceBase *= getBuffMult('mutation');
+
+            // 4. Weather
+            const w = WEATHER_TYPES[State.currentWeather];
+            let wGrowth = w.growthMult;
+            if (State.activePet === 'phoenix' && wGrowth < 1) wGrowth = 1;
+
+            // Final Caches
+            Cache.growthMult = s.growthMultBase * wGrowth;
+            Cache.mutMult = s.mutChanceBase * w.mutMult;
+            Cache.valueMult = s.valueMultBase;
+            
+            renderHeaderBuffs();
+        }
+
+        function getBuffMult(type) {
+            // Find highest active buff from recipes (simplified: we just apply a standard override multiplier if active)
+            // Since we overwrite activeBuff, we don't track *which* recipe caused it natively in State for simplicity,
+            // we just apply a flat active bonus based on the strongest recipe of that type.
+            // For a tighter engine, we could store `{ expiry: time, mult: X }`
+            let maxMult = 1;
+            for(let r in RECIPES) {
+                if(RECIPES[r].buffType === type) maxMult = Math.max(maxMult, RECIPES[r].buffMult);
+            }
+            return maxMult;
+        }
+
+        function processOfflineProgress() {
+            const now = Date.now();
+            if (now > State.nextShopRefresh) generateShopIfNeeded();
+            if (now > State.weatherTimer) changeWeather();
+            if (now > State.tradeTimer) generateTradeIfNeeded();
+        }
+
+        function changeWeather() {
+            const roll = Math.random();
+            let newWeather = 'Clear';
+            if (roll > 0.98) newWeather = 'Aurora';
+            else if (roll > 0.95) newWeather = 'Meteor Shower';
+            else if (roll > 0.85) newWeather = 'Thunderstorm';
+            else if (roll > 0.70) newWeather = 'Snow';
+            else if (roll > 0.55) newWeather = 'Heat Wave';
+            else if (roll > 0.30) newWeather = 'Rain';
+
+            State.currentWeather = newWeather;
+            State.weatherTimer = Date.now() + (5 * 60000) + Math.random() * (10 * 60000); 
+            
+            updateCaches();
+            renderWeather();
+            showToast(`Weather changed to ${newWeather}!`, 'info');
+        }
+
+        function generateShopIfNeeded() {
+            if (Date.now() > State.nextShopRefresh) {
+                State.shopSeed = Date.now();
+                const baseTime = 300000; // 5 mins
+                State.nextShopRefresh = Date.now() + (baseTime * Cache.shopSpeedMult);
+                if(currentTab === 'shop') renderShop();
+            }
+        }
+
+        function getShopItems() {
+            Math.seedrandom = function(s) { return function() { s = Math.sin(s) * 10000; return s - Math.floor(s); }; };
+            const rng = Math.seedrandom(State.shopSeed);
+            const pool = Object.keys(CROPS);
+            const items = ['carrot', 'lettuce']; 
+            
+            let maxTierIdx = 0;
+            if(State.prestigeLevel > 0 || State.lifetimeEarnings > 1000000) maxTierIdx = 3;
+            else if(State.lifetimeEarnings > 50000) maxTierIdx = 2;
+            else if(State.lifetimeEarnings > 2000) maxTierIdx = 1;
+
+            const tiers = ['Beginner', 'Intermediate', 'Advanced', 'UltraRare'];
+            const available = pool.filter(c => tiers.indexOf(CROPS[c].tier) <= maxTierIdx);
+
+            for(let i=0; i<4; i++) { items.push(available[Math.floor(rng() * available.length)]); }
+            return [...new Set(items)];
+        }
+
+        function generateTradeIfNeeded() {
+            if (Date.now() > State.tradeTimer) {
+                const availableCrops = Object.keys(State.inventory.crops).filter(c => State.inventory.crops[c].count > 0);
+                if(availableCrops.length > 0) {
+                    const reqCrop = availableCrops[Math.floor(Math.random() * availableCrops.length)];
+                    const reqAmount = Math.max(1, Math.floor((Math.random() * 10) + 1));
+                    const tiers = ['Beginner', 'Intermediate', 'Advanced', 'UltraRare'];
+                    const rewardTier = Math.min(3, tiers.indexOf(CROPS[reqCrop].tier) + 1);
+                    const rewardPool = Object.keys(CROPS).filter(c => tiers.indexOf(CROPS[c].tier) === rewardTier);
+                    const rewardSeed = rewardPool[Math.floor(Math.random() * rewardPool.length)] || 'dragonfruit';
+                    const rewardAmount = Math.max(1, Math.floor(reqAmount / 3));
+
+                    State.currentTrade = { reqCrop, reqAmount, rewardSeed, rewardAmount };
+                } else {
+                    State.currentTrade = { reqCrop: 'carrot', reqAmount: 10, rewardSeed: 'strawberry', rewardAmount: 2 };
+                }
+                State.tradeTimer = Date.now() + 600000;
+                if(currentTab === 'trading') renderTrading();
+            }
+        }
+
+        function generateQuestsIfNeeded() {
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            
+            if (State.questResetTime < startOfDay) {
+                State.quests = [
+                    { id: 'q1', type: 'harvest', target: 20, progress: 0, reward: 500, done: false, desc: "Harvest 20 crops" },
+                    { id: 'q2', type: 'earn', target: 5000, progress: 0, reward: 1000, done: false, desc: "Earn $5,000" },
+                    { id: 'q3', type: 'mutate', target: 1, progress: 0, reward: 5000, done: false, desc: "Harvest a Mutated crop" }
+                ];
+                State.questResetTime = now.getTime();
+                if(currentTab === 'quests') renderQuests();
+            }
+        }
+
+        function updateQuests(type, amount) {
+            let updated = false;
+            State.quests.forEach(q => {
+                if(!q.done && q.type === type) {
+                    q.progress += amount;
+                    if(q.progress >= q.target) {
+                        q.progress = q.target;
+                        q.done = true;
+                        State.money += q.reward;
+                        State.lifetimeEarnings += q.reward;
+                        showToast(`Quest Completed: ${q.desc} (+$${q.reward})`, 'info');
+                    }
+                    updated = true;
+                }
+            });
+            if(updated && currentTab === 'quests') renderQuests();
+        }
+
+        function checkAchievements(type, amountAdded) {
+            let newlyUnlocked = false;
+            for(let id in ACHIEVEMENTS) {
+                const a = ACHIEVEMENTS[id];
+                if(State.achievements[id]) continue;
+                
+                let currentVal = 0;
+                if(a.type === 'harvest') currentVal = State.stats.totalHarvests;
+                if(a.type === 'mutation') currentVal = State.stats.totalMutations;
+                if(a.type === 'earn') currentVal = State.lifetimeEarnings;
+                if(a.type === 'prestige') currentVal = State.stats.totalPrestige;
+
+                if(currentVal >= a.req) {
+                    State.achievements[id] = true;
+                    newlyUnlocked = true;
+                    showToast(`Achievement Unlocked: ${a.name}! Title unlocked.`, 'rare');
+                }
+            }
+            if(newlyUnlocked && currentTab === 'achievements') renderAchievements();
+        }
+
+        function equipTitle(title) {
+            State.equippedTitle = title;
+            saveGame();
+            updateTopBar();
+            if(currentTab === 'achievements') renderAchievements();
+            showToast(`Equipped title: ${title}`);
+        }
+
+        function plantSeed(seedId) {
+            if(selectedPlotIndex === -1 || !State.inventory.seeds[seedId] || State.inventory.seeds[seedId] <= 0) return;
+            
+            State.inventory.seeds[seedId]--;
+            if(State.inventory.seeds[seedId] === 0) delete State.inventory.seeds[seedId];
+
+            State.garden[selectedPlotIndex] = {
+                id: seedId,
+                plantedAt: Date.now(),
+                mutation: rollMutation(false),
+                fertilized: false
+            };
+
+            closeModal('modal-plant');
+            selectedPlotIndex = -1;
+            saveGame();
+            renderGarden();
+        }
+
+        function rollMutation(forced) {
+            const baseChance = forced ? 1.0 : 0.01; 
+            if (Math.random() > (baseChance * Cache.mutMult)) return null;
+
+            let totalWeight = 0;
+            for(const m in MUTATIONS) totalWeight += MUTATIONS[m].chance;
+            
+            let roll = Math.random() * totalWeight;
+            for(const m in MUTATIONS) {
+                roll -= MUTATIONS[m].chance;
+                if(roll <= 0) {
+                    if(!State.collection.mutations.includes(m)) {
+                        State.collection.mutations.push(m);
+                        showToast(`New Mutation Discovered: ${m}!`, 'rare');
+                    }
+                    return m;
+                }
+            }
+            return null;
+        }
+
+        function handlePlotClick(index) {
+            const plot = State.garden[index];
+            if(!plot) { openPlantModal(index); return; }
+
+            const cropDef = CROPS[plot.id];
+            const timePassed = (Date.now() - plot.plantedAt) / 1000;
+            const requiredTime = cropDef.time / Cache.growthMult;
+
+            if(timePassed >= requiredTime) harvestPlot(index);
+            else openToolModal(index);
+        }
+
+        function openToolModal(index) {
+            selectedPlotIndex = index;
+            document.getElementById('lbl-sprinkler-count').innerText = `(${State.inventory.tools.sprinkler} Owned)`;
+            document.getElementById('lbl-fertilizer-count').innerText = `(${State.inventory.tools.fertilizer} Owned)`;
+            
+            document.getElementById('btn-use-sprinkler').disabled = State.inventory.tools.sprinkler <= 0;
+            document.getElementById('btn-use-fertilizer').disabled = State.inventory.tools.fertilizer <= 0 || State.garden[index].fertilized;
+            
+            document.getElementById('modal-tool').classList.remove('hidden');
+        }
+
+        function useTool(tool) {
+            if(selectedPlotIndex === -1 || State.inventory.tools[tool] <= 0) return;
+            const plot = State.garden[selectedPlotIndex];
+
+            State.inventory.tools[tool]--;
+
+            if(tool === 'sprinkler') {
+                plot.plantedAt = 0; // Instant
+                showToast("Used Sprinkler!");
+            } else if (tool === 'fertilizer') {
+                plot.fertilized = true;
+                plot.mutation = rollMutation(true);
+                showToast("Applied Mutagen Fertilizer!", "rare");
+            }
+
+            closeModal('modal-tool');
+            selectedPlotIndex = -1;
+            saveGame();
+            renderGarden();
+        }
+
+        function harvestPlot(index) {
+            const plot = State.garden[index];
+            if(!plot) return;
+
+            const cropDef = CROPS[plot.id];
+            
+            if(!State.inventory.crops[plot.id]) State.inventory.crops[plot.id] = { count: 0, mutations: {} };
+            
+            if(plot.mutation) {
+                if(!State.inventory.crops[plot.id].mutations[plot.mutation]) State.inventory.crops[plot.id].mutations[plot.mutation] = 0;
+                State.inventory.crops[plot.id].mutations[plot.mutation]++;
+                State.stats.totalMutations++;
+                updateQuests('mutate', 1);
+                checkAchievements('mutation', 1);
+            } else {
+                State.inventory.crops[plot.id].count++;
+            }
+
+            if(!State.collection.crops.includes(plot.id)) {
+                State.collection.crops.push(plot.id);
+                showToast(`New Crop Discovered: ${cropDef.name}!`, 'info');
+            }
+
+            State.garden[index] = null;
+            State.stats.totalHarvests++;
+            updateQuests('harvest', 1);
+            checkAchievements('harvest', 1);
+            
+            const cell = document.getElementById(`plot-${index}`);
+            if(cell) {
+                cell.innerHTML = '<div class="text-3xl animate-ping text-green-400"><i class="fa-solid fa-leaf"></i></div>';
+                setTimeout(() => renderGarden(), 300);
+            }
+            saveGame();
+        }
+
+        function buyTool(id, cost) {
+            if(State.money >= cost) {
+                State.money -= cost;
+                State.inventory.tools[id]++;
+                saveGame();
+                updateTopBar();
+                showToast(`Bought 1x ${id}`);
+            } else showToast("Not enough money!", "error");
+        }
+
+        function buySeed(seedId) {
+            const cost = CROPS[seedId].cost;
+            if(State.money >= cost) {
+                State.money -= cost;
+                State.inventory.seeds[seedId] = (State.inventory.seeds[seedId] || 0) + 1;
+                saveGame();
+                renderShop();
+                updateTopBar();
+                showToast(`Bought 1x ${CROPS[seedId].name}`);
+            } else showToast("Not enough money!", "error");
+        }
+
+        function sellCrop(cropId, mutationStr = null, sellAll = false) {
+            const cropInv = State.inventory.crops[cropId];
+            if(!cropInv) return;
+
+            let countToSell = 0;
+            let valuePerItem = Math.floor(CROPS[cropId].value * Cache.valueMult);
+            
+            if(mutationStr) {
+                countToSell = sellAll ? cropInv.mutations[mutationStr] : 1;
+                valuePerItem = Math.floor(valuePerItem * MUTATIONS[mutationStr].multiplier);
+                cropInv.mutations[mutationStr] -= countToSell;
+                if(cropInv.mutations[mutationStr] <= 0) delete cropInv.mutations[mutationStr];
+            } else {
+                countToSell = sellAll ? cropInv.count : 1;
+                cropInv.count -= countToSell;
+            }
+
+            const totalValue = countToSell * valuePerItem;
+            State.money += totalValue;
+            State.lifetimeEarnings += totalValue;
+            
+            updateQuests('earn', totalValue);
+            checkAchievements('earn', totalValue);
+
+            if(cropInv.count <= 0 && Object.keys(cropInv.mutations).length === 0) delete State.inventory.crops[cropId];
+
+            saveGame();
+            renderInventory();
+            updateTopBar();
+            showToast(`Sold for $${totalValue.toLocaleString()}`);
+        }
+
+        function sellAllCrops() {
+            let totalEarned = 0;
+            for(const cropId in State.inventory.crops) {
+                const c = State.inventory.crops[cropId];
+                let baseVal = Math.floor(CROPS[cropId].value * Cache.valueMult);
+                
+                if(c.count > 0) { totalEarned += c.count * baseVal; c.count = 0; }
+                for(const mut in c.mutations) {
+                    totalEarned += c.mutations[mut] * Math.floor(baseVal * MUTATIONS[mut].multiplier);
+                    delete c.mutations[mut];
+                }
+            }
+            State.inventory.crops = {};
+            if(totalEarned > 0) {
+                State.money += totalEarned;
+                State.lifetimeEarnings += totalEarned;
+                updateQuests('earn', totalEarned);
+                checkAchievements('earn', totalEarned);
+                saveGame();
+                renderInventory();
+                updateTopBar();
+                showToast(`Sold all crops for $${totalEarned.toLocaleString()}`);
+            }
+        }
+
+        function sellGood(goodId) {
+            if(State.inventory.goods[goodId] && State.inventory.goods[goodId] > 0) {
+                const val = Math.floor(RECIPES[goodId].value * Cache.valueMult);
+                State.inventory.goods[goodId]--;
+                State.money += val;
+                State.lifetimeEarnings += val;
+                updateQuests('earn', val);
+                checkAchievements('earn', val);
+                if(State.inventory.goods[goodId] <= 0) delete State.inventory.goods[goodId];
+                saveGame();
+                renderInventory();
+                updateTopBar();
+                showToast(`Sold ${RECIPES[goodId].name} for $${val.toLocaleString()}`);
+            }
+        }
+
+        function craftRecipe(id) {
+            const r = RECIPES[id];
+            // Check reqs
+            for(let reqId in r.req) {
+                if(!State.inventory.crops[reqId] || State.inventory.crops[reqId].count < r.req[reqId]) {
+                    showToast("Not enough base crops!", "error"); return;
+                }
+            }
+            // Deduct
+            for(let reqId in r.req) State.inventory.crops[reqId].count -= r.req[reqId];
+            
+            State.inventory.goods[id] = (State.inventory.goods[id] || 0) + 1;
+            saveGame();
+            renderKitchen();
+            showToast(`Crafted ${r.name}!`, "success");
+        }
+
+        function consumeGood(id) {
+            if(State.inventory.goods[id] && State.inventory.goods[id] > 0) {
+                const r = RECIPES[id];
+                State.inventory.goods[id]--;
+                if(State.inventory.goods[id] <= 0) delete State.inventory.goods[id];
+                
+                State.activeBuffs[r.buffType] = Date.now() + (r.time * 1000);
+                updateCaches();
+                saveGame();
+                renderInventory();
+                renderHeaderBuffs();
+                showToast(`Consumed ${r.name}. Buff Active!`, "rare");
+            }
+        }
+
+        function expandGarden() {
+            const cost = getExpandCost();
+            if(State.money >= cost && State.gardenSize < 8) {
+                State.money -= cost;
+                State.gardenSize++;
+                const newPlots = State.gardenSize * State.gardenSize;
+                State.garden = [...State.garden, ...Array(newPlots - State.garden.length).fill(null)];
+                saveGame();
+                updateTopBar();
+                renderGarden();
+                showToast("Garden Expanded!");
+            }
+        }
+        function getExpandCost() { return Math.floor(1000 * Math.pow(4, State.gardenSize - 2)); }
+
+        function buyPet(petId) {
+            const pet = PETS[petId];
+            if(State.money >= pet.cost && !State.petsOwned.includes(petId)) {
+                State.money -= pet.cost;
+                State.petsOwned.push(petId);
+                State.activePet = petId;
+                updateCaches();
+                saveGame();
+                updateTopBar();
+                renderPets();
+                showToast(`Unlocked Pet: ${pet.name}!`);
+            }
+        }
+
+        function equipPet(petId) {
+            if(State.petsOwned.includes(petId)) {
+                State.activePet = petId;
+                updateCaches();
+                saveGame();
+                updateTopBar();
+                renderPets();
+            }
+        }
+
+        function doTrade() {
+            if(!State.currentTrade) return;
+            const t = State.currentTrade;
+            if(State.inventory.crops[t.reqCrop] && State.inventory.crops[t.reqCrop].count >= t.reqAmount) {
+                State.inventory.crops[t.reqCrop].count -= t.reqAmount;
+                State.inventory.seeds[t.rewardSeed] = (State.inventory.seeds[t.rewardSeed] || 0) + t.rewardAmount;
+                State.currentTrade = null;
+                saveGame();
+                renderTrading();
+                showToast("Trade Successful!");
+            } else showToast("Not enough crops to trade.", "error");
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            
+            if(tabId === 'garden') renderGarden();
+            if(tabId === 'shop') renderShop();
+            if(tabId === 'inventory') renderInventory();
+            if(tabId === 'kitchen') renderKitchen();
+            if(tabId === 'achievements') renderAchievements();
+            if(tabId === 'collection') renderCollection();
+            if(tabId === 'pets') renderPets();
+            if(tabId === 'trading') renderTrading();
+            if(tabId === 'quests') renderQuests();
+            if(tabId === 'prestige') renderPrestige();
+
+            renderNav();
+        }
+
+        function renderNav() {
+            const menu = [
+                { id: 'garden', icon: 'fa-seedling', text: 'Garden' },
+                { id: 'shop', icon: 'fa-store', text: 'Shop' },
+                { id: 'inventory', icon: 'fa-box-open', text: 'Inventory' },
+                { id: 'kitchen', icon: 'fa-utensils', text: 'Kitchen' },
+                { id: 'achievements', icon: 'fa-trophy', text: 'Trophies' },
+                { id: 'collection', icon: 'fa-book', text: 'Collection' },
+                { id: 'pets', icon: 'fa-paw', text: 'Pets' },
+                { id: 'trading', icon: 'fa-handshake', text: 'Trade' },
+                { id: 'quests', icon: 'fa-scroll', text: 'Quests' },
+                { id: 'prestige', icon: 'fa-infinity', text: 'Rebirth' },
+                { id: 'settings', icon: 'fa-gear', text: 'Settings' }
+            ];
+
+            document.getElementById('nav-menu').innerHTML = menu.map(item => `
+                <li>
+                    <button onclick="switchTab('${item.id}')" class="w-full flex items-center p-3 rounded-xl transition ${currentTab === item.id ? 'bg-blue-600/20 text-blue-400 font-bold border border-blue-500/30' : 'text-slate-400 hover:bg-slate-700/50 hover:text-white'}">
+                        <i class="fa-solid ${item.icon} w-6 text-center text-lg"></i>
+                        <span class="ml-3 hidden md:inline">${item.text}</span>
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        function updateTopBar() {
+            document.getElementById('ui-title').innerText = State.equippedTitle;
+            document.getElementById('ui-money').innerText = State.money.toLocaleString();
+            document.getElementById('ui-prestige').innerText = State.prestigeLevel;
+            
+            const petDisp = document.getElementById('active-pet-display');
+            if(State.activePet) {
+                petDisp.innerText = PETS[State.activePet].emoji;
+                petDisp.classList.remove('hidden');
+            } else petDisp.classList.add('hidden');
+            
+            renderWeather();
+            renderHeaderBuffs();
+        }
+
+        function renderHeaderBuffs() {
+            const now = Date.now();
+            let html = '';
+            if(now < State.activeBuffs.growth) html += `<div class="bg-blue-900/80 text-blue-300 px-2 py-1 rounded text-xs border border-blue-500 buff-icon" title="Growth Buff Active"><i class="fa-solid fa-clock"></i></div>`;
+            if(now < State.activeBuffs.value) html += `<div class="bg-yellow-900/80 text-yellow-300 px-2 py-1 rounded text-xs border border-yellow-500 buff-icon" title="Value Buff Active"><i class="fa-solid fa-coins"></i></div>`;
+            if(now < State.activeBuffs.mutation) html += `<div class="bg-purple-900/80 text-purple-300 px-2 py-1 rounded text-xs border border-purple-500 buff-icon" title="Mutation Buff Active"><i class="fa-solid fa-dna"></i></div>`;
+            document.getElementById('ui-buffs').innerHTML = html;
+        }
+
+        function renderWeather() {
+            const w = WEATHER_TYPES[State.currentWeather];
+            document.getElementById('ui-weather-text').innerText = w.name;
+            document.getElementById('ui-weather-icon').className = `fa-solid ${w.icon} ${w.color}`;
+            document.getElementById('weather-overlay').className = w.css;
+        }
+
+        function renderGarden() {
+            const grid = document.getElementById('garden-grid');
+            grid.style.gridTemplateColumns = `repeat(${State.gardenSize}, minmax(0, 1fr))`;
+            
+            const btnExpand = document.getElementById('btn-expand');
+            if(State.gardenSize >= 8) btnExpand.style.display = 'none';
+            else document.getElementById('expand-cost').innerText = getExpandCost().toLocaleString();
+
+            let html = '';
+            for(let i=0; i<State.gardenSize * State.gardenSize; i++) {
+                const plot = State.garden[i];
+                if(plot) {
+                    const crop = CROPS[plot.id];
+                    const timePassed = (Date.now() - plot.plantedAt) / 1000;
+                    const requiredTime = crop.time / Cache.growthMult;
+                    const progress = Math.min(100, (timePassed / requiredTime) * 100);
+                    const isReady = progress >= 100;
+                    
+                    let stage = 0;
+                    if(progress > 75) stage = 3;
+                    else if(progress > 40) stage = 2;
+                    else if(progress > 10) stage = 1;
+
+                    let mutClass = plot.mutation ? `mut-${plot.mutation}` : '';
+
+                    html += `
+                        <div id="plot-${i}" class="garden-plot aspect-square ${plot.fertilized && !isReady ? 'border-purple-500 shadow-[0_0_10px_purple]' : ''}" onclick="handlePlotClick(${i})">
+                            <div class="crop-emoji crop-stage-${stage} ${mutClass} ${isReady ? 'animate-bounce cursor-pointer' : ''}">
+                                ${isReady || stage > 0 ? crop.emoji : '🌱'}
+                            </div>
+                            ${!isReady ? `
+                                <div class="progress-bar-container active">
+                                    <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                                </div>
+                            ` : `<div class="absolute top-1 right-1 text-green-400 text-xs animate-pulse"><i class="fa-solid fa-check"></i></div>`}
+                            ${plot.mutation && isReady ? `<div class="absolute -top-2 -left-2 text-xs bg-purple-600 text-white px-1 rounded shadow animate-pulse font-bold z-20">${plot.mutation}</div>` : ''}
+                            ${plot.fertilized && !isReady ? `<div class="absolute top-1 left-1 text-xs text-purple-400 animate-pulse"><i class="fa-solid fa-sparkles"></i></div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    html += `<div class="garden-plot aspect-square flex items-center justify-center text-slate-600 hover:text-green-500" onclick="handlePlotClick(${i})"><i class="fa-solid fa-plus text-2xl"></i></div>`;
+                }
+            }
+            grid.innerHTML = html;
+        }
+
+        function updateGardenTimers() {
+            if (currentTab !== 'garden') return;
+            let needsFullRender = false;
+            for(let i=0; i<State.gardenSize * State.gardenSize; i++) {
+                const plot = State.garden[i];
+                if(plot) {
+                    const timePassed = (Date.now() - plot.plantedAt) / 1000;
+                    const requiredTime = CROPS[plot.id].time / Cache.growthMult;
+                    const progress = Math.min(100, (timePassed / requiredTime) * 100);
+                    
+                    if(progress >= 100) {
+                        const cell = document.getElementById(`plot-${i}`);
+                        if(cell && !cell.innerHTML.includes('animate-bounce')) needsFullRender = true;
+                    } else {
+                        const cell = document.getElementById(`plot-${i}`);
+                        if(cell) {
+                            const bar = cell.querySelector('.progress-bar-fill');
+                            if(bar) bar.style.width = `${progress}%`;
+                        }
+                    }
+                }
+            }
+            if(needsFullRender) renderGarden();
+        }
+
+        function openPlantModal(index) {
+            selectedPlotIndex = index;
+            const container = document.getElementById('plant-seed-list');
+            const emptyState = document.getElementById('plant-seed-empty');
+            
+            const seedIds = Object.keys(State.inventory.seeds);
+            if(seedIds.length === 0) {
+                container.innerHTML = ''; emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                container.innerHTML = seedIds.map(id => {
+                    const c = CROPS[id];
+                    return `
+                        <div class="bg-slate-700 p-4 rounded-xl border border-slate-600 hover:border-green-500 cursor-pointer text-center transition" onclick="plantSeed('${id}')">
+                            <div class="text-4xl mb-2">${c.emoji}</div>
+                            <div class="font-bold text-white">${c.name}</div>
+                            <div class="text-sm text-slate-400">Owned: ${State.inventory.seeds[id]}</div>
+                            <div class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock"></i> ${formatTime(c.time / Cache.growthMult)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            document.getElementById('modal-plant').classList.remove('hidden');
+        }
+
+        function renderShop() {
+            const items = getShopItems();
+            document.getElementById('shop-grid').innerHTML = items.map(id => {
+                const c = CROPS[id];
+                const canAfford = State.money >= c.cost;
+                return `
+                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden flex flex-col items-center text-center">
+                        <div class="absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded bg-slate-900 ${TIER_COLORS[c.tier]}">${c.tier}</div>
+                        <div class="text-6xl mb-4 drop-shadow-lg">${c.emoji}</div>
+                        <h3 class="text-xl font-bold text-white mb-1">${c.name}</h3>
+                        <p class="text-slate-400 text-sm mb-4"><i class="fa-regular fa-clock"></i> ${formatTime(c.time)} Base</p>
+                        <button onclick="buySeed('${id}')" class="w-full py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 ${canAfford ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}">
+                            <i class="fa-solid fa-coins ${canAfford ? 'text-yellow-400' : 'text-slate-500'}"></i> ${c.cost.toLocaleString()}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateShopTimer() {
+            const now = Date.now();
+            if (currentTab === 'shop') {
+                const remain = Math.max(0, State.nextShopRefresh - now);
+                document.getElementById('shop-timer').innerText = formatTimeMs(remain);
+                if(remain === 0) generateShopIfNeeded();
+            }
+            if (currentTab === 'trading') {
+                const remainT = Math.max(0, State.tradeTimer - now);
+                document.getElementById('trade-timer-text').innerText = `New offer arrives in ${formatTimeMs(remainT)}`;
+                if(remainT === 0) generateTradeIfNeeded();
+            }
+            // Background buff checker
+            if(now > State.activeBuffs.growth || now > State.activeBuffs.value || now > State.activeBuffs.mutation) {
+                // If a buff expired, redraw headers (we do this lazily)
+                if(document.querySelectorAll('.buff-icon').length > 0 && 
+                  (now > State.activeBuffs.growth && now > State.activeBuffs.value && now > State.activeBuffs.mutation)) {
+                    updateCaches();
+                }
+            }
+        }
+
+        function setInvTab(tab) {
+            invTab = tab;
+            document.getElementById('inv-seeds-container').classList.toggle('hidden', tab !== 'seeds');
+            document.getElementById('inv-crops-container').classList.toggle('hidden', tab !== 'crops');
+            document.getElementById('inv-tools-container').classList.toggle('hidden', tab !== 'tools');
+            document.getElementById('inv-goods-container').classList.toggle('hidden', tab !== 'goods');
+            
+            ['seeds', 'crops', 'tools', 'goods'].forEach(t => {
+                const btn = document.getElementById(`tab-inv-${t}`);
+                if(btn) {
+                    btn.classList.toggle('border-b-2', tab === t);
+                    btn.classList.toggle('border-green-500', tab === t);
+                }
+            });
+            renderInventory();
+        }
+
+        function renderInventory() {
+            if(invTab === 'seeds') {
+                const container = document.getElementById('inv-seeds-container');
+                const seeds = Object.keys(State.inventory.seeds);
+                if(seeds.length === 0) container.innerHTML = `<div class="col-span-full text-center text-slate-500 py-10">No seeds in inventory.</div>`;
+                else container.innerHTML = seeds.map(id => `
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center relative hover:border-green-500 cursor-pointer transition" onclick="switchTab('garden')">
+                        <div class="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">x${State.inventory.seeds[id]}</div>
+                        <div class="text-5xl mb-2">${CROPS[id].emoji}</div>
+                        <div class="font-bold text-slate-300 text-sm">${CROPS[id].name}</div>
+                    </div>
+                `).join('');
+            } 
+            else if(invTab === 'crops') {
+                const container = document.getElementById('inv-crops-grid');
+                let html = '';
+                for(const cropId in State.inventory.crops) {
+                    const invData = State.inventory.crops[cropId];
+                    const c = CROPS[cropId];
+                    const baseVal = Math.floor(c.value * Cache.valueMult);
+                    
+                    if(invData.count > 0) {
+                        html += `
+                            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-4xl bg-slate-900 p-2 rounded-lg">${c.emoji}</div>
+                                    <div>
+                                        <div class="font-bold text-white">${c.name} <span class="text-slate-400 text-sm">x${invData.count}</span></div>
+                                        <div class="text-green-400 text-sm">$${baseVal.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="sellCrop('${cropId}')" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded font-bold text-xs">Sell 1</button>
+                                    <button onclick="sellCrop('${cropId}', null, true)" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded font-bold text-xs">Sell All</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    for(const mut in invData.mutations) {
+                        const mutVal = Math.floor(baseVal * MUTATIONS[mut].multiplier);
+                        html += `
+                            <div class="bg-slate-800 p-4 rounded-xl border border-purple-500/50 flex items-center justify-between shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-4xl bg-slate-900 p-2 rounded-lg mut-${mut}">${c.emoji}</div>
+                                    <div>
+                                        <div class="font-bold text-purple-300">${mut} ${c.name} <span class="text-slate-400 text-sm">x${invData.mutations[mut]}</span></div>
+                                        <div class="text-green-400 font-bold text-sm">$${mutVal.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="sellCrop('${cropId}', '${mut}')" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded font-bold text-xs">Sell 1</button>
+                                    <button onclick="sellCrop('${cropId}', '${mut}', true)" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded font-bold text-xs">Sell All</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                container.innerHTML = html || `<div class="col-span-full text-center text-slate-500 py-10">No harvested crops.</div>`;
+            }
+            else if(invTab === 'tools') {
+                const container = document.getElementById('inv-tools-container');
+                container.innerHTML = `
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col items-center">
+                        <div class="text-5xl mb-2">💧</div><h3 class="font-bold">Sprinkler</h3>
+                        <p class="text-blue-400 font-bold mb-2">x${State.inventory.tools.sprinkler}</p>
+                        <p class="text-xs text-slate-400 text-center">Use on a growing crop.</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col items-center">
+                        <div class="text-5xl mb-2">✨</div><h3 class="font-bold">Mutagen</h3>
+                        <p class="text-purple-400 font-bold mb-2">x${State.inventory.tools.fertilizer}</p>
+                        <p class="text-xs text-slate-400 text-center">Use on a growing crop.</p>
+                    </div>
+                `;
+            }
+            else if(invTab === 'goods') {
+                const container = document.getElementById('inv-goods-container');
+                const goods = Object.keys(State.inventory.goods);
+                if(goods.length === 0) container.innerHTML = `<div class="col-span-full text-center text-slate-500 py-10">No crafted goods. Go to Kitchen!</div>`;
+                else container.innerHTML = goods.map(id => {
+                    const r = RECIPES[id];
+                    const val = Math.floor(r.value * Cache.valueMult);
+                    return `
+                        <div class="bg-slate-800 p-4 rounded-xl border border-orange-500/50 flex flex-col justify-between">
+                            <div class="flex gap-4 items-center mb-4">
+                                <div class="text-5xl">${r.emoji}</div>
+                                <div><h3 class="font-bold text-lg">${r.name}</h3><p class="text-yellow-400 font-bold text-sm">x${State.inventory.goods[id]}</p></div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="consumeGood('${id}')" class="flex-1 bg-orange-600 hover:bg-orange-500 py-2 rounded font-bold text-sm text-white shadow">Consume</button>
+                                <button onclick="sellGood('${id}')" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-bold text-sm text-white shadow">Sell ($${val})</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderKitchen() {
+            document.getElementById('kitchen-grid').innerHTML = Object.keys(RECIPES).map(id => {
+                const r = RECIPES[id];
+                let reqHtml = '';
+                let canCraft = true;
+                for(let reqId in r.req) {
+                    const has = State.inventory.crops[reqId]?.count || 0;
+                    const need = r.req[reqId];
+                    if(has < need) canCraft = false;
+                    reqHtml += `<div class="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded text-xs border ${has>=need?'border-green-500 text-green-400':'border-red-500 text-red-400'}">${CROPS[reqId].emoji} ${has}/${need}</div>`;
+                }
+                
+                return `
+                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 flex flex-col md:flex-row gap-6 items-center">
+                        <div class="text-7xl bg-slate-900 w-24 h-24 rounded-xl flex items-center justify-center shadow-inner shrink-0">${r.emoji}</div>
+                        <div class="flex-1 w-full text-center md:text-left">
+                            <h3 class="text-2xl font-bold text-white mb-1">${r.name}</h3>
+                            <p class="text-orange-300 text-sm font-bold mb-3"><i class="fa-solid fa-bolt mr-1"></i> ${r.desc}</p>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">${reqHtml}</div>
+                            <button onclick="craftRecipe('${id}')" class="w-full py-2 rounded-lg font-bold transition shadow-lg ${canCraft?'bg-orange-600 hover:bg-orange-500 text-white':'bg-slate-700 text-slate-500 cursor-not-allowed'}">Craft Good</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAchievements() {
+            document.getElementById('current-title-display').innerText = State.equippedTitle;
+            document.getElementById('achievements-grid').innerHTML = Object.keys(ACHIEVEMENTS).map(id => {
+                const a = ACHIEVEMENTS[id];
+                const unlocked = !!State.achievements[id];
+                const active = State.equippedTitle === a.title;
+                return `
+                    <div class="bg-slate-800 p-4 rounded-xl border ${unlocked ? 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : 'border-slate-700 opacity-60'} flex items-center gap-4">
+                        <div class="text-4xl ${unlocked ? 'text-yellow-400' : 'text-slate-600'}"><i class="fa-solid fa-trophy"></i></div>
+                        <div class="flex-1">
+                            <h3 class="font-bold ${unlocked ? 'text-white' : 'text-slate-500'}">${a.name}</h3>
+                            <p class="text-xs text-slate-400">${a.desc}</p>
+                            ${unlocked ? `<div class="text-xs font-bold text-blue-400 mt-1">Title: ${a.title}</div>` : ''}
+                        </div>
+                        ${unlocked ? `
+                            <button onclick="equipTitle('${a.title}')" class="px-4 py-2 rounded font-bold text-xs transition ${active ? 'bg-blue-900 border border-blue-500 text-blue-300 cursor-default' : 'bg-slate-700 hover:bg-blue-600 text-white'}">
+                                ${active ? 'Equipped' : 'Equip'}
+                            </button>
+                        ` : '<div class="text-xs text-slate-500"><i class="fa-solid fa-lock"></i></div>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCollection() {
+            document.getElementById('collection-crops').innerHTML = Object.keys(CROPS).map(id => {
+                const c = CROPS[id]; const disc = State.collection.crops.includes(id);
+                return `<div class="flex flex-col items-center p-2 border border-slate-800 rounded-lg ${disc ? 'bg-slate-800' : 'opacity-30 grayscale'}"><div class="text-4xl mb-1">${c.emoji}</div><div class="text-xs font-bold text-center ${disc ? TIER_COLORS[c.tier] : 'text-slate-500'}">${disc ? c.name : '???'}</div></div>`;
+            }).join('');
+
+            document.getElementById('collection-mutations').innerHTML = Object.keys(MUTATIONS).map(m => {
+                const md = MUTATIONS[m]; const disc = State.collection.mutations.includes(m);
+                return `<div class="flex items-center gap-3 p-3 border border-slate-800 rounded-lg ${disc ? 'bg-slate-800' : 'opacity-30 grayscale'}"><div class="text-3xl mut-${m}">${disc ? '✨' : '❓'}</div><div><div class="font-bold text-sm ${disc ? 'text-purple-300' : 'text-slate-500'}">${disc ? m : '???'}</div><div class="text-xs text-slate-400">${disc ? md.desc : 'Unknown mutation'}</div></div></div>`;
+            }).join('');
+
+            const total = Object.keys(CROPS).length + Object.keys(MUTATIONS).length;
+            const disc = State.collection.crops.length + State.collection.mutations.length;
+            document.getElementById('collection-progress').innerText = `${Math.floor((disc/total)*100)}%`;
+        }
+
+        function renderPets() {
+            document.getElementById('pets-grid').innerHTML = Object.keys(PETS).map(id => {
+                const p = PETS[id]; const owned = State.petsOwned.includes(id); const active = State.activePet === id; const canAfford = State.money >= p.cost;
+                let btnHtml = active ? `<button class="w-full py-2 bg-green-600 text-white font-bold rounded-lg cursor-default border-2 border-green-400">Equipped</button>` : owned ? `<button onclick="equipPet('${id}')" class="w-full py-2 bg-slate-600 hover:bg-slate-500 text-white font-bold rounded-lg transition">Equip</button>` : `<button onclick="buyPet('${id}')" class="w-full py-2 ${canAfford ? 'bg-orange-600 hover:bg-orange-500 text-white' : 'bg-slate-800 text-slate-500 border border-slate-700'} font-bold rounded-lg transition"><i class="fa-solid fa-coins"></i> ${p.cost.toLocaleString()}</button>`;
+                return `<div class="bg-slate-800 p-6 rounded-2xl border ${active ? 'border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]' : 'border-slate-700'} flex flex-col items-center text-center"><div class="text-6xl mb-4 bg-slate-900 w-24 h-24 rounded-full flex items-center justify-center border border-slate-700 ${!owned ? 'grayscale opacity-50' : ''}">${p.emoji}</div><h3 class="text-xl font-bold text-white mb-2">${p.name}</h3><p class="text-slate-400 text-sm mb-6 flex-1">${p.desc}</p>${btnHtml}</div>`;
+            }).join('');
+        }
+
+        function renderTrading() {
+            const container = document.getElementById('trade-offer-container');
+            const t = State.currentTrade;
+            if(!t) { container.innerHTML = `<div class="text-slate-500">The trader is resting. Come back later!</div>`; return; }
+            const reqCrop = CROPS[t.reqCrop], rewCrop = CROPS[t.rewardSeed], hasEnough = (State.inventory.crops[t.reqCrop]?.count || 0) >= t.reqAmount;
+            container.innerHTML = `
+                <div class="flex flex-col items-center text-center"><div class="text-sm text-slate-400 mb-2">Trader wants:</div><div class="text-4xl bg-slate-800 p-4 rounded-xl border ${hasEnough ? 'border-green-500' : 'border-red-500/50'} relative">${reqCrop.emoji}<div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-slate-900 text-xs px-2 py-1 rounded-full border border-slate-700 font-bold ${hasEnough ? 'text-green-400' : 'text-red-400'}">${State.inventory.crops[t.reqCrop]?.count || 0} / ${t.reqAmount}</div></div><div class="mt-4 font-bold text-white">${reqCrop.name}</div></div>
+                <div class="text-3xl text-slate-600"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                <div class="flex flex-col items-center text-center"><div class="text-sm text-slate-400 mb-2">You receive:</div><div class="text-4xl bg-slate-800 p-4 rounded-xl border border-blue-500/50 relative">${rewCrop.emoji}<div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow">x${t.rewardAmount} Seed</div></div><div class="mt-4 font-bold text-white">${rewCrop.name}</div></div>
+                <div class="ml-0 md:ml-8 mt-6 md:mt-0"><button onclick="doTrade()" class="px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition transform hover:scale-105 ${hasEnough ? 'bg-teal-600 hover:bg-teal-500 text-white' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}">Accept Trade</button></div>
+            `;
+        }
+
+        function renderQuests() {
+            document.getElementById('quests-container').innerHTML = State.quests.map(q => {
+                const progPct = Math.min(100, (q.progress / q.target) * 100);
+                return `<div class="bg-slate-800 p-4 rounded-xl border ${q.done ? 'border-green-500/50 opacity-75' : 'border-slate-700'} relative overflow-hidden"><div class="flex justify-between items-center mb-2 relative z-10"><div class="font-bold text-white flex items-center gap-2">${q.done ? '<i class="fa-solid fa-circle-check text-green-400"></i>' : '<i class="fa-regular fa-circle text-slate-500"></i>'} ${q.desc}</div><div class="text-yellow-400 font-bold"><i class="fa-solid fa-coins"></i> ${q.reward}</div></div><div class="flex items-center gap-4 relative z-10"><div class="flex-1 bg-slate-900 h-3 rounded-full overflow-hidden"><div class="bg-blue-500 h-full transition-all duration-500" style="width: ${progPct}%"></div></div><div class="text-sm text-slate-400 font-mono w-20 text-right">${Math.floor(q.progress)} / ${q.target}</div></div></div>`;
+            }).join('');
+        }
+
+        function renderPrestige() {
+            document.getElementById('ui-tokens').innerText = State.prestigeTokens.toLocaleString();
+            document.getElementById('lifetime-earnings').innerText = State.lifetimeEarnings.toLocaleString();
+            
+            const nextTokens = calculateNextTokens();
+            document.getElementById('next-tokens').innerText = nextTokens.toLocaleString();
+            
+            const btn = document.getElementById('btn-prestige');
+            btn.disabled = nextTokens <= 0;
+
+            document.getElementById('skills-grid').innerHTML = Object.keys(SKILLS).map(id => {
+                const sk = SKILLS[id];
+                const lvl = State.skills[id];
+                const cost = sk.costBase + lvl;
+                const maxed = lvl >= sk.max;
+                
+                return `
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex items-center justify-between hover:border-purple-500 transition">
+                        <div>
+                            <h4 class="font-bold text-white">${sk.name} <span class="text-purple-400 ml-1">Lvl ${lvl}/${sk.max}</span></h4>
+                            <p class="text-xs text-slate-400 mt-1">${sk.desc}</p>
+                        </div>
+                        <button onclick="upgradeSkill('${id}')" class="shrink-0 ml-4 py-2 px-4 rounded font-bold shadow ${maxed ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : (State.prestigeTokens >= cost ? 'bg-purple-600 hover:bg-purple-500 text-white' : 'bg-slate-700 text-red-400 border border-red-900/50')}">
+                            ${maxed ? 'MAXED' : `${cost} Tokens`}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatTime(secs) {
+            if(secs < 60) return `${Math.ceil(secs)}s`;
+            if(secs < 3600) return `${Math.floor(secs/60)}m ${Math.floor(secs%60)}s`;
+            return `${Math.floor(secs/3600)}h ${Math.floor((secs%3600)/60)}m`;
+        }
+
+        function formatTimeMs(ms) {
+            const totalSecs = Math.floor(ms / 1000);
+            const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+            const s = (totalSecs % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        const Admin = {
+            addMoney: () => { State.money += 1000000; State.lifetimeEarnings += 1000000; updateTopBar(); saveGame(); showToast("Admin: Money added", 'rare'); },
+            forceWeather: () => { State.weatherTimer = 0; changeWeather(); saveGame(); },
+            giveAllSeeds: () => { Object.keys(CROPS).forEach(c => State.inventory.seeds[c] = (State.inventory.seeds[c]||0) + 10); saveGame(); if(currentTab==='inventory')renderInventory(); showToast("Admin: Seeds given", 'rare'); },
+            mutateAll: () => { State.garden.forEach(p => { if(p && !p.mutation) p.mutation = Object.keys(MUTATIONS)[Math.floor(Math.random()*8)]; }); saveGame(); if(currentTab==='garden')renderGarden(); showToast("Admin: Garden Mutated", 'rare'); },
+            growAll: () => { State.garden.forEach(p => { if(p) p.plantedAt = 0; }); saveGame(); if(currentTab==='garden')renderGarden(); showToast("Admin: Garden Grown", 'rare'); },
+            unlockAllPets: () => { State.petsOwned = Object.keys(PETS); saveGame(); if(currentTab==='pets')renderPets(); showToast("Admin: Pets Unlocked", 'rare'); },
+            giveTools: () => { State.inventory.tools.sprinkler+=50; State.inventory.tools.fertilizer+=50; saveGame(); if(currentTab==='inventory')renderInventory(); showToast("Admin: Tools Given", 'rare'); },
+            addTokens: () => { State.prestigeTokens+=100; saveGame(); if(currentTab==='prestige')renderPrestige(); showToast("Admin: Tokens Given", 'rare'); },
+            exportSave: () => { navigator.clipboard.writeText(btoa(JSON.stringify(State))); showToast("Save copied to clipboard!"); },
+            importSave: () => {
+                document.getElementById('modal-admin').classList.add('hidden');
+                setTimeout(() => {
+                    const dat = document.getElementById('admin-import-input').value;
+                    if(dat) { try { const parsed = JSON.parse(atob(dat)); State = { ...DEFAULT_STATE, ...parsed }; saveGame(); location.reload(); } catch(e) { showToast("Invalid save data", "error"); } }
+                }, 100);
+            }
+        };
+
+        function checkAdminPassword() {
+            const pwdInput = document.getElementById('admin-password-input');
+            if (pwdInput.value === 'FakYou123') {
+                closeModal('modal-password'); document.getElementById('modal-admin').classList.remove('hidden'); pwdInput.value = '';
+            } else { showToast("Incorrect password", "error"); pwdInput.value = ''; }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '`') {
+                e.preventDefault();
+                document.getElementById('modal-password').classList.remove('hidden');
+                setTimeout(() => document.getElementById('admin-password-input').focus(), 50);
+            }
+        });
+        document.getElementById('admin-password-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') checkAdminPassword();
+            e.stopPropagation(); 
+        });
+
+        function refreshAllUI() { updateTopBar(); renderNav(); switchTab(currentTab); }
+
+        let loopCounter = 0;
+        function gameLoop() {
+            loopCounter++;
+            if(loopCounter % 60 === 0) {
+                updateGardenTimers(); updateShopTimer();
+            }
+            if(loopCounter % 600 === 0) {
+                saveGame();
+                if(Date.now() > State.weatherTimer) changeWeather();
+                if(Date.now() > State.nextShopRefresh) generateShopIfNeeded();
+                if(Date.now() > State.tradeTimer) generateTradeIfNeeded();
+                generateQuestsIfNeeded();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        loadGame();
+        switchTab('garden');
+        requestAnimationFrame(gameLoop);
+
+    </script>
+</body>
+</html>

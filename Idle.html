@@ -278,8 +278,6 @@
                 <div class="list-item"><div class="list-item-info"><h4 id="stat-resets">Investor Resets: 0</h4></div></div>
                 <div class="list-item"><div class="list-item-info"><h4 id="stat-time">Time Played: 0s</h4></div></div>
                 <button class="btn" style="width:100%; margin-top:20px;" onclick="saveGame(true)">Manual Save</button>
-                <button class="btn" style="width:100%; margin-top:10px;" onclick="exportSave()">Export Save</button>
-                <button class="btn" style="width:100%; margin-top:10px;" onclick="importSavePrompt()">Import Save</button>
                 <button class="btn" style="width:100%; margin-top:10px; background:#aa0000; color:white;" onclick="hardResetPrompt()">HARD RESET</button>
             </div>
 
@@ -761,6 +759,7 @@
             if (opts.type === 'prompt') {
                 input.style.display = 'block';
                 input.value = '';
+                input.type = opts.inputType || 'text';
                 offlineContent.style.display = 'none';
             } else if (opts.type === 'offline') {
                 input.style.display = 'none';
@@ -847,26 +846,6 @@
                 onYes: () => {
                     localStorage.removeItem('idleBusinessSave');
                     location.reload();
-                }
-            });
-        }
-
-        function importSavePrompt() {
-            showModal({
-                title: 'Import Save',
-                text: 'Paste your save JSON data below:',
-                type: 'prompt',
-                yesText: 'Import',
-                onYes: (data) => {
-                    if (data) {
-                        try {
-                            state = JSON.parse(data);
-                            saveGame(false);
-                            location.reload();
-                        } catch(e) { 
-                            showModal({ title: 'Error', text: 'Invalid save data format.', type: 'alert' });
-                        }
-                    }
                 }
             });
         }
@@ -1264,15 +1243,6 @@
             renderUpgrades();
         }
 
-        function exportSave() {
-            saveGame(false);
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", "idle_business_save.json");
-            dlAnchorElem.click();
-        }
-
         // --- 8. INITIALIZATION ---
         window.onload = function () {
             loadGame();
@@ -1294,6 +1264,7 @@
                     title: 'Admin Access',
                     text: 'Enter Developer Password:',
                     type: 'prompt',
+                    inputType: 'password',
                     yesText: 'Login',
                     onYes: (pwd) => {
                         if (pwd === 'fakyou123') {

@@ -78,6 +78,15 @@
 
         .neon-button:hover::before { left: 100%; }
 
+        /* Custom Gentle Bounce */
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-gentle-bounce {
+            animation: gentle-bounce 2.5s ease-in-out infinite;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -120,7 +129,7 @@
             Official Partner: <a href="https://spew14.github.io/games/" class="text-emerald-400 font-semibold hover:underline">spew14.github.io</a>
         </p>
         
-        <p class="text-amber-400 font-bold text-lg md:text-xl animate-bounce mb-12 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+        <p class="text-amber-400 font-bold text-lg md:text-xl animate-gentle-bounce mb-12 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">
             👇 Check out new games below featured! 👇
         </p>
 
@@ -148,17 +157,17 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Invasion Animator -->
-                <a href="Invasion.html" class="glass-card p-8 rounded-[2.5rem] block group border-b-4 border-sky-500 shadow-sky-900/20">
+                <!-- Survive the Island -->
+                <a href="surviveisland.html" class="glass-card p-8 rounded-[2.5rem] block group border-b-4 border-teal-500 shadow-teal-900/20">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="w-14 h-14 bg-sky-500/10 rounded-2xl flex items-center justify-center text-3xl">🗺️</div>
-                        <span class="px-3 py-1 bg-sky-500/20 text-sky-400 text-[10px] font-black rounded-full border border-sky-500/30 tracking-widest uppercase">Strategy // Map</span>
+                        <div class="w-14 h-14 bg-teal-500/10 rounded-2xl flex items-center justify-center text-3xl">🏝️</div>
+                        <span class="px-3 py-1 bg-teal-500/20 text-teal-400 text-[10px] font-black rounded-full border border-teal-500/30 tracking-widest uppercase">Survival // Sim</span>
                     </div>
-                    <h3 class="font-outfit text-3xl font-bold text-white mb-3 group-hover:text-sky-400">Invasion Animator</h3>
-                    <p class="text-slate-400 leading-relaxed mb-6">Simulate and animate global conflicts. Map out borders and direct epic country invasions.</p>
+                    <h3 class="font-outfit text-3xl font-bold text-white mb-3 group-hover:text-teal-400">Survive the Island</h3>
+                    <p class="text-slate-400 leading-relaxed mb-6">Stranded with nothing. Gather resources, craft tools, build shelter, and survive the wild.</p>
                     <div class="flex items-center gap-2">
-                        <div class="h-1 w-12 bg-sky-500 rounded-full"></div>
-                        <span class="text-[10px] font-bold text-sky-500 uppercase tracking-tighter">New Tool</span>
+                        <div class="h-1 w-12 bg-teal-500 rounded-full"></div>
+                        <span class="text-[10px] font-bold text-teal-500 uppercase tracking-tighter">Explore Now</span>
                     </div>
                 </a>
 
@@ -235,6 +244,13 @@
                     <div class="text-2xl mb-4">💼</div>
                     <h3 class="font-bold text-white group-hover:text-indigo-400">Idle Business</h3>
                     <p class="text-slate-400 text-xs mt-2">Corporate tycoon simulator.</p>
+                </a>
+                
+                <!-- Driving Simulator -->
+                <a href="DrivingSimulator.html" class="glass-card p-6 rounded-3xl border-b-2 border-orange-500 group">
+                    <div class="text-2xl mb-4">🏎️</div>
+                    <h3 class="font-bold text-white group-hover:text-orange-400">Driving Simulator</h3>
+                    <p class="text-slate-400 text-xs mt-2">City racing and drift mechanics.</p>
                 </a>
                 
                 <div class="glass-card p-6 rounded-3xl opacity-30 border-dashed border-slate-600 flex flex-col items-center justify-center min-h-[140px]">

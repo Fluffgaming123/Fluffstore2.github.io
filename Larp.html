@@ -17,26 +17,23 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; }
         body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; display: flex; height: 100vh; flex-direction: column; }
 
-        /* Top Bar for Controls */
-        #top-bar { padding: 10px 20px; background: rgba(0,0,0,0.5); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent-dim); }
+        #top-bar { padding: 10px 20px; background: rgba(0,0,0,0.5); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent-dim); position: relative; }
         .mute-btn { background: var(--panel-bg); color: white; border: 1px solid var(--accent); padding: 5px 15px; border-radius: 5px; cursor: pointer; }
         .mute-btn:hover { background: var(--accent-dim); }
+        .update-text { color: #facc15; font-weight: bold; position: absolute; left: 50%; transform: translateX(-50%); animation: pulseWarning 1s infinite alternate; text-shadow: 0 0 10px #facc15; font-size: 1.1rem; }
+        @keyframes pulseWarning { 0% { opacity: 0.7; transform: translateX(-50%) scale(1); } 100% { opacity: 1; transform: translateX(-50%) scale(1.05); } }
 
-        /* Layout Grid */
-        #game-container { display: grid; grid-template-columns: 250px 1fr 320px; gap: 20px; padding: 20px; height: calc(100% - 50px); max-width: 1400px; margin: 0 auto; width: 100%; }
-        .panel { background-color: var(--panel-bg); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); border: 1px solid rgba(102, 252, 241, 0.1); overflow-y: auto; }
+        #game-container { display: grid; grid-template-columns: 260px 1fr 340px; gap: 15px; padding: 15px; height: calc(100% - 50px); max-width: 1500px; margin: 0 auto; width: 100%; }
+        .panel { background-color: var(--panel-bg); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); border: 1px solid rgba(102, 252, 241, 0.1); overflow-y: auto; }
 
-        /* Stats Dashboard */
         .stat-box { background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; }
         .stat-value { font-size: 1.8rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 10px rgba(102, 252, 241, 0.5); margin-top: 5px; }
 
-        /* Profile & Emote Display */
-        #profile-area { text-align: center; padding: 20px 10px; border-radius: 8px; background: rgba(0, 0, 0, 0.4); border: 2px solid var(--common); transition: all 0.3s ease; position: relative; overflow: hidden; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+        #profile-area { text-align: center; padding: 20px 10px; border-radius: 8px; background: rgba(0, 0, 0, 0.4); border: 2px solid var(--common); position: relative; overflow: hidden; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
         #emote-icon { font-size: 4rem; margin-bottom: 10px; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
         #emote-name { font-weight: bold; font-size: 1.1rem; z-index: 2; position: relative;}
         #emote-mult { font-size: 0.8rem; margin-top: 5px; color: var(--accent); z-index: 2; position: relative; }
 
-        /* Center Main Button */
         #center-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         
         #main-button {
@@ -50,51 +47,28 @@
             overflow: hidden; z-index: 10;
         }
         #main-button:active { transform: scale(0.95); }
-        
-        /* Background GIF inside Main Button */
-        #btn-gif-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            opacity: 0.6; pointer-events: none; z-index: 1; border-radius: 50%;
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
-        }
-        
-        /* Force Tenor embed to fill button and disable clicks on it */
-        #btn-gif-bg iframe, #btn-gif-bg .tenor-gif-embed {
-            pointer-events: none !important;
-            transform: scale(1.4); 
-        }
-        
-        /* Foreground Text inside Main Button */
-        #btn-text {
-            position: relative; z-index: 10; pointer-events: none;
-            text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 15px rgba(0,0,0,1);
-        }
+        #btn-gif-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.6; pointer-events: none; z-index: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #btn-gif-bg iframe, #btn-gif-bg .tenor-gif-embed { pointer-events: none !important; transform: scale(1.4); }
+        #btn-text { position: relative; z-index: 10; pointer-events: none; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 15px rgba(0,0,0,1); }
 
-        .instruction { margin-top: 30px; font-size: 1rem; color: #888; text-align: center; max-width: 80%; }
-
-        /* Floating Text */
         .floating-text { position: absolute; color: #4ade80; font-weight: bold; font-size: 2rem; pointer-events: none; text-shadow: 0 0 10px rgba(74, 222, 128, 0.8); animation: floatUp 1s ease-out forwards; z-index: 20; }
         @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
 
-        /* Tabs */
-        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid transparent; color: var(--text-main); border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 8px 5px; background: rgba(0,0,0,0.3); border: 1px solid transparent; color: var(--text-main); border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; min-width: 30%; text-align: center; }
         .tab-btn.active { background: var(--accent-dim); color: #111; font-weight: bold; }
-        .tab-content { display: none; flex-direction: column; gap: 15px; flex: 1; }
+        .tab-content { display: none; flex-direction: column; gap: 10px; flex: 1; }
         .tab-content.active { display: flex; }
 
-        /* Items */
-        .shop-item, .crate-item { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .shop-item, .crate-item { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.1); }
         .shop-header { display: flex; justify-content: space-between; align-items: center; }
-        .shop-title { font-weight: bold; font-size: 1.05rem; }
-        .shop-level { color: var(--accent); font-size: 0.9rem; }
+        .shop-title { font-weight: bold; font-size: 1rem; }
+        .shop-level { color: var(--accent); font-size: 0.85rem; }
 
-        button.action-btn { padding: 10px; border: none; border-radius: 6px; background: var(--accent-dim); color: #111; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
+        button.action-btn { padding: 8px; border: none; border-radius: 6px; background: var(--accent-dim); color: #111; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
         button.action-btn:hover:not(:disabled) { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
         button.action-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
 
-        /* Rarity Classes */
         .rarity-Common { color: var(--common); }
         .rarity-Uncommon { color: var(--uncommon); text-shadow: 0 0 5px var(--uncommon); }
         .rarity-Rare { color: var(--rare); text-shadow: 0 0 8px var(--rare); }
@@ -108,15 +82,24 @@
         @keyframes cosmicPulse { 0% { text-shadow: 0 0 10px var(--cosmic); } 100% { text-shadow: 0 0 30px #fff, 0 0 15px var(--cosmic); } }
         @keyframes divinePulse { 0% { text-shadow: 0 0 15px #fbbf24, 0 0 30px #f59e0b; } 100% { text-shadow: 0 0 30px #fcd34d, 0 0 50px #fff, 0 0 70px #f59e0b; } }
 
-        /* Modals */
+        .recipe-box { border: 1px dashed var(--accent); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); }
+        .recipe-reqs { font-size: 0.8rem; margin: 5px 0; color: #aaa; }
+        .req-met { color: #4ade80; }
+        .req-missing { color: #ef4444; }
+
+        .index-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; }
+        .index-item { background: rgba(0,0,0,0.5); border-radius: 6px; padding: 10px 5px; text-align: center; border: 1px solid #333; }
+        .index-item.locked { opacity: 0.4; filter: grayscale(100%); }
+        .index-icon { font-size: 1.8rem; margin-bottom: 5px; }
+        .index-name { font-size: 0.7rem; line-height: 1.1; word-wrap: break-word; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--panel-bg); border: 2px solid var(--accent); padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
+        .modal-content { background: var(--panel-bg); border: 2px solid var(--accent); padding: 30px; border-radius: 12px; text-align: center; max-width: 450px; width: 90%; max-height: 90vh; overflow-y: auto;}
         
         #crate-animation-text { font-size: 5rem; margin: 20px 0; }
         .rolling { animation: shake 0.1s infinite; }
         @keyframes shake { 0% { transform: translate(2px, 2px); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(-2px, 2px); } 75% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
 
-        /* Notifications */
         #notification-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
         .toast { background: rgba(31, 40, 51, 0.95); padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid #fff; animation: slideUp 2.5s forwards; }
         @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 15% { transform: translateY(0); opacity: 1; } 85% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-20px); opacity: 0; } }
@@ -130,30 +113,26 @@
 </head>
 <body>
 
-    <!-- Top Audio Bar -->
     <div id="top-bar">
-        <div><strong>Excuse me sir!</strong> - Larp Simulator</div>
+        <div><strong>Larp Sim</strong></div>
+        <div class="update-text">🔥 NEW UPDATE 🔥</div>
         <button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊 Mute Audio</button>
     </div>
 
-    <!-- Background Audio Element -->
     <audio id="bg-audio" loop preload="auto"></audio>
 
     <div id="game-container">
-        <!-- Left Panel: Stats & Profile -->
         <div class="panel" id="left-panel">
             <div class="stat-box">
                 <div>Current Money</div>
                 <div class="stat-value" id="money-display">$0</div>
             </div>
-            
             <div class="stat-box">
                 <div>Income (While Larping)</div>
                 <div style="color: #888; font-size: 0.9rem; margin-top: 5px;">
                     $<span id="tick-power-display">1</span> / sec
                 </div>
             </div>
-
             <div class="stat-box" style="border: 1px solid var(--mythic);">
                 <div>Rebirths</div>
                 <div class="stat-value rarity-Mythic" id="rebirth-display">0</div>
@@ -161,8 +140,6 @@
                     +0% Money | +0% Luck
                 </div>
             </div>
-
-            <!-- Profile / Equipped Larp -->
             <div id="profile-area">
                 <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px; z-index: 2;">EQUIPPED LARP</div>
                 <div id="emote-icon">🤵</div>
@@ -171,23 +148,24 @@
             </div>
         </div>
 
-        <!-- Center Panel: The Button -->
         <div id="center-panel">
             <div id="main-button" onpointerdown="handleMainInteraction(event)">
-                <div id="btn-gif-bg"></div> <!-- The integrated background GIF -->
+                <div id="btn-gif-bg"></div> 
                 <span id="btn-text">PRESS 'F'<br>TO LARP</span>
             </div>
-            <div class="instruction">
+            <div style="margin-top: 30px; font-size: 1rem; color: #888; text-align: center; max-width: 80%;">
                 Hit 'F' or tap to start Larping and generate money. Upgrade stamina in the shop.
             </div>
         </div>
 
-        <!-- Right Panel: Shop & Crates -->
         <div class="panel" id="right-panel">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('upgrades')">Upgrades</button>
                 <button class="tab-btn" onclick="switchTab('crates')">Crates</button>
                 <button class="tab-btn" onclick="switchTab('inventory')">Larps</button>
+                <button class="tab-btn" onclick="switchTab('shop')">Shop</button>
+                <button class="tab-btn" onclick="switchTab('crafting')">Crafting</button>
+                <button class="tab-btn" onclick="switchTab('index')">Index</button>
             </div>
 
             <!-- Upgrades Tab -->
@@ -204,14 +182,11 @@
                     <div class="shop-header"><span class="shop-title">Cooldown Reduction</span><span class="shop-level" id="cool-level">7s</span></div>
                     <button class="action-btn" id="btn-upg-cool" onclick="buyCoolUpgrade()">Upgrade ($<span id="cost-cool">100</span>)</button>
                 </div>
-                
                 <hr style="border-color: #333;">
                 <div class="shop-item" style="border-color: var(--mythic); background: rgba(244, 63, 94, 0.1);">
                     <div class="shop-header"><span class="shop-title rarity-Mythic">Rebirth</span></div>
                     <div style="font-size: 0.8rem; color:#aaa;">Reset money/upgrades for +20% income & +5% luck forever.</div>
-                    <button class="action-btn" style="background: var(--mythic); color: white;" id="btn-rebirth" onclick="showRebirthModal()">
-                        Rebirth ($<span id="cost-rebirth">10,000</span>)
-                    </button>
+                    <button class="action-btn" style="background: var(--mythic); color: white;" id="btn-rebirth" onclick="showRebirthModal()">Rebirth ($<span id="cost-rebirth">10,000</span>)</button>
                 </div>
             </div>
 
@@ -234,37 +209,75 @@
                 </div>
                 <div class="crate-item" style="border-color: var(--cosmic);">
                     <div class="shop-header"><span class="shop-title rarity-Cosmic">Cosmic Crate</span></div>
-                    <div style="font-size: 0.75rem; color: #aaa;">Unlocks Animated God-Tier Larps!</div>
+                    <div style="font-size: 0.75rem; color: #aaa;">High chance for God-Tier Larps!</div>
                     <button class="action-btn" style="background: var(--cosmic); color: black;" id="btn-crate-cosm" onclick="rollCrate('cosmic')">Open ($1,000,000)</button>
                 </div>
                 <div class="crate-item" style="border-color: #fbbf24; background: rgba(251, 191, 36, 0.1);">
                     <div class="shop-header"><span class="shop-title rarity-Divine">All or Nothing Crate</span></div>
-                    <div style="font-size: 0.75rem; color: #aaa;">99.99% Homelander Stare. 0.01% The Best Larp in the game.</div>
+                    <div style="font-size: 0.75rem; color: #aaa;">90% Homelander Stare. 10% The Best Larp in the game.</div>
                     <button class="action-btn" style="background: #f59e0b; color: black;" id="btn-crate-aon" onclick="rollCrate('all_or_nothing')">Open ($500,000)</button>
                 </div>
             </div>
 
             <!-- Inventory Tab -->
             <div id="tab-inventory" class="tab-content">
-                <div id="inventory-list" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                <button class="action-btn" style="background: var(--legendary); color: black; margin-bottom: 10px;" onclick="equipBestLarp()">🌟 Equip Best Larp</button>
+                <div id="inventory-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
+            <!-- Fruit Shop Tab -->
+            <div id="tab-shop" class="tab-content">
+                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">
+                    Fruits grant permanent multiplier boosts to the selected Larp! Stock rotates every 10 minutes.
+                </div>
+                <div style="text-align: center; color: var(--accent); font-weight: bold; margin-bottom: 10px;">
+                    Next Restock: <span id="fruit-timer">--:--</span>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.8rem; color: #888;">Select Larp to Feed:</label>
+                    <select id="fruit-target-select" style="width: 100%; padding: 8px; background: #111; color: white; border: 1px solid var(--accent); border-radius: 4px; outline: none; margin-top: 5px;"></select>
+                </div>
+                
+                <div id="fruit-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Fruits injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Crafting Tab -->
+            <div id="tab-crafting" class="tab-content">
+                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">
+                    Combine specific Larps to forge powerful new ones! 
+                    <br><strong style="color: #ef4444;">Warning: Crafting consumes the ingredients!</strong>
+                </div>
+                <div id="crafting-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Recipes injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Index Tab -->
+            <div id="tab-index" class="tab-content">
+                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">
+                    Larp Collection Index (<span id="index-count">0/0</span>)
+                </div>
+                <div id="index-grid" class="index-grid">
+                    <!-- Index items injected dynamically -->
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Notifications Area -->
-    <div id="notification-area"></div>
-
-    <!-- Crate Animation Modal -->
     <div id="crate-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 id="crate-modal-title">Opening Crate...</h2>
             <div id="crate-animation-text">📦</div>
             <h3 id="crate-result-name" style="display: none; margin-bottom: 15px;"></h3>
+            
+            <button class="action-btn" id="crate-skip-btn" style="width: 100%; margin-bottom: 10px; background: #444; color: white;" onclick="skipCrate()">Skip Animation</button>
             <button class="action-btn" id="crate-close-btn" style="display: none; width: 100%;" onclick="closeCrateModal()">Awesome!</button>
         </div>
     </div>
 
-    <!-- Rebirth Confirmation Modal -->
     <div id="rebirth-modal" class="modal-overlay">
         <div class="modal-content" style="border-color: var(--mythic);">
             <h2 class="rarity-Mythic">Confirm Rebirth</h2>
@@ -276,7 +289,6 @@
         </div>
     </div>
 
-    <!-- Cheat Code Modal -->
     <div id="cheat-modal" class="modal-overlay">
         <div class="modal-content" style="border-color: var(--divine);">
             <h2 class="rarity-Divine">Money Cheat</h2>
@@ -289,34 +301,63 @@
         </div>
     </div>
 
+    <div id="larp-cheat-modal" class="modal-overlay">
+        <div class="modal-content" style="border-color: var(--mythic);">
+            <h2 class="rarity-Mythic">Dev Larp Injector</h2>
+            <p style="margin: 15px 0; color: #aaa;">Select a Larp to instantly add to your inventory:</p>
+            <select id="larp-cheat-select" style="width: 100%; padding: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--accent); color: white; border-radius: 6px; font-size: 1rem; outline: none;"></select>
+            <div style="display: flex; gap: 10px;">
+                <button class="action-btn" style="flex: 1; background: #444; color: white;" onclick="closeLarpCheatModal()">Cancel</button>
+                <button class="action-btn" style="flex: 1; background: var(--accent); color: black;" onclick="submitLarpCheat()">Inject Larp</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-area"></div>
+
     <script>
-        // --- DATA & STATE ---
         const AUDIO_BASE = "https://www.dropbox.com/scl/fi/x1rj2ewja98nxo28vvliw/excuse-me-sir-charlies-inferno.mp3?rlkey=96qgkbsl1u0vte6fovauas4a5&raw=1";
+        const DEF_TENOR = `<div class="tenor-gif-embed" data-postid="2382474800099612090" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>`;
 
         let state = {
             money: 0, multLvl: 1, durLvl: 1, coolLvl: 1, rebirths: 0,
-            currentLarp: 'excuse_me', inventory: ['excuse_me']
+            currentLarp: 'excuse_me', inventory: ['excuse_me'], fruitBuffs: {}
         };
 
-        // Larp Database
         const LARPS = [
-            // Standard
+            // Common
             { id: 'excuse_me', name: 'Excuse me sir', rarity: 'Common', emoji: '🤵', mult: 1 },
+            { id: 'discord_mod', name: 'Discord Mod', rarity: 'Common', emoji: '⌨️', mult: 1 },
+            { id: 'keyboard_warrior', name: 'Keyboard Warrior', rarity: 'Common', emoji: '😡', mult: 1 },
+
+            // Uncommon
             { id: 'larping', name: 'Larping', rarity: 'Uncommon', emoji: '🧙‍♂️', mult: 2 },
             { id: 'helldiver', name: 'Helldiver Recruit', rarity: 'Uncommon', emoji: '🌍', mult: 6 },
             { id: 'ghostface', name: 'Ghostface Fanboy', rarity: 'Uncommon', emoji: '🔪', mult: 7 },
             { id: 'tf2merc', name: 'TF2 Merc', rarity: 'Uncommon', emoji: '🎩', mult: 8 },
-            { id: 'butcher', name: 'Butcher State', rarity: 'Rare', emoji: '🩸', mult: 5 }, // Note: Adjusted to fit between uncommons and epics smoothly
+            { id: 'gym_bro', name: 'Gym Bro', rarity: 'Uncommon', emoji: '💪', mult: 10 },
+            { id: 'ninja_runner', name: 'Ninja Runner', rarity: 'Uncommon', emoji: '🏃', mult: 12 },
+            { id: 'edens_zero', name: 'Eden Zero Captain', rarity: 'Uncommon', emoji: '🚀', mult: 38 },
+            { id: 'chainsaw', name: 'Chainsaw Fiend', rarity: 'Uncommon', emoji: '🪚', mult: 52 },
+
+            // Rare
+            { id: 'butcher', name: 'Butcher State', rarity: 'Rare', emoji: '🩸', mult: 5 },
+            { id: 'gamer_god', name: 'Gamer God', rarity: 'Rare', emoji: '🎮', mult: 15 },
+            { id: 'jedi_padawan', name: 'Jedi Padawan', rarity: 'Rare', emoji: '⚔️', mult: 20 },
+            { id: 'master_chief', name: 'Master Chief', rarity: 'Rare', emoji: '🛡️', mult: 30 }, // Craftable
+
+            // Epic
             { id: 'jjk', name: 'JJK Domain', rarity: 'Epic', emoji: '🤞', mult: 15 },
             { id: 'atrain', name: 'A-Train', rarity: 'Epic', emoji: '🏃‍♂️', mult: 25 },
             { id: 'starlight', name: 'Starlight', rarity: 'Epic', emoji: '🌟', mult: 30 },
             { id: 'law', name: 'Trafalgar Law', rarity: 'Epic', emoji: '⚓', mult: 35 },
             { id: 'doomslayer', name: 'Doom Slayer', rarity: 'Epic', emoji: '👿', mult: 40 },
-            { id: 'homelander_stare', name: 'Homelander Stare', rarity: 'Legendary', emoji: '👁️🔴', mult: 50 },
+            { id: 'sigma_male', name: 'Sigma Male', rarity: 'Epic', emoji: '🗿', mult: 45 }, // Craftable
+            { id: 'the_flash', name: 'The Flash', rarity: 'Epic', emoji: '⚡', mult: 55 }, // Craftable
+            { id: 'ash_williams', name: 'Ash Williams', rarity: 'Epic', emoji: '🦾', mult: 60 }, // Craftable
 
-            // Premium Exclusives
-            { id: 'edens_zero', name: 'Eden Zero Captain', rarity: 'Uncommon', emoji: '🚀', mult: 38 },
-            { id: 'chainsaw', name: 'Chainsaw Fiend', rarity: 'Uncommon', emoji: '🪚', mult: 52 },
+            // Legendary
+            { id: 'homelander_stare', name: 'Homelander Stare', rarity: 'Legendary', emoji: '👁️🔴', mult: 50 },
 
             // Mythic
             { id: 'allen', name: 'Allen the Alien', rarity: 'Mythic', emoji: '👽', mult: 65 },
@@ -329,51 +370,85 @@
             { id: 'battle_beast', name: 'Battle Beast', rarity: 'Mythic', emoji: '🦁', mult: 110 },
             { id: 'whitebeard', name: 'Whitebeard', rarity: 'Mythic', emoji: '🌍', mult: 115 },
             { id: 'homelanders_milk', name: "Homelander's Milk", rarity: 'Mythic', emoji: '🥛', mult: 120 },
+            { id: 'the_seven', name: 'The Seven', rarity: 'Mythic', emoji: '7️⃣', mult: 150 }, // Craftable
+            { id: 'tech_jacket', name: 'Tech Jacket', rarity: 'Mythic', emoji: '🦾', mult: 160 }, // Craftable
+            { id: 'goku', name: 'Goku', rarity: 'Mythic', emoji: '🐉', mult: 200 }, // Craftable
 
-            // Cosmic (With custom Audio & GIFs)
+            // Cosmic
             { id: 'cosmic_hl', name: 'Homelander', rarity: 'Cosmic', emoji: '🇺🇸', mult: 200, tenorHtml: '<div class="tenor-gif-embed" data-postid="26218105" data-share-method="host" data-aspect-ratio="1.45455" data-width="100%"></div>', audioUrl: 'homelander-theme-28-sec.mp3' },
             { id: 'cosmic_omni', name: 'Omni Man', rarity: 'Cosmic', emoji: '👊', mult: 220, tenorHtml: '<div class="tenor-gif-embed" data-postid="21416554" data-share-method="host" data-aspect-ratio="1.77778" data-width="100%"></div>', audioUrl: 'omni-man-tom-tom-by-holy-fck-made-with-Voicemod.mp3' },
             { id: 'cosmic_supdex', name: 'Superman Dexter', rarity: 'Cosmic', emoji: '🦸‍♂️', mult: 250, tenorHtml: '<div class="tenor-gif-embed" data-postid="1834960198562592647" data-share-method="host" data-aspect-ratio="1.16129" data-width="100%"></div>', audioUrl: 'dexter-goofy-ahh-theme-made-with-Voicemod.mp3' },
             { id: 'cosmic_dexter', name: 'Dexter', rarity: 'Cosmic', emoji: '🔬', mult: 280, tenorHtml: '<div class="tenor-gif-embed" data-postid="13481320143050343709" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', audioUrl: 'dexter-meme.mp3' },
             { id: 'cosmic_oi', name: 'Oi', rarity: 'Cosmic', emoji: '🇬🇧', mult: 300, tenorHtml: '<div class="tenor-gif-embed" data-postid="5796876651657583609" data-share-method="host" data-aspect-ratio="0.861446" data-width="100%"></div>', audioUrl: AUDIO_BASE },
             { id: 'cosmic_invwobble', name: 'Invincible Wobble', rarity: 'Cosmic', emoji: '🟡', mult: 350, tenorHtml: '<div class="tenor-gif-embed" data-postid="11333115073460965967" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', audioUrl: 'invincible-wobble-edit-made-with-Voicemod.mp3' },
-            
+            { id: 'poseidon', name: 'Poseidon', rarity: 'Cosmic', emoji: '🔱', mult: 400 }, // Craftable
+            { id: 'kratos', name: 'Kratos', rarity: 'Cosmic', emoji: '🪓', mult: 500 }, // Craftable
+
             // Divine
-            { id: 'the_peak', name: 'The Peak', rarity: 'Divine', emoji: '🐙', mult: 1000, tenorHtml: '<div class="tenor-gif-embed" data-postid="23871904" data-share-method="host" data-aspect-ratio="1.45" data-width="100%"></div>', audioUrl: AUDIO_BASE }
+            { id: 'the_peak', name: 'The Peak', rarity: 'Divine', emoji: '🐙', mult: 1000, tenorHtml: '<div class="tenor-gif-embed" data-postid="23871904" data-share-method="host" data-aspect-ratio="1.45" data-width="100%"></div>', audioUrl: AUDIO_BASE },
+            { id: 'ultimate_larper', name: 'Ultimate Larper', rarity: 'Divine', emoji: '🌌', mult: 5000, tenorHtml: '<div class="tenor-gif-embed" data-postid="23018899" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', audioUrl: AUDIO_BASE } // Craftable
         ];
 
-        // Crate Configuration
         const CRATES = {
             'standard': { cost: 500, pool: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'], weights: { 'Common': 50, 'Uncommon': 30, 'Rare': 12, 'Epic': 6, 'Legendary': 2 } },
             'premium': { cost: 2500, pool: ['Uncommon', 'Rare', 'Epic', 'Legendary'], weights: { 'Uncommon': 50, 'Rare': 30, 'Epic': 15, 'Legendary': 5 } },
-            'mythic': { cost: 50000, pool: ['Rare', 'Epic', 'Legendary', 'Mythic'], weights: { 'Rare': 40, 'Epic': 35, 'Legendary': 20, 'Mythic': 5 } },
-            'cosmic': { cost: 1000000, pool: ['Legendary', 'Mythic', 'Cosmic'], weights: { 'Legendary': 60, 'Mythic': 35, 'Cosmic': 5 } },
-            'all_or_nothing': { cost: 500000, pool: ['Legendary', 'Divine'], weights: {} }
+            'mythic': { cost: 50000, pool: ['Rare', 'Epic', 'Legendary', 'Mythic'], weights: { 'Rare': 35, 'Epic': 35, 'Legendary': 20, 'Mythic': 10 } },
+            'cosmic': { cost: 1000000, pool: ['Legendary', 'Mythic', 'Cosmic'], weights: { 'Legendary': 30, 'Mythic': 40, 'Cosmic': 30 } }, // Made Cosmics easier
+            'all_or_nothing': { cost: 500000, pool: ['Legendary', 'Divine'], weights: {} } // Handled custom
         };
+
+        const FRUITS = [
+            { id: 'f_billy', name: 'Billyapple', cost: 25000, boost: 5, emoji: '🍏' },
+            { id: 'f_hl', name: 'Homelanderange', cost: 100000, boost: 25, emoji: '🍊' },
+            { id: 'f_excuse', name: 'Excusefruit', cost: 500000, boost: 100, emoji: '🍇' },
+            { id: 'f_pine', name: 'Slice of Pineapple', cost: 2500000, boost: 500, emoji: '🍍' },
+            { id: 'f_onion', name: 'Sononion', cost: 10000000, boost: 2500, emoji: '🧅' }
+        ];
+
+        const RECIPES = [
+            { id: 'r1', result: 'master_chief', name: 'The Big Three', reqs: ['helldiver', 'ghostface', 'tf2merc'] },
+            { id: 'r2', result: 'sigma_male', name: 'Meme Team', reqs: ['excuse_me', 'larping', 'butcher'] },
+            { id: 'r3', result: 'ash_williams', name: 'Bloody Mess', reqs: ['chainsaw', 'doomslayer'] },
+            { id: 'r4', result: 'the_flash', name: 'Speed Demons', reqs: ['atrain', 'ninja_runner'] },
+            { id: 'r5', result: 'the_seven', name: "Vought's Finest", reqs: ['atrain', 'starlight', 'homelander_stare'] },
+            { id: 'r6', result: 'tech_jacket', name: 'Alien Tech', reqs: ['allen', 'atomeve'] },
+            { id: 'r7', result: 'goku', name: 'Anime Legends', reqs: ['jjk', 'law', 'gym_bro'] }, // Swap gear5 for gym bro to match current db
+            { id: 'r8', result: 'poseidon', name: 'Ocean Kings', reqs: ['whitebeard', 'edens_zero'] },
+            { id: 'r9', result: 'kratos', name: 'Gods of War', reqs: ['battle_beast', 'soldier_boy'] },
+            { id: 'r10', result: 'ultimate_larper', name: 'Ultimate Larper', reqs: ['cosmic_hl', 'cosmic_omni', 'cosmic_supdex', 'cosmic_dexter', 'cosmic_oi', 'cosmic_invwobble'] }
+        ];
 
         const BASE_COSTS = { mult: 10, dur: 50, cool: 100, rebirth: 10000 };
 
-        // --- RUNTIME VARIABLES ---
         let isLarping = false; let onCooldown = false;
         let larpTime = 0; let coolTime = 0;
         let larpInterval = null; let tickInterval = null;
+        let shopTimerInterval = null;
         let isMuted = false; let cheatBuffer = "";
-        let currentAudioTrack = ""; // NEW: bulletproof audio tracking
+        let currentAudioTrack = ""; 
+        let rollingCrate = false;
+        let crateAnim = null;
+        let pendingRollData = null; // Stores roll result for skipping
         
         const audioPlayer = document.getElementById('bg-audio');
         const mainBtn = document.getElementById('main-button');
         const btnText = document.getElementById('btn-text');
 
-        // --- STREAMING_CHUNK:Core Setup & Inputs ---
         function init() {
-            const saved = localStorage.getItem('LarpSimSave_v3');
-            if(saved) { try { state = { ...state, ...JSON.parse(saved) }; } catch(e){} }
+            const saved = localStorage.getItem('LarpSimSave_v4');
+            if(saved) { 
+                try { 
+                    const p = JSON.parse(saved); 
+                    state = { ...state, ...p };
+                    if(!state.fruitBuffs) state.fruitBuffs = {};
+                } catch(e){} 
+            }
             if(!state.inventory.includes('excuse_me')) state.inventory.push('excuse_me');
+            if(!state.currentLarp || !state.inventory.includes(state.currentLarp)) state.currentLarp = 'excuse_me';
             
-            // Handle Missing Local Files Gracefully in the Web Preview
             audioPlayer.addEventListener('error', () => {
                 if (currentAudioTrack !== AUDIO_BASE) {
-                    showNotification("Local audio missing in preview window. Falling back to default track!", "Rare");
+                    showNotification("Local audio missing. Falling back to default track!", "Rare");
                     currentAudioTrack = AUDIO_BASE;
                     audioPlayer.src = AUDIO_BASE;
                     audioPlayer.load();
@@ -381,25 +456,38 @@
                 }
             });
 
+            // Populate Larp Cheat Dropdown
+            const lcSelect = document.getElementById('larp-cheat-select');
+            LARPS.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l.id; opt.innerText = `${l.emoji} ${l.name} (${l.rarity})`;
+                lcSelect.appendChild(opt);
+            });
+
             updateAudioSource();
             updateUI();
-            setInterval(() => localStorage.setItem('LarpSimSave_v3', JSON.stringify(state)), 5000);
+            startShopTimer();
+            
+            setInterval(() => localStorage.setItem('LarpSimSave_v4', JSON.stringify(state)), 5000);
 
-            // Keydown logic for 'F' and 'money' cheat
             document.addEventListener('keydown', (e) => {
                 if (e.target.tagName.toLowerCase() === 'input') return;
 
-                // Cheat Code logic
                 cheatBuffer += e.key.toLowerCase();
-                if(cheatBuffer.length > 10) cheatBuffer = cheatBuffer.slice(-10);
+                if(cheatBuffer.length > 20) cheatBuffer = cheatBuffer.slice(-20);
+                
                 if(cheatBuffer.includes('money')) {
                     cheatBuffer = "";
                     document.getElementById('cheat-modal').style.display = 'flex';
                     document.getElementById('cheat-input').value = '';
                     document.getElementById('cheat-input').focus();
                 }
+                
+                if(cheatBuffer.includes('larps')) {
+                    cheatBuffer = "";
+                    document.getElementById('larp-cheat-modal').style.display = 'flex';
+                }
 
-                // Larp logic
                 if (e.key.toLowerCase() === 'f' && !isLarping && !onCooldown) {
                     mainBtn.style.transform = 'scale(0.95)';
                     setTimeout(() => mainBtn.style.transform = '', 100);
@@ -414,11 +502,17 @@
             document.getElementById('mute-btn').innerText = isMuted ? "🔇 Unmute" : "🔊 Mute Audio";
         }
 
-        // --- STREAMING_CHUNK:Math & Progression ---
         function getRebirthMult() { return 1 + (state.rebirths * 0.2); }
         function getLuckMult() { return 1 + (state.rebirths * 0.05); }
-        function getAuraData() { return LARPS.find(l => l.id === state.currentLarp) || LARPS[0]; }
-        function getTickPower() { return Math.floor(state.multLvl * getAuraData().mult * getRebirthMult()); }
+        function getAuraData(id) { return LARPS.find(l => l.id === id) || LARPS[0]; }
+        
+        function getLarpTotalMult(id) {
+            const base = getAuraData(id).mult;
+            const buff = state.fruitBuffs[id] || 0;
+            return base + buff;
+        }
+
+        function getTickPower() { return Math.floor(state.multLvl * getLarpTotalMult(state.currentLarp) * getRebirthMult()); }
         function getDur() { return 5 + (state.durLvl - 1); }
         function getCool() { return Math.max(1, 7 - (state.coolLvl - 1) * 0.5); }
 
@@ -429,27 +523,20 @@
             if(type === 'rebirth') return Math.floor(BASE_COSTS.rebirth * Math.pow(1.5, state.rebirths));
         }
 
-        // --- STREAMING_CHUNK:Larp Mechanics ---
         function handleMainInteraction(e) { e.preventDefault(); if(!isLarping && !onCooldown) startLarp(); }
 
         function playAudioSafely() {
             if (isMuted) return;
-            
-            // Try to reset to beginning if it's already loaded
-            if (audioPlayer.readyState >= 1) {
-                try { audioPlayer.currentTime = 0; } catch(e) {}
-            }
+            if (audioPlayer.readyState >= 1) { try { audioPlayer.currentTime = 0; } catch(e) {} }
 
             const playPromise = audioPlayer.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
-                    console.warn("Audio buffering, waiting to play...", error);
-                    // Only try to attach a listener if the network state indicates it's actually loading
                     if (audioPlayer.networkState === HTMLMediaElement.NETWORK_LOADING) {
                         const tryPlay = () => {
                             if (isLarping && !isMuted) {
                                 try { audioPlayer.currentTime = 0; } catch(e) {}
-                                audioPlayer.play().catch(err => console.error("Final audio block:", err));
+                                audioPlayer.play().catch(err => console.error(err));
                             }
                             audioPlayer.removeEventListener('canplay', tryPlay);
                         };
@@ -461,25 +548,18 @@
 
         function startLarp() {
             isLarping = true; larpTime = getDur();
-            
-            // Visuals
             mainBtn.style.boxShadow = '0 0 40px #22c55e, inset 0 0 20px rgba(0,0,0,0.5)';
             updateBtnUI();
-
-            // Audio
             playAudioSafely();
 
-            // Economy Loop
             tickInterval = setInterval(() => {
                 const gain = getTickPower();
                 state.money += gain;
-                
                 const r = mainBtn.getBoundingClientRect();
                 spawnText(r.left + r.width/2, r.top + r.height/2, `+$${formatNum(gain)}`);
                 updateUI();
             }, 1000);
 
-            // Time Loop
             larpInterval = setInterval(() => {
                 larpTime--;
                 if(larpTime <= 0) endLarp(); else updateBtnUI();
@@ -489,7 +569,6 @@
         function endLarp() {
             clearInterval(tickInterval); clearInterval(larpInterval);
             isLarping = false; onCooldown = true; coolTime = getCool();
-            
             mainBtn.style.boxShadow = '0 0 40px #ef4444, inset 0 0 20px rgba(0,0,0,0.5)';
             updateBtnUI();
             audioPlayer.pause();
@@ -518,7 +597,6 @@
             document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
         }
 
-        // --- STREAMING_CHUNK:Shop & Rebirth ---
         function buyMultUpgrade() { const c = getCost('mult'); if(state.money >= c){ state.money -= c; state.multLvl++; updateUI(); } }
         function buyDurUpgrade() { const c = getCost('dur'); if(state.money >= c){ state.money -= c; state.durLvl++; updateUI(); } }
         function buyCoolUpgrade() { const c = getCost('cool'); if(state.money >= c && state.coolLvl < 13){ state.money -= c; state.coolLvl++; updateUI(); } }
@@ -547,97 +625,250 @@
             closeCheatModal();
         }
 
-        // --- STREAMING_CHUNK:Crate Rolling System ---
-        let rollingCrate = false;
+        function closeLarpCheatModal() { document.getElementById('larp-cheat-modal').style.display = 'none'; }
+        function submitLarpCheat() {
+            const id = document.getElementById('larp-cheat-select').value;
+            if(!state.inventory.includes(id)) {
+                state.inventory.push(id);
+                showNotification("Larp Injected Successfully!", "Mythic");
+                updateUI();
+            } else {
+                showNotification("You already own this Larp.", "Common");
+            }
+            closeLarpCheatModal();
+        }
+
         function rollCrate(type) {
             const crate = CRATES[type];
             if(rollingCrate || state.money < crate.cost) return;
             
             state.money -= crate.cost; rollingCrate = true; updateUI();
             
-            // Setup Modal
             const modal = document.getElementById('crate-modal');
             const txt = document.getElementById('crate-animation-text');
             const resName = document.getElementById('crate-result-name');
             const closeBtn = document.getElementById('crate-close-btn');
+            const skipBtn = document.getElementById('crate-skip-btn');
             
-            modal.style.display = 'flex'; resName.style.display = 'none'; closeBtn.style.display = 'none';
+            modal.style.display = 'flex'; resName.style.display = 'none'; closeBtn.style.display = 'none'; skipBtn.style.display = 'block';
             txt.className = 'rolling'; txt.innerText = '📦';
             
+            // Pre-calculate result so skip works
+            pendingRollData = calculateCrateResult(type, crate);
+
             let ticks = 0;
-            const anim = setInterval(() => {
+            crateAnim = setInterval(() => {
                 txt.innerText = LARPS[Math.floor(Math.random()*LARPS.length)].emoji;
                 ticks++;
-                if(ticks > 25) { clearInterval(anim); finalizeRoll(type, crate, txt, resName, closeBtn); }
+                if(ticks > 25) { 
+                    clearInterval(crateAnim); 
+                    displayCrateResult(txt, resName, closeBtn, skipBtn); 
+                }
             }, 80);
         }
 
-        function finalizeRoll(type, crateData, txtEl, nameEl, btnEl) {
-            txtEl.className = '';
+        function skipCrate() {
+            if(!rollingCrate || !crateAnim) return;
+            clearInterval(crateAnim);
+            const txt = document.getElementById('crate-animation-text');
+            const resName = document.getElementById('crate-result-name');
+            const closeBtn = document.getElementById('crate-close-btn');
+            const skipBtn = document.getElementById('crate-skip-btn');
+            displayCrateResult(txt, resName, closeBtn, skipBtn);
+        }
+
+        function calculateCrateResult(type, crateData) {
             let won;
-            
             if (type === 'all_or_nothing') {
-                const rand = Math.random() * 10000;
-                // 99.99% Homelander Stare (0 to 9998.99), 0.01% The Peak (9999 to 10000)
-                if (rand >= 9999) {
-                    won = LARPS.find(l => l.id === 'the_peak');
-                } else {
-                    won = LARPS.find(l => l.id === 'homelander_stare');
-                }
+                const rand = Math.random() * 100;
+                // 90% Homelander Stare, 10% The Peak
+                if (rand >= 90) won = LARPS.find(l => l.id === 'the_peak');
+                else won = LARPS.find(l => l.id === 'homelander_stare');
             } else {
                 const luck = getLuckMult();
                 let totalW = 0; let adjW = {};
-                
-                // Apply luck (except to lowest tier in the crate)
                 for(const [r, w] of Object.entries(crateData.weights)) {
                     let fw = (r === crateData.pool[0]) ? w : w * luck;
                     adjW[r] = fw; totalW += fw;
                 }
-                
                 let rand = Math.random() * totalW; let selRarity = crateData.pool[0];
                 for(const [r, w] of Object.entries(adjW)) { rand -= w; if(rand <= 0){ selRarity = r; break; } }
                 
-                // Get all possible larps for rolled rarity, that also belong to this crate's pool logic
-                const possibleLarps = LARPS.filter(l => l.rarity === selRarity);
+                const possibleLarps = LARPS.filter(l => l.rarity === selRarity && !l.id.includes('craftable_placeholder')); // Allow all non-hidden larps. Note: We didn't hide craftables from crates intentionally, but if we wanted to, we could add a flag. For now, craftables CAN be rolled unless stated otherwise. User didn't specify they are exclusive to crafting.
+                
                 won = possibleLarps[Math.floor(Math.random() * possibleLarps.length)];
             }
+            return won;
+        }
+
+        function displayCrateResult(txtEl, nameEl, btnEl, skipBtn) {
+            txtEl.className = '';
+            skipBtn.style.display = 'none';
             
+            const won = pendingRollData;
             txtEl.innerText = won.emoji;
             nameEl.innerText = won.name; nameEl.className = `rarity-${won.rarity}`; nameEl.style.display = 'block';
             btnEl.style.display = 'block';
             
-            if(!state.inventory.includes(won.id)) state.inventory.push(won.id);
-            equipLarp(won.id);
+            // DON'T auto equip anymore, just add to inventory
+            if(!state.inventory.includes(won.id)) {
+                state.inventory.push(won.id);
+            }
+            
             showNotification(`Unlocked: ${won.name}!`, won.rarity);
             rollingCrate = false; updateUI();
         }
 
         function closeCrateModal() { document.getElementById('crate-modal').style.display = 'none'; }
 
-        // --- STREAMING_CHUNK:UI Updates & Core Loops ---
+        function startShopTimer() {
+            updateShopUI(); // Initial run
+            shopTimerInterval = setInterval(() => {
+                const now = new Date();
+                const min = now.getMinutes();
+                const sec = now.getSeconds();
+                const nextMin = Math.ceil((min + 1) / 10) * 10;
+                let minsLeft = nextMin - min - 1;
+                if(minsLeft < 0) minsLeft += 10;
+                let secsLeft = 59 - sec;
+                
+                document.getElementById('fruit-timer').innerText = `${minsLeft.toString().padStart(2, '0')}:${secsLeft.toString().padStart(2, '0')}`;
+                
+                // If it exactly hit a 10 min mark, refresh shop contents
+                if(minsLeft === 9 && secsLeft === 59) updateShopUI();
+            }, 1000);
+        }
+
+        function updateShopUI() {
+            // Determine active fruits based on 10 min epoch seed
+            const epoch = Math.floor(Date.now() / 600000);
+            
+            // Simple deterministic pseudo-random based on epoch
+            const activeFruits = [];
+            const tempFruits = [...FRUITS];
+            for(let i=0; i<3; i++) {
+                const idx = (epoch + i * 7) % tempFruits.length;
+                activeFruits.push(tempFruits[idx]);
+                tempFruits.splice(idx, 1);
+            }
+
+            const list = document.getElementById('fruit-list');
+            list.innerHTML = '';
+            activeFruits.forEach(f => {
+                const el = document.createElement('div');
+                el.className = 'shop-item';
+                el.innerHTML = `
+                    <div class="shop-header"><span class="shop-title">${f.emoji} ${f.name}</span><span class="shop-level">+${f.boost}x</span></div>
+                    <div style="font-size: 0.8rem; color:#aaa;">Permanent Multiplier Boost to target Larp.</div>
+                    <button class="action-btn" onclick="buyFruit('${f.id}')">Buy & Feed ($${formatNum(f.cost)})</button>
+                `;
+                // Disable button if poor
+                const btn = el.querySelector('button');
+                if(state.money < f.cost) btn.disabled = true;
+                list.appendChild(el);
+            });
+        }
+
+        function buyFruit(fruitId) {
+            const targetId = document.getElementById('fruit-target-select').value;
+            if(!targetId) return;
+            
+            const fruit = FRUITS.find(f => f.id === fruitId);
+            if(state.money >= fruit.cost) {
+                state.money -= fruit.cost;
+                if(!state.fruitBuffs[targetId]) state.fruitBuffs[targetId] = 0;
+                state.fruitBuffs[targetId] += fruit.boost;
+                showNotification(`Fed ${fruit.name} to ${getAuraData(targetId).name}! (+${fruit.boost}x)`, "Rare");
+                updateUI();
+            }
+        }
+
+        function updateCraftingUI() {
+            const list = document.getElementById('crafting-list');
+            list.innerHTML = '';
+            
+            RECIPES.forEach(r => {
+                const resultLarp = getAuraData(r.result);
+                let missingCount = 0;
+                let reqHtml = r.reqs.map(reqId => {
+                    const l = getAuraData(reqId);
+                    const has = state.inventory.includes(reqId);
+                    if(!has) missingCount++;
+                    return `<div class="${has ? 'req-met' : 'req-missing'}">${l.emoji} ${l.name} ${has ? '✔️' : '❌'}</div>`;
+                }).join('');
+
+                const el = document.createElement('div');
+                el.className = 'shop-item';
+                el.style.borderColor = `var(--${resultLarp.rarity.toLowerCase()})`;
+                el.innerHTML = `
+                    <div class="shop-header"><span class="shop-title rarity-${resultLarp.rarity}">${resultLarp.emoji} ${r.name}</span><span class="shop-level">Requires ${r.reqs.length}</span></div>
+                    <div class="recipe-box">${reqHtml}</div>
+                    <button class="action-btn" style="background: var(--${resultLarp.rarity.toLowerCase()}); color: ${resultLarp.rarity==='Cosmic'||resultLarp.rarity==='Divine'?'black':'white'};" ${missingCount > 0 ? 'disabled' : ''} onclick="craftLarp('${r.id}')">Forge ${resultLarp.name}</button>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        function craftLarp(recipeId) {
+            const r = RECIPES.find(x => x.id === recipeId);
+            // Verify
+            if(r.reqs.some(req => !state.inventory.includes(req))) return;
+
+            // Consume
+            state.inventory = state.inventory.filter(id => !r.reqs.includes(id));
+            
+            // Check if we consumed equipped larp
+            if(!state.inventory.includes(state.currentLarp)) {
+                state.currentLarp = state.inventory.length > 0 ? state.inventory[0] : 'excuse_me';
+                if(!state.inventory.includes('excuse_me') && state.inventory.length === 0) state.inventory.push('excuse_me');
+            }
+
+            // Award
+            if(!state.inventory.includes(r.result)) state.inventory.push(r.result);
+            
+            const won = getAuraData(r.result);
+            showNotification(`Forged: ${won.name}!`, won.rarity);
+            updateUI();
+        }
+
         function equipLarp(id) {
             state.currentLarp = id;
             updateAudioSource();
             updateUI();
         }
 
+        function equipBestLarp() {
+            if(state.inventory.length === 0) return;
+            let bestId = state.inventory[0];
+            let maxMult = getLarpTotalMult(bestId);
+            
+            for(let i=1; i<state.inventory.length; i++) {
+                const mult = getLarpTotalMult(state.inventory[i]);
+                if(mult > maxMult) {
+                    maxMult = mult;
+                    bestId = state.inventory[i];
+                }
+            }
+            
+            if(state.currentLarp !== bestId) {
+                equipLarp(bestId);
+                showNotification(`Equipped Best: ${getAuraData(bestId).name}`, "Legendary");
+            } else {
+                showNotification(`Already equipping the best!`, "Common");
+            }
+        }
+
         function updateAudioSource() {
-            const data = getAuraData();
-            // Use custom audio if it exists, otherwise use default
+            const data = getAuraData(state.currentLarp);
             let track = data.audioUrl ? data.audioUrl : AUDIO_BASE;
             
             if(currentAudioTrack !== track) {
                 currentAudioTrack = track;
                 audioPlayer.pause(); 
-                
-                // Set the exact, verbatim filename so the virtual environment can resolve your uploaded files!
                 audioPlayer.src = track;
                 audioPlayer.load(); 
                 
-                // If they swap larps mid-session, instantly start playing the new song
-                if (isLarping) {
-                    playAudioSafely();
-                }
+                if (isLarping) playAudioSafely();
             }
         }
 
@@ -647,7 +878,6 @@
             document.getElementById('rebirth-display').innerText = state.rebirths;
             document.getElementById('rebirth-boost-display').innerText = `+${Math.floor((getRebirthMult()-1)*100)}% Money | +${Math.floor((getLuckMult()-1)*100)}% Luck`;
 
-            // Shop Costs
             const mC = getCost('mult'); const dC = getCost('dur'); const cC = getCost('cool'); const rC = getCost('rebirth');
             document.getElementById('mult-level').innerText = `Lvl ${state.multLvl}`;
             document.getElementById('dur-level').innerText = `${getDur()}s`;
@@ -663,37 +893,27 @@
             document.getElementById('btn-upg-cool').disabled = state.money < cC || state.coolLvl >= 13;
             document.getElementById('btn-rebirth').disabled = state.money < rC;
 
-            // Crates
             document.getElementById('btn-crate-std').disabled = state.money < CRATES['standard'].cost || rollingCrate;
             document.getElementById('btn-crate-prm').disabled = state.money < CRATES['premium'].cost || rollingCrate;
             document.getElementById('btn-crate-myth').disabled = state.money < CRATES['mythic'].cost || rollingCrate;
             document.getElementById('btn-crate-cosm').disabled = state.money < CRATES['cosmic'].cost || rollingCrate;
             document.getElementById('btn-crate-aon').disabled = state.money < CRATES['all_or_nothing'].cost || rollingCrate;
 
-            // Profile Map
             const profArea = document.getElementById('profile-area');
-            const data = getAuraData();
+            const data = getAuraData(state.currentLarp);
             document.getElementById('emote-name').innerText = data.name;
             document.getElementById('emote-name').className = `rarity-${data.rarity}`;
-            document.getElementById('emote-mult').innerText = `${data.mult}x Multiplier`;
+            
+            const totalMult = getLarpTotalMult(state.currentLarp);
+            const buff = state.fruitBuffs[state.currentLarp] || 0;
+            document.getElementById('emote-mult').innerHTML = `${totalMult}x Multiplier <br> <span style="font-size:0.7rem; color:#888;">(Base: ${data.mult}x | Fruit: +${buff}x)</span>`;
             
             const mainBtnBg = document.getElementById('btn-gif-bg');
-
-            // Prevent Tenor from reloading every single tick (which causes the blue flash)
             if (window.lastRenderedLarp !== state.currentLarp) {
                 window.lastRenderedLarp = state.currentLarp;
-                
                 document.getElementById('emote-icon').innerText = data.emoji;
-                mainBtnBg.style.backgroundImage = 'none'; // Clear any old image backgrounds
+                mainBtnBg.innerHTML = data.tenorHtml ? data.tenorHtml : DEF_TENOR;
                 
-                if (data.tenorHtml) {
-                    mainBtnBg.innerHTML = data.tenorHtml;
-                } else {
-                    // Inject the exact Tenor Embed code provided for standard larps
-                    mainBtnBg.innerHTML = `<div class="tenor-gif-embed" data-postid="2382474800099612090" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>`;
-                }
-                
-                // Re-trigger the Tenor script so it dynamically loads the iframe
                 let oldScript = document.getElementById('tenor-embed-script');
                 if (oldScript) oldScript.remove();
                 const s = document.createElement('script');
@@ -706,11 +926,17 @@
             profArea.style.borderColor = c;
             profArea.style.boxShadow = (data.rarity === 'Mythic' || data.rarity === 'Cosmic' || data.rarity === 'Divine') ? `0 0 15px ${c} inset` : 'none';
 
-            // Inventory
+            // Inventory & Shop Select
             const inv = document.getElementById('inventory-list');
+            const targetSelect = document.getElementById('fruit-target-select');
             inv.innerHTML = '';
-            state.inventory.forEach(id => {
-                const obj = LARPS.find(l => l.id === id);
+            targetSelect.innerHTML = '';
+            
+            // Sort inventory by total mult descending
+            const sortedInv = [...state.inventory].sort((a,b) => getLarpTotalMult(b) - getLarpTotalMult(a));
+            
+            sortedInv.forEach(id => {
+                const obj = getAuraData(id);
                 if(obj) {
                     const b = document.createElement('button');
                     b.style.padding = '10px 15px'; b.style.background = state.currentLarp === id ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.5)';
@@ -718,13 +944,39 @@
                     b.style.color = 'white'; b.style.cursor = 'pointer';
                     b.style.display = 'flex'; b.style.alignItems = 'center'; b.style.gap = '12px'; b.style.width = '100%';
                     
-                    const icon = obj.rarity === 'Cosmic' ? '🌌' : obj.emoji;
-                    b.innerHTML = `<span style="font-size: 1.5rem;">${icon}</span> <span style="flex-grow: 1; text-align: left; font-size: 1.05rem; font-weight: bold;">${obj.name}</span> <span style="color: var(--accent); font-size: 0.95rem;">${obj.mult}x</span>`;
-                    
+                    const tMult = getLarpTotalMult(id);
+                    const icon = (obj.rarity === 'Cosmic' || obj.rarity === 'Divine') ? '🌌' : obj.emoji;
+                    b.innerHTML = `<span style="font-size: 1.5rem;">${icon}</span> <span style="flex-grow: 1; text-align: left; font-size: 1.05rem; font-weight: bold;">${obj.name}</span> <span style="color: var(--accent); font-size: 0.95rem;">${tMult}x</span>`;
                     b.onclick = () => equipLarp(id);
                     inv.appendChild(b);
+
+                    const opt = document.createElement('option');
+                    opt.value = id; opt.innerText = `${obj.name} (${tMult}x)`;
+                    if(id === state.currentLarp) opt.selected = true;
+                    targetSelect.appendChild(opt);
                 }
             });
+
+            // Index Tab Update
+            document.getElementById('index-count').innerText = `${state.inventory.length}/${LARPS.length}`;
+            const iGrid = document.getElementById('index-grid');
+            iGrid.innerHTML = '';
+            LARPS.forEach(l => {
+                const isOwned = state.inventory.includes(l.id);
+                const el = document.createElement('div');
+                el.className = `index-item ${isOwned ? '' : 'locked'}`;
+                el.style.borderColor = isOwned ? `var(--${l.rarity.toLowerCase()})` : '#333';
+                el.innerHTML = `
+                    <div class="index-icon">${isOwned ? l.emoji : '❓'}</div>
+                    <div class="index-name" style="color: ${isOwned ? `var(--${l.rarity.toLowerCase()})` : '#888'}">${isOwned ? l.name : 'Unknown'}</div>
+                    <div style="font-size: 0.6rem; color: #aaa; margin-top: 3px;">${l.mult}x</div>
+                `;
+                iGrid.appendChild(el);
+            });
+
+            // Refresh Dynamic Tabs
+            updateShopUI(); // Updates button states based on money
+            updateCraftingUI(); // Updates crafting reqs based on inventory
         }
 
         // Utils
@@ -738,7 +990,8 @@
             if(n < 10000) return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             if(n < 1e6) return (n/1e3).toFixed(1) + 'K';
             if(n < 1e9) return (n/1e6).toFixed(2) + 'M';
-            return (n/1e9).toFixed(2) + 'B';
+            if(n < 1e12) return (n/1e9).toFixed(2) + 'B';
+            return (n/1e12).toFixed(2) + 'T';
         }
         function showNotification(m, r='Common') {
             const a = document.getElementById('notification-area');

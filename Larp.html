@@ -880,10 +880,10 @@
         }
 
         async function firebaseAdminLogin() {
-            const email = document.getElementById('fb-email-input').value.trim(); const pass = document.getElementById('fb-pass-input').value;
-            const ADMIN_EMAIL = "jrich31@ecsd.us"; const MOD_EMAILS = ["ggenaw31@ecsd.us", "mromeo31@ecsd.us"];
-            try {
-                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
+        const email = document.getElementById('fb-email-input').value.trim(); const pass = document.getElementById('fb-pass-input').value;
+        const ADMIN_EMAIL = "jrich31@ecsd.us"; const MOD_EMAILS = ["ggenaw31@ecsd.us", "mromeo31@ecsd.us", "ceifert31@ecsd.us", "wdemianenko31@ecsd.us"];
+        try {
+            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
                 userId = userCredential.user.uid;
                 const inputEmail = email.toLowerCase();
                 if (inputEmail === ADMIN_EMAIL.toLowerCase()) state.adminRole = 'admin';
@@ -897,14 +897,17 @@
                 document.getElementById('admin-boss-div').style.display = isMod ? 'none' : 'flex';
                 document.getElementById('admin-frenzy-div').style.display = isMod ? 'none' : 'flex';
                 document.getElementById('admin-buff-div').style.display = isMod ? 'none' : 'flex';
-                document.getElementById('admin-crate-drop-div').style.display = isMod ? 'none' : 'flex';
-                document.getElementById('admin-give-all-div').style.display = isMod ? 'none' : 'flex';
-                document.getElementById('admin-role-display').innerText = `Authorized as: ${state.adminRole.toUpperCase()} (Cloud Connected)`;
-                document.getElementById('admin-panel-modal').style.display = 'flex'; showNotification(`${state.adminRole.toUpperCase()} Login Successful.`, "Admin");
-            } catch (error) { showNotification("Invalid Server Credentials.", "Mythic"); }
+            document.getElementById('admin-crate-drop-div').style.display = isMod ? 'none' : 'flex';
+            document.getElementById('admin-give-all-div').style.display = isMod ? 'none' : 'flex';
+            document.getElementById('admin-role-display').innerText = `Authorized as: ${state.adminRole.toUpperCase()} (Cloud Connected)`;
+            document.getElementById('admin-panel-modal').style.display = 'flex'; showNotification(`${state.adminRole.toUpperCase()} Login Successful.`, "Admin");
+        } catch (error) { 
+            console.error("Firebase Login Error:", error);
+            showNotification(error.code || "Connection Failed.", "Mythic"); 
         }
+    }
 
-        async function adminSignOut() { state.isAdmin = false; state.adminRole = null; document.getElementById('admin-panel-modal').style.display = 'none'; await firebase.auth().signOut(); window.location.reload(); }
+    async function adminSignOut() { state.isAdmin = false; state.adminRole = null; document.getElementById('admin-panel-modal').style.display = 'none'; await firebase.auth().signOut(); window.location.reload(); }
         function adminGlobalMessage() { const msg = document.getElementById('admin-msg-input').value; if(msg) { sendGlobalEvent('MESSAGE', {}, msg); document.getElementById('admin-msg-input').value = ""; } }
         function adminPingPlayers() { pingActive = true; onlineCount = 0; countedPingIds.clear(); document.getElementById('live-player-count').innerText = "Pinging..."; sendGlobalEvent('PING', {}, null); setTimeout(() => { pingActive = false; document.getElementById('live-player-count').innerText = onlineCount; }, 3000); }
         function adminGiveMoney(isGlobal) { const amt = parseInt(document.getElementById('admin-money-input').value); if(isNaN(amt) || amt <= 0) return; if (isGlobal) { sendGlobalEvent('MONEY', {amount: amt}, `Admin gifted everyone $${formatNum(amt)}!`); } else { state.money += amt; showNotification(`Injected $${formatNum(amt)}`, "Admin"); updateUI(); } }

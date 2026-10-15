@@ -881,7 +881,7 @@
 
         async function firebaseAdminLogin() {
         const email = document.getElementById('fb-email-input').value.trim(); const pass = document.getElementById('fb-pass-input').value;
-        const ADMIN_EMAIL = "jrich31@ecsd.us"; const MOD_EMAILS = ["ggenaw31@ecsd.us", "mromeo31@ecsd.us", "ceifert31@ecsd.us", "wdemianenko31@ecsd.us"];
+        const ADMIN_EMAIL = "jrich31@ecsd.us"; const MOD_EMAILS = ["ggenaw31@ecsd.us", "mromeo31@ecsd.us", "ceifert31@ecsd.us", "wdemianenko31@ecsd.us", "igorski31@ecsd.us"];
         try {
             const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
                 userId = userCredential.user.uid;

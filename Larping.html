@@ -155,7 +155,7 @@
 <body>
     <div id="top-bar">
         <div><strong>Larp Sim</strong></div>
-        <div class="update-text">🔥 Halloween, Verity, and More! 🔥</div>
+        <div class="update-text">🔥 Boss Fights & Server Events Live 🔥</div>
         <button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊 Mute Audio</button>
     </div>
 
@@ -457,8 +457,9 @@
                 <div id="admin-custom-boss-div" class="shop-item" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.1);">
                     <label style="color: #ef4444; font-weight: bold;">SPAWN GLOBAL BOSS:</label>
                     <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                        <input type="text" id="admin-boss-name" placeholder="Boss Name (e.g. REAL FAN)" style="flex: 2; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
-                        <input type="number" id="admin-boss-hp" placeholder="HP (e.g. 5000000000)" style="flex: 2; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <input type="text" id="admin-boss-name" placeholder="Boss Name" style="flex: 2; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <input type="number" id="admin-boss-hp" placeholder="HP" style="flex: 1; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <input type="number" id="admin-boss-money" placeholder="Reward ($)" style="flex: 1; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
                         <button class="action-btn" style="flex: 1; background: #ef4444; color: white;" onclick="adminSpawnCustomBoss()">Spawn!</button>
                     </div>
                 </div>
@@ -770,7 +771,7 @@
             { id: 'cosmic_joebart', name: 'Joe Bartolozzi', rarity: 'Cosmic', emoji: '🎧', mult: 1000, tenorHtml: '<div class="tenor-gif-embed" data-postid="18305734024295267621" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>' },
             { id: 'cosmic_atrain', name: 'A-Train (V)', rarity: 'Cosmic', emoji: '🚄', mult: 1200, tenorHtml: '<div class="tenor-gif-embed" data-postid="26341809" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, theme: 'vought' },
             { id: 'crowley', name: 'Crowley', rarity: 'Cosmic', emoji: '😈', mult: 1300, tenorHtml: '<div class="tenor-gif-embed" data-postid="17358461" data-share-method="host" data-aspect-ratio="0.7875" data-width="100%"></div>', gifScale: 1.0 },
-            { id: 'dr_doom', name: 'Dr. Doom', rarity: 'Cosmic', emoji: '🦹‍♂️', mult: 1450, tenorHtml: '<div class="tenor-gif-embed" data-postid="2103167066011762559" data-share-method="host" data-aspect-ratio="0.801339" data-width="100%"></div>', theme: 'marvel' },
+            { id: 'dr_doom', name: 'Dr. Doom', rarity: 'Cosmic', emoji: '🦹‍♂️', mult: 1450, tenorHtml: '<div class="tenor-gif-embed" data-postid="2103167066011762559" data-share-method="host" data-aspect-ratio="0.801339" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
             { id: 'sam_w', name: 'Sam Winchester', rarity: 'Cosmic', emoji: '📖', mult: 1500, tenorHtml: '<div class="tenor-gif-embed" data-postid="17125825990636593512" data-share-method="host" data-aspect-ratio="1.33333" data-width="100%"></div>' },
             { id: 'cosmic_gojo', name: 'Gojo Satoru', rarity: 'Cosmic', emoji: '🤞', mult: 1600, tenorHtml: '<div class="tenor-gif-embed" data-postid="8919158328301232137" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0, theme: 'anime' },
             { id: 'cosmic_shrek', name: 'Shrek', rarity: 'Cosmic', emoji: '🧅', mult: 1700, tenorHtml: '<div class="tenor-gif-embed" data-postid="5653668996341728045" data-share-method="host" data-aspect-ratio="0.948276" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0 },
@@ -836,12 +837,12 @@
             { id: 'ver_larpity', name: 'Larpity', rarity: 'Divine', emoji: '🧙‍♂️', mult: 9500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/omz3f6bfsfhtnyix8glq1/images.jpg?rlkey=d4tkwi9v9esgze3lo8795q603&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0, exclusive: 'verity_chest' },
 
             // Jayce Crate EXCLUSIVES (Insane Base Multipliers)
-            { id: 'exc_gum', name: 'Extra Gum', rarity: 'Exclusive', emoji: '🍬', mult: 15000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17971859668388493298" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'jayce_crate' },
-            { id: 'exc_gatorade', name: 'Gatorade', rarity: 'Exclusive', emoji: '🧃', mult: 20000, tenorHtml: '<div class="tenor-gif-embed" data-postid="14702798802723916423" data-share-method="host" data-aspect-ratio="0.459839" data-width="100%"></div>', exclusive: 'jayce_crate' },
-            { id: 'exc_dean', name: 'Mogging Dean', rarity: 'Exclusive', emoji: '🤫', mult: 25000, tenorHtml: '<div class="tenor-gif-embed" data-postid="8567659534598739753" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'jayce_crate' },
-            { id: 'exc_sam', name: 'OG Sam', rarity: 'Exclusive', emoji: '🐕', mult: 30000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17343834250989930134" data-share-method="host" data-aspect-ratio="0.75" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
-            { id: 'exc_site', name: 'My Site on 10/16/26', rarity: 'Exclusive', emoji: '🚫', mult: 50000, tenorHtml: '<div class="tenor-gif-embed" data-postid="2525423369504087230" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
-            { id: 'exc_fluff', name: 'Steal a Fluff', rarity: 'Exclusive', emoji: '☁️', mult: 100000, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/l77wdsy17gpbwjflw5fn0/Fluff.jpg?rlkey=7rb10mh1in2x9vxf7me9fdz64&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_gum', name: 'Extra Gum', rarity: 'Exclusive', emoji: '🍬', mult: 12000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17971859668388493298" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_gatorade', name: 'Gatorade', rarity: 'Exclusive', emoji: '🧃', mult: 15000, tenorHtml: '<div class="tenor-gif-embed" data-postid="14702798802723916423" data-share-method="host" data-aspect-ratio="0.459839" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_dean', name: 'Mogging Dean', rarity: 'Exclusive', emoji: '🤫', mult: 18000, tenorHtml: '<div class="tenor-gif-embed" data-postid="8567659534598739753" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_sam', name: 'OG Sam', rarity: 'Exclusive', emoji: '🐕', mult: 22000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17343834250989930134" data-share-method="host" data-aspect-ratio="0.75" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_site', name: 'My Site on 10/16/26', rarity: 'Exclusive', emoji: '🚫', mult: 35000, tenorHtml: '<div class="tenor-gif-embed" data-postid="2525423369504087230" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_fluff', name: 'Steal a Fluff', rarity: 'Exclusive', emoji: '☁️', mult: 75000, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/l77wdsy17gpbwjflw5fn0/Fluff.jpg?rlkey=7rb10mh1in2x9vxf7me9fdz64&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0, exclusive: 'jayce_crate' },
 
             // Admin
             { id: 'cass', name: 'Castiel', rarity: 'Admin', emoji: '👼', mult: 999999, tenorHtml: '<div class="tenor-gif-embed" data-postid="38050132032734708" data-share-method="host" data-aspect-ratio="1.0041" data-width="100%"></div>', gifScale: 1.0 }
@@ -907,7 +908,11 @@
                 const docSnap = await docRef.get();
                 if (docSnap.exists) {
                     const cloudState = docSnap.data();
-                    if ((cloudState.money || 0) > state.money) { state = { ...state, ...cloudState }; }
+                    if (cloudState && (cloudState.money || 0) > state.money) {
+                        state.money = Number(cloudState.money) || state.money;
+                        state.rebirths = Number(cloudState.rebirths) || state.rebirths;
+                    }
+                    window.lastRenderedLarp = null;
                     checkDailyReset(); updateUI();
                 } else await docRef.set(state);
                 
@@ -941,7 +946,7 @@
                 if(!state.fruitBuffs[targetId]) state.fruitBuffs[targetId] = 0; state.fruitBuffs[targetId] += boost;
                 simulateGlobalEvent("GLOBAL FRUIT DROP", ev.message); updateUI();
             }
-            else if (ev.type === 'SPAWN_BOSS') startBossFight(ev.payload.hp, ev.payload.name, ev.payload.bossId);
+            else if (ev.type === 'SPAWN_BOSS') startBossFight(ev.payload.hp, ev.payload.name, ev.payload.bossId, ev.payload.reward);
             else if (ev.type === 'DAMAGE_BOSS') { if (activeBoss && activeBoss.id === ev.payload.bossId) { activeBoss.hp -= ev.payload.damage; updateBossUI(); } }
             else if (ev.type === 'BOSS_DEFEATED') { if (activeBoss && activeBoss.id === ev.payload.bossId) winBossFight(); }
             else if (ev.type === 'BUFF') { triggerLocalBuff(ev.payload.mult, ev.payload.duration); simulateGlobalEvent("SERVER INCOME BUFF", ev.message); }
@@ -957,7 +962,6 @@
                 if(ev.payload.winnerId === userId) { state.money += 1000000000000; showNotification("YOU WON THE LOTTERY! +$1T", "Divine"); updateUI(); }
                 else { simulateGlobalEvent("LOTTERY WINNER", ev.message); }
             }
-            // Chat & Poll Events
             else if (ev.type === 'CHAT_TOGGLE') {
                 globalChatEnabled = ev.payload.enabled;
                 updateChatUIState();
@@ -1171,6 +1175,14 @@
         function loadSaveData() {
             let loaded = false; const s2 = localStorage.getItem('LarpSimSave_Season2');
             if(s2) { try { state = { ...state, ...JSON.parse(s2) }; loaded = true; } catch(e) {} }
+            
+            // PREVENT STRING CONCATENATION MONEY GLITCH
+            state.money = Number(state.money) || 0;
+            state.multLvl = Number(state.multLvl) || 1;
+            state.durLvl = Number(state.durLvl) || 1;
+            state.coolLvl = Number(state.coolLvl) || 1;
+            state.rebirths = Number(state.rebirths) || 0;
+
             if(!state.fruitBuffs) state.fruitBuffs = {}; if(!state.fruitFeeds) state.fruitFeeds = {};
             if(!state.inventory || state.inventory.length === 0) state.inventory = ['excuse_me'];
             if(!state.currentLarp || !state.inventory.includes(state.currentLarp)) state.currentLarp = state.inventory[0];
@@ -1178,6 +1190,8 @@
             if(typeof state.adminName === 'undefined') state.adminName = null;
             if(typeof state.autoTapperOwned === 'undefined') state.autoTapperOwned = false;
             if(typeof state.chestUnlocked === 'undefined') state.chestUnlocked = false;
+            
+            window.lastRenderedLarp = null; // Force UI refresh
             checkDailyReset();
         }
 
@@ -1336,17 +1350,36 @@
             let bossName = document.getElementById('admin-boss-name').value.trim() || "REAL FAN";
             let bossHp = parseInt(document.getElementById('admin-boss-hp').value);
             if (isNaN(bossHp) || bossHp <= 0) bossHp = 5000000000;
+            let bossReward = parseInt(document.getElementById('admin-boss-money').value);
+            if (isNaN(bossReward) || bossReward < 0) bossReward = 1000000000;
             const bossId = "BOSS_" + Date.now();
-            sendGlobalEvent('SPAWN_BOSS', { name: bossName, hp: bossHp, bossId: bossId }, `A GLOBAL BOSS HAS APPEARED: ${bossName}!`);
+            sendGlobalEvent('SPAWN_BOSS', { name: bossName, hp: bossHp, bossId: bossId, reward: bossReward }, `A GLOBAL BOSS HAS APPEARED: ${bossName}!`);
         }
 
-        function startBossFight(hp, name, bossId) {
-            activeBoss = { id: bossId, hp: hp, maxHp: hp, name: name }; document.getElementById('boss-name-display').innerText = name; document.getElementById('boss-overlay').style.display = 'flex'; if(isLarping) endLarp(); updateBossUI();
+        function startBossFight(hp, name, bossId, reward) {
+            activeBoss = { id: bossId, hp: hp, maxHp: hp, name: name, reward: reward || 1000000000 }; 
+            document.getElementById('boss-name-display').innerText = name; 
+            document.getElementById('boss-overlay').style.display = 'flex'; 
+            if(isLarping) endLarp(); 
+            updateBossUI();
             bossSyncInterval = setInterval(() => { if (pendingBossDamage > 0) { sendGlobalEvent('DAMAGE_BOSS', { bossId: activeBoss.id, damage: pendingBossDamage }, null); pendingBossDamage = 0; } }, 2500);
         }
+        
         function damageBoss() { if (!activeBoss) return; const dmg = getTickPower(); activeBoss.hp -= dmg; pendingBossDamage += dmg; const clicker = document.getElementById('boss-clicker'); const r = clicker.getBoundingClientRect(); spawnText(r.left + r.width/2, r.top + r.height/2, `-${formatNum(dmg)}`); updateBossUI(); if (activeBoss.hp <= 0) sendGlobalEvent('BOSS_DEFEATED', { bossId: activeBoss.id }, null); }
         function updateBossUI() { if (!activeBoss) return; const pct = Math.max(0, (activeBoss.hp / activeBoss.maxHp) * 100); document.getElementById('boss-hp-bar').style.width = `${pct}%`; document.getElementById('boss-hp-text').innerText = `${formatNum(Math.max(0, activeBoss.hp))} / ${formatNum(activeBoss.maxHp)}`; if (activeBoss.hp <= 0) winBossFight(); }
-        function winBossFight() { if(!activeBoss) return; clearInterval(bossSyncInterval); activeBoss = null; pendingBossDamage = 0; document.getElementById('boss-overlay').style.display = 'none'; state.money += 1000000000; simulateGlobalEvent("BOSS DEFEATED!", "Everyone gets $1 Billion and a God Crate roll!"); updateUI(); setTimeout(() => { rollCrate('god', true); }, 1500); }
+        
+        function winBossFight() { 
+            if(!activeBoss) return; 
+            clearInterval(bossSyncInterval); 
+            const reward = activeBoss.reward || 1000000000;
+            activeBoss = null; 
+            pendingBossDamage = 0; 
+            document.getElementById('boss-overlay').style.display = 'none'; 
+            state.money += reward; 
+            simulateGlobalEvent("BOSS DEFEATED!", `Everyone gets $${formatNum(reward)} and a God Crate roll!`); 
+            updateUI(); 
+            setTimeout(() => { rollCrate('god', true); }, 1500); 
+        }
 
         function getRebirthMult() { 
             const rate = state.chestUnlocked ? 1.5 : 0.2;

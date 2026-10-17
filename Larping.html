@@ -16,7 +16,7 @@
             --accent: #66fcf1; --accent-dim: #45a29e;
             --common: #a0a0a0; --uncommon: #4ade80; --rare: #60a5fa;
             --epic: #c084fc; --legendary: #fbbf24; --mythic: #f43f5e; --cosmic: #06b6d4; --divine: #fcd34d;
-            --admin: #ff00ff;
+            --exclusive: #ff00aa; --admin: #ff00ff;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; }
@@ -30,7 +30,6 @@
 
         #game-container { display: grid; grid-template-columns: 260px 1fr 340px; gap: 15px; padding: 15px; height: calc(100% - 50px); max-width: 1500px; margin: 0 auto; width: 100%; }
         .panel { background-color: var(--panel-bg); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); border: 1px solid rgba(102, 252, 241, 0.1); overflow-y: auto; }
-
         .stat-box { background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: center; }
         .stat-value { font-size: 1.8rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 10px rgba(102, 252, 241, 0.5); margin-top: 5px; }
 
@@ -52,11 +51,12 @@
             overflow: hidden; z-index: 10;
         }
         #main-button:active { transform: scale(0.95); }
+        
         .frenzy-glow { animation: frenzyPulse 0.5s infinite alternate !important; }
         @keyframes frenzyPulse { 0% { box-shadow: 0 0 50px #ff00ff, inset 0 0 20px rgba(0,0,0,0.8); } 100% { box-shadow: 0 0 100px #ff00ff, inset 0 0 40px rgba(0,0,0,0.8); transform: scale(1.02); } }
 
         #btn-gif-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.6; pointer-events: none; z-index: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        #btn-gif-bg iframe, #btn-gif-bg .tenor-gif-embed { pointer-events: none !important; transform: scale(var(--gif-scale, 1.4)); }
+        #btn-gif-bg iframe, #btn-gif-bg .tenor-gif-embed { pointer-events: none !important; transform: scale(var(--gif-scale, 1.4)) translateX(var(--gif-translate-x, 0%)); }
         #btn-text { position: relative; z-index: 10; pointer-events: none; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 15px rgba(0,0,0,1); }
 
         .floating-text { position: absolute; color: #4ade80; font-weight: bold; font-size: 2rem; pointer-events: none; text-shadow: 0 0 10px rgba(74, 222, 128, 0.8); animation: floatUp 1s ease-out forwards; z-index: 20; }
@@ -85,6 +85,7 @@
         .rarity-Mythic { color: var(--mythic); text-shadow: 0 0 20px var(--mythic); animation: pulseAnim 1.5s infinite; }
         .rarity-Cosmic { color: var(--cosmic); text-shadow: 0 0 25px #fff, 0 0 10px var(--cosmic); animation: cosmicPulse 1s infinite alternate; }
         .rarity-Divine { color: #fff; text-shadow: 0 0 10px #fbbf24, 0 0 20px #f59e0b, 0 0 30px #d97706; animation: divinePulse 1s infinite alternate; }
+        .rarity-Exclusive { color: var(--exclusive); text-shadow: 0 0 15px var(--exclusive), 0 0 30px #fff; animation: cosmicPulse 1s infinite alternate; }
         .rarity-Admin { color: var(--admin); text-shadow: 0 0 15px var(--admin), 0 0 30px #fff; animation: glitch 0.5s infinite; }
 
         @keyframes pulseAnim { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -135,6 +136,14 @@
         .quest-box { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #444; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
         .quest-progress { color: var(--accent); font-weight: bold; }
 
+        /* Chat & Poll Styles */
+        #chat-messages { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid #333; border-radius: 8px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; height: 350px; max-height: 50vh; text-align: left; }
+        .chat-msg { font-size: 0.85rem; line-height: 1.3; word-wrap: break-word; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 6px; }
+        .chat-sender { font-weight: bold; margin-right: 5px; }
+        .poll-btn { width: 100%; padding: 12px; margin: 5px 0; font-size: 1rem; text-align: left; display: flex; justify-content: space-between; background: rgba(0,0,0,0.6); color: white; border: 1px solid var(--accent); border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .poll-btn:hover:not(:disabled) { background: var(--accent-dim); color: black; font-weight: bold; }
+        .poll-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
         @media (max-width: 900px) {
             #game-container { grid-template-columns: 1fr; height: auto; }
             #center-panel { order: -1; padding: 20px 0; }
@@ -162,7 +171,9 @@
             <div class="stat-box">
                 <div>Income (While Larping)</div>
                 <div style="color: #888; font-size: 0.9rem; margin-top: 5px;">
-                    $<span id="tick-power-display">1</span> / sec <span id="buff-text" style="color: #ff00ff; font-weight: bold; display: none;">(BUFFED!)</span>
+                    $<span id="tick-power-display">1</span> / sec 
+                    <span id="buff-text" style="color: #ff00ff; font-weight: bold; display: none;">(BUFFED!)</span>
+                    <span id="luck-buff-text" style="color: #fbbf24; font-weight: bold; display: none;">(LUCK BUFF!)</span>
                 </div>
             </div>
             <div class="stat-box" style="border: 1px solid var(--mythic);">
@@ -200,6 +211,7 @@
                 <button class="tab-btn" onclick="switchTab('daily')">Daily Larping</button>
                 <button class="tab-btn" onclick="switchTab('crafting')">Crafting</button>
                 <button class="tab-btn" onclick="switchTab('index')">Index</button>
+                <button class="tab-btn" onclick="switchTab('chat')">💬 Chat</button>
             </div>
 
             <!-- Upgrades Tab -->
@@ -226,53 +238,49 @@
                 <hr style="border-color: #333;">
                 <div class="shop-item" style="border-color: var(--mythic); background: rgba(244, 63, 94, 0.1);">
                     <div class="shop-header"><span class="shop-title rarity-Mythic">Rebirth</span></div>
-                    <div style="font-size: 0.8rem; color:#aaa;">Reset money/upgrades for +20% income & +5% luck forever.<br><b>Rebirth 50 MEGA WIPE unlocks Chests!</b></div>
+                    <div style="font-size: 0.8rem; color:#aaa;" id="rebirth-desc-text">Reset money/upgrades for +20% income & +5% luck forever.<br><b>Rebirth 50 MEGA WIPE unlocks Chests & +150% scaling!</b></div>
                     <button class="action-btn" style="background: var(--mythic); color: white;" id="btn-rebirth" onclick="showRebirthModal()">Rebirth ($<span id="cost-rebirth">10,000</span>)</button>
                 </div>
             </div>
 
-            <!-- Crates Tab -->
             <div id="tab-crates" class="tab-content">
-                <button class="action-btn" style="background: #333; color: white; margin-bottom: 5px; border: 1px solid var(--accent);" onclick="document.getElementById('odds-modal').style.display='flex'; buildOddsTable();">📊 View Crate Odds</button>
+                <button class="action-btn" style="background: #333; color: white; margin-bottom: 5px; border: 1px solid var(--accent);" onclick="document.getElementById('odds-modal').style.display='flex'; buildOddsTable();">📊 View Drop Rates</button>
                 
-                <div class="crate-item">
-                    <div class="shop-header"><span class="shop-title">Standard Crate</span></div>
-                    <button class="action-btn" id="btn-crate-std" onclick="rollCrate('standard')">Open ($500)</button>
-                </div>
-                <div class="crate-item">
-                    <div class="shop-header"><span class="shop-title" style="color: var(--rare);">Premium Crate</span></div>
-                    <button class="action-btn" id="btn-crate-prm" onclick="rollCrate('premium')">Open ($2,500)</button>
-                </div>
-                <div class="crate-item">
-                    <div class="shop-header"><span class="shop-title" style="color: var(--mythic);">Mythic Crate</span></div>
-                    <button class="action-btn" id="btn-crate-myth" onclick="rollCrate('mythic')">Open ($50,000)</button>
-                </div>
-                <div class="crate-item" style="border-color: var(--cosmic);">
-                    <div class="shop-header"><span class="shop-title rarity-Cosmic">Ascension Crate</span></div>
-                    <button class="action-btn" style="background: var(--cosmic); color: black;" id="btn-crate-asc" onclick="rollCrate('ascension')">Open ($500,000)</button>
-                </div>
-                <div class="crate-item" style="border-color: var(--divine); background: rgba(251, 191, 36, 0.1);">
-                    <div class="shop-header"><span class="shop-title rarity-Divine">All or Nothing Crate</span></div>
-                    <button class="action-btn" style="background: #f59e0b; color: black;" id="btn-crate-aon" onclick="rollCrate('all_or_nothing')">Open ($1,000,000)</button>
-                </div>
-                <div class="crate-item" style="border-color: #fff; background: rgba(255, 255, 255, 0.1);">
-                    <div class="shop-header"><span class="shop-title" style="text-shadow: 0 0 10px #fff; color: white;">God Crate</span></div>
-                    <button class="action-btn" style="background: white; color: black;" id="btn-crate-god" onclick="rollCrate('god')">Open ($50,000,000)</button>
-                </div>
+                <div class="crate-item"><div class="shop-header"><span class="shop-title">Standard Crate</span></div><button class="action-btn" id="btn-crate-std" onclick="rollCrate('standard')">Open ($500)</button></div>
+                <div class="crate-item"><div class="shop-header"><span class="shop-title" style="color: var(--rare);">Premium Crate</span></div><button class="action-btn" id="btn-crate-prm" onclick="rollCrate('premium')">Open ($2,500)</button></div>
+                <div class="crate-item" style="border-color: var(--mythic);"><div class="shop-header"><span class="shop-title" style="color: var(--mythic);">Mythic Crate</span></div><button class="action-btn" id="btn-crate-myth" onclick="rollCrate('mythic')">Open ($50,000)</button></div>
+                
+                <div class="crate-item" style="border-color: #f472b6; background: rgba(244, 114, 182, 0.1);"><div class="shop-header"><span class="shop-title" style="color: #f472b6;">Anime Crate</span></div><button class="action-btn" style="background: #f472b6; color: black;" id="btn-crate-anime" onclick="rollCrate('anime_crate')">Open ($100,000)</button></div>
+                <div class="crate-item" style="border-color: #3b82f6; background: rgba(59, 130, 246, 0.1);"><div class="shop-header"><span class="shop-title" style="color: #3b82f6;">Vought Crate</span></div><button class="action-btn" style="background: #3b82f6; color: white;" id="btn-crate-vought" onclick="rollCrate('vought_crate')">Open ($250,000)</button></div>
+                
+                <div class="crate-item" style="border-color: var(--cosmic);"><div class="shop-header"><span class="shop-title rarity-Cosmic">Ascension Crate</span></div><button class="action-btn" style="background: var(--cosmic); color: black;" id="btn-crate-asc" onclick="rollCrate('ascension')">Open ($500,000)</button></div>
+                <div class="crate-item" style="border-color: var(--divine); background: rgba(251, 191, 36, 0.1);"><div class="shop-header"><span class="shop-title rarity-Divine">All or Nothing Crate</span></div><button class="action-btn" style="background: #f59e0b; color: black;" id="btn-crate-aon" onclick="rollCrate('all_or_nothing')">Open ($1,000,000)</button></div>
+                
+                <div class="crate-item" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.1);"><div class="shop-header"><span class="shop-title" style="color: #ef4444;">Marvel Crate</span></div><button class="action-btn" style="background: #ef4444; color: white;" id="btn-crate-marvel" onclick="rollCrate('marvel_crate')">Open ($10,000,000)</button></div>
+                <div class="crate-item" style="border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1);"><div class="shop-header"><span class="shop-title" style="color: #8b5cf6;">Verity Crate</span></div><button class="action-btn" style="background: #8b5cf6; color: white;" id="btn-crate-verity" onclick="rollCrate('verity_crate')">Open ($25,000,000)</button></div>
+                <div class="crate-item" style="border-color: #f97316; background: rgba(249, 115, 22, 0.1);"><div class="shop-header"><span class="shop-title" style="color: #f97316;">🎃 Halloween Crate</span></div><button class="action-btn" style="background: #f97316; color: black;" id="btn-crate-hallow" onclick="rollCrate('halloween_crate')">Open ($1,000,000,000)</button></div>
+                <div class="crate-item" style="border-color: #fff; background: rgba(255, 255, 255, 0.1);"><div class="shop-header"><span class="shop-title" style="text-shadow: 0 0 10px #fff; color: white;">God Crate</span></div><button class="action-btn" style="background: white; color: black;" id="btn-crate-god" onclick="rollCrate('god')">Open ($50,000,000)</button></div>
             </div>
 
-            <!-- Chests Tab (Unlocked at Rebirth 50) -->
             <div id="tab-chests" class="tab-content">
                 <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">
                     Welcome to the Endgame. Chests drop the rarest Larps in existence.
                 </div>
-                
+                <div class="crate-item" style="border-color: #eab308; background: rgba(234, 179, 8, 0.1);">
+                    <div class="shop-header"><span class="shop-title" style="color: #eab308; text-shadow: 0 0 10px #eab308;">Everything Chest</span></div>
+                    <div style="font-size: 0.75rem; color: #ccc;">Ignores exclusive rules. Contains EVERYTHING (Common to Divine).</div>
+                    <button class="action-btn" style="background: #eab308; color: black;" id="btn-chest-everything" onclick="rollCrate('everything_chest')">Unlock ($5,000,000,000)</button>
+                </div>
+                <div class="crate-item" style="border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1);">
+                    <div class="shop-header"><span class="shop-title" style="color: #8b5cf6; text-shadow: 0 0 10px #8b5cf6;">Verity Chest</span></div>
+                    <div style="font-size: 0.75rem; color: #ccc;">Drops Cosmics & Divines. Contains Lord Verity & Obesity!</div>
+                    <button class="action-btn" style="background: #8b5cf6; color: white;" id="btn-chest-verity" onclick="rollCrate('verity_chest')">Unlock ($25,000,000,000)</button>
+                </div>
                 <div class="crate-item" style="border-color: var(--cosmic); background: rgba(6, 182, 212, 0.1);">
                     <div class="shop-header"><span class="shop-title rarity-Cosmic">Basic Chest</span></div>
                     <div style="font-size: 0.75rem; color: #ccc;">Drops Cosmic (80%) and Divine (20%). Contains Exclusives!</div>
                     <button class="action-btn" style="background: var(--cosmic); color: black;" id="btn-chest-basic" onclick="rollCrate('basic_chest')">Unlock ($50,000,000,000)</button>
                 </div>
-                
                 <div class="crate-item" style="border-color: var(--admin); background: rgba(255, 0, 255, 0.1);">
                     <div class="shop-header"><span class="shop-title rarity-Admin">Castiel Chest</span></div>
                     <div style="font-size: 0.75rem; color: #ccc;">Drops Cosmic/Divine. 0.0001% chance for Admin Castiel!</div>
@@ -286,12 +294,8 @@
             </div>
 
             <div id="tab-shop" class="tab-content">
-                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">
-                    Fruits grant permanent boosts. Larps rotate out. Stock refreshes every 10 mins!
-                </div>
-                <div style="text-align: center; color: var(--accent); font-weight: bold; margin-bottom: 10px;">
-                    Next Restock: <span id="fruit-timer">--:--</span>
-                </div>
+                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">Fruits grant permanent boosts. Larps rotate out. Stock refreshes every 10 mins!</div>
+                <div style="text-align: center; color: var(--accent); font-weight: bold; margin-bottom: 10px;">Next Restock: <span id="fruit-timer">--:--</span></div>
                 <div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px;">
                     <label style="font-size: 0.8rem; color: var(--accent); font-weight: bold;">Select Larp to Feed Fruits To:</label>
                     <select id="fruit-target-select" style="width: 100%; padding: 8px; background: #111; color: white; border: 1px solid var(--accent); border-radius: 4px; outline: none; margin-top: 5px;"></select>
@@ -315,10 +319,7 @@
             </div>
             
             <div id="tab-crafting" class="tab-content">
-                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">
-                    Combine specific Larps to forge powerful new ones! 
-                    <br><strong style="color: #ef4444;">Warning: Crafting consumes the ingredients!</strong>
-                </div>
+                <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">Combine specific Larps to forge powerful new ones! <br><strong style="color: #ef4444;">Warning: Crafting consumes the ingredients!</strong></div>
                 <div id="crafting-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
 
@@ -326,10 +327,23 @@
                 <div style="font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px;">Larp Collection Index (<span id="index-count">0/0</span>)</div>
                 <div id="index-grid" class="index-grid"></div>
             </div>
+
+            <!-- Global Chat Tab -->
+            <div id="tab-chat" class="tab-content">
+                <div style="font-size: 0.85rem; color: #aaa; text-align: center; margin-bottom: 5px;">
+                    Chat Status: <span id="chat-status-indicator" style="color: #ef4444; font-weight: bold;">Locked by Admin</span>
+                </div>
+                <div id="chat-messages">
+                    <div class="chat-msg" style="color: #888; text-align: center;">Welcome to Global Chat! Waiting for messages...</div>
+                </div>
+                <div style="display: flex; gap: 5px; margin-top: 5px;">
+                    <input type="text" id="chat-input" placeholder="Chat is locked by Admin..." disabled style="flex: 1; padding: 10px; background: #111; color: white; border: 1px solid #444; border-radius: 6px; outline: none;" onkeydown="if(event.key==='Enter') sendChatMessage()" />
+                    <button class="action-btn" id="btn-send-chat" onclick="sendChatMessage()" disabled style="padding: 0 20px;">Send</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="crate-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 id="crate-modal-title">Opening...</h2>
@@ -343,8 +357,8 @@
     <div id="rebirth-modal" class="modal-overlay">
         <div class="modal-content" style="border-color: var(--mythic);">
             <h2 class="rarity-Mythic">Confirm Rebirth</h2>
-            <p style="margin: 15px 0; color: #aaa;">Are you sure? You will lose all your money and upgrades. You will permanently gain +20% Income Multiplier and +5% Luck Multiplier.</p>
-            <p style="color: #ef4444; font-weight:bold; font-size:0.85rem; margin-bottom: 15px;">WARNING: Rebirth 50 executes a MEGA WIPE! Everything resets to $0 (including Larps), but you unlock the exclusive CHESTS tab!</p>
+            <p style="margin: 15px 0; color: #aaa;" id="rebirth-modal-desc">Are you sure? You will lose all your money and upgrades. You will permanently gain +20% Income Multiplier and +5% Luck Multiplier.</p>
+            <p style="color: #ef4444; font-weight:bold; font-size:0.85rem; margin-bottom: 15px;" id="rebirth-modal-warn">WARNING: Rebirth 50 executes a MEGA WIPE! Everything resets to $0 (including Larps), but you unlock the exclusive CHESTS tab and massive +150% Rebirth scaling!</p>
             <div style="display: flex; gap: 10px;">
                 <button class="action-btn" style="flex: 1; background: #444; color: white;" onclick="closeRebirthModal()">Cancel</button>
                 <button class="action-btn" style="flex: 1; background: var(--mythic); color: white;" onclick="confirmRebirth()">Rebirth!</button>
@@ -358,6 +372,24 @@
             <p style="font-size: 0.8rem; color: #aaa;">Base odds (Luck multiplier affects actual rolls)</p>
             <div id="odds-table-container"></div>
             <button class="action-btn" style="width: 100%; margin-top: 15px; background: #444; color: white;" onclick="document.getElementById('odds-modal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <!-- Active Poll Modal for Players -->
+    <div id="poll-modal" class="modal-overlay" style="z-index: 3000;">
+        <div class="modal-content" style="border-color: var(--accent);">
+            <h2 style="color: var(--accent); margin-bottom: 10px;">📊 LIVE SERVER POLL</h2>
+            <h3 id="poll-question-display" style="margin-bottom: 20px; color: white;">Question?</h3>
+            <button class="poll-btn" id="btn-vote-1" onclick="submitPollVote(1)">
+                <span id="poll-opt1-text">Option 1</span>
+                <span id="poll-opt1-votes" style="color: var(--accent);">0 Votes</span>
+            </button>
+            <button class="poll-btn" id="btn-vote-2" onclick="submitPollVote(2)">
+                <span id="poll-opt2-text">Option 2</span>
+                <span id="poll-opt2-votes" style="color: var(--accent);">0 Votes</span>
+            </button>
+            <div style="font-size: 0.8rem; color: #888; margin-top: 15px;">Poll closes automatically in <span id="poll-timer-display">30</span>s</div>
+            <button class="action-btn" style="width: 100%; margin-top: 10px; background: #444; color: white;" onclick="document.getElementById('poll-modal').style.display='none'">Minimize</button>
         </div>
     </div>
 
@@ -399,9 +431,42 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
-                <div id="admin-boss-div" class="shop-item" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.1);">
-                    <label style="color: #ef4444; font-weight: bold;">GLOBAL BOSS EVENT:</label>
-                    <button class="action-btn" style="background: #ef4444; color: white;" onclick="adminSpawnBoss()">Spawn REAL FAN (Global)</button>
+                
+                <!-- Admin Only: Global Chat Control -->
+                <div id="admin-chat-control-div" class="shop-item" style="border-color: var(--accent); background: rgba(102, 252, 241, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <label style="color: var(--accent); font-weight: bold;">GLOBAL CHAT CONTROL:</label>
+                            <div style="font-size: 0.75rem; color: #ccc;">Unlock or lock public chat to save Firebase quota.</div>
+                        </div>
+                        <button class="action-btn" id="btn-toggle-chat" style="background: var(--accent); color: black; min-width: 130px;" onclick="adminToggleChat()">Enable Chat</button>
+                    </div>
+                </div>
+
+                <!-- Admin Only: Global Poll Creator -->
+                <div id="admin-poll-div" class="shop-item" style="border-color: #38bdf8; background: rgba(56, 189, 248, 0.1);">
+                    <label style="color: #38bdf8; font-weight: bold;">START GLOBAL POLL (30s):</label>
+                    <input type="text" id="admin-poll-q" placeholder="Poll Question (e.g. What event next?)" style="padding: 8px; width: 100%; background: #111; color: white; border: 1px solid #444; margin-bottom: 5px;" />
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" id="admin-poll-opt1" placeholder="Option 1 (e.g. God Crate)" style="flex: 1; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <input type="text" id="admin-poll-opt2" placeholder="Option 2 (e.g. Boss Fight)" style="flex: 1; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <button class="action-btn" style="background: #38bdf8; color: black; padding: 0 15px;" onclick="adminStartPoll()">Start Poll</button>
+                    </div>
+                </div>
+
+                <div id="admin-custom-boss-div" class="shop-item" style="border-color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+                    <label style="color: #ef4444; font-weight: bold;">SPAWN GLOBAL BOSS:</label>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                        <input type="text" id="admin-boss-name" placeholder="Boss Name (e.g. REAL FAN)" style="flex: 2; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <input type="number" id="admin-boss-hp" placeholder="HP (e.g. 5000000000)" style="flex: 2; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <button class="action-btn" style="flex: 1; background: #ef4444; color: white;" onclick="adminSpawnCustomBoss()">Spawn!</button>
+                    </div>
+                </div>
+
+                <div id="admin-lottery-div" class="shop-item" style="border-color: var(--divine); background: rgba(252, 211, 77, 0.1);">
+                    <label style="color: var(--divine); font-weight: bold;">$1 TRILLION LOTTERY:</label>
+                    <p style="font-size: 0.75rem; color: #ccc;">Selects a random active player and gifts them $1T.</p>
+                    <button class="action-btn" id="btn-run-lottery" style="background: var(--divine); color: black; margin-top: 5px;" onclick="adminRunLottery()">Run Lottery</button>
                 </div>
 
                 <div id="admin-frenzy-div" class="shop-item" style="border-color: #ff00ff; background: rgba(255, 0, 255, 0.1);">
@@ -420,10 +485,19 @@
                         <button class="action-btn" style="background: var(--legendary); color: black;" onclick="adminTriggerBuff()">Buff Server</button>
                     </div>
                 </div>
+
+                <div id="admin-luck-div" class="shop-item" style="border-color: var(--uncommon); background: rgba(74, 222, 128, 0.1);">
+                    <label style="color: var(--uncommon); font-weight: bold;">GLOBAL LUCK BUFF:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="admin-luck-mult-input" placeholder="Multiplier (e.g. 2)" style="flex: 1; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <input type="number" id="admin-luck-time-input" placeholder="Minutes" style="flex: 1; padding: 8px; background: #111; color: white; border: 1px solid #444;" />
+                        <button class="action-btn" style="background: var(--uncommon); color: black;" onclick="adminTriggerLuck()">Boost Luck</button>
+                    </div>
+                </div>
                 
                 <div class="shop-item">
                     <label>Global Server Message:</label>
-                    <input type="text" id="admin-msg-input" placeholder="Enter message..." style="padding: 8px; width: 100%; background: #111; color: white; border: 1px solid #444;" />
+                    <input type="text" id="admin-msg-input" placeholder="Enter message to broadcast..." style="padding: 8px; width: 100%; background: #111; color: white; border: 1px solid #444;" />
                     <button class="action-btn" style="background: var(--admin); color: white; margin-top: 5px;" onclick="adminGlobalMessage()">Broadcast Message</button>
                 </div>
 
@@ -452,12 +526,22 @@
                     <label>Force Global Crate Drop:</label>
                     <div style="display: flex; gap: 10px; margin-top: 5px;">
                         <select id="admin-crate-select" style="flex: 2; padding: 8px; background: #111; color: white; border: 1px solid #444;">
-                            <option value="standard">Standard Crate</option>
-                            <option value="premium">Premium Crate</option>
-                            <option value="mythic">Mythic Crate</option>
-                            <option value="ascension">Ascension Crate</option>
-                            <option value="all_or_nothing">All or Nothing Crate</option>
-                            <option value="god">God Crate</option>
+                            <option value="standard" class="crate-opt">Standard Crate</option>
+                            <option value="premium" class="crate-opt">Premium Crate</option>
+                            <option value="anime_crate" class="crate-opt">Anime Crate</option>
+                            <option value="vought_crate" class="crate-opt">Vought Crate</option>
+                            <option value="marvel_crate" class="crate-opt">Marvel Crate</option>
+                            <option value="verity_crate" class="crate-opt">Verity Crate</option>
+                            <option value="mythic" class="crate-opt">Mythic Crate</option>
+                            <option value="ascension" class="crate-opt">Ascension Crate</option>
+                            <option value="all_or_nothing" class="crate-opt">All or Nothing Crate</option>
+                            <option value="halloween_crate" class="crate-opt">Halloween Crate</option>
+                            <option value="god" class="crate-opt">God Crate</option>
+                            <option value="everything_chest" class="chest-opt">Everything Chest (Admin)</option>
+                            <option value="verity_chest" class="chest-opt">Verity Chest (Admin)</option>
+                            <option value="basic_chest" class="chest-opt">Basic Chest (Admin)</option>
+                            <option value="castiel_chest" class="chest-opt">Castiel Chest (Admin)</option>
+                            <option value="jayce_crate" class="chest-opt" style="color: var(--exclusive); font-weight: bold;">Jayce Crate (Admin)</option>
                         </select>
                         <button class="action-btn" style="flex: 1; background: #991b1b; color: white;" onclick="adminForceCrateDrop()">Drop Crate</button>
                     </div>
@@ -542,7 +626,7 @@
         let state = {
             money: 0, multLvl: 1, durLvl: 1, coolLvl: 1, rebirths: 0,
             currentLarp: 'excuse_me', inventory: ['excuse_me'], fruitBuffs: {}, fruitFeeds: {},
-            isAdmin: false, adminRole: null, autoTapperOwned: false,
+            isAdmin: false, adminRole: null, adminName: null, autoTapperOwned: false,
             quests: { date: '', taps: 0, crates: 0, claimed: false },
             chestUnlocked: false
         };
@@ -555,8 +639,16 @@
         let rollingCrate = false; let crateAnim = null; let pendingRollData = null;
         let adminFruitGlobalPending = false; let adminFruitAmountPending = 0;
         let activeBoss = null; let pendingBossDamage = 0; let bossSyncInterval = null;
-        let serverBuffMult = 1; let serverBuffTimer = null; let isFrenzy = false; let frenzyTimer = null;
+        let serverBuffMult = 1; let serverBuffTimer = null; 
+        let serverLuckMult = 1; let serverLuckTimer = null;
+        let isFrenzy = false; let frenzyTimer = null;
         let pingActive = false; let onlineCount = 0; let countedPingIds = new Set();
+        let lotteryActive = false; let lotteryPool = [];
+
+        // Chat & Poll State
+        let globalChatEnabled = false;
+        let activePoll = null;
+        let pollTimerInterval = null;
 
         const audioPlayer = document.getElementById('bg-audio');
         const jsAudioPlayer = document.getElementById('jumpscare-audio');
@@ -574,6 +666,8 @@
             { id: 'fast_food', name: 'Burger Flipper', rarity: 'Common', emoji: '🍔', mult: 1 },
             { id: 'discord_kitten', name: 'Discord Kitten', rarity: 'Common', emoji: '🐱', mult: 1 },
             { id: 'youtube_shorts', name: 'Shorts Scroller', rarity: 'Common', emoji: '📱', mult: 1 },
+            { id: 'discord_lurker', name: 'Discord Lurker', rarity: 'Common', emoji: '👁️', mult: 1 },
+            { id: 'afk_player', name: 'AFK Player', rarity: 'Common', emoji: '💤', mult: 1 },
             { id: 'noob', name: 'The Noob', rarity: 'Common', emoji: '👶', mult: 2 },
 
             // Uncommon (Base 2-52x)
@@ -587,10 +681,12 @@
             { id: 'roblox_slender', name: 'Roblox Slender', rarity: 'Uncommon', emoji: '🧍‍♂️', mult: 9 },
             { id: 'gym_bro', name: 'Gym Bro', rarity: 'Uncommon', emoji: '💪', mult: 10 },
             { id: 'ninja_runner', name: 'Ninja Runner', rarity: 'Uncommon', emoji: '🏃', mult: 12 },
-            { id: 'zoro', name: 'Lost Swordsman', rarity: 'Uncommon', emoji: '⚔️', mult: 15 },
-            { id: 'sanji', name: 'Simp Cook', rarity: 'Uncommon', emoji: '🚬', mult: 16 },
-            { id: 'edens_zero', name: 'Eden Zero Captain', rarity: 'Uncommon', emoji: '🚀', mult: 38 },
-            { id: 'chainsaw', name: 'Chainsaw Fiend', rarity: 'Uncommon', emoji: '🪚', mult: 52 },
+            { id: 'tiktok_dancer', name: 'TikTok Dancer', rarity: 'Uncommon', emoji: '💃', mult: 13 },
+            { id: 'sweat', name: 'Sweaty Gamer', rarity: 'Uncommon', emoji: '💦', mult: 14 },
+            { id: 'zoro', name: 'Lost Swordsman', rarity: 'Uncommon', emoji: '⚔️', mult: 15, theme: 'anime' },
+            { id: 'sanji', name: 'Simp Cook', rarity: 'Uncommon', emoji: '🚬', mult: 16, theme: 'anime' },
+            { id: 'edens_zero', name: 'Eden Zero Captain', rarity: 'Uncommon', emoji: '🚀', mult: 38, theme: 'anime' },
+            { id: 'chainsaw', name: 'Chainsaw Fiend', rarity: 'Uncommon', emoji: '🪚', mult: 52, theme: 'anime' },
 
             // Rare (Base 5-30x)
             { id: 'butcher', name: 'Butcher State', rarity: 'Rare', emoji: '🩸', mult: 5 },
@@ -601,25 +697,29 @@
             { id: 'jedi_padawan', name: 'Jedi Padawan', rarity: 'Rare', emoji: '⚔️', mult: 20 },
             { id: 'vtuber_simp', name: 'VTuber Simp', rarity: 'Rare', emoji: '🌸', mult: 22 },
             { id: 'batman', name: 'Vengeance', rarity: 'Rare', emoji: '🦇', mult: 25 },
+            { id: 'stream_sniper', name: 'Stream Sniper', rarity: 'Rare', emoji: '🎯', mult: 27 },
+            { id: 'copium_addict', name: 'Copium Addict', rarity: 'Rare', emoji: '😷', mult: 28 },
             { id: 'master_chief', name: 'Master Chief', rarity: 'Rare', emoji: '🛡️', mult: 30 },
 
             // Epic (Base 15-60x)
-            { id: 'jjk', name: 'JJK Domain', rarity: 'Epic', emoji: '🤞', mult: 15 },
+            { id: 'jjk', name: 'JJK Domain', rarity: 'Epic', emoji: '🤞', mult: 15, theme: 'anime' },
             { id: 'reddit_mod', name: 'Reddit Mod', rarity: 'Epic', emoji: '🤖', mult: 20 },
-            { id: 'atrain', name: 'A-Train', rarity: 'Epic', emoji: '🏃‍♂️', mult: 25 },
-            { id: 'starlight', name: 'Starlight', rarity: 'Epic', emoji: '🌟', mult: 30 },
+            { id: 'atrain', name: 'A-Train', rarity: 'Epic', emoji: '🏃‍♂️', mult: 25, theme: 'vought' },
+            { id: 'starlight', name: 'Starlight', rarity: 'Epic', emoji: '🌟', mult: 30, theme: 'vought' },
             { id: 'discord_admin', name: 'Discord Admin', rarity: 'Epic', emoji: '👑', mult: 32 },
-            { id: 'law', name: 'Trafalgar Law', rarity: 'Epic', emoji: '⚓', mult: 35 },
+            { id: 'law', name: 'Trafalgar Law', rarity: 'Epic', emoji: '⚓', mult: 35, theme: 'anime' },
             { id: 'doomslayer', name: 'Doom Slayer', rarity: 'Epic', emoji: '👿', mult: 40 },
             { id: 'sigma_male', name: 'Sigma Male', rarity: 'Epic', emoji: '🗿', mult: 45 },
             { id: 'esports_pro', name: 'Esports Pro', rarity: 'Epic', emoji: '🏆', mult: 48 },
             { id: 'darth_vader', name: 'Sith Lord', rarity: 'Epic', emoji: '🌌', mult: 50 },
             { id: 'walter_white', name: 'The Cook', rarity: 'Epic', emoji: '⚗️', mult: 52 },
             { id: 'the_flash', name: 'The Flash', rarity: 'Epic', emoji: '⚡', mult: 55 },
+            { id: 'tryhard', name: 'The Tryhard', rarity: 'Epic', emoji: '😤', mult: 57 },
+            { id: 'rng_god', name: 'RNG God', rarity: 'Epic', emoji: '🎲', mult: 58 },
             { id: 'ash_williams', name: 'Ash Williams', rarity: 'Epic', emoji: '🦾', mult: 60 },
 
             // Legendary (Base 50-60x)
-            { id: 'homelander_stare', name: 'Homelander Stare', rarity: 'Legendary', emoji: '👁️🔴', mult: 50 },
+            { id: 'homelander_stare', name: 'Homelander Stare', rarity: 'Legendary', emoji: '👁️🔴', mult: 50, theme: 'vought' },
             { id: 'mrbeast_sub', name: 'MrBeast Sub', rarity: 'Legendary', emoji: '💰', mult: 52 },
             { id: 'giga_chad', name: 'Giga Chad', rarity: 'Legendary', emoji: '💪', mult: 55 },
             { id: 'elon_fanboy', name: 'Elon Fanboy', rarity: 'Legendary', emoji: '🚀', mult: 58 },
@@ -629,23 +729,31 @@
             { id: 'allen', name: 'Allen the Alien', rarity: 'Mythic', emoji: '👽', mult: 65 },
             { id: 'atomeve', name: 'Atom Eve', rarity: 'Mythic', emoji: '⚛️', mult: 70 },
             { id: 'angstrom', name: 'Angstrom Levy', rarity: 'Mythic', emoji: '🧠', mult: 75 },
-            { id: 'kimiko', name: 'Kimiko', rarity: 'Mythic', emoji: '🤫', mult: 80 },
-            { id: 'maeve', name: 'Queen Maeve', rarity: 'Mythic', emoji: '👑', mult: 85 },
-            { id: 'ryan', name: 'Ryan', rarity: 'Mythic', emoji: '👦', mult: 95 },
-            { id: 'soldier_boy', name: 'Soldier Boy', rarity: 'Mythic', emoji: '🛡️', mult: 100 },
+            { id: 'kimiko', name: 'Kimiko', rarity: 'Mythic', emoji: '🤫', mult: 80, theme: 'vought' },
+            { id: 'maeve', name: 'Queen Maeve', rarity: 'Mythic', emoji: '👑', mult: 85, theme: 'vought' },
+            { id: 'ryan', name: 'Ryan', rarity: 'Mythic', emoji: '👦', mult: 95, theme: 'vought' },
+            { id: 'soldier_boy', name: 'Soldier Boy', rarity: 'Mythic', emoji: '🛡️', mult: 100, theme: 'vought' },
             { id: 'florida_man', name: 'Florida Man', rarity: 'Mythic', emoji: '🐊', mult: 105 },
             { id: 'battle_beast', name: 'Battle Beast', rarity: 'Mythic', emoji: '🦁', mult: 110 },
             { id: 'whitebeard', name: 'Whitebeard', rarity: 'Mythic', emoji: '🌍', mult: 115 },
-            { id: 'homelanders_milk', name: "Homelander's Milk", rarity: 'Mythic', emoji: '🥛', mult: 120 },
+            { id: 'homelanders_milk', name: "Homelander's Milk", rarity: 'Mythic', emoji: '🥛', mult: 120, theme: 'vought' },
             { id: 'chuck_norris', name: 'Chuck Norris', rarity: 'Mythic', emoji: '🤠', mult: 125 },
             { id: 'john_wick', name: 'Baba Yaga', rarity: 'Mythic', emoji: '✏️', mult: 130 },
-            { id: 'thanos', name: 'Mad Titan', rarity: 'Mythic', emoji: '🧤', mult: 140 },
-            { id: 'the_seven', name: 'The Seven', rarity: 'Mythic', emoji: '7️⃣', mult: 150 },
+            { id: 'thanos', name: 'Mad Titan', rarity: 'Mythic', emoji: '🧤', mult: 140, theme: 'marvel' },
+            { id: 'the_seven', name: 'The Seven', rarity: 'Mythic', emoji: '7️⃣', mult: 150, theme: 'vought' },
             { id: 'tech_jacket', name: 'Tech Jacket', rarity: 'Mythic', emoji: '🦾', mult: 160 },
-            { id: 'goku', name: 'Goku', rarity: 'Mythic', emoji: '🐉', mult: 200 },
+            { id: 'goku', name: 'Goku', rarity: 'Mythic', emoji: '🐉', mult: 200, theme: 'anime' },
+            
+            // Halloween Exclusives (Mythic)
+            { id: 'hal_dracula', name: 'Dracula', rarity: 'Mythic', emoji: '🧛', mult: 160, exclusive: 'halloween' },
+            { id: 'hal_zombie', name: 'Zombie', rarity: 'Mythic', emoji: '🧟', mult: 165, exclusive: 'halloween' },
+            { id: 'hal_ghost', name: 'Ghost', rarity: 'Mythic', emoji: '👻', mult: 170, exclusive: 'halloween' },
+            { id: 'hal_frank', name: 'Frankenstein', rarity: 'Mythic', emoji: '🧟‍♂️', mult: 175, exclusive: 'halloween' },
+            { id: 'hal_mummy', name: 'Mummy', rarity: 'Mythic', emoji: '🤕', mult: 180, exclusive: 'halloween' },
+            { id: 'hal_werewolf', name: 'Werewolf', rarity: 'Mythic', emoji: '🐺', mult: 185, exclusive: 'halloween' },
+            { id: 'hal_witch', name: 'Witch', rarity: 'Mythic', emoji: '🧙‍♀️', mult: 190, exclusive: 'halloween' },
 
-            // Cosmic
-            { id: 'cosmic_hl', name: 'Homelander', rarity: 'Cosmic', emoji: '🇺🇸', mult: 200, tenorHtml: '<div class="tenor-gif-embed" data-postid="26218105" data-share-method="host" data-aspect-ratio="1.45455" data-width="100%"></div>', audioUrl: 'homelander-theme-28-sec.mp3' },
+            { id: 'cosmic_hl', name: 'Homelander', rarity: 'Cosmic', emoji: '🇺🇸', mult: 200, tenorHtml: '<div class="tenor-gif-embed" data-postid="26218105" data-share-method="host" data-aspect-ratio="1.45455" data-width="100%"></div>', audioUrl: 'homelander-theme-28-sec.mp3', theme: 'vought' },
             { id: 'cosmic_omni', name: 'Omni Man', rarity: 'Cosmic', emoji: '👊', mult: 220, tenorHtml: '<div class="tenor-gif-embed" data-postid="21416554" data-share-method="host" data-aspect-ratio="1.77778" data-width="100%"></div>', audioUrl: 'omni-man-tom-tom-by-holy-fck-made-with-Voicemod.mp3' },
             { id: 'cosmic_supdex', name: 'Superman Dexter', rarity: 'Cosmic', emoji: '🦸‍♂️', mult: 250, tenorHtml: '<div class="tenor-gif-embed" data-postid="1834960198562592647" data-share-method="host" data-aspect-ratio="1.16129" data-width="100%"></div>', audioUrl: 'dexter-goofy-ahh-theme-made-with-Voicemod.mp3' },
             { id: 'cosmic_dexter', name: 'Dexter', rarity: 'Cosmic', emoji: '🔬', mult: 280, tenorHtml: '<div class="tenor-gif-embed" data-postid="13481320143050343709" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', audioUrl: 'dexter-meme.mp3', gifScale: 1.0 },
@@ -657,19 +765,46 @@
             { id: 'cosmic_leon', name: 'Leon Kennedy', rarity: 'Cosmic', emoji: '🔫', mult: 700, tenorHtml: '<div class="tenor-gif-embed" data-postid="17255832290404764259" data-share-method="host" data-aspect-ratio="0.649606" data-width="100%"></div>', gifScale: 1.0 },
             { id: 'josh_allen', name: 'Josh Allen', rarity: 'Cosmic', emoji: '🏈', mult: 750, tenorHtml: '<div class="tenor-gif-embed" data-postid="16447259386304463577" data-share-method="host" data-aspect-ratio="1.76596" data-width="100%"></div>' },
             { id: 'cosmic_chris', name: 'Chris Redfield', rarity: 'Cosmic', emoji: '🪨', mult: 800, tenorHtml: '<div class="tenor-gif-embed" data-postid="15977463" data-share-method="host" data-aspect-ratio="1.78771" data-width="100%"></div>', gifScale: 1.0 },
-            { id: 'cap_america', name: 'Captain America', rarity: 'Cosmic', emoji: '🛡️', mult: 850, tenorHtml: '<div class="tenor-gif-embed" data-postid="8201928618212588104" data-share-method="host" data-aspect-ratio="0.909091" data-width="100%"></div>', gifScale: 1.0 },
+            { id: 'cap_america', name: 'Captain America', rarity: 'Cosmic', emoji: '🛡️', mult: 850, tenorHtml: '<div class="tenor-gif-embed" data-postid="8201928618212588104" data-share-method="host" data-aspect-ratio="0.909091" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
             { id: 'cosmic_rock', name: 'The Rock', rarity: 'Cosmic', emoji: '🤨', mult: 900, tenorHtml: '<div class="tenor-gif-embed" data-postid="22113367" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0 },
             { id: 'cosmic_joebart', name: 'Joe Bartolozzi', rarity: 'Cosmic', emoji: '🎧', mult: 1000, tenorHtml: '<div class="tenor-gif-embed" data-postid="18305734024295267621" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>' },
-            { id: 'cosmic_atrain', name: 'A-Train (V)', rarity: 'Cosmic', emoji: '🚄', mult: 1200, tenorHtml: '<div class="tenor-gif-embed" data-postid="26341809" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0 },
+            { id: 'cosmic_atrain', name: 'A-Train (V)', rarity: 'Cosmic', emoji: '🚄', mult: 1200, tenorHtml: '<div class="tenor-gif-embed" data-postid="26341809" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, theme: 'vought' },
             { id: 'crowley', name: 'Crowley', rarity: 'Cosmic', emoji: '😈', mult: 1300, tenorHtml: '<div class="tenor-gif-embed" data-postid="17358461" data-share-method="host" data-aspect-ratio="0.7875" data-width="100%"></div>', gifScale: 1.0 },
-            { id: 'dr_doom', name: 'Dr. Doom', rarity: 'Cosmic', emoji: '🦹‍♂️', mult: 1450, tenorHtml: '<div class="tenor-gif-embed" data-postid="2103167066011762559" data-share-method="host" data-aspect-ratio="0.801339" data-width="100%"></div>' },
+            { id: 'dr_doom', name: 'Dr. Doom', rarity: 'Cosmic', emoji: '🦹‍♂️', mult: 1450, tenorHtml: '<div class="tenor-gif-embed" data-postid="2103167066011762559" data-share-method="host" data-aspect-ratio="0.801339" data-width="100%"></div>', theme: 'marvel' },
             { id: 'sam_w', name: 'Sam Winchester', rarity: 'Cosmic', emoji: '📖', mult: 1500, tenorHtml: '<div class="tenor-gif-embed" data-postid="17125825990636593512" data-share-method="host" data-aspect-ratio="1.33333" data-width="100%"></div>' },
-            { id: 'cosmic_gojo', name: 'Gojo Satoru', rarity: 'Cosmic', emoji: '🤞', mult: 1600, tenorHtml: '<div class="tenor-gif-embed" data-postid="8919158328301232137" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0 },
+            { id: 'cosmic_gojo', name: 'Gojo Satoru', rarity: 'Cosmic', emoji: '🤞', mult: 1600, tenorHtml: '<div class="tenor-gif-embed" data-postid="8919158328301232137" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0, theme: 'anime' },
             { id: 'cosmic_shrek', name: 'Shrek', rarity: 'Cosmic', emoji: '🧅', mult: 1700, tenorHtml: '<div class="tenor-gif-embed" data-postid="5653668996341728045" data-share-method="host" data-aspect-ratio="0.948276" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0 },
-            { id: 'cosmic_saitama', name: 'Caped Baldy', rarity: 'Cosmic', emoji: '🥊', mult: 1800, tenorHtml: '<div class="tenor-gif-embed" data-postid="12113172817301417292" data-share-method="host" data-aspect-ratio="0.799197" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0 },
+            { id: 'cosmic_saitama', name: 'Caped Baldy', rarity: 'Cosmic', emoji: '🥊', mult: 1800, tenorHtml: '<div class="tenor-gif-embed" data-postid="12113172817301417292" data-share-method="host" data-aspect-ratio="0.799197" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0, theme: 'anime' },
+            
+            // Marvel Exclusives
+            { id: 'mar_deadpool', name: 'Deadpool', rarity: 'Cosmic', emoji: '⚔️', mult: 1100, tenorHtml: '<div class="tenor-gif-embed" data-postid="10237509787408897862" data-share-method="host" data-aspect-ratio="1.48214" data-width="100%"></div>', theme: 'marvel' },
+            { id: 'mar_wolverine', name: 'Wolverine', rarity: 'Cosmic', emoji: '🐺', mult: 1150, tenorHtml: '<div class="tenor-gif-embed" data-postid="13173223192832991243" data-share-method="host" data-aspect-ratio="1.31847" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'mar_thor', name: 'Thor', rarity: 'Cosmic', emoji: '⚡', mult: 1250, tenorHtml: '<div class="tenor-gif-embed" data-postid="25139201" data-share-method="host" data-aspect-ratio="0.8" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'mar_loki', name: 'Loki', rarity: 'Cosmic', emoji: '🐍', mult: 1350, tenorHtml: '<div class="tenor-gif-embed" data-postid="16553405937097791550" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'mar_peter1', name: 'Peter 1', rarity: 'Cosmic', emoji: '🕷️', mult: 1400, tenorHtml: '<div class="tenor-gif-embed" data-postid="16013155499937291518" data-share-method="host" data-aspect-ratio="0.995984" data-width="100%"></div>', theme: 'marvel' },
+            { id: 'mar_peter3', name: 'Peter 3', rarity: 'Cosmic', emoji: '🕸️', mult: 1420, tenorHtml: '<div class="tenor-gif-embed" data-postid="9756865449821054548" data-share-method="host" data-aspect-ratio="1.82" data-width="100%"></div>', theme: 'marvel' },
+            { id: 'mar_bp', name: 'Black Panther', rarity: 'Cosmic', emoji: '🐆', mult: 1480, tenorHtml: '<div class="tenor-gif-embed" data-postid="18225458563526028882" data-share-method="host" data-aspect-ratio="1.20556" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'mar_wanda', name: 'Scarlet Witch', rarity: 'Cosmic', emoji: '🔴', mult: 1550, tenorHtml: '<div class="tenor-gif-embed" data-postid="13285401615195848190" data-share-method="host" data-aspect-ratio="1.10556" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'mar_strange', name: 'Dr. Strange', rarity: 'Cosmic', emoji: '👁️', mult: 1650, tenorHtml: '<div class="tenor-gif-embed" data-postid="10024832900847875693" data-share-method="host" data-aspect-ratio="1.01415" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'mar_magneto', name: 'Magneto', rarity: 'Cosmic', emoji: '🧲', mult: 1750, tenorHtml: '<div class="tenor-gif-embed" data-postid="25961950" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', theme: 'marvel' },
 
-            // Divine
-            { id: 'the_peak', name: 'The Peak', rarity: 'Divine', emoji: '🐙', mult: 1000, tenorHtml: '<div class="tenor-gif-embed" data-postid="26595596" data-share-method="host" data-aspect-ratio="0.628125" data-width="100%"></div>', audioUrl: AUDIO_BASE, gifScale: 1.0 },
+            // Halloween Exclusives (Cosmic)
+            { id: 'hal_horseman', name: 'Headless Horseman', rarity: 'Cosmic', emoji: '🎃', mult: 1100, tenorHtml: '<div class="tenor-gif-embed" data-postid="26982733" data-share-method="host" data-aspect-ratio="1.33891" data-width="100%"></div>', exclusive: 'halloween' },
+            { id: 'hal_leatherface', name: 'Leatherface', rarity: 'Cosmic', emoji: '🪚', mult: 1200, tenorHtml: '<div class="tenor-gif-embed" data-postid="14309788249929895934" data-share-method="host" data-aspect-ratio="0.765" data-width="100%"></div>', gifScale: 1.0, exclusive: 'halloween' },
+            { id: 'hal_freddy', name: 'Freddy Krueger', rarity: 'Cosmic', emoji: '🔪', mult: 1300, tenorHtml: '<div class="tenor-gif-embed" data-postid="479774982285769527" data-share-method="host" data-aspect-ratio="1.81752" data-width="100%"></div>', exclusive: 'halloween' },
+            { id: 'hal_myers', name: 'Micheal Myers', rarity: 'Cosmic', emoji: '🧑‍🔧', mult: 1400, tenorHtml: '<div class="tenor-gif-embed" data-postid="15439377" data-share-method="host" data-aspect-ratio="1.03226" data-width="100%"></div>', gifScale: 1.0, exclusive: 'halloween' },
+            { id: 'hal_jason', name: 'Jason Voorhees', rarity: 'Cosmic', emoji: '🏒', mult: 1500, tenorHtml: '<div class="tenor-gif-embed" data-postid="13481837" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'halloween' },
+
+            // Verity Exclusives (Cosmic)
+            { id: 'ver_verity', name: 'Verity', rarity: 'Cosmic', emoji: '💠', mult: 1100, tenorHtml: '<div class="tenor-gif-embed" data-postid="2531348381879317193" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'verity' },
+            { id: 'ver_falsity', name: 'Falsity', rarity: 'Cosmic', emoji: '🎭', mult: 1200, tenorHtml: '<div class="tenor-gif-embed" data-postid="16143901" data-share-method="host" data-aspect-ratio="1.00629" data-width="100%"></div>', gifScale: 1.0, exclusive: 'verity' },
+            { id: 'ver_freakity', name: 'Freakity', rarity: 'Cosmic', emoji: '🤪', mult: 1300, tenorHtml: '<div class="tenor-gif-embed" data-postid="2866620556064292508" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'verity' },
+            { id: 'ver_moggity', name: 'Moggity', rarity: 'Cosmic', emoji: '🧏‍♂️', mult: 1400, tenorHtml: '<div class="tenor-gif-embed" data-postid="9960810121996938350" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'verity' },
+            { id: 'ver_cruelty', name: 'Cruelty', rarity: 'Cosmic', emoji: '💔', mult: 1500, tenorHtml: '<div class="tenor-gif-embed" data-postid="15463409641979292729" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'verity' },
+            { id: 'ver_curiosty', name: 'Curiosty', rarity: 'Cosmic', emoji: '🧐', mult: 1600, exclusive: 'verity' },
+            { id: 'ver_lovity', name: 'Lovity', rarity: 'Cosmic', emoji: '💖', mult: 1700, tenorHtml: '<div class="tenor-gif-embed" data-postid="1141393298772865908" data-share-method="host" data-aspect-ratio="1.77857" data-width="100%"></div>', translateX: '45%', exclusive: 'verity' },
+
+            { id: 'the_peak', name: 'The Peak', rarity: 'Divine', emoji: '🐙', mult: 1000, tenorHtml: '<div class="tenor-gif-embed" data-postid="26595596" data-share-method="host" data-aspect-ratio="0.628125" data-width="100%"></div>', audioUrl: AUDIO_BASE, gifScale: 1.0, theme: 'vought' },
             { id: 'divine_arthur', name: 'Arthur Morgan', rarity: 'Divine', emoji: '🤠', mult: 1500, tenorHtml: '<div class="tenor-gif-embed" data-postid="6842954262909940481" data-share-method="host" data-aspect-ratio="1.76596" data-width="100%"></div>' },
             { id: 'divine_john', name: 'John Marston', rarity: 'Divine', emoji: '🐴', mult: 1800, tenorHtml: '<div class="tenor-gif-embed" data-postid="20695544" data-share-method="host" data-aspect-ratio="1.01911" data-width="100%"></div>', gifScale: 1.0 },
             { id: 'divine_dutch', name: 'Dutch', rarity: 'Divine', emoji: '💰', mult: 2000, tenorHtml: '<div class="tenor-gif-embed" data-postid="13616564543661270916" data-share-method="host" data-aspect-ratio="0.783133" data-width="100%"></div>', gifScale: 1.0 },
@@ -677,14 +812,36 @@
             { id: 'divine_arthur_aura', name: 'Arthur Morgan (Aura)', rarity: 'Divine', emoji: '🦌', mult: 2400, tenorHtml: '<div class="tenor-gif-embed" data-postid="16966870553925395933" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0 },
             { id: 'dean_w', name: 'Dean Winchester', rarity: 'Divine', emoji: '🥧', mult: 2500, tenorHtml: '<div class="tenor-gif-embed" data-postid="6337876406173457950" data-share-method="host" data-aspect-ratio="0.973451" data-width="100%"></div>', gifScale: 1.0 },
             { id: 'ian', name: 'Ian', rarity: 'Divine', emoji: '👨', mult: 2500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/c3oblsxj8zo0efs44v7lm/37292_image.jpg?rlkey=s17t2vt5bhpi5d12nxgxmo9fr&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0 },
-            { id: 'boston', name: 'Boston', rarity: 'Divine', emoji: '👦', mult: 2500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/pd0ndho3yaei572gc5663/download.jpg?rlkey=xh3vywkdj9rqyw9sbolrckf90&st=zo2cloff&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0 },
+            { id: 'boston', name: 'Boston', rarity: 'Divine', emoji: '👦', mult: 2500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/pd0ndho3yaei572gc5663/download.jpg?rlkey=xh3vywkdj9rqyw9sbolrckf90&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0 },
+            { id: 'max', name: 'Max', rarity: 'Divine', emoji: '😎', mult: 2500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/e7teaz2tls1qd93rs02vf/0.jpg?rlkey=ubqkcow1obgkst6vy7x2eszlc&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0 },
+            { id: 'tom', name: 'Tom', rarity: 'Divine', emoji: '👦', mult: 2500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/3afmwivzsheoyv7m29qsq/IMG_9560.JPG?rlkey=unpumn3mfq9p61rnflsbri9p1&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0 },
             { id: 'bobby', name: 'Bobby Singer', rarity: 'Divine', emoji: '🧢', mult: 2800, tenorHtml: '<div class="tenor-gif-embed" data-postid="15368725" data-share-method="host" data-aspect-ratio="1.76796" data-width="100%"></div>', gifScale: 1.0 },
-            { id: 'peter_2', name: 'Peter 2', rarity: 'Divine', emoji: '🕷️', mult: 3000, tenorHtml: '<div class="tenor-gif-embed" data-postid="1143398032768178888" data-share-method="host" data-aspect-ratio="0.803213" data-width="100%"></div>', gifScale: 1.0 },
-            { id: 'ironman', name: 'Billionaire Armor', rarity: 'Divine', emoji: '🤖', mult: 3500, tenorHtml: '<div class="tenor-gif-embed" data-postid="1159901542694943356" data-share-method="host" data-aspect-ratio="1.66" data-width="100%"></div>', chestExclusive: true },
+            { id: 'peter_2', name: 'Peter 2', rarity: 'Divine', emoji: '🕷️', mult: 3000, tenorHtml: '<div class="tenor-gif-embed" data-postid="1143398032768178888" data-share-method="host" data-aspect-ratio="0.803213" data-width="100%"></div>', gifScale: 1.0, theme: 'marvel' },
+            { id: 'ironman', name: 'Billionaire Armor', rarity: 'Divine', emoji: '🤖', mult: 3500, tenorHtml: '<div class="tenor-gif-embed" data-postid="1159901542694943356" data-share-method="host" data-aspect-ratio="1.66" data-width="100%"></div>', chestExclusive: true, theme: 'marvel' },
             { id: 'ultimate_larper', name: 'Ultimate Larper', rarity: 'Divine', emoji: '🌌', mult: 5000, tenorHtml: '<div class="tenor-gif-embed" data-postid="171929860677350146" data-share-method="host" data-aspect-ratio="1.0122" data-width="100%"></div>', audioUrl: AUDIO_BASE, gifScale: 1.0 },
             { id: 'divine_doge', name: 'Doge God', rarity: 'Divine', emoji: '🐕', mult: 6000, tenorHtml: '<div class="tenor-gif-embed" data-postid="27130964" data-share-method="host" data-aspect-ratio="0.7125" data-width="100%"></div>', chestExclusive: true, gifScale: 1.0 },
             { id: 'divine_gandalf', name: 'Gandalf the White', rarity: 'Divine', emoji: '🧙‍♂️', mult: 7000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17970369936960303953" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', chestExclusive: true },
             { id: 'divine_dev', name: 'The Developer', rarity: 'Divine', emoji: '💻', mult: 9999, tenorHtml: '<div class="tenor-gif-embed" data-postid="9677448474570521431" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, chestExclusive: true },
+
+            // Halloween Exclusives (Divine)
+            { id: 'hal_reaper', name: 'Grim Reaper', rarity: 'Divine', emoji: '💀', mult: 4000, tenorHtml: '<div class="tenor-gif-embed" data-postid="9723939701404257435" data-share-method="host" data-aspect-ratio="1.33333" data-width="100%"></div>', exclusive: 'halloween' },
+            { id: 'hal_death', name: 'Death (SPN)', rarity: 'Divine', emoji: '🐴', mult: 5000, tenorHtml: '<div class="tenor-gif-embed" data-postid="15803354" data-share-method="host" data-aspect-ratio="1.77778" data-width="100%"></div>', translateX: '-45%', exclusive: 'halloween' },
+            { id: 'hal_jack', name: 'Jack Skellington', rarity: 'Divine', emoji: '🎃', mult: 6000, tenorHtml: '<div class="tenor-gif-embed" data-postid="12891018" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'halloween' },
+            { id: 'hal_art', name: 'Art the Clown', rarity: 'Divine', emoji: '🤡', mult: 7000, tenorHtml: '<div class="tenor-gif-embed" data-postid="9833253834243223944" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'halloween' },
+            { id: 'hal_penny', name: 'Pennywise', rarity: 'Divine', emoji: '🎈', mult: 8000, tenorHtml: '<div class="tenor-gif-embed" data-postid="5195684554903848225" data-share-method="host" data-aspect-ratio="0.769231" data-width="100%"></div>', gifScale: 1.0, exclusive: 'halloween' },
+
+            // Verity Exclusives (Divine - Chest Only)
+            { id: 'ver_obesity', name: 'Obesity', rarity: 'Divine', emoji: '🍔', mult: 7500, tenorHtml: '<div class="tenor-gif-embed" data-postid="7045047440541473310" data-share-method="host" data-aspect-ratio="1.80435" data-width="100%"></div>', gifScale: 1.0, exclusive: 'verity_chest' },
+            { id: 'ver_lord', name: 'Lord Verity', rarity: 'Divine', emoji: '👑', mult: 8500, tenorHtml: '<div class="tenor-gif-embed" data-postid="108566975477203512" data-share-method="host" data-aspect-ratio="1.33155" data-width="100%"></div>', gifScale: 1.0, exclusive: 'verity_chest' },
+            { id: 'ver_larpity', name: 'Larpity', rarity: 'Divine', emoji: '🧙‍♂️', mult: 9500, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/omz3f6bfsfhtnyix8glq1/images.jpg?rlkey=d4tkwi9v9esgze3lo8795q603&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0, exclusive: 'verity_chest' },
+
+            // Jayce Crate EXCLUSIVES (Insane Base Multipliers)
+            { id: 'exc_gum', name: 'Extra Gum', rarity: 'Exclusive', emoji: '🍬', mult: 15000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17971859668388493298" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'jayce_crate' },
+            { id: 'exc_gatorade', name: 'Gatorade', rarity: 'Exclusive', emoji: '🧃', mult: 20000, tenorHtml: '<div class="tenor-gif-embed" data-postid="14702798802723916423" data-share-method="host" data-aspect-ratio="0.459839" data-width="100%"></div>', exclusive: 'jayce_crate' },
+            { id: 'exc_dean', name: 'Mogging Dean', rarity: 'Exclusive', emoji: '🤫', mult: 25000, tenorHtml: '<div class="tenor-gif-embed" data-postid="8567659534598739753" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', exclusive: 'jayce_crate' },
+            { id: 'exc_sam', name: 'OG Sam', rarity: 'Exclusive', emoji: '🐕', mult: 30000, tenorHtml: '<div class="tenor-gif-embed" data-postid="17343834250989930134" data-share-method="host" data-aspect-ratio="0.75" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_site', name: 'My Site on 10/16/26', rarity: 'Exclusive', emoji: '🚫', mult: 50000, tenorHtml: '<div class="tenor-gif-embed" data-postid="2525423369504087230" data-share-method="host" data-aspect-ratio="1" data-width="100%"></div>', gifScale: 1.0, exclusive: 'jayce_crate' },
+            { id: 'exc_fluff', name: 'Steal a Fluff', rarity: 'Exclusive', emoji: '☁️', mult: 100000, tenorHtml: '<img src="https://www.dropbox.com/scl/fi/l77wdsy17gpbwjflw5fn0/Fluff.jpg?rlkey=7rb10mh1in2x9vxf7me9fdz64&raw=1" style="width:100%; height:100%; object-fit:cover;">', gifScale: 1.0, exclusive: 'jayce_crate' },
 
             // Admin
             { id: 'cass', name: 'Castiel', rarity: 'Admin', emoji: '👼', mult: 999999, tenorHtml: '<div class="tenor-gif-embed" data-postid="38050132032734708" data-share-method="host" data-aspect-ratio="1.0041" data-width="100%"></div>', gifScale: 1.0 }
@@ -693,12 +850,20 @@
         const CRATES = {
             'standard': { cost: 500, pool: ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'], weights: { 'Common': 50, 'Uncommon': 30, 'Rare': 12, 'Epic': 6, 'Legendary': 2 } },
             'premium': { cost: 2500, pool: ['Uncommon', 'Rare', 'Epic', 'Legendary'], weights: { 'Uncommon': 50, 'Rare': 30, 'Epic': 15, 'Legendary': 5 } },
+            'anime_crate': { cost: 100000, pool: ['Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Cosmic'], weights: { 'Uncommon': 40, 'Rare': 30, 'Epic': 15, 'Legendary': 10, 'Mythic': 4, 'Cosmic': 1 }, themeOnly: 'anime' },
+            'vought_crate': { cost: 250000, pool: ['Epic', 'Legendary', 'Mythic', 'Cosmic', 'Divine'], weights: { 'Epic': 40, 'Legendary': 30, 'Mythic': 20, 'Cosmic': 9, 'Divine': 1 }, themeOnly: 'vought' },
+            'marvel_crate': { cost: 10000000, pool: ['Mythic', 'Cosmic', 'Divine'], weights: { 'Mythic': 50, 'Cosmic': 40, 'Divine': 10 }, themeOnly: 'marvel' },
+            'verity_crate': { cost: 25000000, pool: ['Legendary', 'Mythic', 'Cosmic', 'Divine'], weights: { 'Legendary': 40, 'Mythic': 40, 'Cosmic': 18, 'Divine': 2 }, exclusiveTags: ['verity'] },
             'mythic': { cost: 50000, pool: ['Rare', 'Epic', 'Legendary', 'Mythic'], weights: { 'Rare': 35, 'Epic': 35, 'Legendary': 20, 'Mythic': 10 } },
             'ascension': { cost: 500000, pool: ['Epic', 'Legendary', 'Mythic', 'Cosmic'], weights: { 'Epic': 15, 'Legendary': 35, 'Mythic': 35, 'Cosmic': 15 } },
             'all_or_nothing': { cost: 1000000, pool: ['Legendary', 'Divine'], weights: {} },
+            'halloween_crate': { cost: 1000000000, pool: ['Mythic', 'Cosmic', 'Divine'], weights: { 'Mythic': 60, 'Cosmic': 30, 'Divine': 10 }, exclusiveTags: ['halloween'] },
             'god': { cost: 50000000, pool: ['Mythic', 'Cosmic', 'Divine'], weights: { 'Mythic': 20, 'Cosmic': 70, 'Divine': 10 } },
+            'everything_chest': { cost: 5000000000, pool: ['Common'], weights: {}, isChest: true },
+            'verity_chest': { cost: 25000000000, pool: ['Cosmic', 'Divine'], weights: { 'Cosmic': 80, 'Divine': 20 }, isChest: true, exclusiveTags: ['verity', 'verity_chest'] },
             'basic_chest': { cost: 50000000000, pool: ['Cosmic', 'Divine'], weights: { 'Cosmic': 80, 'Divine': 20 }, isChest: true },
-            'castiel_chest': { cost: 100000000000, pool: ['Cosmic', 'Divine', 'Admin'], weights: {}, isChest: true }
+            'castiel_chest': { cost: 100000000000, pool: ['Cosmic', 'Divine', 'Admin'], weights: {}, isChest: true },
+            'jayce_crate': { cost: Infinity, pool: ['Mythic', 'Cosmic', 'Divine', 'Exclusive'], weights: { 'Mythic': 40, 'Cosmic': 40, 'Divine': 18, 'Exclusive': 2 }, isChest: true, exclusiveTags: ['jayce_crate'] }
         };
 
         const FRUITS = [
@@ -765,7 +930,10 @@
         }
 
         function processGlobalEvent(ev) {
-            if (ev.type === 'MESSAGE') simulateGlobalEvent("SERVER MESSAGE", ev.message);
+            if (ev.type === 'MESSAGE') {
+                const title = (ev.payload && ev.payload.name) ? `${ev.payload.role.toUpperCase()} ${ev.payload.name}` : "SERVER MESSAGE";
+                simulateGlobalEvent(title, ev.message);
+            }
             else if (ev.type === 'MONEY') { state.money += ev.payload.amount; simulateGlobalEvent("GLOBAL MONEY DROP", ev.message); updateUI(); }
             else if (ev.type === 'LARP') { if(!state.inventory.includes(ev.payload.larpId)) state.inventory.push(ev.payload.larpId); simulateGlobalEvent("GLOBAL LARP DROP", ev.message); updateUI(); }
             else if (ev.type === 'FRUIT') {
@@ -777,11 +945,199 @@
             else if (ev.type === 'DAMAGE_BOSS') { if (activeBoss && activeBoss.id === ev.payload.bossId) { activeBoss.hp -= ev.payload.damage; updateBossUI(); } }
             else if (ev.type === 'BOSS_DEFEATED') { if (activeBoss && activeBoss.id === ev.payload.bossId) winBossFight(); }
             else if (ev.type === 'BUFF') { triggerLocalBuff(ev.payload.mult, ev.payload.duration); simulateGlobalEvent("SERVER INCOME BUFF", ev.message); }
+            else if (ev.type === 'LUCK_BUFF') { triggerLocalLuck(ev.payload.mult, ev.payload.duration); simulateGlobalEvent("SERVER LUCK BUFF", ev.message); }
             else if (ev.type === 'FRENZY') { triggerLocalFrenzy(ev.payload.duration); simulateGlobalEvent("FRENZY MODE", ev.message); }
             else if (ev.type === 'CRATE') { simulateGlobalEvent("FREE GLOBAL DROP", ev.message); rollCrate(ev.payload.crateId, true); }
             else if (ev.type === 'JUMPSCARE') executeJumpscare(ev.payload.target);
             else if (ev.type === 'PING') sendGlobalEvent('PONG', {}, null);
             else if (ev.type === 'PONG') { if(pingActive && state.isAdmin && !countedPingIds.has(ev.sender)) { countedPingIds.add(ev.sender); onlineCount++; document.getElementById('live-player-count').innerText = onlineCount; } }
+            else if (ev.type === 'PING_LOTTERY') sendGlobalEvent('PONG_LOTTERY', {}, null);
+            else if (ev.type === 'PONG_LOTTERY') { if(lotteryActive && state.isAdmin && !lotteryPool.includes(ev.sender)) { lotteryPool.push(ev.sender); } }
+            else if (ev.type === 'WIN_LOTTERY') { 
+                if(ev.payload.winnerId === userId) { state.money += 1000000000000; showNotification("YOU WON THE LOTTERY! +$1T", "Divine"); updateUI(); }
+                else { simulateGlobalEvent("LOTTERY WINNER", ev.message); }
+            }
+            // Chat & Poll Events
+            else if (ev.type === 'CHAT_TOGGLE') {
+                globalChatEnabled = ev.payload.enabled;
+                updateChatUIState();
+                appendChatMessage("SYSTEM", ev.message, "Admin");
+            }
+            else if (ev.type === 'CHAT_MSG') {
+                appendChatMessage(ev.payload.senderName, ev.payload.text, ev.payload.role);
+            }
+            else if (ev.type === 'POLL_START') {
+                startLocalPoll(ev.payload);
+            }
+            else if (ev.type === 'POLL_VOTE') {
+                if (activePoll && activePoll.id === ev.payload.pollId) {
+                    if (ev.payload.option === 1) activePoll.votes1++;
+                    if (ev.payload.option === 2) activePoll.votes2++;
+                    updatePollModalUI();
+                }
+            }
+        }
+
+        // Chat & Poll Functions
+        function updateChatUIState() {
+            const chatInput = document.getElementById('chat-input');
+            const chatBtn = document.getElementById('btn-send-chat');
+            const statusInd = document.getElementById('chat-status-indicator');
+            const adminToggleBtn = document.getElementById('btn-toggle-chat');
+
+            if (globalChatEnabled) {
+                statusInd.innerText = "Unlocked for Everyone";
+                statusInd.style.color = "#4ade80";
+                if (adminToggleBtn) {
+                    adminToggleBtn.innerText = "Disable Chat";
+                    adminToggleBtn.style.background = "#ef4444";
+                    adminToggleBtn.style.color = "white";
+                }
+            } else {
+                statusInd.innerText = "Locked by Admin";
+                statusInd.style.color = "#ef4444";
+                if (adminToggleBtn) {
+                    adminToggleBtn.innerText = "Enable Chat";
+                    adminToggleBtn.style.background = "var(--accent)";
+                    adminToggleBtn.style.color = "black";
+                }
+            }
+
+            if (globalChatEnabled || state.isAdmin) {
+                chatInput.disabled = false;
+                chatBtn.disabled = false;
+                chatInput.placeholder = "Type a message...";
+            } else {
+                chatInput.disabled = true;
+                chatBtn.disabled = true;
+                chatInput.placeholder = "Chat is locked by Admin...";
+            }
+        }
+
+        function adminToggleChat() {
+            if (!state.isAdmin || state.adminRole !== 'admin') {
+                showNotification("Only Admins can toggle Global Chat!", "Mythic");
+                return;
+            }
+            const nextState = !globalChatEnabled;
+            sendGlobalEvent('CHAT_TOGGLE', { enabled: nextState }, `Admin ${state.adminName} has ${nextState ? 'UNLOCKED' : 'LOCKED'} the Global Chat!`);
+        }
+
+        function sendChatMessage() {
+            if (!globalChatEnabled && !state.isAdmin) {
+                showNotification("Chat is currently locked by Admin!", "Mythic");
+                return;
+            }
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = "";
+
+            let senderName = "Player_" + (userId ? userId.substring(0, 4) : "Anon");
+            let role = "Player";
+            if (state.isAdmin) {
+                senderName = state.adminName || "Staff";
+                role = state.adminRole === 'admin' ? 'Admin' : 'Mod';
+            }
+
+            sendGlobalEvent('CHAT_MSG', { senderName, text, role }, null);
+        }
+
+        function appendChatMessage(sender, text, role) {
+            const box = document.getElementById('chat-messages');
+            const msgEl = document.createElement('div');
+            msgEl.className = 'chat-msg';
+
+            let badge = "";
+            let nameColor = "#c5c6c7";
+            if (role === 'Admin') {
+                badge = `<span class="rarity-Admin">[ADMIN]</span> `;
+                nameColor = "var(--admin)";
+            } else if (role === 'Mod') {
+                badge = `<span class="rarity-Cosmic">[MOD]</span> `;
+                nameColor = "var(--cosmic)";
+            }
+
+            const safeSender = document.createElement('span');
+            safeSender.textContent = sender + ": ";
+            safeSender.className = 'chat-sender';
+            safeSender.style.color = nameColor;
+
+            const safeText = document.createElement('span');
+            safeText.textContent = text;
+
+            msgEl.innerHTML = badge;
+            msgEl.appendChild(safeSender);
+            msgEl.appendChild(safeText);
+
+            box.appendChild(msgEl);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function adminStartPoll() {
+            if (!state.isAdmin || state.adminRole !== 'admin') {
+                showNotification("Only Admins can start Global Polls!", "Mythic");
+                return;
+            }
+            const q = document.getElementById('admin-poll-q').value.trim();
+            const o1 = document.getElementById('admin-poll-opt1').value.trim();
+            const o2 = document.getElementById('admin-poll-opt2').value.trim();
+            if (!q || !o1 || !o2) {
+                showNotification("Please fill in the question and both options!", "Rare");
+                return;
+            }
+            const pollData = {
+                id: "POLL_" + Date.now(),
+                question: q,
+                opt1: o1,
+                opt2: o2
+            };
+            sendGlobalEvent('POLL_START', pollData, `Admin ${state.adminName} started a live poll!`);
+            document.getElementById('admin-poll-q').value = "";
+            document.getElementById('admin-poll-opt1').value = "";
+            document.getElementById('admin-poll-opt2').value = "";
+            document.getElementById('admin-panel-modal').style.display = 'none';
+        }
+
+        function startLocalPoll(pollData) {
+            activePoll = { ...pollData, votes1: 0, votes2: 0, hasVoted: false, timeLeft: 30 };
+            document.getElementById('poll-question-display').innerText = activePoll.question;
+            document.getElementById('poll-opt1-text').innerText = activePoll.opt1;
+            document.getElementById('poll-opt2-text').innerText = activePoll.opt2;
+            document.getElementById('btn-vote-1').disabled = false;
+            document.getElementById('btn-vote-2').disabled = false;
+            updatePollModalUI();
+            document.getElementById('poll-modal').style.display = 'flex';
+
+            if (pollTimerInterval) clearInterval(pollTimerInterval);
+            pollTimerInterval = setInterval(() => {
+                if (!activePoll) return;
+                activePoll.timeLeft--;
+                document.getElementById('poll-timer-display').innerText = activePoll.timeLeft;
+                if (activePoll.timeLeft <= 0) {
+                    clearInterval(pollTimerInterval);
+                    document.getElementById('poll-modal').style.display = 'none';
+                    let winnerText = "It's a tie!";
+                    if (activePoll.votes1 > activePoll.votes2) winnerText = `${activePoll.opt1} won (${activePoll.votes1} to ${activePoll.votes2})!`;
+                    else if (activePoll.votes2 > activePoll.votes1) winnerText = `${activePoll.opt2} won (${activePoll.votes2} to ${activePoll.votes1})!`;
+                    simulateGlobalEvent("POLL ENDED", `${activePoll.question} — ${winnerText}`);
+                    activePoll = null;
+                }
+            }, 1000);
+        }
+
+        function submitPollVote(optionNum) {
+            if (!activePoll || activePoll.hasVoted) return;
+            activePoll.hasVoted = true;
+            document.getElementById('btn-vote-1').disabled = true;
+            document.getElementById('btn-vote-2').disabled = true;
+            sendGlobalEvent('POLL_VOTE', { pollId: activePoll.id, option: optionNum }, null);
+        }
+
+        function updatePollModalUI() {
+            if (!activePoll) return;
+            document.getElementById('poll-opt1-votes').innerText = `${activePoll.votes1} Votes`;
+            document.getElementById('poll-opt2-votes').innerText = `${activePoll.votes2} Votes`;
         }
 
         function triggerLocalBuff(mult, durationMins) {
@@ -790,8 +1146,14 @@
             serverBuffTimer = setTimeout(() => { serverBuffMult = 1; document.getElementById('buff-text').style.display = 'none'; updateUI(); }, durationMins * 60000);
         }
 
+        function triggerLocalLuck(mult, durationMins) {
+            serverLuckMult = mult; document.getElementById('luck-buff-text').style.display = 'inline'; document.getElementById('luck-buff-text').innerText = `(x${mult} LUCK BUFF)`; updateUI();
+            if(serverLuckTimer) clearTimeout(serverLuckTimer);
+            serverLuckTimer = setTimeout(() => { serverLuckMult = 1; document.getElementById('luck-buff-text').style.display = 'none'; updateUI(); }, durationMins * 60000);
+        }
+
         function triggerLocalFrenzy(seconds) {
-            isFrenzy = true; mainBtn.classList.add('frenzy-glow');
+            isFrenzy = true; fKeyPressed = false; mainBtn.classList.add('frenzy-glow');
             if(isLarping) endLarp(); if(onCooldown) endCooldown();
             if(frenzyTimer) clearTimeout(frenzyTimer);
             frenzyTimer = setTimeout(() => { isFrenzy = false; mainBtn.classList.remove('frenzy-glow'); updateBtnUI(); }, seconds * 1000);
@@ -813,6 +1175,7 @@
             if(!state.inventory || state.inventory.length === 0) state.inventory = ['excuse_me'];
             if(!state.currentLarp || !state.inventory.includes(state.currentLarp)) state.currentLarp = state.inventory[0];
             if(typeof state.isAdmin === 'undefined') state.isAdmin = false;
+            if(typeof state.adminName === 'undefined') state.adminName = null;
             if(typeof state.autoTapperOwned === 'undefined') state.autoTapperOwned = false;
             if(typeof state.chestUnlocked === 'undefined') state.chestUnlocked = false;
             checkDailyReset();
@@ -833,7 +1196,7 @@
             });
             const adminLSelect = document.getElementById('admin-larp-select');
             LARPS.forEach(l => { const opt = document.createElement('option'); opt.value = l.id; opt.innerText = `${l.emoji} ${l.name} (${l.rarity})`; adminLSelect.appendChild(opt); });
-            updateAudioSource(); updateUI(); startShopTimer(); if(state.autoTapperOwned) startAutoTapper();
+            updateAudioSource(); updateUI(); startShopTimer(); updateChatUIState(); if(state.autoTapperOwned) startAutoTapper();
             
             setInterval(() => {
                 localStorage.setItem('LarpSimSave_Season2', JSON.stringify(state));
@@ -858,19 +1221,6 @@
             document.addEventListener('keyup', (e) => { if (e.key.toLowerCase() === 'f') fKeyPressed = false; });
         }
 
-        function toggleMute() { isMuted = !isMuted; audioPlayer.muted = isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔇 Unmute" : "🔊 Mute Audio"; }
-
-        function startAutoTapper() {
-            if(autoTapperInterval) return;
-            autoTapperInterval = setInterval(() => { if(!activeBoss && !isLarping && !onCooldown) { mainBtn.style.transform = 'scale(0.95)'; setTimeout(() => mainBtn.style.transform = '', 100); startLarp(); } }, 3000);
-        }
-
-        function buyAutoTapper() {
-            if(state.money >= 70000000000 && !state.autoTapperOwned) {
-                state.money -= 70000000000; state.autoTapperOwned = true; showNotification("Auto-Tapper Activated!", "Epic"); startAutoTapper(); updateUI();
-            }
-        }
-
         function checkAdminPassword() {
             const pass = document.getElementById('admin-pass-input').value.trim(); const encoded = btoa(pass);
             if(encoded === "aGFja2VyaWc=") {
@@ -880,38 +1230,69 @@
         }
 
         async function firebaseAdminLogin() {
-        const email = document.getElementById('fb-email-input').value.trim(); const pass = document.getElementById('fb-pass-input').value;
-        const ADMIN_EMAIL = "jrich31@ecsd.us"; const MOD_EMAILS = ["ggenaw31@ecsd.us", "mromeo31@ecsd.us", "ceifert31@ecsd.us", "wdemianenko31@ecsd.us", "igorski31@ecsd.us"];
-        try {
-            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
+            const email = document.getElementById('fb-email-input').value.trim(); const pass = document.getElementById('fb-pass-input').value;
+            const admins = { "jrich31@ecsd.us": "Jayce" };
+            const mods = { 
+                "ggenaw31@ecsd.us": "Gracin", "igorski31@ecsd.us": "Ian", "wdemianenko31@ecsd.us": "Wyatt", 
+                "ceifert31@ecsd.us": "Colin", "mromeo31@ecsd.us": "Micheal" 
+            };
+            
+            try {
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
                 userId = userCredential.user.uid;
                 const inputEmail = email.toLowerCase();
-                if (inputEmail === ADMIN_EMAIL.toLowerCase()) state.adminRole = 'admin';
-                else if (MOD_EMAILS.includes(inputEmail)) state.adminRole = 'mod';
+                
+                if (admins[inputEmail]) { state.adminRole = 'admin'; state.adminName = admins[inputEmail]; }
+                else if (mods[inputEmail]) { state.adminRole = 'mod'; state.adminName = mods[inputEmail]; }
                 else { showNotification("Account lacks server privileges.", "Rare"); return; }
                 
                 state.isAdmin = true; document.getElementById('firebase-login-modal').style.display = 'none';
                 const isMod = state.adminRole === 'mod';
-                document.getElementById('btn-larp-global').style.display = isMod ? 'none' : 'block';
+                
+                // Set UI permissions for Mod vs Admin
+                document.getElementById('btn-larp-global').style.display = 'block'; // Mods can drop larps now
+                document.getElementById('admin-luck-div').style.display = 'flex'; // Mods can do global luck
                 document.getElementById('btn-fruit-global').style.display = isMod ? 'none' : 'block';
-                document.getElementById('admin-boss-div').style.display = isMod ? 'none' : 'flex';
                 document.getElementById('admin-frenzy-div').style.display = isMod ? 'none' : 'flex';
                 document.getElementById('admin-buff-div').style.display = isMod ? 'none' : 'flex';
-            document.getElementById('admin-crate-drop-div').style.display = isMod ? 'none' : 'flex';
-            document.getElementById('admin-give-all-div').style.display = isMod ? 'none' : 'flex';
-            document.getElementById('admin-role-display').innerText = `Authorized as: ${state.adminRole.toUpperCase()} (Cloud Connected)`;
-            document.getElementById('admin-panel-modal').style.display = 'flex'; showNotification(`${state.adminRole.toUpperCase()} Login Successful.`, "Admin");
-        } catch (error) { 
-            console.error("Firebase Login Error:", error);
-            showNotification(error.code || "Connection Failed.", "Mythic"); 
-        }
-    }
+                document.getElementById('admin-give-all-div').style.display = isMod ? 'none' : 'flex';
+                document.getElementById('admin-lottery-div').style.display = isMod ? 'none' : 'flex';
+                document.getElementById('admin-custom-boss-div').style.display = isMod ? 'none' : 'flex';
+                document.getElementById('admin-chat-control-div').style.display = isMod ? 'none' : 'flex';
+                document.getElementById('admin-poll-div').style.display = isMod ? 'none' : 'flex';
+                
+                const crateSelect = document.getElementById('admin-crate-select');
+                Array.from(crateSelect.options).forEach(opt => {
+                    if(opt.classList.contains('chest-opt') && isMod) opt.style.display = 'none';
+                    else opt.style.display = 'block';
+                });
+                if(isMod && crateSelect.options[crateSelect.selectedIndex].classList.contains('chest-opt')) crateSelect.value = 'standard';
 
-    async function adminSignOut() { state.isAdmin = false; state.adminRole = null; document.getElementById('admin-panel-modal').style.display = 'none'; await firebase.auth().signOut(); window.location.reload(); }
-        function adminGlobalMessage() { const msg = document.getElementById('admin-msg-input').value; if(msg) { sendGlobalEvent('MESSAGE', {}, msg); document.getElementById('admin-msg-input').value = ""; } }
+                updateChatUIState();
+                document.getElementById('admin-role-display').innerText = `Welcome ${state.adminName}, Authorized as: ${state.adminRole.toUpperCase()} (Cloud Connected)`;
+                document.getElementById('admin-panel-modal').style.display = 'flex'; showNotification(`Welcome ${state.adminName}!`, "Admin");
+            } catch (error) { 
+                console.error("Firebase Login Error:", error);
+                showNotification(error.code || "Connection Failed.", "Mythic"); 
+            }
+        }
+
+        async function adminSignOut() { state.isAdmin = false; state.adminRole = null; state.adminName = null; document.getElementById('admin-panel-modal').style.display = 'none'; await firebase.auth().signOut(); window.location.reload(); }
+
+        function toggleMute() { isMuted = !isMuted; audioPlayer.muted = isMuted; document.getElementById('mute-btn').innerText = isMuted ? "🔇 Unmute" : "🔊 Mute Audio"; }
+        
+        function adminGlobalMessage() { 
+            const msg = document.getElementById('admin-msg-input').value; 
+            if(msg) { 
+                sendGlobalEvent('MESSAGE', { name: state.adminName, role: state.adminRole }, msg); 
+                sendGlobalEvent('CHAT_MSG', { senderName: state.adminName, text: msg, role: state.adminRole === 'admin' ? 'Admin' : 'Mod' }, null);
+                document.getElementById('admin-msg-input').value = ""; 
+            } 
+        }
+
         function adminPingPlayers() { pingActive = true; onlineCount = 0; countedPingIds.clear(); document.getElementById('live-player-count').innerText = "Pinging..."; sendGlobalEvent('PING', {}, null); setTimeout(() => { pingActive = false; document.getElementById('live-player-count').innerText = onlineCount; }, 3000); }
-        function adminGiveMoney(isGlobal) { const amt = parseInt(document.getElementById('admin-money-input').value); if(isNaN(amt) || amt <= 0) return; if (isGlobal) { sendGlobalEvent('MONEY', {amount: amt}, `Admin gifted everyone $${formatNum(amt)}!`); } else { state.money += amt; showNotification(`Injected $${formatNum(amt)}`, "Admin"); updateUI(); } }
-        function adminGiveLarp(isGlobal) { const id = document.getElementById('admin-larp-select').value; const larp = getAuraData(id); if(isGlobal) { if (state.adminRole === 'mod') return; sendGlobalEvent('LARP', {larpId: id}, `Admin gifted everyone ${larp.name}!`); } else { if(!state.inventory.includes(id)) state.inventory.push(id); showNotification(`Injected ${larp.name}`, "Admin"); updateUI(); } }
+        function adminGiveMoney(isGlobal) { const amt = parseInt(document.getElementById('admin-money-input').value); if(isNaN(amt) || amt <= 0) return; if (isGlobal) { sendGlobalEvent('MONEY', {amount: amt}, `Admin ${state.adminName} gifted everyone $${formatNum(amt)}!`); } else { state.money += amt; showNotification(`Injected $${formatNum(amt)}`, "Admin"); updateUI(); } }
+        function adminGiveLarp(isGlobal) { const id = document.getElementById('admin-larp-select').value; const larp = getAuraData(id); if(isGlobal) { sendGlobalEvent('LARP', {larpId: id}, `${state.adminRole.toUpperCase()} ${state.adminName} gifted everyone ${larp.name}!`); } else { if(!state.inventory.includes(id)) state.inventory.push(id); showNotification(`Injected ${larp.name}`, "Admin"); updateUI(); } }
         function adminGiveAllLarps() { if (state.adminRole === 'mod') return; state.inventory = LARPS.map(l => l.id); showNotification(`Unlocked all Larps!`, "Admin"); updateUI(); }
         function adminGiveRebirths() { const amt = parseInt(document.getElementById('admin-rebirth-input').value); if(isNaN(amt) || amt <= 0) return; state.rebirths += amt; showNotification(`Injected ${amt} Rebirths`, "Admin"); updateUI(); }
         
@@ -924,16 +1305,40 @@
         }
         function adminExecuteFruit() {
             const id = document.getElementById('admin-target-larp-select').value; if(!id) return; const larp = getAuraData(id);
-            if(adminFruitGlobalPending) { if (state.adminRole === 'mod') return; sendGlobalEvent('FRUIT', {larpId: id, amount: adminFruitAmountPending}, `Admin boosted everyone's ${larp.name} by +${adminFruitAmountPending}x!`); } 
+            if(adminFruitGlobalPending) { if (state.adminRole === 'mod') return; sendGlobalEvent('FRUIT', {larpId: id, amount: adminFruitAmountPending}, `Admin ${state.adminName} boosted everyone's ${larp.name} by +${adminFruitAmountPending}x!`); } 
             else { if(!state.fruitBuffs[id]) state.fruitBuffs[id] = 0; state.fruitBuffs[id] += adminFruitAmountPending; showNotification(`Boosted ${larp.name} by +${adminFruitAmountPending}x!`, "Admin"); updateUI(); }
             document.getElementById('admin-fruit-target-modal').style.display = 'none';
         }
-        function simulateGlobalEvent(title, msg) { const a = document.getElementById('notification-area'); const el = document.createElement('div'); el.className = `toast global-event`; el.innerHTML = `<strong>${title}</strong><br><span style="font-size: 0.9rem;">${msg}</span>`; a.appendChild(el); setTimeout(() => el.remove(), 5500); }
-        function adminTriggerFrenzy() { if (state.adminRole === 'mod') return; const secs = parseInt(document.getElementById('admin-frenzy-input').value) || 30; sendGlobalEvent('FRENZY', {duration: secs}, `Admin enabled ZERO COOLDOWNS for ${secs} seconds! Mash to earn!`); }
-        function adminTriggerBuff() { if (state.adminRole === 'mod') return; const mult = parseFloat(document.getElementById('admin-buff-mult-input').value) || 2; const mins = parseInt(document.getElementById('admin-buff-time-input').value) || 10; sendGlobalEvent('BUFF', {mult, duration: mins}, `Admin enabled a ${mult}x Income Buff for ${mins} minutes!`); }
-        function adminForceCrateDrop() { if (state.adminRole === 'mod') return; const crateId = document.getElementById('admin-crate-select').value; sendGlobalEvent('CRATE', {crateId}, `Admin gifted a free ${crateId.replace('_', ' ')} roll!`); }
+
+        function adminTriggerFrenzy() { if (state.adminRole === 'mod') return; const secs = parseInt(document.getElementById('admin-frenzy-input').value) || 30; sendGlobalEvent('FRENZY', {duration: secs}, `Admin ${state.adminName} enabled ZERO COOLDOWNS for ${secs} seconds! Mash to earn!`); }
+        function adminTriggerBuff() { if (state.adminRole === 'mod') return; const mult = parseFloat(document.getElementById('admin-buff-mult-input').value) || 2; const mins = parseInt(document.getElementById('admin-buff-time-input').value) || 10; sendGlobalEvent('BUFF', {mult, duration: mins}, `Admin ${state.adminName} enabled a ${mult}x Income Buff for ${mins} minutes!`); }
+        function adminTriggerLuck() { const mult = parseFloat(document.getElementById('admin-luck-mult-input').value) || 2; const mins = parseInt(document.getElementById('admin-luck-time-input').value) || 10; sendGlobalEvent('LUCK_BUFF', {mult, duration: mins}, `${state.adminRole.toUpperCase()} ${state.adminName} enabled a ${mult}x LUCK Buff for ${mins} minutes!`); }
+        function adminForceCrateDrop() { const crateId = document.getElementById('admin-crate-select').value; const cName = crateId.replace('_', ' ').toUpperCase(); if(state.adminRole === 'mod' && CRATES[crateId].isChest) return; sendGlobalEvent('CRATE', {crateId}, `${state.adminRole.toUpperCase()} ${state.adminName} gifted a free ${cName} roll!`); }
         function adminTriggerJumpscare() { const target = document.getElementById('admin-jump-select').value; sendGlobalEvent('JUMPSCARE', {target}, null); }
-        function adminSpawnBoss() { if (state.adminRole === 'mod') return; const bossId = "BOSS_" + Date.now(); sendGlobalEvent('SPAWN_BOSS', { name: 'REAL FAN', hp: 5000000000, bossId: bossId }, "A GLOBAL BOSS HAS APPEARED!"); }
+
+        function adminRunLottery() {
+            if(state.adminRole === 'mod') return;
+            lotteryActive = true; lotteryPool = [];
+            sendGlobalEvent('PING_LOTTERY', {}, null);
+            document.getElementById('btn-run-lottery').innerText = "Selecting...";
+            setTimeout(() => {
+                lotteryActive = false;
+                document.getElementById('btn-run-lottery').innerText = "Run Lottery";
+                if(lotteryPool.length > 0) {
+                    const winner = lotteryPool[Math.floor(Math.random() * lotteryPool.length)];
+                    sendGlobalEvent('WIN_LOTTERY', {winnerId: winner}, `Admin ${state.adminName} ran the Lottery! A random active player just won $1 Trillion!`);
+                } else showNotification("Lottery Failed: No players active.", "Common");
+            }, 3000);
+        }
+
+        function adminSpawnCustomBoss() {
+            if (state.adminRole === 'mod') return;
+            let bossName = document.getElementById('admin-boss-name').value.trim() || "REAL FAN";
+            let bossHp = parseInt(document.getElementById('admin-boss-hp').value);
+            if (isNaN(bossHp) || bossHp <= 0) bossHp = 5000000000;
+            const bossId = "BOSS_" + Date.now();
+            sendGlobalEvent('SPAWN_BOSS', { name: bossName, hp: bossHp, bossId: bossId }, `A GLOBAL BOSS HAS APPEARED: ${bossName}!`);
+        }
 
         function startBossFight(hp, name, bossId) {
             activeBoss = { id: bossId, hp: hp, maxHp: hp, name: name }; document.getElementById('boss-name-display').innerText = name; document.getElementById('boss-overlay').style.display = 'flex'; if(isLarping) endLarp(); updateBossUI();
@@ -943,8 +1348,11 @@
         function updateBossUI() { if (!activeBoss) return; const pct = Math.max(0, (activeBoss.hp / activeBoss.maxHp) * 100); document.getElementById('boss-hp-bar').style.width = `${pct}%`; document.getElementById('boss-hp-text').innerText = `${formatNum(Math.max(0, activeBoss.hp))} / ${formatNum(activeBoss.maxHp)}`; if (activeBoss.hp <= 0) winBossFight(); }
         function winBossFight() { if(!activeBoss) return; clearInterval(bossSyncInterval); activeBoss = null; pendingBossDamage = 0; document.getElementById('boss-overlay').style.display = 'none'; state.money += 1000000000; simulateGlobalEvent("BOSS DEFEATED!", "Everyone gets $1 Billion and a God Crate roll!"); updateUI(); setTimeout(() => { rollCrate('god', true); }, 1500); }
 
-        function getRebirthMult() { return 1 + (state.rebirths * 0.2); }
-        function getLuckMult() { return 1 + (state.rebirths * 0.05); }
+        function getRebirthMult() { 
+            const rate = state.chestUnlocked ? 1.5 : 0.2;
+            return 1 + (state.rebirths * rate); 
+        }
+        function getLuckMult() { return (1 + (state.rebirths * 0.05)) * serverLuckMult; }
         function getAuraData(id) { return LARPS.find(l => l.id === id) || LARPS[0]; }
         function getLarpTotalMult(id) { const base = getAuraData(id).mult; const buff = state.fruitBuffs[id] || 0; return base + buff; }
         function getTickPower() { return Math.floor(state.multLvl * getLarpTotalMult(state.currentLarp) * getRebirthMult() * serverBuffMult); }
@@ -956,7 +1364,19 @@
             if(type === 'cool') return Math.floor(BASE_COSTS.cool * Math.pow(2.0, state.coolLvl - 1));
             if(type === 'rebirth') return Math.floor(BASE_COSTS.rebirth * Math.pow(1.5, state.rebirths));
         }
-        function handleMainInteraction(e) { e.preventDefault(); if(!activeBoss && (!isLarping && !onCooldown || isFrenzy)) { if(!isFrenzy) startLarp(); } }
+
+        function startAutoTapper() {
+            if(autoTapperInterval) return;
+            autoTapperInterval = setInterval(() => { if(!activeBoss && !isLarping && !onCooldown) { mainBtn.style.transform = 'scale(0.95)'; setTimeout(() => mainBtn.style.transform = '', 100); startLarp(); } }, 3000);
+        }
+
+        function buyAutoTapper() {
+            if(state.money >= 70000000000 && !state.autoTapperOwned) {
+                state.money -= 70000000000; state.autoTapperOwned = true; showNotification("Auto-Tapper Activated!", "Epic"); startAutoTapper(); updateUI();
+            }
+        }
+
+        function handleMainInteraction(e) { e.preventDefault(); if(!activeBoss && (!isLarping && !onCooldown || isFrenzy)) { if(!isFrenzy) startLarp(); else if (isFrenzy) { mainBtn.style.transform = 'scale(0.95)'; setTimeout(() => mainBtn.style.transform = '', 100); startLarp(); } } }
 
         function playAudioSafely() {
             if (isMuted || isFrenzy) return;
@@ -994,10 +1414,10 @@
             const c = getCost('rebirth');
             if(state.money >= c) {
                 state.money = 0; state.multLvl = 1; state.durLvl = 1; state.coolLvl = 1; state.rebirths++;
-                if (state.rebirths >= 50) {
+                if (state.rebirths >= 50 && !state.chestUnlocked) {
                     state.chestUnlocked = true; state.rebirths = 0; state.inventory = ['excuse_me']; state.currentLarp = 'excuse_me';
                     state.fruitBuffs = {}; state.fruitFeeds = {}; state.multLvl = 1; state.durLvl = 1; state.coolLvl = 1;
-                    showNotification("MEGA REBIRTH! Everything wiped, Chests Unlocked!", "Divine");
+                    showNotification("MEGA REBIRTH! Chests & +150% Scaling Unlocked!", "Divine");
                 } else showNotification(`Rebirth #${state.rebirths} Achieved! 🎉`, 'Mythic');
                 if(isLarping) endLarp(); if(onCooldown) endCooldown(); closeRebirthModal(); updateUI();
             }
@@ -1014,8 +1434,8 @@
         function buildOddsTable() {
             const c = document.getElementById('odds-table-container'); c.innerHTML = "";
             for(const [crateKey, crateData] of Object.entries(CRATES)) {
-                if(crateData.isChest) continue; // Hide chests from basic modal
-                let html = `<div style="margin-top: 15px; font-weight: bold; text-transform: uppercase;">${crateKey.replace('_', ' ')} CRATE</div>`;
+                if(crateData.isChest || crateKey === 'jayce_crate') continue; 
+                let html = `<div style="margin-top: 15px; font-weight: bold; text-transform: uppercase;">${crateKey.replace('_', ' ')}</div>`;
                 html += `<table class="odds-table"><tr><th>Rarity</th><th>Chance</th></tr>`;
                 if (crateKey === 'all_or_nothing') { html += `<tr><td class="rarity-Legendary">Legendary (Homelander Stare)</td><td>90.0%</td></tr><tr><td class="rarity-Divine">Divine (The Peak)</td><td>10.0%</td></tr>`; } 
                 else { let totalW = 0; for(const w of Object.values(crateData.weights)) totalW += w; for(const [r, w] of Object.entries(crateData.weights)) { html += `<tr><td class="rarity-${r}">${r}</td><td>${(w/totalW*100).toFixed(1)}%</td></tr>`; } }
@@ -1058,15 +1478,32 @@
                 if (rand <= 0.0001) won = LARPS.find(l => l.id === 'cass');
                 else {
                     const selRarity = rand <= 20 ? 'Divine' : 'Cosmic';
-                    const possibleLarps = LARPS.filter(l => l.rarity === selRarity);
+                    const possibleLarps = LARPS.filter(l => l.rarity === selRarity && !l.exclusive);
                     won = possibleLarps[Math.floor(Math.random() * possibleLarps.length)];
                 }
             } else {
                 const luck = getLuckMult(); let totalW = 0; let adjW = {};
-                for(const [r, w] of Object.entries(crateData.weights)) { let fw = (r === crateData.pool[0]) ? w : w * luck; adjW[r] = fw; totalW += fw; }
-                let rand = Math.random() * totalW; let selRarity = crateData.pool[0];
+                if (type === 'everything_chest') {
+                    const eWeights = { 'Common': 400, 'Uncommon': 300, 'Rare': 150, 'Epic': 80, 'Legendary': 40, 'Mythic': 20, 'Cosmic': 8, 'Divine': 2 };
+                    for(const [r, w] of Object.entries(eWeights)) { let fw = (r === 'Common') ? w : w * luck; adjW[r] = fw; totalW += fw; }
+                } else {
+                    for(const [r, w] of Object.entries(crateData.weights)) { let fw = (r === crateData.pool[0]) ? w : w * luck; adjW[r] = fw; totalW += fw; }
+                }
+                
+                let rand = Math.random() * totalW; let selRarity = type === 'everything_chest' ? 'Common' : crateData.pool[0];
                 for(const [r, w] of Object.entries(adjW)) { rand -= w; if(rand <= 0){ selRarity = r; break; } }
-                const possibleLarps = LARPS.filter(l => l.rarity === selRarity && l.rarity !== 'Admin' && (!l.chestExclusive || crateData.isChest)); 
+                
+                let possibleLarps = LARPS.filter(l => l.rarity === selRarity && l.rarity !== 'Admin');
+                
+                if (type === 'everything_chest') {
+                } else if (crateData.themeOnly) { possibleLarps = possibleLarps.filter(l => l.theme === crateData.themeOnly); } 
+                else if (crateData.exclusiveTags) { possibleLarps = possibleLarps.filter(l => !l.exclusive || crateData.exclusiveTags.includes(l.exclusive)); } 
+                else {
+                    if(crateData.isChest) possibleLarps = possibleLarps.filter(l => !l.exclusive);
+                    else possibleLarps = possibleLarps.filter(l => !l.chestExclusive && !l.exclusive);
+                }
+                
+                if (possibleLarps.length === 0) possibleLarps = LARPS.filter(l => l.rarity === 'Common');
                 won = possibleLarps[Math.floor(Math.random() * possibleLarps.length)];
             }
             won._rolledFromCost = crateData.cost; return won;
@@ -1083,6 +1520,7 @@
         }
 
         function closeCrateModal() { document.getElementById('crate-modal').style.display = 'none'; }
+        
         function startShopTimer() { updateShopUI(); shopTimerInterval = setInterval(() => { const now = new Date(); const min = now.getMinutes(); const sec = now.getSeconds(); const nextMin = Math.ceil((min + 1) / 10) * 10; let minsLeft = nextMin - min - 1; if(minsLeft < 0) minsLeft += 10; let secsLeft = 59 - sec; document.getElementById('fruit-timer').innerText = `${minsLeft.toString().padStart(2, '0')}:${secsLeft.toString().padStart(2, '0')}`; if(minsLeft === 9 && secsLeft === 59) updateShopUI(); }, 1000); }
         
         function updateShopUI() {
@@ -1101,7 +1539,7 @@
             
             const larpList = document.getElementById('shop-larps-list');
             larpList.innerHTML = '';
-            const validLarps = LARPS.filter(l => l.rarity !== 'Common' && l.rarity !== 'Admin' && !l.chestExclusive);
+            const validLarps = LARPS.filter(l => l.rarity !== 'Common' && l.rarity !== 'Admin' && l.rarity !== 'Exclusive' && !l.chestExclusive && !l.exclusive);
             
             for(let i=0; i<2; i++) {
                 const larp = validLarps[(epoch * 3 + i * 11) % validLarps.length];
@@ -1123,7 +1561,7 @@
 
         function buyFruit(fruitId) { const targetId = document.getElementById('fruit-target-select').value; if(!targetId) return; const currentFeeds = state.fruitFeeds[targetId] || 0; if(currentFeeds >= 5) { showNotification(`${getAuraData(targetId).name} is full! (Max 5)`, "Mythic"); return; } const fruit = FRUITS.find(f => f.id === fruitId); if(state.money >= fruit.cost) { state.money -= fruit.cost; if(!state.fruitBuffs[targetId]) state.fruitBuffs[targetId] = 0; state.fruitBuffs[targetId] += fruit.boost; state.fruitFeeds[targetId] = currentFeeds + 1; showNotification(`Fed ${fruit.name}!`, "Rare"); updateUI(); } }
         function buyLarp(id, cost) { if(state.money >= cost && !state.inventory.includes(id)) { state.money -= cost; state.inventory.push(id); const l = getAuraData(id); showNotification(`Purchased ${l.name}!`, l.rarity); updateUI(); } }
-        function updateCraftingUI() { const list = document.getElementById('crafting-list'); list.innerHTML = ''; RECIPES.forEach(r => { const resultLarp = getAuraData(r.result); let missingCount = 0; let reqHtml = r.reqs.map(reqId => { const l = getAuraData(reqId); const has = state.inventory.includes(reqId); if(!has) missingCount++; return `<div class="${has ? 'req-met' : 'req-missing'}">${l.emoji} ${l.name} ${has ? '✔️' : '❌'}</div>`; }).join(''); const el = document.createElement('div'); el.className = 'shop-item'; el.style.borderColor = `var(--${resultLarp.rarity.toLowerCase()})`; el.innerHTML = `<div class="shop-header"><span class="shop-title rarity-${resultLarp.rarity}">${resultLarp.emoji} ${r.name}</span><span class="shop-level">Requires ${r.reqs.length}</span></div><div class="recipe-box">${reqHtml}</div><button class="action-btn" style="background: var(--${resultLarp.rarity.toLowerCase()}); color: ${resultLarp.rarity==='Cosmic'||resultLarp.rarity==='Divine'?'black':'white'};" ${missingCount > 0 ? 'disabled' : ''} onclick="craftLarp('${r.id}')">Forge ${resultLarp.name}</button>`; list.appendChild(el); }); }
+        function updateCraftingUI() { const list = document.getElementById('crafting-list'); list.innerHTML = ''; RECIPES.forEach(r => { const resultLarp = getAuraData(r.result); let missingCount = 0; let reqHtml = r.reqs.map(reqId => { const l = getAuraData(reqId); const has = state.inventory.includes(reqId); if(!has) missingCount++; return `<div class="${has ? 'req-met' : 'req-missing'}">${l.emoji} ${l.name} ${has ? '✔️' : '❌'}</div>`; }).join(''); const el = document.createElement('div'); el.className = 'shop-item'; el.style.borderColor = `var(--${resultLarp.rarity.toLowerCase()})`; el.innerHTML = `<div class="shop-header"><span class="shop-title rarity-${resultLarp.rarity}">${resultLarp.emoji} ${r.name}</span><span class="shop-level">Requires ${r.reqs.length}</span></div><div class="recipe-box">${reqHtml}</div><button class="action-btn" style="background: var(--${resultLarp.rarity.toLowerCase()}); color: ${resultLarp.rarity==='Cosmic'||resultLarp.rarity==='Divine'||resultLarp.rarity==='Exclusive'?'black':'white'};" ${missingCount > 0 ? 'disabled' : ''} onclick="craftLarp('${r.id}')">Forge ${resultLarp.name}</button>`; list.appendChild(el); }); }
         function craftLarp(recipeId) { const r = RECIPES.find(x => x.id === recipeId); if(r.reqs.some(req => !state.inventory.includes(req))) return; state.inventory = state.inventory.filter(id => !r.reqs.includes(id)); if(!state.inventory.includes(state.currentLarp)) { state.currentLarp = state.inventory.length > 0 ? state.inventory[0] : 'excuse_me'; if(!state.inventory.includes('excuse_me') && state.inventory.length === 0) state.inventory.push('excuse_me'); } if(!state.inventory.includes(r.result)) state.inventory.push(r.result); const won = getAuraData(r.result); showNotification(`Forged: ${won.name}!`, won.rarity); updateUI(); }
         function equipLarp(id) { state.currentLarp = id; updateAudioSource(); window.lastRenderedLarp = null; updateUI(); }
         function equipBestLarp() { if(state.inventory.length === 0) return; let bestId = state.inventory[0]; let maxMult = getLarpTotalMult(bestId); for(let i=1; i<state.inventory.length; i++) { const mult = getLarpTotalMult(state.inventory[i]); if(mult > maxMult) { maxMult = mult; bestId = state.inventory[i]; } } if(state.currentLarp !== bestId) { equipLarp(bestId); showNotification(`Equipped Best`, "Legendary"); } else showNotification(`Already best!`, "Common"); }
@@ -1135,6 +1573,12 @@
             document.getElementById('rebirth-display').innerText = state.rebirths;
             document.getElementById('rebirth-boost-display').innerText = `+${Math.floor((getRebirthMult()-1)*100)}% Money | +${Math.floor((getLuckMult()-1)*100)}% Luck`;
 
+            if (state.chestUnlocked) {
+                document.getElementById('rebirth-desc-text').innerHTML = `Reset money/upgrades for <b>+150% income</b> & +5% luck forever.<br><span style="color:var(--divine);">MEGA REBIRTH ACTIVE!</span>`;
+                document.getElementById('rebirth-modal-desc').innerText = `Are you sure? You will lose your money and upgrades, but permanently gain +150% Income Multiplier and +5% Luck Multiplier!`;
+                document.getElementById('rebirth-modal-warn').style.display = 'none';
+            }
+
             const mC = getCost('mult'); const dC = getCost('dur'); const cC = getCost('cool'); const rC = getCost('rebirth');
             document.getElementById('mult-level').innerText = `Lvl ${state.multLvl}`; document.getElementById('dur-level').innerText = `${getDur()}s`; document.getElementById('cool-level').innerText = state.coolLvl >= 13 ? 'MAX' : `${getCool()}s`;
             document.getElementById('cost-mult').innerText = formatNum(mC); document.getElementById('cost-dur').innerText = formatNum(dC); document.getElementById('cost-cool').innerText = state.coolLvl >= 13 ? '---' : formatNum(cC); document.getElementById('cost-rebirth').innerText = formatNum(rC);
@@ -1143,11 +1587,23 @@
             
             const autoBtn = document.getElementById('btn-upg-auto'); if(state.autoTapperOwned) { autoBtn.innerText = "Owned"; autoBtn.disabled = true; document.getElementById('auto-tap-level').innerText = "Max"; } else { autoBtn.disabled = state.money < 70000000000; }
 
-            document.getElementById('btn-crate-std').disabled = state.money < CRATES['standard'].cost || rollingCrate; document.getElementById('btn-crate-prm').disabled = state.money < CRATES['premium'].cost || rollingCrate; document.getElementById('btn-crate-myth').disabled = state.money < CRATES['mythic'].cost || rollingCrate; document.getElementById('btn-crate-asc').disabled = state.money < CRATES['ascension'].cost || rollingCrate; document.getElementById('btn-crate-aon').disabled = state.money < CRATES['all_or_nothing'].cost || rollingCrate; document.getElementById('btn-crate-god').disabled = state.money < CRATES['god'].cost || rollingCrate;
+            document.getElementById('btn-crate-std').disabled = state.money < CRATES['standard'].cost || rollingCrate; 
+            document.getElementById('btn-crate-prm').disabled = state.money < CRATES['premium'].cost || rollingCrate; 
+            document.getElementById('btn-crate-anime').disabled = state.money < CRATES['anime_crate'].cost || rollingCrate;
+            document.getElementById('btn-crate-vought').disabled = state.money < CRATES['vought_crate'].cost || rollingCrate;
+            document.getElementById('btn-crate-marvel').disabled = state.money < CRATES['marvel_crate'].cost || rollingCrate;
+            document.getElementById('btn-crate-verity').disabled = state.money < CRATES['verity_crate'].cost || rollingCrate;
+            document.getElementById('btn-crate-myth').disabled = state.money < CRATES['mythic'].cost || rollingCrate; 
+            document.getElementById('btn-crate-asc').disabled = state.money < CRATES['ascension'].cost || rollingCrate; 
+            document.getElementById('btn-crate-aon').disabled = state.money < CRATES['all_or_nothing'].cost || rollingCrate; 
+            document.getElementById('btn-crate-hallow').disabled = state.money < CRATES['halloween_crate'].cost || rollingCrate;
+            document.getElementById('btn-crate-god').disabled = state.money < CRATES['god'].cost || rollingCrate;
 
             document.getElementById('tab-btn-chests').style.display = state.chestUnlocked ? 'block' : 'none';
-            document.getElementById('btn-chest-basic').disabled = state.money < 50000000000 || rollingCrate;
-            document.getElementById('btn-chest-cass').disabled = state.money < 100000000000 || rollingCrate;
+            document.getElementById('btn-chest-everything').disabled = state.money < CRATES['everything_chest'].cost || rollingCrate;
+            document.getElementById('btn-chest-verity').disabled = state.money < CRATES['verity_chest'].cost || rollingCrate;
+            document.getElementById('btn-chest-basic').disabled = state.money < CRATES['basic_chest'].cost || rollingCrate;
+            document.getElementById('btn-chest-cass').disabled = state.money < CRATES['castiel_chest'].cost || rollingCrate;
 
             document.getElementById('quest-taps-prog').innerText = `${Math.min(25, state.quests.taps)}/25`; document.getElementById('quest-crates-prog').innerText = `${Math.min(5, state.quests.crates)}/5`; document.getElementById('quest-mult-prog').innerText = `${getLarpTotalMult(state.currentLarp) >= 500 ? 1 : 0}/1`;
             const dailyClaimBtn = document.getElementById('btn-claim-daily'); if(state.quests.claimed) { dailyClaimBtn.innerText = "Claimed!"; dailyClaimBtn.disabled = true; } else { dailyClaimBtn.disabled = !(state.quests.taps >= 25 && state.quests.crates >= 5 && getLarpTotalMult(state.currentLarp) >= 500); }
@@ -1158,8 +1614,14 @@
             document.getElementById('emote-mult').innerHTML = `${totalMult}x Multiplier <br> <span style="font-size:0.7rem; color:#888;">(Base: ${data.mult}x | Fruit: +${buff}x | Fed: ${feeds}/5)</span>`;
             
             const mainBtnBg = document.getElementById('btn-gif-bg');
-            if (window.lastRenderedLarp !== state.currentLarp) { window.lastRenderedLarp = state.currentLarp; document.getElementById('emote-icon').innerText = data.emoji; mainBtnBg.innerHTML = data.tenorHtml ? data.tenorHtml : DEF_TENOR; mainBtnBg.style.setProperty('--gif-scale', data.gifScale || 1.4); let oldScript = document.getElementById('tenor-embed-script'); if (oldScript) oldScript.remove(); const s = document.createElement('script'); s.id = 'tenor-embed-script'; s.src = "https://tenor.com/embed.js"; document.body.appendChild(s); }
-            const c = getComputedStyle(document.body).getPropertyValue(`--${data.rarity.toLowerCase()}`).trim(); profArea.style.borderColor = c; profArea.style.boxShadow = (data.rarity === 'Mythic' || data.rarity === 'Cosmic' || data.rarity === 'Divine' || data.rarity === 'Admin') ? `0 0 15px ${c} inset` : 'none';
+            if (window.lastRenderedLarp !== state.currentLarp) { 
+                window.lastRenderedLarp = state.currentLarp; document.getElementById('emote-icon').innerText = data.emoji; 
+                mainBtnBg.innerHTML = data.tenorHtml ? data.tenorHtml : DEF_TENOR; 
+                mainBtnBg.style.setProperty('--gif-scale', data.gifScale || 1.4); 
+                mainBtnBg.style.setProperty('--gif-translate-x', data.translateX || '0%');
+                let oldScript = document.getElementById('tenor-embed-script'); if (oldScript) oldScript.remove(); const s = document.createElement('script'); s.id = 'tenor-embed-script'; s.src = "https://tenor.com/embed.js"; document.body.appendChild(s); 
+            }
+            const c = getComputedStyle(document.body).getPropertyValue(`--${data.rarity.toLowerCase()}`).trim(); profArea.style.borderColor = c; profArea.style.boxShadow = (data.rarity === 'Mythic' || data.rarity === 'Cosmic' || data.rarity === 'Divine' || data.rarity === 'Exclusive' || data.rarity === 'Admin') ? `0 0 15px ${c} inset` : 'none';
 
             const inv = document.getElementById('inventory-list'); const targetSelect = document.getElementById('fruit-target-select'); inv.innerHTML = ''; targetSelect.innerHTML = '';
             const sortedInv = [...state.inventory].sort((a,b) => getLarpTotalMult(b) - getLarpTotalMult(a));
@@ -1167,7 +1629,7 @@
                 const obj = getAuraData(id);
                 if(obj) {
                     const b = document.createElement('button'); b.style.padding = '10px 15px'; b.style.background = state.currentLarp === id ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.5)'; b.style.border = `1px solid var(--${obj.rarity.toLowerCase()})`; b.style.borderRadius = '6px'; b.style.color = 'white'; b.style.cursor = 'pointer'; b.style.display = 'flex'; b.style.alignItems = 'center'; b.style.gap = '12px'; b.style.width = '100%';
-                    const tMult = getLarpTotalMult(id); const feeds = state.fruitFeeds[id] || 0; const icon = (obj.rarity === 'Cosmic' || obj.rarity === 'Divine' || obj.rarity === 'Admin') ? '🌌' : obj.emoji;
+                    const tMult = getLarpTotalMult(id); const feeds = state.fruitFeeds[id] || 0; const icon = (obj.rarity === 'Cosmic' || obj.rarity === 'Divine' || obj.rarity === 'Exclusive' || obj.rarity === 'Admin') ? '🌌' : obj.emoji;
                     b.innerHTML = `<span style="font-size: 1.5rem;">${icon}</span> <span style="flex-grow: 1; text-align: left; font-size: 1.05rem; font-weight: bold;">${obj.name}</span> <span style="color: var(--accent); font-size: 0.95rem;">${tMult}x</span>`;
                     b.onclick = () => equipLarp(id); inv.appendChild(b);
                     const opt = document.createElement('option'); opt.value = id; opt.innerText = `${obj.name} (${tMult}x) [${feeds}/5 Fruits]`; if(id === state.currentLarp) opt.selected = true; if(feeds >= 5) { opt.disabled = true; opt.innerText += " (MAX)"; } targetSelect.appendChild(opt);
@@ -1185,16 +1647,8 @@
 
         function switchTab(t) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); event.target.classList.add('active'); document.getElementById(`tab-${t}`).classList.add('active'); }
         function formatNum(n) { if(n < 10000) return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); if(n < 1e6) return (n/1e3).toFixed(1) + 'K'; if(n < 1e9) return (n/1e6).toFixed(2) + 'M'; if(n < 1e12) return (n/1e9).toFixed(2) + 'B'; return (n/1e12).toFixed(2) + 'T'; }
-        
-        function showNotification(m, r='Common') {
-            const a = document.getElementById('notification-area');
-            const el = document.createElement('div'); el.className = `toast`;
-            const c = getComputedStyle(document.body).getPropertyValue(`--${r.toLowerCase()}`).trim() || '#fff';
-            el.style.border = `1px solid ${c}`;
-            el.style.boxShadow = `0 5px 15px rgba(0,0,0,0.5), 0 0 10px ${c}40 inset`;
-            el.innerHTML = `<span class="rarity-${r}">${m}</span>`;
-            a.appendChild(el); setTimeout(() => el.remove(), 3500);
-        }
+        function showNotification(m, r='Common') { const a = document.getElementById('notification-area'); const el = document.createElement('div'); el.className = `toast`; const c = getComputedStyle(document.body).getPropertyValue(`--${r.toLowerCase()}`).trim() || '#fff'; el.style.border = `1px solid ${c}`; el.style.boxShadow = `0 5px 15px rgba(0,0,0,0.5), 0 0 10px ${c}40 inset`; el.innerHTML = `<span class="rarity-${r}">${m}</span>`; a.appendChild(el); setTimeout(() => el.remove(), 3500); }
+        function simulateGlobalEvent(title, msg) { const a = document.getElementById('notification-area'); const el = document.createElement('div'); el.className = `toast global-event`; el.innerHTML = `<strong>${title}</strong><br><span style="font-size: 0.9rem;">${msg}</span>`; a.appendChild(el); setTimeout(() => el.remove(), 5500); }
 
         window.onload = init;
     </script>
